@@ -1,0 +1,15 @@
+# Query
+type Query  {
+    allActivity:[Activity]
+
+}
+
+
+# Activity Query
+
+
+#mutation
+
+type  Mutation{
+
+}

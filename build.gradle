@@ -25,7 +25,8 @@ dependencies {
 	implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.4.1.Final'
 	implementation 'org.hibernate:hibernate-jpamodelgen:5.4.25.Final'
 	implementation 'org.hibernate:hibernate-jpamodelgen:5.4.25.Final'
-
+    implementation("com.graphql-java-kickstart:graphql-spring-boot-starter:5.10.0")
+	implementation("com.graphql-java-kickstart:playground-spring-boot-starter:5.10.0")
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'mysql:mysql-connector-java'

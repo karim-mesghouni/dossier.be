@@ -1,0 +1,8 @@
+type VisAVis {
+     id:ID
+     name:String
+     email:String
+     phone:String
+     client:Client
+     lockingAddress:BlockingLockingAddress
+}

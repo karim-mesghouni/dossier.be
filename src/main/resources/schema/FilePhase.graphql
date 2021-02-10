@@ -1,0 +1,7 @@
+type FilePhase {
+    id:ID
+     current:Boolean
+    fileActivity:FileActivity
+    Return:[Return]
+   filePhaseAgents:[FilePhaseAgent]
+}

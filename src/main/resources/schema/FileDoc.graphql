@@ -1,0 +1,5 @@
+type FileDoc {
+     id: ID
+     path:String
+     file:File
+}

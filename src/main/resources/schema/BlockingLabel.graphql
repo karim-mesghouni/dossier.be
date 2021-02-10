@@ -1,0 +1,8 @@
+type  Query{
+    allBlockingLabel :[ BlockingLabel]
+}
+
+type BlockingLabel  {
+    id: ID
+    blocking:[Blocking]
+}

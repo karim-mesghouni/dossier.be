@@ -1,0 +1,12 @@
+type File  {
+     id: ID
+     project: String
+     attributionDate:String
+     returnDeadline:String
+     provisionalDeliveryDate:String
+     deliveryDate:String
+     CEM:String
+     client:Client
+     commune:Commune
+     fileDoc:[FileDoc]
+}

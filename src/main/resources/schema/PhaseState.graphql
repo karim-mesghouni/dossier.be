@@ -1,0 +1,8 @@
+type PhaseState {
+     id:ID
+     state:String
+     initial:Boolean
+     Final:Boolean
+     phase:Phase
+     filePhaseStates:[FilePhaseState]
+}

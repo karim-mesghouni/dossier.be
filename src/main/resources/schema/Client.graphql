@@ -1,0 +1,9 @@
+type  Query{
+    allClient :[ Client]
+}
+type Client {
+     id: ID
+
+    files: [File]
+    visAVis:[VisAVis]
+}

@@ -1,0 +1,9 @@
+
+type Activity {
+        id: ID
+        name:String
+        description:String
+        fields:[ActivityField]
+        fileActivities:[FileActivity]
+        phases: [Phase]
+}

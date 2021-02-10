@@ -1,0 +1,14 @@
+type  Query{
+    allBlocking :[ Blocking]
+}
+type  Blocking {
+    id: ID
+
+     state: FilePhaseState
+
+     lockingAddress: BlockingLockingAddress
+
+     qualification:BlockingQualification
+
+     label: BlockingLabel
+}

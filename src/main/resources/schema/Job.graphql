@@ -1,0 +1,6 @@
+type Job {
+    id:ID
+     name:String
+    description:String
+     phase:Phase
+}

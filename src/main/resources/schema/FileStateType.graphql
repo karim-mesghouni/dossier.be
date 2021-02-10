@@ -1,0 +1,4 @@
+type FileStateType  {
+    id:ID
+    state:String
+}

@@ -1,0 +1,7 @@
+type  FilePhaseState {
+     id:ID
+     current:Boolean
+     phaseAgents:[FilePhaseAgent]
+     state:PhaseState
+     blockings:[Blocking]
+}

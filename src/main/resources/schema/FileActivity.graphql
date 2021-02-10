@@ -1,0 +1,7 @@
+type FileActivity{
+
+     activity:Activity
+     dataFields:[ActivityDataField]
+     repises:[Reprise]
+     filePhases:[FilePhase]
+}

@@ -1,0 +1,10 @@
+type Commune  {
+
+ id:ID
+
+     commune: String
+
+    postalCode: String
+
+     INSEECode:String
+}

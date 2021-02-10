@@ -1,0 +1,6 @@
+type ActivityField {
+     id: ID
+     fieldName:String
+     fieldType: FieldType
+     activity:Activity
+}

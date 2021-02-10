@@ -1,0 +1,4 @@
+type BaseEntity {
+    createdDate:String
+    modifiedDate: String
+}

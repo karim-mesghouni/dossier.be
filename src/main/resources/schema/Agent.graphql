@@ -1,0 +1,8 @@
+type  Query{
+     allAgent:[Agent]
+}
+
+type Agent {
+
+     id:ID
+}

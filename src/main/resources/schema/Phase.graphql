@@ -1,0 +1,8 @@
+type  Phase  {
+    id: ID
+    name:String
+    description:String
+    activity:Activity
+    jobs:[Job]
+    states:[PhaseState]
+}

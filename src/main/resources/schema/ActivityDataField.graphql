@@ -1,0 +1,14 @@
+
+type ActivityDataField {
+     id:ID
+     fieldName:String
+     fieldType: FieldType
+     data: String
+     fileActivity: FileActivity
+}
+enum FieldType
+{
+     String,
+     Number,
+     Date,
+}

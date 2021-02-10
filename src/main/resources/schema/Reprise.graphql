@@ -1,0 +1,9 @@
+type  Reprise{
+     id:ID
+
+     number:Int
+     cause:String
+
+     fileActivity:FileActivity
+
+}
