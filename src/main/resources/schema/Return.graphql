@@ -3,5 +3,10 @@ type Return{
      number:Int
      cause:String
      filePhase:FilePhase
-
+}
+input ReturnIpnut{
+    id:ID
+    number:Int
+    cause:String
+    filePhase:FilePhaseInput
 }

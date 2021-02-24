@@ -7,6 +7,7 @@ import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.List;
 
 @SuperBuilder
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -25,4 +26,15 @@ public class FileState extends  BaseEntity{
     @ManyToOne
     @JoinColumn
     FileStateType type;
+    @ManyToOne
+    @JoinColumn
+    File file;
+    @Transient
+    Activity activity;
+    @Transient
+    List<ActivityDataField> dataFields;
+    @Transient
+    List<Reprise> reprises;
+    @Transient
+    List<FilePhase> filePhases;
 }

@@ -2,3 +2,7 @@ type FileStateType  {
     id:ID
     state:String
 }
+input FileStateTypeInput  {
+    id:ID
+    state:String
+}

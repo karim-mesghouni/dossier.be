@@ -4,3 +4,9 @@ type Job {
     description:String
      phase:Phase
 }
+input JobInput {
+    id:ID
+    name:String
+    description:String
+    phase:PhaseInput
+}

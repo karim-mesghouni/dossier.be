@@ -1,4 +1,4 @@
-package com.softline.dossier.be.gql;
+package com.softline.dossier.be.graphql;
 
 import graphql.ErrorClassification;
 import graphql.GraphQLError;

@@ -25,7 +25,11 @@ public class FilePhase extends BaseEntity{
 
     @OneToMany( mappedBy = Return_.FILE_PHASE)
     List<Return> Return;
-    @OneToMany( mappedBy = FilePhaseAgent_.FILE_PHASE)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = FilePhaseAgent_.FILE_PHASE)
 
     List<FilePhaseAgent> filePhaseAgents;
+
+    @ManyToOne
+    @JoinColumn
+    Phase phase;
 }

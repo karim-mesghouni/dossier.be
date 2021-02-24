@@ -1,19 +1,22 @@
 package com.softline.dossier.be.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 import java.util.*;
-@SuperBuilder
 
+@SuperBuilder
+@AllArgsConstructor
 @Entity
 @Data
 @NoArgsConstructor
 public class File extends BaseEntity {
     @Id
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    long id;
 
     String project;
 
@@ -25,7 +28,7 @@ public class File extends BaseEntity {
 
     Date deliveryDate;
 
-    String CEM;
+    String cem;
 
     @ManyToOne
     @JoinColumn
@@ -34,7 +37,11 @@ public class File extends BaseEntity {
     Commune commune;
 
     @OneToMany(mappedBy = FileDoc_.FILE)
-    List<FileDoc> fileDoc;
+    List<FileDoc> fileDocs;
 
+    @OneToMany(mappedBy = FileState_.FILE, fetch = FetchType.LAZY)
+    List<FileState> fileStates;
+    @OneToMany(mappedBy = Comment_.FILE)
+    List<Comment> comments;
 
 }

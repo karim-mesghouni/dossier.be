@@ -21,6 +21,8 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation group: 'org.javatuples', name: 'javatuples', version: '1.2'
+	implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '1.1.1'
 
 	implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.4.1.Final'
 	implementation 'org.hibernate:hibernate-jpamodelgen:5.4.25.Final'

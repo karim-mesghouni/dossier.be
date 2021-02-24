@@ -1,5 +1,0 @@
-type FileState{
-     id :ID
-     current: Boolean
-     type:FileStateType
-}

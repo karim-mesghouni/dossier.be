@@ -5,10 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @SuperBuilder
 @Entity
@@ -19,4 +17,8 @@ public class Agent extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
+    String name;
+
+    @OneToMany(mappedBy = Comment_.AGENT)
+    List<Comment> comments;
 }

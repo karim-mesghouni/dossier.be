@@ -1,9 +1,14 @@
 type  Reprise{
      id:ID
-
      number:Int
      cause:String
-
      fileActivity:FileActivity
 
 }
+#input RepriseInput{
+ #    id:ID!
+  #   number:Int!
+   #  cause:String!
+    # fileActivity:FileActivityInput!
+
+#}

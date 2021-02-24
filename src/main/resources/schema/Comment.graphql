@@ -1,0 +1,29 @@
+
+# Query
+extend type Query  {
+    allComment:[Comment]
+    comment(id: ID! ):Comment
+}
+
+#mutation
+extend type  Mutation{
+    createComment(input: CommentInput! ):Comment
+    updateComment(input: CommentInput! ):Comment
+    deleteComment(id: ID!): Boolean
+}
+
+
+type Comment {
+    id:ID
+    content:String
+    file:File
+    agent: Agent
+    createdDate: String
+}
+input CommentInput {
+    id:ID
+    content:String
+    file: FileInput
+    agent: AgentInput
+    createdDate:String
+}

@@ -1,3 +1,18 @@
+# Query
+extend type Query  {
+     allFile:[File]
+     file(id: ID! ):File
+     allFilePageFilter(filter: FileFilterInput!):PageList
+     fileHistory(id: ID!):[HistoryDTO]
+}
+
+#mutation
+extend type  Mutation{
+     createFile(input: FileInput! ):File
+     updateFile(input: FileInput! ):File
+     deleteFile(id: Int!): Boolean
+}
+
 type File  {
      id: ID
      project: String
@@ -5,8 +20,51 @@ type File  {
      returnDeadline:String
      provisionalDeliveryDate:String
      deliveryDate:String
-     CEM:String
+     cem:String
      client:Client
      commune:Commune
-     fileDoc:[FileDoc]
+     fileDocs:[FileDoc]
+     fileStates:[FileState]
+}
+input FileInput  {
+     id: ID
+     project: String
+     attributionDate:String
+     returnDeadline:String
+     provisionalDeliveryDate:String
+     deliveryDate:String
+     cem:String
+     client:ClientInput
+     commune:CommuneInput
+     fileDocs:[FileDocIput]
+     fileStates: [FileActivityInput]
+
+}
+input FileFilterInput{
+     pageNumber:Int
+     pageSize:Int
+}
+type PageList{
+     page: [FileDTO]
+     Count: Int
+}
+
+type FileDTO{
+     idFile: Int
+     project:String
+     attributionDate:String
+     returnDeadline:String
+     provisionalDeliveryDate:String
+     deliveryDate:String
+     cem:String
+     activityName:String
+     fileActivityId:Int
+     fileStateId:Int
+}
+type HistoryDTO{
+     id: Int
+     who: String
+     date: String
+     message:String
+     children:[HistoryDTO]
 }

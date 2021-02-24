@@ -6,3 +6,11 @@ type PhaseState {
      phase:Phase
      filePhaseStates:[FilePhaseState]
 }
+input PhaseStateInput {
+     id:ID
+     state:String
+     initial:Boolean
+     Final:Boolean
+     phase:PhaseInput
+     filePhaseStates:[FilePhaseStateInput]
+}

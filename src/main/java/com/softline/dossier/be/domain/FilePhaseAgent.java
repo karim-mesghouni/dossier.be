@@ -4,9 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.util.*;
 
 @SuperBuilder
 @Entity
@@ -17,9 +18,13 @@ public class FilePhaseAgent extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
+    @Temporal(TemporalType.DATE)
     Date toStartDate;
+    @Temporal(TemporalType.DATE)
     Date dueDate;
+    @Temporal(TemporalType.DATE)
     Date startDate;
+    @Temporal(TemporalType.DATE)
     Date endDate;
     boolean current;
 
@@ -30,7 +35,7 @@ public class FilePhaseAgent extends BaseEntity{
     Agent reporter;
     @OneToOne
     Agent assignedTo;
-    @ManyToOne
-    @JoinColumn
-    FilePhaseState filePhaseState;
+
+    @OneToMany(mappedBy = FilePhaseState_.PHASE_AGENT,cascade = CascadeType.ALL)
+    List<FilePhaseState> filePhaseStates;
 }

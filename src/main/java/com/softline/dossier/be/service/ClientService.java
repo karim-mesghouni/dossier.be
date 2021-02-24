@@ -1,44 +1,35 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.domain.Activity;
-import com.softline.dossier.be.domain.ActivityField;
-import com.softline.dossier.be.gql.type.ActivityInput;
-import com.softline.dossier.be.repository.ActivityRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.softline.dossier.be.domain.Client;
+import com.softline.dossier.be.graphql.types.input.ClientInput;
+import com.softline.dossier.be.repository.ClientRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+@Service
+public class ClientService extends IServiceBase<Client, ClientInput, ClientRepository> {
+    @Override
+    public List<Client> getAll() {
+        return  repository.findAll();
+    }
 
-public class ClientService {
-    @Autowired
-    ActivityRepository activityRepository;
-    public List<Activity> getAll(){
-        return  activityRepository.findAll();
+    @Override
+    public Client create(ClientInput clientInput) {
+        return null;
     }
-    public Activity createActivity(ActivityInput activityInput) {
-        Activity activity= Activity.builder()
-                .name(activityInput.getName())
-                .description(activityInput.getDescription())
-                .fields(activityInput.getFields().stream()
-                        .map(x-> ActivityField.builder()
-                                .fieldName(x.getFieldName())
-                                .fieldType(x.getFieldType())
-                                .build())
-                        .collect(Collectors.toList()))
-                .build();
-        activity.getFields().forEach(x->x.setActivity(activity));
-        return  activityRepository.save(activity);
+
+    @Override
+    public Client update(ClientInput clientInput) {
+        return null;
     }
-    public Activity updateActivity(ActivityInput activityInput) {
-        Activity activity =  activityRepository.getOne(activityInput.getId());
-        activity.setName(activityInput.getName());
-        return  activity;
+
+    @Override
+    public boolean delete(long id) {
+        return false;
     }
-    public void deleteActivity(long id) {
-        activityRepository.deleteById(id);
-    }
-    public Activity  getById(long id){
-        return    activityRepository.findById(id).orElseThrow();
+
+    @Override
+    public Client getById(long id) {
+        return null;
     }
 }
-

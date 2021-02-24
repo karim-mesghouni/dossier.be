@@ -1,7 +1,9 @@
-type  Query{
-    allBlockingQualification :[ BlockingQualification]
-}
+
 type BlockingQualification {
     id:ID
     blocking:[Blocking]
+}
+input BlockingQualificationInput {
+    id:ID
+    blocking:[BlockingInput]
 }

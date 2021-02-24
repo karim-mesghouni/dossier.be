@@ -12,3 +12,17 @@ enum FieldType
      Number,
      Date,
 }
+enum FieldTypeInput
+{
+     String,
+     Number,
+     Date,
+}
+
+input ActivityDataFieldInput {
+     id:ID
+     fieldName:String
+     fieldType: FieldTypeInput
+     data: String
+     fileActivity: FileActivityInput
+}

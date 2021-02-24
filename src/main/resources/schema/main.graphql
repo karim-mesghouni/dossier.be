@@ -1,6 +1,5 @@
 # Query
 type Query  {
-    allActivity:[Activity]
 
 }
 

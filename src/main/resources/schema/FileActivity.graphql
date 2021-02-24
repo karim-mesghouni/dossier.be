@@ -1,7 +1,43 @@
-type FileActivity{
+# Query
+extend type Query  {
+     allFileActivity:[FileActivity]
+     FileActivity(id: ID! ):FileActivity
+}
 
+#mutation
+extend type  Mutation{
+     createFileActivity(FileActivity: FileActivityInput! ):FileActivity
+     updateFileActivity(FileActivity: FileActivityInput! ):FileActivity
+     deleteFileActivity(id: Int!):Boolean
+}
+
+type FileActivity implements FileState{
+     id :ID
+     current: Boolean
+     type:FileStateType
+     file: File
      activity:Activity
      dataFields:[ActivityDataField]
-     repises:[Reprise]
+     reprises:[Reprise]
+     filePhases:[FilePhase]
+}
+input FileActivityInput  {
+     id :ID
+     current: Boolean
+     type:FileStateTypeInput
+     file: FileInput
+     activity:ActivityInput
+     dataFields:[ActivityDataFieldInput]
+     #repises:[RepriseInput]
+     filePhases:[FilePhaseInput]
+}
+interface FileState  {
+     id :ID
+     current: Boolean
+     type:FileStateType
+     file: File
+     activity:Activity
+     dataFields:[ActivityDataField]
+     reprises:[Reprise]
      filePhases:[FilePhase]
 }

@@ -24,8 +24,8 @@ public class FileActivity extends  FileState{
     List<ActivityDataField> dataFields;
 
     @OneToMany(mappedBy = Reprise_.FILE_ACTIVITY)
-    List<Reprise> repises;
-    
+    List<Reprise> reprises;
+
     @OneToMany(mappedBy = FilePhase_.FILE_ACTIVITY)
     List<FilePhase> filePhases;
 }

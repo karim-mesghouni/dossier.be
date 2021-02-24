@@ -6,3 +6,11 @@ type  Phase  {
     jobs:[Job]
     states:[PhaseState]
 }
+input  PhaseInput  {
+    id: ID
+    name:String
+    description:String
+    activity:ActivityInput
+    jobs:[JobInput]
+    states:[PhaseStateInput]
+}

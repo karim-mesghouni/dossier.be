@@ -1,8 +1,15 @@
-type  Query{
+# Query
+extend type Query  {
      allAgent:[Agent]
 }
-
 type Agent {
 
      id:ID
+     name:String
 }
+input AgentInput{
+     id:ID
+     name:String
+
+}
+

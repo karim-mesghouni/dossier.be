@@ -1,3 +1,9 @@
+# Query
+extend type Query  {
+    allCommune:[Commune]
+}
+
+
 type Commune  {
 
  id:ID
@@ -7,4 +13,14 @@ type Commune  {
     postalCode: String
 
      INSEECode:String
+}
+input CommuneInput  {
+
+    id:ID
+
+    commune: String
+
+    postalCode: String
+
+    INSEECode:String
 }

@@ -10,4 +10,6 @@ import java.util.*;
 
 public interface ActivityFieldRepository extends JpaRepository<ActivityField,Long> {
 
+
+    List<ActivityField> getActivityFieldByActivity_Id(long activityId);
 }

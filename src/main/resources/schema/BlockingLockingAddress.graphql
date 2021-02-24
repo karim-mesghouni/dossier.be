@@ -1,8 +1,11 @@
-type  Query{
-    allBlockingLockingAddress :[ BlockingLockingAddress]
-}
+
 type BlockingLockingAddress {
     id:ID
     blocking:[Blocking]
     visAVis:[VisAVis]
+}
+input BlockingLockingAddressInput {
+    id:ID
+    blocking:[BlockingInput]
+    visAVis:[VisAVisInput]
 }

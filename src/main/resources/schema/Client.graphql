@@ -1,9 +1,18 @@
-type  Query{
-    allClient :[ Client]
+# Query
+extend type Query  {
+    allClient:[Client]
 }
+
 type Client {
      id: ID
+    name: String
 
     files: [File]
     visAVis:[VisAVis]
+}
+input ClientInput {
+    id: ID
+    name: String
+    files: [FileInput]
+    visAVis:[VisAVisInput]
 }

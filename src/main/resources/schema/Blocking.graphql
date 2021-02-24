@@ -1,6 +1,4 @@
-type  Query{
-    allBlocking :[ Blocking]
-}
+
 type  Blocking {
     id: ID
 
@@ -11,4 +9,12 @@ type  Blocking {
      qualification:BlockingQualification
 
      label: BlockingLabel
+}
+
+input  BlockingInput {
+    id: ID
+    state: FilePhaseStateInput
+    lockingAddress: BlockingLockingAddressInput
+    qualification:BlockingQualificationInput
+    label: BlockingLabelInput
 }

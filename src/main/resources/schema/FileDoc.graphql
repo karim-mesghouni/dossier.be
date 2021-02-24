@@ -3,3 +3,8 @@ type FileDoc {
      path:String
      file:File
 }
+input FileDocIput {
+     id: ID
+     path:String
+     file:FileInput
+}

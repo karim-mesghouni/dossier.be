@@ -29,4 +29,7 @@ public class Phase extends BaseEntity {
     List<Job> jobs;
     @OneToMany(mappedBy = PhaseState_.PHASE,cascade = CascadeType.ALL)
     List<PhaseState> states;
+
+    @OneToMany(mappedBy = FilePhase_.PHASE)
+    List<FilePhase> filePhases;
 }

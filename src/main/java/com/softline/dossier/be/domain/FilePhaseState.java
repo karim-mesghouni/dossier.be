@@ -18,8 +18,9 @@ public class FilePhaseState  extends  BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     boolean current;
-    @OneToMany(mappedBy = FilePhaseAgent_.FILE_PHASE_STATE)
-    List<FilePhaseAgent> phaseAgents;
+    @ManyToOne
+    @JoinColumn
+    FilePhaseAgent phaseAgent;
     @ManyToOne
     @JoinColumn
     PhaseState state;

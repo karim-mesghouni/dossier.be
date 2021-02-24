@@ -18,7 +18,7 @@ public class Client extends  BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
+    private String name;
     @OneToMany(mappedBy = File_.CLIENT)
     List<File> files;
     @OneToMany(mappedBy = VisAVis_.CLIENT)

@@ -6,3 +6,11 @@ type VisAVis {
      client:Client
      lockingAddress:BlockingLockingAddress
 }
+input VisAVisInput {
+     id:ID
+     name:String
+     email:String
+     phone:String
+     client:ClientInput
+     lockingAddress:BlockingLockingAddressInput
+}

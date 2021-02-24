@@ -1,6 +1,19 @@
+# Query
+extend type Query  {
+     allActivityFieldByActivityId(activityId: ID!):[ActivityField]
+}
+
+
+
 type ActivityField {
      id: ID
      fieldName:String
      fieldType: FieldType
      activity:Activity
+}
+input ActivityFieldInput {
+     id: ID
+     fieldName:String
+     fieldType: FieldTypeInput
+     activity:ActivityInput
 }

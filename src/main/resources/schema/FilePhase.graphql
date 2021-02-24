@@ -1,7 +1,32 @@
+# Query
+extend type Query  {
+    allFilePhase:[FilePhase]
+    filePhase(id: ID! ):FilePhase
+    currentFilePhase(fileActivityId: ID! ):FilePhase
+    currentFilePhaseState(fileAgentId: ID! ):FilePhaseState
+    currentFilePhaseAgent(filePhaseId: ID! ):FilePhaseAgent
+}
+
+extend type  Mutation{
+    changeFilePhase(phaseId: ID!,fileActivityId: ID! ):FilePhase
+    changeAgent(agentId: ID!,phaseFileAgentId: ID! ):FilePhaseAgent
+    changePhaseState(stateId: ID!,phaseFileAgentId: ID! ):FilePhaseState
+    updateFilePhaseAgent(filePhaseAgentInput: FilePhaseAgentInput!):FilePhaseAgent
+}
+
+
 type FilePhase {
     id:ID
-     current:Boolean
+    current:Boolean
     fileActivity:FileActivity
     Return:[Return]
-   filePhaseAgents:[FilePhaseAgent]
+    filePhaseAgents:[FilePhaseAgent]
+    phase:Phase
+}
+input FilePhaseInput {
+    id:ID
+    current:Boolean
+    fileActivity:FileActivityInput
+    Return:[ReturnIpnut]
+    filePhaseAgents:[FilePhaseAgentInput]
 }
