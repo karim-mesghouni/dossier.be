@@ -1,5 +1,6 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.domain.enums.CommentType;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,8 +16,10 @@ import javax.persistence.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
-public class Comment extends BaseEntity {
+@DiscriminatorColumn(name=Comment_.TYPE,
+        discriminatorType = DiscriminatorType.STRING)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+public class Comment extends BaseEntity implements  IComment{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,8 +29,16 @@ public class Comment extends BaseEntity {
     String content;
     @ManyToOne
     @JoinColumn
-    File file;
+    FileActivity fileActivity;
     @ManyToOne
     @JoinColumn
     Agent agent;
+    @Enumerated(EnumType.STRING)
+    @Column(insertable = false, updatable = false)
+    CommentType type;
+    @OneToOne
+    @JoinColumn
+    FileTask fileTask;
+
+
 }

@@ -5,20 +5,16 @@ extend type Query  {
 
 
 type Commune  {
-
- id:ID
-
-     commune: String
-
-    postalCode: String
-
+     id:ID
+    name: String
+     postalCode: String
      INSEECode:String
 }
 input CommuneInput  {
 
     id:ID
 
-    commune: String
+    name: String
 
     postalCode: String
 

@@ -2,6 +2,7 @@
 # Query
 extend type Query  {
     allComment:[Comment]
+    allCommentByFileId(fileId: ID! ):[Comment]
     comment(id: ID! ):Comment
 }
 
@@ -10,20 +11,61 @@ extend type  Mutation{
     createComment(input: CommentInput! ):Comment
     updateComment(input: CommentInput! ):Comment
     deleteComment(id: ID!): Boolean
+    uploadImage(image: Upload!):String
+    
 }
 
 
-type Comment {
-    id:ID
-    content:String
-    file:File
-    agent: Agent
-    createdDate: String
-}
 input CommentInput {
     id:ID
     content:String
-    file: FileInput
+    fileActivity: FileActivityInput
     agent: AgentInput
     createdDate:String
+    fileTask:FileTaskInput
+}
+type  DescriptionComment implements IComment{
+    id:ID
+    content:String
+    fileActivity:FileActivity
+    agent: Agent
+    createdDate: String
+    fileTask: FileTask
+    type: CommentType
+
+}
+type  ReturnedComment implements IComment{
+    id:ID
+    content:String
+    fileActivity:FileActivity
+    agent: Agent
+    createdDate: String
+    fileTask: FileTask
+    type: CommentType
+
+}
+type Comment {
+    id:ID
+    content:String
+    fileActivity:FileActivity
+    agent: Agent
+    createdDate: String
+    fileTask: FileTask
+    type: CommentType
+
+}
+interface IComment {
+    id:ID
+    content:String
+    fileActivity:FileActivity
+    agent: Agent
+    createdDate: String
+    fileTask: FileTask
+    type: CommentType
+
+}
+enum CommentType{
+    Comment,
+    Description,
+    Returned
 }

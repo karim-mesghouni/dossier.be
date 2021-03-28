@@ -20,5 +20,5 @@ public class Job extends  BaseEntity{
     String description;
     @ManyToOne()
     @JoinColumn()
-    Phase phase;
+    Task task;
 }

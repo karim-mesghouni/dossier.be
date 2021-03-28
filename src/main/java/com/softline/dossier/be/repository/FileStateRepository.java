@@ -4,6 +4,9 @@ import com.softline.dossier.be.domain.FileState;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.io.File;
+
 @Repository
 public interface FileStateRepository   extends JpaRepository<FileState,Long> {
+FileState findFirstByCurrentIsTrueAndFile_Id(Long fileId);
 }

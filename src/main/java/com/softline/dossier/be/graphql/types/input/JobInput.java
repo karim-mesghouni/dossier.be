@@ -15,5 +15,5 @@ public class JobInput {
     String name;
     String description;
 
-    PhaseInput phase;
+    TaskInput task;
 }

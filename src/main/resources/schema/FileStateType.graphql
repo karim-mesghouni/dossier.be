@@ -1,8 +1,12 @@
 type FileStateType  {
     id:ID
     state:String
+    initial:Boolean
+    Final:Boolean
 }
 input FileStateTypeInput  {
     id:ID
     state:String
+    initial:Boolean
+    Final:Boolean
 }

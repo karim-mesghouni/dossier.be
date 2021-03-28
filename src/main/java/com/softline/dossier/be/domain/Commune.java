@@ -22,7 +22,7 @@ public class Commune extends  BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String commune;
+    private String name;
 
     private  String postalCode;
 

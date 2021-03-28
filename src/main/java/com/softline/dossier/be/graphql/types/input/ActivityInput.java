@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ActivityInput  {
 
-        long id;
+        Long id;
 
 
         String name;
@@ -24,6 +24,6 @@ public class ActivityInput  {
 
         List<FileActivityInput> fileActivities;
 
-        List<PhaseInput> phases;
+        List<TaskInput> tasks;
 
 }

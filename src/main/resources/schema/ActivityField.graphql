@@ -10,10 +10,20 @@ type ActivityField {
      fieldName:String
      fieldType: FieldType
      activity:Activity
+     group: ActivityFieldGroup
+     activityBase: Activity
+     groupName: String
 }
 input ActivityFieldInput {
      id: ID
      fieldName:String
      fieldType: FieldTypeInput
      activity:ActivityInput
+     groupName: String
+
+}
+
+type  ActivityFieldGroup{
+     id:ID
+     name:String
 }

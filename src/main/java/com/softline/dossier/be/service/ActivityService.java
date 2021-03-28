@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 
-public class ActivityService extends IServiceBase<Activity, ActivityInput,ActivityRepository> {
+public class ActivityService extends IServiceBase<Activity, ActivityInput, ActivityRepository> {
 
 
     @Override
@@ -23,7 +23,7 @@ public class ActivityService extends IServiceBase<Activity, ActivityInput,Activi
 
     @Override
     public Activity create(ActivityInput entityInput) {
-  return  null;
+        return null;
     }
 
     @Override

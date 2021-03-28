@@ -21,4 +21,6 @@ public class FileStateType extends BaseEntity {
    @GeneratedValue(strategy = GenerationType.IDENTITY)
    private  long id;
    String state;
+   boolean initial;
+   boolean Final;
 }

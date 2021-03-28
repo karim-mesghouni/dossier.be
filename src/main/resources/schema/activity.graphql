@@ -18,7 +18,7 @@ type   Activity {
         description:String
         fields:[ActivityField]
         fileActivities:[FileActivity]
-        phases: [Phase]
+        tasks: [Task]
 }
 
 input   ActivityInput {
@@ -27,5 +27,5 @@ input   ActivityInput {
         description:String
         fields:[ActivityFieldInput]
         fileActivities:[FileActivityInput]
-        phases: [PhaseInput]
+        tasks: [TaskInput]
 }

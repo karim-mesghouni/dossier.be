@@ -18,6 +18,6 @@ public class ActivityDataFieldInput   {
 
     FieldTypeInput fieldType;
     String data;
-
+    String group;
     FileActivityInput fileActivity;
 }

@@ -1,0 +1,16 @@
+type  FileTaskSituation {
+     id:ID
+     current:Boolean
+     situation:TaskSituation
+     blockings:[Blocking]
+     fileTask: FileTask
+
+}
+input  FileTaskSituationInput {
+     id:ID
+     current:Boolean
+     situation:TaskSituationInput
+     blockings:[BlockingInput]
+     fileTask: FileTaskInput
+
+}

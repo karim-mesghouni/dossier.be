@@ -23,21 +23,25 @@ public class AgentService extends IServiceBase<Agent, AgentInput, AgentRepositor
 
     @Override
     public List<Agent> getAll() {
-        return  repository.findAll();
+        return repository.findAll();
     }
+
     @Override
     public Agent create(AgentInput input) {
-      return  null;
+        return null;
     }
+
     @Override
     public Agent update(AgentInput input) {
         return null;
     }
+
     @Override
     public boolean delete(long id) {
         repository.deleteById(id);
         return true;
     }
+
     @Override
     public Agent getById(long id) {
         return repository.findById(id).orElseThrow();

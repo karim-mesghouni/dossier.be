@@ -20,9 +20,15 @@ public class ActivityField extends  BaseEntity{
 
     @Enumerated(EnumType.STRING)
     FieldType fieldType;
-
-
     @ManyToOne
     @JoinColumn()
     Activity activity;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn()
+    ActivityFieldGroup group;
+    @OneToOne
+    @JoinColumn
+    Activity activityBase;
+    @Transient
+    String groupName;
 }

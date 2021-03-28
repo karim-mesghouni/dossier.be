@@ -2,11 +2,11 @@ type Job {
     id:ID
      name:String
     description:String
-     phase:Phase
+     task:Task
 }
 input JobInput {
     id:ID
     name:String
     description:String
-    phase:PhaseInput
+    task:TaskInput
 }

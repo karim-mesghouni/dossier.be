@@ -1,16 +1,18 @@
-type  Phase  {
+type  Task  {
     id: ID
     name:String
     description:String
     activity:Activity
     jobs:[Job]
-    states:[PhaseState]
+    states:[TaskState]
+    situations:[TaskSituation]
 }
-input  PhaseInput  {
+input  TaskInput  {
     id: ID
     name:String
     description:String
     activity:ActivityInput
     jobs:[JobInput]
-    states:[PhaseStateInput]
+    states:[TaskStateInput]
+    situations:[TaskSituationInput]
 }

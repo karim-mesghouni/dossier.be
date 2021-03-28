@@ -15,6 +15,6 @@ public class ReturnInput  {
     int number;
     String cause;
 
-    FilePhaseInput filePhase;
+    FileTaskInput filePhase;
 
 }

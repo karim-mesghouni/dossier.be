@@ -29,4 +29,10 @@ public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity,
     protected FileActivity getFileActivity(Long id){
         return get(id);
     }
+    public List<FileActivity>  getAllFileActivityByFileId(Long fileId){
+        return  service.getAllFileActivityByFileId(fileId);
+    }
+  public boolean changeValid( boolean valid,Long fileActivityId){
+        return  service.changeValid(valid,fileActivityId);
+  }
 }

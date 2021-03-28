@@ -1,5 +1,7 @@
 package com.softline.dossier.be;
 
+import graphql.schema.GraphQLScalarType;
+import graphql.servlet.core.ApolloScalars;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -20,5 +22,8 @@ public class Application {
 	public Filter OpenFilter() {
 		return new OpenEntityManagerInViewFilter();
 	}
-
+	@Bean
+	public GraphQLScalarType uploadScalar() {
+		return ApolloScalars.Upload;
+	}
 }

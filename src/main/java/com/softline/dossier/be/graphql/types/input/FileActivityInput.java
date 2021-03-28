@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.io.File;
 import java.util.List;
 
 @SuperBuilder
@@ -19,12 +18,11 @@ public class FileActivityInput  {
     boolean current;
 
 
-    FileStateTypeInput type;
 
     FileInput file;
 
     ActivityInput activity;
     List<ActivityDataFieldInput> dataFields;
   //  List<RepriseInput> reprises;
-    List<FilePhaseInput> filePhases;
+    List<FileTaskInput> fileTasks;
 }

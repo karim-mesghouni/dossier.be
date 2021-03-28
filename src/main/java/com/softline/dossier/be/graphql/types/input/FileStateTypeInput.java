@@ -11,6 +11,6 @@ import lombok.experimental.SuperBuilder;
 @Data
 public class FileStateTypeInput  {
 
-   private  long id;
+   private  Long id;
    String state;
 }

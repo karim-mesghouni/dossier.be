@@ -2,7 +2,6 @@ package com.softline.dossier.be.domain;
 
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -29,7 +28,7 @@ public class Activity extends BaseEntity {
         @OneToMany(mappedBy = FileActivity_.ACTIVITY)
         List<FileActivity> fileActivities;
 
-        @OneToMany(mappedBy = Phase_.ACTIVITY,cascade = CascadeType.ALL)
-        List<Phase> phases;
+        @OneToMany(mappedBy = Task_.ACTIVITY,cascade = CascadeType.ALL)
+        List<Task> tasks;
 
 }

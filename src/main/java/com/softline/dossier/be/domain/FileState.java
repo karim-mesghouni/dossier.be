@@ -15,7 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@DiscriminatorColumn(discriminatorType = DiscriminatorType.INTEGER)
 public class FileState extends  BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,12 +28,6 @@ public class FileState extends  BaseEntity{
     @ManyToOne
     @JoinColumn
     File file;
-    @Transient
-    Activity activity;
-    @Transient
-    List<ActivityDataField> dataFields;
-    @Transient
-    List<Reprise> reprises;
-    @Transient
-    List<FilePhase> filePhases;
+
+
 }

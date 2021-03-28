@@ -5,6 +5,8 @@ type ActivityDataField {
      fieldType: FieldType
      data: String
      fileActivity: FileActivity
+     groupName: String
+
 }
 enum FieldType
 {
@@ -20,6 +22,7 @@ enum FieldTypeInput
 }
 
 input ActivityDataFieldInput {
+     groupName: String
      id:ID
      fieldName:String
      fieldType: FieldTypeInput

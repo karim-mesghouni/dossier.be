@@ -4,8 +4,12 @@ import com.softline.dossier.be.domain.Commune;
 import com.softline.dossier.be.graphql.types.input.CommuneInput;
 import com.softline.dossier.be.repository.CommuneRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+@Transactional
+
 @Service
 public class CommuneService extends IServiceBase<Commune, CommuneInput, CommuneRepository> {
     @Override

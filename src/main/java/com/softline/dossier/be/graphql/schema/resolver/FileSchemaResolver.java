@@ -1,6 +1,8 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
 import com.softline.dossier.be.domain.File;
+import com.softline.dossier.be.domain.FileState;
+import com.softline.dossier.be.domain.FileStateType;
 import com.softline.dossier.be.graphql.types.FileDTO;
 import com.softline.dossier.be.graphql.types.FileFilterInput;
 import com.softline.dossier.be.graphql.types.FileHistoryDTO;
@@ -33,11 +35,13 @@ public class FileSchemaResolver extends SchemaResolverBase<File, FileInput, File
     public File getFile(Long id){
         return get(id);
     }
-    public PageList<FileDTO> getAllFilePageFilter(FileFilterInput input){
+    public PageList<File> getAllFilePageFilter(FileFilterInput input){
        return  service.getAllFilePageFilter(input);
      }
     public List<FileHistoryDTO> getFileHistory(Long id){
             return  service.getFileHistory(id);
     }
-
+    public  List<FileStateType> getAllFileStateType(){
+      return service.getAllFileStateType();
+  }
 }

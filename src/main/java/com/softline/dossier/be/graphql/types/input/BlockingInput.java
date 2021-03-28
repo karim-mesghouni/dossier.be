@@ -14,7 +14,7 @@ public class BlockingInput  {
     long id;
 
 
-    FilePhaseStateInput state;
+    FileTaskSituationInput state;
 
     BlockingLockingAddressInput lockingAddress;
 

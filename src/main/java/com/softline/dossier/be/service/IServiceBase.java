@@ -9,16 +9,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public  abstract class IServiceBase<IEntity,IEntityInput,IRepository extends JpaRepository<IEntity,Long>> {
+public abstract class IServiceBase<IEntity, IEntityInput, IRepository extends JpaRepository<IEntity, Long>> {
 
     @Autowired
     IRepository repository;
 
-    public   abstract  List<IEntity> getAll();
-    public   abstract  IEntity create(IEntityInput entityInput );
-    public   abstract  IEntity update(IEntityInput entityInput);
-    public   abstract  boolean delete(long id) ;
-    public   abstract IEntity getById(long id);
+    public abstract List<IEntity> getAll();
+
+    public abstract IEntity create(IEntityInput entityInput);
+
+    public abstract IEntity update(IEntityInput entityInput);
+
+    public abstract boolean delete(long id);
+
+    public abstract IEntity getById(long id);
 
     public IRepository getRepository() {
         return repository;

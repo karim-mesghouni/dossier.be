@@ -26,7 +26,7 @@ public class ActivityFieldService extends IServiceBase<ActivityField, ActivityFi
 
     @Override
     public ActivityField create(ActivityFieldInput entityInput) {
-  return  null;
+        return null;
     }
 
     @Override
@@ -44,8 +44,9 @@ public class ActivityFieldService extends IServiceBase<ActivityField, ActivityFi
     public ActivityField getById(long id) {
         return repository.findById(id).orElseThrow();
     }
-    public  List<ActivityField> getAllActivityFieldByActivityId(Long activityId){
-       return   getRepository().getActivityFieldByActivity_Id(activityId);
+
+    public List<ActivityField> getAllActivityFieldByActivityId(Long activityId) {
+        return getRepository().getActivityFieldByActivity_Id(activityId);
     }
 
 }

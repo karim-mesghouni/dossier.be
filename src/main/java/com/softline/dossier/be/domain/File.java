@@ -19,29 +19,39 @@ public class File extends BaseEntity {
     long id;
 
     String project;
-
+    @Temporal(TemporalType.DATE)
     Date attributionDate;
-
+    @Temporal(TemporalType.DATE)
     Date returnDeadline;
-
+    @Temporal(TemporalType.DATE)
     Date provisionalDeliveryDate;
-
+    @Temporal(TemporalType.DATE)
     Date deliveryDate;
 
-    String cem;
 
     @ManyToOne
     @JoinColumn
     Client client;
+
     @OneToOne
     Commune commune;
 
     @OneToMany(mappedBy = FileDoc_.FILE)
     List<FileDoc> fileDocs;
 
-    @OneToMany(mappedBy = FileState_.FILE, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL ,mappedBy = FileState_.FILE, fetch = FetchType.LAZY)
     List<FileState> fileStates;
-    @OneToMany(mappedBy = Comment_.FILE)
-    List<Comment> comments;
 
+
+
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = FileActivity_.FILE, fetch = FetchType.LAZY)
+    List<FileActivity> fileActivities;
+    @OneToOne()
+    @JoinColumn()
+    Activity baseActivity;
+
+    @Transient()
+    FileState currentFileState;
+    @Transient()
+    FileActivity currentFileActivity;
 }

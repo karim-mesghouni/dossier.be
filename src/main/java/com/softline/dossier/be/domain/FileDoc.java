@@ -5,8 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.http.MediaType;
 
 import javax.persistence.*;
+import java.text.MessageFormat;
+import java.util.function.Function;
 
 @SuperBuilder
 @AllArgsConstructor
@@ -22,5 +25,12 @@ public class FileDoc extends  BaseEntity {
     @ManyToOne
     @JoinColumn
     File file;
+    public String getType(String mimetype) {
+        MediaType mediaType = MediaType.parseMediaType(mimetype);
+         return mediaType.getSubtype();
+    }
+
+
+
 
 }

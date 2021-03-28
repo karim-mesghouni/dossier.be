@@ -24,9 +24,12 @@ public class ActivityDataField extends  BaseEntity{
 
     @Enumerated(EnumType.STRING)
     FieldType fieldType;
+
     String data;
 
+    String groupName;
     @ManyToOne
     @JoinColumn()
     FileActivity fileActivity;
+
 }

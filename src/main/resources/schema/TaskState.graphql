@@ -1,0 +1,14 @@
+type TaskState{
+
+ id:ID
+ name:String
+ task:Task
+ fileTasks:[FileTask]
+}
+input TaskStateInput{
+
+    id:ID
+    name:String
+    task:TaskInput
+    fileTasks:[FileTaskInput]
+}

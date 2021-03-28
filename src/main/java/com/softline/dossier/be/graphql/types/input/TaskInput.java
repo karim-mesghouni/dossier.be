@@ -8,15 +8,19 @@ import lombok.experimental.SuperBuilder;
 import java.util.List;
 
 @SuperBuilder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class FilePhaseStateInput {
+public class TaskInput {
+
 
     long id;
-    boolean current;
-    List<FilePhaseAgentInput> phaseAgents;
+    String name;
+    String description;
 
-    PhaseStateInput state;
-    List<BlockingInput> blockings;
+    ActivityInput activity;
+
+    List<JobInput> jobs;
+    List<TaskStateInput> states;
+    List<TaskSituationInput> situations;
 }

@@ -2,7 +2,7 @@
 type  Blocking {
     id: ID
 
-     state: FilePhaseState
+     state: FileTaskSituation
 
      lockingAddress: BlockingLockingAddress
 
@@ -13,7 +13,7 @@ type  Blocking {
 
 input  BlockingInput {
     id: ID
-    state: FilePhaseStateInput
+    state: FileTaskSituationInput
     lockingAddress: BlockingLockingAddressInput
     qualification:BlockingQualificationInput
     label: BlockingLabelInput

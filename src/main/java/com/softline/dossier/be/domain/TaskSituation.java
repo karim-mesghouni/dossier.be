@@ -13,16 +13,16 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class PhaseState extends BaseEntity {
+public class TaskSituation extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    String state;
+    String name;
     boolean initial;
     boolean Final;
     @ManyToOne()
     @JoinColumn()
-    Phase phase;
-    @OneToMany(mappedBy = FilePhaseState_.STATE)
-    List<FilePhaseState> filePhaseStates;
+    Task task;
+    @OneToMany(mappedBy = FileTaskSituation_.SITUATION)
+    List<FileTaskSituation> fileTaskSituations;
 }

@@ -19,7 +19,7 @@ public class Blocking extends BaseEntity {
 
     @ManyToOne
     @JoinColumn
-    FilePhaseState state;
+    FileTaskSituation state;
     @ManyToOne
     @JoinColumn
     BlockingLockingAddress lockingAddress;

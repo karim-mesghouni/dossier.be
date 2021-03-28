@@ -11,14 +11,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class PhaseStateInput  {
+public class FileTaskSituationInput {
 
     long id;
-    String state;
-    boolean initial;
-    boolean Final;
+    boolean current;
+    FileTaskInput fileTask;
 
-    PhaseInput phase;
-
-    List<FilePhaseStateInput> filePhaseStates;
+    TaskSituationInput situation;
+    List<BlockingInput> blockings;
 }

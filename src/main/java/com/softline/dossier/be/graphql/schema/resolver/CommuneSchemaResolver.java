@@ -1,16 +1,19 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
-import com.softline.dossier.be.domain.ActivityField;
 import com.softline.dossier.be.domain.Commune;
-import com.softline.dossier.be.graphql.types.input.ActivityFieldInput;
 import com.softline.dossier.be.graphql.types.input.CommuneInput;
-import com.softline.dossier.be.repository.ActivityFieldRepository;
 import com.softline.dossier.be.repository.CommuneRepository;
-import com.softline.dossier.be.service.ActivityFieldService;
 import com.softline.dossier.be.service.CommuneService;
+import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.core.ApplicationPart;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.Part;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 
 @Component
@@ -33,5 +36,6 @@ public class CommuneSchemaResolver extends SchemaResolverBase<Commune, CommuneIn
     protected Commune getCommune(Long id){
         return get(id);
     }
+
 
 }

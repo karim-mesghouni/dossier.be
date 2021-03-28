@@ -4,6 +4,7 @@ extend type Query  {
      file(id: ID! ):File
      allFilePageFilter(filter: FileFilterInput!):PageList
      fileHistory(id: ID!):[HistoryDTO]
+     allFileStateType:[FileStateType]
 }
 
 #mutation
@@ -20,11 +21,14 @@ type File  {
      returnDeadline:String
      provisionalDeliveryDate:String
      deliveryDate:String
-     cem:String
      client:Client
      commune:Commune
      fileDocs:[FileDoc]
      fileStates:[FileState]
+     fileActivities:[FileActivity]
+     currentFileState:FileState
+     currentFileActivity:FileActivity
+     baseActivity: Activity
 }
 input FileInput  {
      id: ID
@@ -33,19 +37,34 @@ input FileInput  {
      returnDeadline:String
      provisionalDeliveryDate:String
      deliveryDate:String
-     cem:String
      client:ClientInput
      commune:CommuneInput
      fileDocs:[FileDocIput]
-     fileStates: [FileActivityInput]
+     fileStates: [FileStateInput]
+     fileActivities:[FileActivityInput]
+     currentFileState:FileStateInput
+     currentFileActivity:FileActivityInput
+     baseActivity: ActivityInput
 
 }
 input FileFilterInput{
      pageNumber:Int
      pageSize:Int
+     project: String
+     clientId: ID
+     activityId: ID
+     stateId: ID
+     attributionDateFrom: String
+     attributionDateTo: String
+     returnDeadlineFrom: String
+     returnDeadlineTo: String
+     provisionalDeliveryDateFrom: String
+     provisionalDeliveryDateTo: String
+     deliveryDateFrom: String
+     deliveryDateTo: String
 }
 type PageList{
-     page: [FileDTO]
+     page: [File]
      Count: Int
 }
 

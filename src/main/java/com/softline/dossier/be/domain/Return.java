@@ -20,6 +20,6 @@ public class Return extends  BaseEntity{
     String cause;
     @ManyToOne
     @JoinColumn
-    FilePhase filePhase;
+    FileTask fileTask;
 
 }

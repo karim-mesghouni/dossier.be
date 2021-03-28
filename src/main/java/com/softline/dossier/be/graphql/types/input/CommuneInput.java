@@ -13,7 +13,7 @@ public class CommuneInput {
 
     private long id;
 
-    private String commune;
+    private String name;
 
     private  String postalCode;
 

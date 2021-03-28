@@ -2,11 +2,11 @@ type Return{
     id:ID
      number:Int
      cause:String
-     filePhase:FilePhase
+     fileTask:FileTask
 }
 input ReturnIpnut{
     id:ID
     number:Int
     cause:String
-    filePhase:FilePhaseInput
+    fileTask:FileTaskInput
 }

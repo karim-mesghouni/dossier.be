@@ -1,7 +1,8 @@
 # Query
 extend type Query  {
      allFileActivity:[FileActivity]
-     FileActivity(id: ID! ):FileActivity
+     fileActivity(id: ID! ):FileActivity
+     allFileActivityByFileId(fileId: ID!):[FileActivity]
 }
 
 #mutation
@@ -9,35 +10,39 @@ extend type  Mutation{
      createFileActivity(FileActivity: FileActivityInput! ):FileActivity
      updateFileActivity(FileActivity: FileActivityInput! ):FileActivity
      deleteFileActivity(id: Int!):Boolean
+     changeValid(valid: Boolean!, fileActivityId: ID!):Boolean
 }
 
-type FileActivity implements FileState{
+type FileActivity {
      id :ID
      current: Boolean
-     type:FileStateType
      file: File
      activity:Activity
      dataFields:[ActivityDataField]
      reprises:[Reprise]
-     filePhases:[FilePhase]
+     fileTasks:[FileTask]
+     valid: Boolean
 }
 input FileActivityInput  {
      id :ID
      current: Boolean
-     type:FileStateTypeInput
      file: FileInput
      activity:ActivityInput
      dataFields:[ActivityDataFieldInput]
      #repises:[RepriseInput]
-     filePhases:[FilePhaseInput]
+     fileTasks:[FileTaskInput]
+     valid: Boolean
+
 }
-interface FileState  {
+type FileState  {
      id :ID
      current: Boolean
      type:FileStateType
      file: File
-     activity:Activity
-     dataFields:[ActivityDataField]
-     reprises:[Reprise]
-     filePhases:[FilePhase]
+}
+input FileStateInput  {
+     id :ID
+     current: Boolean
+     type:FileStateTypeInput
+     file: FileInput
 }

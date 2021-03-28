@@ -1,7 +1,6 @@
 package com.softline.dossier.be.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -14,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Phase extends BaseEntity {
+public class Task extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,11 +24,12 @@ public class Phase extends BaseEntity {
     @JoinColumn
     Activity activity;
 
-    @OneToMany(mappedBy = Job_.PHASE,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = Job_.TASK,cascade = CascadeType.ALL)
     List<Job> jobs;
-    @OneToMany(mappedBy = PhaseState_.PHASE,cascade = CascadeType.ALL)
-    List<PhaseState> states;
-
-    @OneToMany(mappedBy = FilePhase_.PHASE)
-    List<FilePhase> filePhases;
+    @OneToMany(mappedBy = TaskState_.TASK,cascade = CascadeType.ALL)
+    List<TaskSituation> situations;
+    @OneToMany(mappedBy = TaskState_.TASK,cascade = CascadeType.ALL)
+    List<TaskState> states;
+    @OneToMany(mappedBy = FileTask_.TASK)
+    List<FileTask> fileTasks;
 }

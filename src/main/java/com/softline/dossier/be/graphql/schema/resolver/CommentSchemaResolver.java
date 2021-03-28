@@ -11,9 +11,13 @@ import com.softline.dossier.be.repository.CommentRepository;
 import com.softline.dossier.be.repository.FileRepository;
 import com.softline.dossier.be.service.CommentService;
 import com.softline.dossier.be.service.FileService;
+import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.Part;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @Component
@@ -36,7 +40,12 @@ public class CommentSchemaResolver extends SchemaResolverBase<Comment, CommentIn
     public Comment getComment(Long id){
         return get(id);
     }
+    public String uploadImage(Part part, DataFetchingEnvironment environment) throws IOException, NoSuchAlgorithmException {
+        return  service.saveFile(environment);
+    }
 
+  public  List<Comment>  getAllCommentByFileId(Long fileId){
+      return  service.getAllCommentByFileId(fileId);
 
-
+  }
 }

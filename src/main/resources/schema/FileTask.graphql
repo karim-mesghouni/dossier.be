@@ -1,0 +1,64 @@
+# Query
+extend type Query  {
+   allFileTaskByAssignedToId(assignedToId: ID!):[FileTask]
+    fileTask(id: ID! ):FileTask
+ #   currentFilePhase(fileActivityId: ID! ):FileTask
+  #  currentFilePhaseState(fileAgentId: ID! ):FilePhaseState
+   # currentFilePhaseAgent(filePhaseId: ID! ):FilePhaseAgent
+    allFileTaskByFileActivityId(fileActivityId: ID!):[FileTask]
+}
+
+extend type  Mutation{
+    createFileTask(input: FileTaskInput!):FileTask
+    changeAssignedTo(assignedToId: ID!,fileTaskId: ID! ):Agent
+    changeReporter(reporterId: ID!,fileTaskId: ID! ):Agent
+    changeFileTaskSituation(situationId: ID!,fileTaskId: ID! ):FileTaskSituation
+    changeToStartDate(toStartDate: String!,fileTaskId: ID! ):Boolean
+    changeDueDate(dueDate: String!,fileTaskId: ID! ):Boolean
+    changeTitle(title: String!,fileTaskId: ID! ):Boolean
+    changeDescription(input: CommentInput):DescriptionComment
+    changeRetour(input: CommentInput):ReturnedComment
+    changeDataField(input: ActivityDataFieldInput):Boolean
+   # changeAgent(agentId: ID!,phaseFileAgentId: ID! ):FilePhaseAgent
+   # changePhaseState(stateId: ID!,phaseFileAgentId: ID! ):FilePhaseState
+    updateFileTask(input: FileTaskInput!):FileTask
+}
+
+
+type FileTask {
+    id:ID
+    current:Boolean
+    fileActivity:FileActivity
+    task:Task
+    toStartDate: String
+    dueDate: String
+    startDate:String
+    endDate:String
+    reporter:Agent
+    assignedTo:Agent
+    fileTaskSituations:[FileTaskSituation]
+    state:TaskState
+    currentFileTaskSituation:FileTaskSituation
+    title: String
+    description: DescriptionComment
+    retour: ReturnedComment
+
+}
+input FileTaskInput {
+    id:ID
+    current:Boolean
+    fileActivity:FileActivityInput
+    task:TaskInput
+    toStartDate: String
+    dueDate: String
+    startDate:String
+    endDate:String
+    reporter:AgentInput
+    assignedTo:AgentInput
+    fileTaskSituations:[FileTaskSituationInput]
+    state:TaskStateInput
+    currentFileTaskSituation:FileTaskSituationInput
+    title: String
+    description: CommentInput
+    retour: CommentInput
+}

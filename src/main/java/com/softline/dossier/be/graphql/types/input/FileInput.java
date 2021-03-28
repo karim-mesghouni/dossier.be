@@ -1,10 +1,12 @@
 package com.softline.dossier.be.graphql.types.input;
 
+import com.softline.dossier.be.domain.FileActivity;
 import com.softline.dossier.be.domain.FileState;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import javax.persistence.Transient;
 import java.io.File;
 import java.util.Date;
 import java.util.List;
@@ -27,12 +29,15 @@ public class FileInput {
 
     Date deliveryDate;
 
-    String cem;
 
     ClientInput client;
     CommuneInput commune;
 
     List<FileDocInput> fileDocs;
-    List<FileActivityInput> fileStates;
+    List<FileStateInput> fileStates;
+    List<FileActivityInput> fileActivities;
+
+    FileStateInput currentFileState;
+    FileActivityInput currentFileActivity;
 
 }
