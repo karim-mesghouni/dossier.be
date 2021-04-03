@@ -22,6 +22,7 @@ public class FileTask extends BaseEntity{
     boolean current;
     @Type(type="text")
     String title;
+    Long number;
     @OneToOne
     @JoinColumn
     DescriptionComment description;

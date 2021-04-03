@@ -38,15 +38,20 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     @Override
     public List<FileTask> getAll() {
+
+
         return repository.findAll();
     }
 
     @Override
     public FileTask create(FileTaskInput input) {
         var task = taskRepository.findById(input.getTask().getId()).orElseThrow();
+     var fileActivity =  fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();
+       var count=       getRepository().countFileTaskByFileActivity_File_Id(fileActivity.getFile().getId());
         var fileTask = FileTask.builder()
-                .fileActivity(FileActivity.builder().id(input.getFileActivity().getId()).build())
+                .fileActivity(fileActivity)
                 .task(task)
+                .number((count+1))
                 .fileTaskSituations(new ArrayList<>())
                 .build();
         var fileTaskSituation = FileTaskSituation.builder()
@@ -130,6 +135,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public List<FileTask> getAllFileTaskByFileActivityId(Long fileActivityId) {
+
         return getRepository().findAllByFileActivity_Id(fileActivityId);
     }
 

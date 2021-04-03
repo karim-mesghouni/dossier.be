@@ -181,4 +181,5 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     public List<FileStateType> getAllFileStateType() {
         return fileStateTypeRepository.findAll();
     }
+
 }

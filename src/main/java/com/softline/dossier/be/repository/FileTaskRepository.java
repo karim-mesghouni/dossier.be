@@ -13,4 +13,5 @@ public interface FileTaskRepository extends JpaRepository<FileTask,Long> {
 
     List<FileTask> findAllByFileActivity_Id(Long fileActivityId);
     List<FileTask> findAllByAssignedTo_Id(Long assignedToId);
+    Long countFileTaskByFileActivity_File_Id(Long fileId);
 }
