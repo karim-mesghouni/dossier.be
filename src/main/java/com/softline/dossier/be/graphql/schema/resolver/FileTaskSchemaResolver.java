@@ -3,9 +3,9 @@ package com.softline.dossier.be.graphql.schema.resolver;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
-import com.softline.dossier.be.graphql.types.input.CommuneInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
 import com.softline.dossier.be.repository.FileTaskRepository;
+import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.service.FileTaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -40,7 +40,7 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
     public Agent changeAssignedTo(Long assignedToId,Long fileTaskId){
      return   service.changeAssignedTo(assignedToId,fileTaskId);
    }
-    public Agent changeReporter(Long reporterId,Long fileTaskId){
+    public Agent changeReporter(Long reporterId, Long fileTaskId){
         return   service.changeReporter(reporterId,fileTaskId);
 
     }

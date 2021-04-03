@@ -1,13 +1,9 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
-import com.softline.dossier.be.domain.Agent;
-import com.softline.dossier.be.domain.Client;
+import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.graphql.types.input.AgentInput;
-import com.softline.dossier.be.graphql.types.input.ClientInput;
-import com.softline.dossier.be.repository.AgentRepository;
-import com.softline.dossier.be.repository.ClientRepository;
+import com.softline.dossier.be.security.repository.AgentRepository;
 import com.softline.dossier.be.service.AgentService;
-import com.softline.dossier.be.service.ClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
