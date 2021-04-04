@@ -11,26 +11,27 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
+@Service
 public class AgentDetailsService implements UserDetailsService {
     @Autowired
     private AgentRepository agentRepository;
     private  Collection<GrantedAuthority> grantedAuthorities;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        var agent = agentRepository.findFirstByUsername(username);
+        var agent = agentRepository.findByUsername(username);
         if (agent == null) {
             throw new UsernameNotFoundException(username);
         }
 
 
         grantedAuthorities = new ArrayList<>();
-                if (agent.getRoles()!=null){
+                if (agent.getRoles() instanceof  List){
                     agent.getRoles().forEach(role -> {
                         grantedAuthorities.add(new SimpleGrantedAuthority(role.getName()));
                         if (role.getPrivileges()!=null){
@@ -43,4 +44,5 @@ public class AgentDetailsService implements UserDetailsService {
 
         return new CustomAgentDetails(agent, grantedAuthorities);
     }
+
 }

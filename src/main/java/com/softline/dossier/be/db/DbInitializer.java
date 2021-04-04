@@ -4,13 +4,18 @@ import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.FieldType;
 import com.softline.dossier.be.repository.*;
 import com.softline.dossier.be.security.domain.Agent;
+import com.softline.dossier.be.security.domain.Privilege;
+import com.softline.dossier.be.security.domain.Role;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.expression.Lists;
 
-import java.util.ArrayList;
+import java.util.*;
 
 @Component
 public class DbInitializer implements ApplicationRunner {
@@ -36,10 +41,11 @@ public class DbInitializer implements ApplicationRunner {
     Activity ipon;
     Activity piquetage;
     Activity cdc;
-    @Autowired
+
+    PasswordEncoder passwordEncoder;
     @Override
     public void run(ApplicationArguments args) throws Exception {
-
+        passwordEncoder=  PasswordEncoderFactories.createDelegatingPasswordEncoder();
         if (activityRepository.count() == 0) {
 
             createZapaActivity();
@@ -82,6 +88,22 @@ public class DbInitializer implements ApplicationRunner {
             fileStateTypeRepository.save(FileStateType.builder().state("À LIVRER").build());
             fileStateTypeRepository.save(FileStateType.builder().state("Annulé par le client").Final(true).build());
 
+        }
+        if (agentRepository.count()==0){
+            agentRepository.save(Agent.builder()
+                    .name("elhabib")
+                    .email("elahbib@gmail.com")
+                    .username("elhabib")
+                    .password(passwordEncoder.encode("000"))
+                    .enabled(true)
+                    .roles(List.of(
+                            Role.builder().name("Role_Manger").privileges(
+                                    List.of(Privilege.builder().name("View_Activity").build())
+                            ).build()
+                    ))
+                    .build()
+
+            );
         }
     }
     private void createZapaActivity() {

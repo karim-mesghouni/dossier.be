@@ -24,11 +24,11 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-
+@Component
 public class JsonFilePolicyDefinition implements PolicyDefinition {
     private static Logger logger = LoggerFactory.getLogger(JsonFilePolicyDefinition.class);
 
-    private static String DEFAULT_POLICY_FILE_NAME = "default-policy.json";
+    private static String DEFAULT_POLICY_FILE_NAME = "/default-policy.json";
 
     @Value("${policy.json.filePath}")
     private String policyFilePath;

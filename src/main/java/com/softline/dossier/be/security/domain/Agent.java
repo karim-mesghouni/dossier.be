@@ -39,7 +39,7 @@ public class Agent extends BaseEntity {
     @Column(name = "token_expired")
     private boolean tokenExpired;
 
-    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(
@@ -47,4 +47,6 @@ public class Agent extends BaseEntity {
             inverseJoinColumns = @JoinColumn(
                     name = "role_id", referencedColumnName = "id"))
     private List<Role> roles;
+    @Transient()
+    List<Object> authorities;
 }

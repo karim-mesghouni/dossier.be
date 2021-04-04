@@ -2,19 +2,20 @@
   {
     "name": "Admin",
     "description": "Admin can do all.",
-    "target": "subject.role.name() == 'ADMIN'",
+    "target": "false",
     "condition": "true"
   },
   {
     "name": "PM view his project",
     "description": "PM read the details of his project only.",
-    "target": "subject.role.name() == 'PM' && action == 'PROJECTS_VIEW'",
-    "condition": "subject.project.id == resource.id"
+    "target": "action == 'View_Activity'",
+    "condition": "true"
   },
   {
     "name": "PM view his project's issues",
     "description": "PM can view the issues of his project only.",
     "target": "subject.role.name() == 'PM' && action == 'ISSUES_LIST'",
+
     "condition": "subject.project.id == resource.id"
   },
   {

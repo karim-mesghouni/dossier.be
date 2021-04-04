@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 
 public interface AgentRepository extends JpaRepository<Agent,Long> {
-    Agent findFirstByUsername(String name);
+    Agent findByUsername(String userName);
 
 }

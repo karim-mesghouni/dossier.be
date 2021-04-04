@@ -8,12 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.expression.EvaluationException;
 import org.springframework.stereotype.Component;
-
+@Component()
 public class BasicPolicyEnforcement implements PolicyEnforcement {
     private static final Logger logger = LoggerFactory.getLogger(BasicPolicyEnforcement.class);
 
     @Autowired
-    @Qualifier("jsonFilePolicyDefinition")
     private PolicyDefinition policyDefinition;
 
     /* (non-Javadoc)

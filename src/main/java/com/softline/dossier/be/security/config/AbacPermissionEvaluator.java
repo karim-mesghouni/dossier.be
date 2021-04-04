@@ -5,10 +5,12 @@ import com.softline.dossier.be.security.domain.Policy.PolicyEnforcement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
+
 import java.io.Serializable;
 
 import java.util.*;
-
+@Component
 public class AbacPermissionEvaluator implements PermissionEvaluator {
     @Autowired
     PolicyEnforcement policy;

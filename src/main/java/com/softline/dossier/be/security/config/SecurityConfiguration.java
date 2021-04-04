@@ -3,6 +3,7 @@ package com.softline.dossier.be.security.config;
 
 import com.softline.dossier.be.security.filters.AuthenticationFilter;
 import com.softline.dossier.be.security.filters.AuthorizationFilter;
+import com.softline.dossier.be.security.service.AgentDetailsService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,12 +27,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
 
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private AgentDetailsService agentDetailsService;
 
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(getPasswordEncoder());
+        auth.userDetailsService(agentDetailsService).passwordEncoder(getPasswordEncoder());
     }
     @Bean
     public PasswordEncoder getPasswordEncoder() {

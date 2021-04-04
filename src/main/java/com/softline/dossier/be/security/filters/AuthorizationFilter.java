@@ -3,6 +3,7 @@ package com.softline.dossier.be.security.filters;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.softline.dossier.be.security.domain.Agent;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,6 +22,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.softline.dossier.be.security.filters.constants.SecurityConstants.*;
 import static java.util.function.Predicate.not;
@@ -63,13 +65,17 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
                     .build()
                     .verify(token.replace(TOKEN_PREFIX, ""));
             String user = decoded.getSubject();
-
+            Agent agent= Agent.builder().username(user).name(user).build();
             if (user != null) {
                 Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
                 for (String authority: decoded.getClaim("grantedAuthorities").asList(String.class)) {
+
                     grantedAuthorities.add(new SimpleGrantedAuthority(authority));
+
                 }
-                return new UsernamePasswordAuthenticationToken(user, null, grantedAuthorities);
+                agent.setAuthorities(grantedAuthorities.stream().map(x->x.getAuthority()).collect(Collectors.toList()));
+
+                return new UsernamePasswordAuthenticationToken(agent, null, grantedAuthorities);
             }
             return null;
         }

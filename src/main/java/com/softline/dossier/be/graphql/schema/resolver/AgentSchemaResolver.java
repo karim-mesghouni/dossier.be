@@ -5,6 +5,7 @@ import com.softline.dossier.be.graphql.types.input.AgentInput;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import com.softline.dossier.be.service.AgentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
     public boolean deleteAgent(Long id){
         return delete(id);
     }
+    @PreAuthorize("hasPermission(null,'Get_List_Activity')")
     public List<Agent> getAllAgent(){
         return getAll();
     }
