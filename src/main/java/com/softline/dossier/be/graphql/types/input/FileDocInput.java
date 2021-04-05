@@ -15,6 +15,7 @@ public class FileDocInput  {
 
     private String  path;
 
-    FileInput file;
+    FileActivityInput fileActivity;
+    AgentInput agent;
 
 }
