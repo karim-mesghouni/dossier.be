@@ -5,6 +5,8 @@ import com.softline.dossier.be.graphql.types.input.FileActivityInput;
 import com.softline.dossier.be.repository.FileActivityRepository;
 import com.softline.dossier.be.service.FileActivityService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -32,7 +34,7 @@ public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity,
     public List<FileActivity>  getAllFileActivityByFileId(Long fileId){
         return  service.getAllFileActivityByFileId(fileId);
     }
-  public boolean changeValid( boolean valid,Long fileActivityId){
+    public boolean changeValid( boolean valid,Long fileActivityId){
         return  service.changeValid(valid,fileActivityId);
-  }
+    }
 }

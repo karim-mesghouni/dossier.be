@@ -7,6 +7,8 @@ import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
 import com.softline.dossier.be.graphql.types.input.ReturnedCauseInput;
 import com.softline.dossier.be.repository.*;
+import com.softline.dossier.be.security.domain.Agent;
+import com.softline.dossier.be.security.repository.AgentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
