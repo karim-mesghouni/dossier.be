@@ -25,12 +25,12 @@ public class FileDoc extends  BaseEntity {
     @ManyToOne
     @JoinColumn
     File file;
-    public String getType(String mimetype) {
-        MediaType mediaType = MediaType.parseMediaType(mimetype);
-         return mediaType.getSubtype();
-    }
+    @ManyToOne
+    @JoinColumn
+    FileActivity  fileActivity;
+    @ManyToOne
+    @JoinColumn
+    Agent agent;
 
-
-
-
+     String description;
 }

@@ -29,6 +29,8 @@ public class DbInitializer implements ApplicationRunner {
     CommuneRepository communeRepository;
     @Autowired
     AgentRepository agentRepository;
+    @Autowired
+    ReturnedCauseRepository returnedCauseRepository;
     Activity zapa;
     Activity fi;
     Activity ipon;
@@ -39,7 +41,6 @@ public class DbInitializer implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
 
         if (activityRepository.count() == 0) {
-
             createZapaActivity();
             createFIActivity();
             createIPONActivity();
@@ -175,6 +176,11 @@ public class DbInitializer implements ApplicationRunner {
             fileStateTypeRepository.save(FileStateType.builder().state("Annulé par le client").Final(true).build());
 
         }
+        if (returnedCauseRepository.count()==0){
+            returnedCauseRepository.save(ReturnedCause.builder().name("Cause one 1").build());
+            returnedCauseRepository.save(ReturnedCause.builder().name("Cause too 2").build());
+            returnedCauseRepository.save(ReturnedCause.builder().name("Cause three 3").build());
+        }
     }
     private void createZapaActivity() {
          zapa = Activity.builder().name("ZAPA").description("ZAPA Description").tasks(new ArrayList<>()).build();
@@ -188,16 +194,25 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsControle.add(TaskSituation.builder().name("En cours").build());
         taskSituationsControle.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        var taskSituationsPreparatrionLivraison= new ArrayList<TaskSituation>();
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Fait").Final(true).build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        var PreparatrionLivraison = Task.builder().name("Préparatrion de livraison").situations(taskSituationsPreparatrionLivraison).activity(zapa).build();
+        PreparatrionLivraison.getSituations().forEach(x->x.setTask(PreparatrionLivraison));
         var states = new ArrayList();
         states.add(TaskState.builder().name("Valide").build());
         states.add(TaskState.builder().name("Non valide").build());
         var etdue = Task.builder().name("Etude").situations(taskSituationsEtude).activity(zapa).build();
         var controle = Task.builder().name("Controle").situations(taskSituationsControle).activity(zapa).states(states).build();
         etdue.getSituations().forEach(x -> x.setTask(etdue));
+
         controle.getSituations().forEach(x -> x.setTask(controle));
         controle.getStates().forEach(x -> x.setTask(controle));
         zapa.getTasks().add(etdue);
         zapa.getTasks().add(controle);
+        zapa.getTasks().add(PreparatrionLivraison);
         var fields = new ArrayList<ActivityField>();
         fields.add(ActivityField.builder().fieldName("CEM").fieldType(FieldType.String).activity(zapa).build());
         fields.add(ActivityField.builder().fieldName("EL ZAPA TOT").fieldType(FieldType.String).activity(zapa).build());
@@ -219,6 +234,13 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsControle.add(TaskSituation.builder().name("En cours").build());
         taskSituationsControle.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        var taskSituationsPreparatrionLivraison= new ArrayList<TaskSituation>();
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Fait").Final(true).build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        var PreparatrionLivraison = Task.builder().name("Préparatrion de livraison").situations(taskSituationsPreparatrionLivraison).activity(fi).build();
+        PreparatrionLivraison.getSituations().forEach(x->x.setTask(PreparatrionLivraison));
         var states = new ArrayList();
         states.add(TaskState.builder().name("Valide").build());
         states.add(TaskState.builder().name("Non valide").build());
@@ -229,6 +251,7 @@ public class DbInitializer implements ApplicationRunner {
         controle.getStates().forEach(x -> x.setTask(controle));
         fi.getTasks().add(etdue);
         fi.getTasks().add(controle);
+        fi.getTasks().add(PreparatrionLivraison);
         var fields = new ArrayList<ActivityField>();
         fields.add(ActivityField.builder().fieldName("CEM").fieldType(FieldType.String).activity(fi).build());
         fields.add(ActivityField.builder().fieldName("IMB").fieldType(FieldType.String).activity(fi).build());
@@ -250,6 +273,13 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsControle.add(TaskSituation.builder().name("En cours").build());
         taskSituationsControle.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        var taskSituationsPreparatrionLivraison= new ArrayList<TaskSituation>();
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Fait").Final(true).build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        var PreparatrionLivraison = Task.builder().name("Préparatrion de livraison").situations(taskSituationsPreparatrionLivraison).activity(ipon).build();
+        PreparatrionLivraison.getSituations().forEach(x->x.setTask(PreparatrionLivraison));
         var states = new ArrayList();
         states.add(TaskState.builder().name("Valide").build());
         states.add(TaskState.builder().name("Non valide").build());
@@ -260,6 +290,7 @@ public class DbInitializer implements ApplicationRunner {
         controle.getStates().forEach(x -> x.setTask(controle));
         ipon.getTasks().add(etdue);
         ipon.getTasks().add(controle);
+        ipon.getTasks().add(PreparatrionLivraison);
         activityRepository.save(ipon);
     }
     private void createPiquetageActivity() {
@@ -308,30 +339,30 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsEtdueComac.add(TaskSituation.builder().name("En cours").build());
         taskSituationsEtdueComac.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsEtdueComac.add(TaskSituation.builder().name("Annulé").Final(true).build());
-        var taskSituationsCap = new ArrayList<TaskSituation>();
-        taskSituationsCap.add(TaskSituation.builder().name("A faire").initial(true).build());
-        taskSituationsCap.add(TaskSituation.builder().name("En cours").build());
-        taskSituationsCap.add(TaskSituation.builder().name("Fait").Final(true).build());
-        taskSituationsCap.add(TaskSituation.builder().name("Annulé").Final(true).build());
+
         var taskSituationsControle = new ArrayList<TaskSituation>();
         taskSituationsControle.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("En cours").build());
         taskSituationsControle.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
-
+        var taskSituationsPreparatrionLivraison= new ArrayList<TaskSituation>();
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Fait").Final(true).build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        var PreparatrionLivraison = Task.builder().name("Préparatrion de livraison").situations(taskSituationsPreparatrionLivraison).activity(cdc).build();
+        PreparatrionLivraison.getSituations().forEach(x->x.setTask(PreparatrionLivraison));
         var states = new ArrayList();
         states.add(TaskState.builder().name("Valide").build());
         states.add(TaskState.builder().name("Non valide").build());
-        var etdueComac = Task.builder().name("Etdue COMAC").situations(taskSituationsEtdueComac).activity(cdc).build();
-        var etdueCap = Task.builder().name("Etdue CAP-FT").situations(taskSituationsCap).activity(cdc).build();
+        var etdueComac = Task.builder().name("Etdue").situations(taskSituationsEtdueComac).activity(cdc).build();
         var controle = Task.builder().name("Controle").situations(taskSituationsControle).activity(cdc).states(states).build();
         etdueComac.getSituations().forEach(x -> x.setTask(etdueComac));
-        etdueCap.getSituations().forEach(x -> x.setTask(etdueCap));
         controle.getSituations().forEach(x -> x.setTask(controle));
         controle.getStates().forEach(x -> x.setTask(controle));
         cdc.getTasks().add(etdueComac);
-        cdc.getTasks().add(etdueCap);
         cdc.getTasks().add(controle);
+        cdc.getTasks().add(PreparatrionLivraison);
         var groupFieldsCOMAC=ActivityFieldGroup.builder().name("COMAC").build();
         var fields = new ArrayList<ActivityField>();
         fields.add(ActivityField.builder().fieldName("Nombre  des Artères").fieldType(FieldType.String).group(groupFieldsCOMAC).activity(cdc).build());

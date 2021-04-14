@@ -34,7 +34,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
             var dataFields = entityInput.getDataFields().stream()
                     .map(x -> ActivityDataField.builder()
                             .data(x.getData())
-                            .groupName(x.getGroup())
+                            .groupName(x.getGroupName())
                             .fieldName(x.getFieldName())
                             .fieldType(FieldType.valueOf(x.getFieldType().toString()))
                             .fileActivity(fileActivity)

@@ -6,6 +6,7 @@ extend type Query  {
   #  currentFilePhaseState(fileAgentId: ID! ):FilePhaseState
    # currentFilePhaseAgent(filePhaseId: ID! ):FilePhaseAgent
     allFileTaskByFileActivityId(fileActivityId: ID!):[FileTask]
+    allReturnedCause:[ReturnedCause]
 }
 
 extend type  Mutation{
@@ -22,6 +23,11 @@ extend type  Mutation{
    # changeAgent(agentId: ID!,phaseFileAgentId: ID! ):FilePhaseAgent
    # changePhaseState(stateId: ID!,phaseFileAgentId: ID! ):FilePhaseState
     updateFileTask(input: FileTaskInput!):FileTask
+    changeState(fileTaskId:ID! ,taskStateId: ID!):TaskState
+    changeReturnedCause(fileTaskId:ID!,returnedCauseId: ID! ): ReturnedCause
+    changeReturned(fileTaskId:ID! ,returned: Boolean!):Boolean
+    createChildFileTask(input: FileTaskInput!):FileTask
+    changeParent(fileTaskId:ID!,parentId:ID!):FileTask
 }
 
 
@@ -43,7 +49,9 @@ type FileTask {
     title: String
     description: DescriptionComment
     retour: ReturnedComment
-
+    returnedCause:ReturnedCause
+    returned:Boolean
+    parent: FileTask
 }
 input FileTaskInput {
     id:ID
@@ -62,4 +70,8 @@ input FileTaskInput {
     title: String
     description: CommentInput
     retour: CommentInput
+    returnedCause:ReturnedCauseInput
+    returned:Boolean
+    parent: FileTaskInput
+
 }

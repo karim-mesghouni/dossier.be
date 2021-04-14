@@ -8,6 +8,7 @@ import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.nio.file.attribute.FileTime;
 import java.util.*;
 
 @SuperBuilder
@@ -54,4 +55,11 @@ public class FileTask extends BaseEntity{
     TaskState state;
     @Transient()
     FileTaskSituation currentFileTaskSituation;
+    @OneToOne
+    @JoinColumn
+    FileTask parent;
+    boolean returned;
+    @ManyToOne
+    @JoinColumn
+    ReturnedCause returnedCause;
 }

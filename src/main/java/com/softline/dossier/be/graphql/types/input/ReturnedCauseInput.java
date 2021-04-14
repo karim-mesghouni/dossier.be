@@ -6,16 +6,12 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
-@AllArgsConstructor
 @Data
 @NoArgsConstructor
-public class FileDocInput  {
+@AllArgsConstructor
+public class ReturnedCauseInput {
 
-    private  long id;
+    long id;
+    String name;
 
-    private String  path;
-    FileInput file;
-    FileActivityInput fileActivity;
-    AgentInput agent;
-String description;
 }

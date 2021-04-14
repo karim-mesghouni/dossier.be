@@ -32,4 +32,7 @@ public class FileTaskInput {
     String title;
     CommentInput description;
     CommentInput retour;
+    ReturnedCauseInput returnedCause;
+    boolean returned;
+    FileTaskInput parent;
 }

@@ -1,0 +1,8 @@
+type ReturnedCause {
+    id:ID
+    name:String
+}
+input ReturnedCauseInput {
+    id:ID
+    name:String
+}

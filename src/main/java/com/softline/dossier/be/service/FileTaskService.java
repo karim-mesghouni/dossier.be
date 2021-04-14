@@ -5,6 +5,7 @@ import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
+import com.softline.dossier.be.graphql.types.input.ReturnedCauseInput;
 import com.softline.dossier.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,9 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     ActivityDataFieldRepository activityDataFieldRepository;
     @Autowired
     FileActivityRepository fileActivityRepository;
+    @Autowired
+    ReturnedCauseRepository returnedCauseRepository;
+
 
     @Override
     public List<FileTask> getAll() {
@@ -46,12 +50,13 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     @Override
     public FileTask create(FileTaskInput input) {
         var task = taskRepository.findById(input.getTask().getId()).orElseThrow();
-     var fileActivity =  fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();
-       var count=       getRepository().countFileTaskByFileActivity_File_Id(fileActivity.getFile().getId());
+        var fileActivity = fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();
+        var count = getRepository().countFileTaskByFileActivity_File_Id(fileActivity.getFile().getId());
         var fileTask = FileTask.builder()
                 .fileActivity(fileActivity)
                 .task(task)
-                .number((count+1))
+                .toStartDate(new Date())
+                .number((count + 1))
                 .fileTaskSituations(new ArrayList<>())
                 .build();
         var fileTaskSituation = FileTaskSituation.builder()
@@ -210,5 +215,63 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         var field = activityDataFieldRepository.findById(input.getId()).orElseThrow();
         field.setData(input.getData());
         return true;
+    }
+
+    public List<ReturnedCause> getAllReturnedCause() {
+        return returnedCauseRepository.findAll();
+    }
+
+    public ReturnedCause changeReturnedCause(Long fileTaskId, Long returnedCauseId) {
+        var returnedCause = returnedCauseRepository.findById(returnedCauseId).orElseThrow();
+        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        fileTask.setReturnedCause(returnedCause);
+        getRepository().save(fileTask);
+        return returnedCause;
+    }
+
+    public TaskState changeState(Long fileTaskId, Long taskStateId) {
+        var taskState = taskStateRepository.findById(taskStateId).orElseThrow();
+        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        fileTask.setState(taskState);
+        getRepository().save(fileTask);
+        return taskState;
+    }
+
+    public boolean changeReturned(Long fileTaskId, boolean returned) {
+        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        fileTask.setReturned(returned);
+        getRepository().save(fileTask);
+        return returned;
+    }
+
+    public FileTask createChildFileTask(FileTaskInput input) {
+        var parent=getRepository().findById(input.getParent().getId()).orElseThrow();
+        var task = taskRepository.findById(input.getTask().getId()).orElseThrow();
+        var fileActivity = fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();
+        var count = getRepository().countFileTaskByFileActivity_File_Id(fileActivity.getFile().getId());
+        var fileTask = FileTask.builder()
+                .fileActivity(fileActivity)
+                .task(task)
+                .toStartDate(new Date())
+                .number((count + 1))
+                .parent(parent)
+                .returned(true)
+                .fileTaskSituations(new ArrayList<>())
+                .build();
+        var fileTaskSituation = FileTaskSituation.builder()
+                .situation(task.getSituations().stream().filter(x -> x.isInitial()).findFirst().orElseThrow())
+                .fileTask(fileTask)
+                .current(true)
+                .build();
+        fileTask.getFileTaskSituations().add(fileTaskSituation);
+         getRepository().save(fileTask);
+    return   getRepository().findById(fileTask.getId()).orElseThrow();
+    }
+
+    public FileTask changeParent(Long fileTaskId, Long parentId) {
+        var fileTask=getRepository().findById(fileTaskId).orElseThrow();
+        var parent=getRepository().findById(parentId).orElseThrow();
+        fileTask.setParent(parent);
+        return  fileTask;
     }
 }

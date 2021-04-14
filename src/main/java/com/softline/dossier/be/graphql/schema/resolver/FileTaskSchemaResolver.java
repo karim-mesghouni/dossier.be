@@ -1,10 +1,7 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
 import com.softline.dossier.be.domain.*;
-import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
-import com.softline.dossier.be.graphql.types.input.CommentInput;
-import com.softline.dossier.be.graphql.types.input.CommuneInput;
-import com.softline.dossier.be.graphql.types.input.FileTaskInput;
+import com.softline.dossier.be.graphql.types.input.*;
 import com.softline.dossier.be.repository.FileTaskRepository;
 import com.softline.dossier.be.service.FileTaskService;
 import lombok.RequiredArgsConstructor;
@@ -74,4 +71,23 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
     public boolean changeDataField(ActivityDataFieldInput input){
         return  service.changeDataField(input);
     }
+    public List<ReturnedCause> getAllReturnedCause(){
+        return  service.getAllReturnedCause();
+    }
+    public  ReturnedCause changeReturnedCause(Long fileTaskId,Long returnedCauseId){
+        return  service.changeReturnedCause(fileTaskId,returnedCauseId);
+    }
+    public  boolean changeReturned(Long fileTaskId,boolean returned){
+        return  service.changeReturned(fileTaskId,returned);
+    }
+    public  TaskState changeState(Long fileTaskId,Long taskStateId){
+        return  service.changeState(fileTaskId,taskStateId);
+    }
+    public  FileTask createChildFileTask(FileTaskInput fileTask){
+       return  service.createChildFileTask(fileTask);
+    }
+    public  FileTask changeParent(Long FileTaskId,Long parentId ){
+        return  service.changeParent(FileTaskId,parentId);
+    }
+
 }
