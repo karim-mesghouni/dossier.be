@@ -55,7 +55,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                                             Authentication auth) throws IOException {
         String token = createToken(auth.getName(), auth);
         res.setHeader("Access-Control-Expose-Headers", HEADER_STRING);
-        res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
+        res.addHeader(HEADER_STRING,  token);
     }
     private String createToken(String name, Authentication auth) {
         List<String> grantedAuthorities = new ArrayList<>();
