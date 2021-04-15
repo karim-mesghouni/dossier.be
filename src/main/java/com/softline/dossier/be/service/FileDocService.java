@@ -1,13 +1,12 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.domain.Agent;
 import com.softline.dossier.be.domain.FileDoc;
 import com.softline.dossier.be.graphql.types.input.FileDocInput;
 import com.softline.dossier.be.graphql.types.input.FileInput;
-import com.softline.dossier.be.repository.AgentRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
 import com.softline.dossier.be.repository.FileDocRepository;
 import com.softline.dossier.be.repository.FileRepository;
+import com.softline.dossier.be.security.repository.AgentRepository;
 import org.apache.tomcat.jni.File;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -10,6 +10,7 @@ import com.softline.dossier.be.repository.*;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +52,8 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     @Override
     public FileTask create(FileTaskInput input) {
+        var reporter=   agentRepository.findByUsername(((Agent)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+
         var task = taskRepository.findById(input.getTask().getId()).orElseThrow();
         var fileActivity = fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();
         var count = getRepository().countFileTaskByFileActivity_File_Id(fileActivity.getFile().getId());
@@ -60,11 +63,13 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .toStartDate(new Date())
                 .number((count + 1))
                 .fileTaskSituations(new ArrayList<>())
+                .reporter(reporter)
                 .build();
         var fileTaskSituation = FileTaskSituation.builder()
                 .situation(task.getSituations().stream().filter(x -> x.isInitial()).findFirst().orElseThrow())
                 .fileTask(fileTask)
                 .current(true)
+
                 .build();
         fileTask.getFileTaskSituations().add(fileTaskSituation);
         return getRepository().save(fileTask);
@@ -247,6 +252,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public FileTask createChildFileTask(FileTaskInput input) {
+        var reporter=   agentRepository.findByUsername(((Agent)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
         var parent=getRepository().findById(input.getParent().getId()).orElseThrow();
         var task = taskRepository.findById(input.getTask().getId()).orElseThrow();
         var fileActivity = fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();
@@ -257,6 +263,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .toStartDate(new Date())
                 .number((count + 1))
                 .parent(parent)
+                .reporter(reporter)
                 .returned(true)
                 .fileTaskSituations(new ArrayList<>())
                 .build();

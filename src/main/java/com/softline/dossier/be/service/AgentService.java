@@ -3,6 +3,7 @@ package com.softline.dossier.be.service;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.graphql.types.input.AgentInput;
 import com.softline.dossier.be.security.repository.AgentRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,4 +40,11 @@ public class AgentService extends IServiceBase<Agent, AgentInput, AgentRepositor
     }
 
 
+    public Agent getCurrentAgent() {
+      var agent=  (Agent)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+      if (agent!=null){
+        return   getRepository().findByUsername(agent.getUsername());
+      }
+      return null;
+    }
 }

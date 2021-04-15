@@ -24,12 +24,13 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
     public boolean deleteAgent(Long id){
         return delete(id);
     }
-    @PreAuthorize("hasPermission(null,'Get_List_Activity')")
     public List<Agent> getAllAgent(){
         return getAll();
     }
     public Agent getAgent(Long id){
         return get(id);
     }
-
+    public Agent getCurrentAgent(){
+        return service.getCurrentAgent();
+    }
 }
