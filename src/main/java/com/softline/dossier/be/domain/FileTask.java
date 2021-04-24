@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.nio.file.attribute.FileTime;
@@ -16,6 +18,8 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@SQLDelete(sql = "UPDATE FileTask SET deleted=true WHERE id=?")
+@Where(clause = "deleted = false")
 public class FileTask extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

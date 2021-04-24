@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component;
 public class ActivityFieldResolver implements GraphQLResolver<ActivityField> {
 
  public  String getGroupName(ActivityField activityField){
-        return
-                activityField.getGroup().getName();
-    }
+     if (activityField.getGroup() != null)
+         return activityField.getGroup().getName();
+     return null;
+ }
 }

@@ -2,21 +2,21 @@ package com.softline.dossier.be.domain;
 
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.springframework.http.MediaType;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import java.text.MessageFormat;
-import java.util.function.Function;
 
 @SuperBuilder
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
 @Entity
+@SQLDelete(sql = "UPDATE FileDoc SET deleted=true WHERE id=?")
+@Where(clause = "deleted = false")
 public class FileDoc extends  BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,5 +33,5 @@ public class FileDoc extends  BaseEntity {
     @JoinColumn
     Agent agent;
 
-     String description;
+    String description;
 }

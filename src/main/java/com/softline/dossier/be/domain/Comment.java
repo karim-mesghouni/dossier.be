@@ -6,8 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 
+import java.util.*;
 import javax.persistence.*;
 
 @Entity
@@ -18,6 +21,8 @@ import javax.persistence.*;
 @DiscriminatorColumn(name=Comment_.TYPE,
         discriminatorType = DiscriminatorType.STRING)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@SQLDelete(sql = "UPDATE Comment SET deleted=true WHERE id=?")
+@Where(clause = "deleted = false")
 public class Comment extends BaseEntity implements  IComment{
 
     @Id
@@ -38,6 +43,7 @@ public class Comment extends BaseEntity implements  IComment{
     @OneToOne
     @JoinColumn
     FileTask fileTask;
-
+    @OneToMany(mappedBy = "comment")
+    List<Message> messages;
 
 }

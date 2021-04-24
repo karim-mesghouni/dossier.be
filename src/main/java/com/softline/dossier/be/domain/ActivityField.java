@@ -4,6 +4,8 @@ package com.softline.dossier.be.domain;
 import com.softline.dossier.be.domain.enums.FieldType;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
@@ -12,6 +14,8 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@SQLDelete(sql = "UPDATE ActivityField SET deleted=true WHERE id=?")
+@Where(clause = "deleted = false")
 public class ActivityField extends  BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

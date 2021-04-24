@@ -13,16 +13,20 @@ import com.softline.dossier.be.repository.FileRepository;
 import com.softline.dossier.be.service.FileDocService;
 import com.softline.dossier.be.service.FileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
+
 public class FileDocSchemaResolver extends SchemaResolverBase<FileDoc, FileDocInput, FileDocRepository, FileDocService> {
 
 
-    public FileDoc createFileDoc(FileDocInput input){
+    public FileDoc createFileDoc(FileDocInput input) throws IOException {
         return create(input);
     }
     public FileDoc updateFileDoc(FileDocInput input){

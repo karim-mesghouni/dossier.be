@@ -6,13 +6,14 @@ import com.softline.dossier.be.service.IServiceBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.io.IOException;
 import java.util.List;
 
 public abstract class SchemaResolverBase<IEntity ,IEntityInput,IRepository extends JpaRepository<IEntity,Long>,IService extends IServiceBase<IEntity,IEntityInput,IRepository>>  implements GraphQLMutationResolver, GraphQLQueryResolver {
 
   @Autowired
     protected IService service;
-    protected IEntity create(IEntityInput entityInput){
+    protected IEntity create(IEntityInput entityInput) throws IOException {
         return (IEntity) service.create(entityInput);
     }
     protected IEntity update(IEntityInput entityInput){

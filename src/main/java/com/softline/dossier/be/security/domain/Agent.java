@@ -3,6 +3,7 @@ package com.softline.dossier.be.security.domain;
 import com.softline.dossier.be.domain.BaseEntity;
 import com.softline.dossier.be.domain.Comment;
 import com.softline.dossier.be.domain.Comment_;
+import com.softline.dossier.be.domain.Notification;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,7 +40,11 @@ public class Agent extends BaseEntity {
     @Column(name = "token_expired")
     private boolean tokenExpired;
 
-    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "agent")
+    List<Notification> notifications;
+    @Transient()
+    List<Object> authorities;
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(
@@ -47,6 +52,4 @@ public class Agent extends BaseEntity {
             inverseJoinColumns = @JoinColumn(
                     name = "role_id", referencedColumnName = "id"))
     private List<Role> roles;
-    @Transient()
-    List<Object> authorities;
 }

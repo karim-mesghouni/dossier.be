@@ -9,17 +9,21 @@ import com.softline.dossier.be.repository.FileTaskRepository;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.service.FileTaskService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
+
 public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTaskInput, FileTaskRepository, FileTaskService> {
 
 
-    public FileTask createFileTask(FileTaskInput fileTask){
+    public FileTask createFileTask(FileTaskInput fileTask) throws IOException {
         return create(fileTask);
     }
     public FileTask updateFileTask(FileTaskInput fileTask){

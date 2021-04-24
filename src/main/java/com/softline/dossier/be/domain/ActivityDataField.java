@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
@@ -13,8 +15,9 @@ import javax.persistence.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Entity
+@SQLDelete(sql = "UPDATE ActivityDataField SET deleted=true WHERE id=?")
+@Where(clause = "deleted = false")
 public class ActivityDataField extends  BaseEntity{
 
     @Id

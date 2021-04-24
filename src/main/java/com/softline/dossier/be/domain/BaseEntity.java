@@ -35,4 +35,5 @@ public class BaseEntity {
     @Column()
     @LastModifiedDate
     private LocalDateTime modifiedDate;
+    boolean deleted;
 }

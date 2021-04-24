@@ -1,23 +1,14 @@
 package com.softline.dossier.be.Halpers;
 
-import com.softline.dossier.be.Application;
-import com.softline.dossier.be.graphql.GQLExpetion;
+import com.softline.dossier.be.graphql.AuthenticatedGQLException;
 import org.apache.catalina.core.ApplicationPart;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 
-import javax.imageio.ImageIO;
-import javax.servlet.http.Part;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.function.Function;
 
 import static java.nio.charset.Charset.defaultCharset;
 
@@ -31,7 +22,7 @@ public  class ImageHalper {
 
     public static String getType(String mimetype) {
         MediaType mediaType = MediaType.parseMediaType(mimetype);
-        if (!isImage(mediaType)) throw new GQLExpetion("Invalid content-type");
+        if (!isImage(mediaType)) throw new AuthenticatedGQLException("Invalid content-type");
         else if (isJpeg(mediaType)) return "jpg";
         else return mediaType.getSubtype();
     }

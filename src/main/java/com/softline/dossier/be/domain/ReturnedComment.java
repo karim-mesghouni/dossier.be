@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
@@ -12,6 +14,8 @@ import javax.persistence.*;
 @SuperBuilder
 @AllArgsConstructor
 @Data
+@SQLDelete(sql = "UPDATE ReturnedComment SET deleted=true WHERE id=?")
+@Where(clause = "deleted = false")
 public class ReturnedComment extends Comment {
 
 

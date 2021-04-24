@@ -9,16 +9,20 @@ import com.softline.dossier.be.repository.ActivityRepository;
 import com.softline.dossier.be.service.ActivityFieldService;
 import com.softline.dossier.be.service.ActivityService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
+
 public class ActivityFieldSchemaResolver extends SchemaResolverBase<ActivityField, ActivityFieldInput, ActivityFieldRepository, ActivityFieldService> {
 
 
-    public ActivityField createActivityFieldI(ActivityFieldInput activityFieldInput){
+    public ActivityField createActivityFieldI(ActivityFieldInput activityFieldInput) throws IOException {
         return create(activityFieldInput);
     }
     public ActivityField updateActivityField(ActivityFieldInput activityFieldInput){

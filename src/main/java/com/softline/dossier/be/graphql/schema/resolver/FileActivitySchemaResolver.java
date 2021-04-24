@@ -9,14 +9,17 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
+
 public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity,FileActivityInput, FileActivityRepository, FileActivityService> {
 
 
-    public FileActivity createFileActivity(FileActivityInput FileActivity){
+    public FileActivity createFileActivity(FileActivityInput FileActivity) throws IOException {
         return create(FileActivity);
     }
     public FileActivity updateFileActivity(FileActivityInput FileActivity){

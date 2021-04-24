@@ -9,16 +9,20 @@ import com.softline.dossier.be.repository.ClientRepository;
 import com.softline.dossier.be.service.ActivityFieldService;
 import com.softline.dossier.be.service.ClientService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
+
 public class ClientSchemaResolver extends SchemaResolverBase<Client, ClientInput, ClientRepository, ClientService> {
 
 
-    public Client createClient(ClientInput clientInput){
+    public Client createClient(ClientInput clientInput) throws IOException {
         return create(clientInput);
     }
     public Client updateClient(ClientInput clientInput){

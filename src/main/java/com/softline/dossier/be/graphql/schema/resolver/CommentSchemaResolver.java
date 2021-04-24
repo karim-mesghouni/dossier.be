@@ -1,18 +1,14 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
 import com.softline.dossier.be.domain.Comment;
-import com.softline.dossier.be.domain.File;
-import com.softline.dossier.be.graphql.types.FileDTO;
-import com.softline.dossier.be.graphql.types.FileFilterInput;
-import com.softline.dossier.be.graphql.types.PageList;
+import com.softline.dossier.be.domain.Message;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
-import com.softline.dossier.be.graphql.types.input.FileInput;
+import com.softline.dossier.be.graphql.types.input.NotifyMessageInput;
 import com.softline.dossier.be.repository.CommentRepository;
-import com.softline.dossier.be.repository.FileRepository;
 import com.softline.dossier.be.service.CommentService;
-import com.softline.dossier.be.service.FileService;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Part;
@@ -22,10 +18,12 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
+
 public class CommentSchemaResolver extends SchemaResolverBase<Comment, CommentInput, CommentRepository, CommentService> {
 
 
-    public Comment createComment(CommentInput input){
+    public Comment createComment(CommentInput input) throws IOException {
         return create(input);
     }
     public Comment updateComment(CommentInput input){
@@ -47,5 +45,12 @@ public class CommentSchemaResolver extends SchemaResolverBase<Comment, CommentIn
   public  List<Comment>  getAllCommentByFileId(Long fileId){
       return  service.getAllCommentByFileId(fileId);
 
+  }
+  public boolean     notifyMessage(NotifyMessageInput input){
+    return   service.notifyMessage(input);
+  }
+  public List<Message>  getMessages(Long agentId)
+  {
+      return  service.getMessages(agentId);
   }
 }

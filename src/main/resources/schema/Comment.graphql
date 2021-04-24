@@ -1,21 +1,18 @@
-
 # Query
 extend type Query  {
     allComment:[Comment]
     allCommentByFileId(fileId: ID! ):[Comment]
     comment(id: ID! ):Comment
+    messages(agentId:ID!):[Message]
 }
-
 #mutation
 extend type  Mutation{
     createComment(input: CommentInput! ):Comment
     updateComment(input: CommentInput! ):Comment
     deleteComment(id: ID!): Boolean
     uploadImage(image: Upload!):String
-    
+    notifyMessage(input: NotifyMessageInput!):Boolean
 }
-
-
 input CommentInput {
     id:ID
     content:String
@@ -54,6 +51,12 @@ type Comment {
     type: CommentType
 
 }
+type  Message{
+    id: ID
+    readMessage: Boolean
+    comment: Comment
+    agent: Agent
+}
 interface IComment {
     id:ID
     content:String
@@ -68,4 +71,8 @@ enum CommentType{
     Comment,
     Description,
     Returned
+}
+input  NotifyMessageInput {
+    idComment:ID!
+    agentIds:[ID!]
 }

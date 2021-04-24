@@ -106,6 +106,20 @@ public class DbInitializer implements ApplicationRunner {
                     .build()
 
             );
+            agentRepository.save(Agent.builder()
+                    .name("othman")
+                    .email("othman@gmail.com")
+                    .username("othman")
+                    .password(passwordEncoder.encode("000"))
+                    .enabled(true)
+                    .roles(List.of(
+                            Role.builder().name("Role_Manger").privileges(
+                                    List.of(Privilege.builder().name("View_Activity").build())
+                            ).build()
+                    ))
+                    .build()
+
+            );
         }
     }
     private void createZapaActivity() {

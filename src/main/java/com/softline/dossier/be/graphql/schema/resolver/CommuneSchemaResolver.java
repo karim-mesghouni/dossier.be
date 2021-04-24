@@ -8,6 +8,7 @@ import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.core.ApplicationPart;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Part;
@@ -18,10 +19,12 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
+
 public class CommuneSchemaResolver extends SchemaResolverBase<Commune, CommuneInput, CommuneRepository, CommuneService> {
 
 
-    public Commune createCommune(CommuneInput communeInput){
+    public Commune createCommune(CommuneInput communeInput) throws IOException {
         return create(communeInput);
     }
     public Commune updateCommune(CommuneInput communeInput){

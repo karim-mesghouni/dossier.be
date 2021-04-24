@@ -11,16 +11,20 @@ import com.softline.dossier.be.graphql.types.input.FileInput;
 import com.softline.dossier.be.repository.FileRepository;
 import com.softline.dossier.be.service.FileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
+
 public class FileSchemaResolver extends SchemaResolverBase<File, FileInput, FileRepository, FileService> {
 
 
-    public File createFile(FileInput File){
+    public File createFile(FileInput File) throws IOException {
         return create(File);
     }
     public File updateFile(FileInput File){
