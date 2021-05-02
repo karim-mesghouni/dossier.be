@@ -41,9 +41,9 @@ public class FileActivity extends  BaseEntity{
     @ManyToOne
     @JoinColumn
     File file;
-    @Column(nullable = true)
-    @ColumnDefault("null")
-    Boolean valid;
     @OneToMany(mappedBy = Comment_.FILE_ACTIVITY)
     List<Comment> comments;
+    @ManyToOne()
+    @JoinColumn
+    ActivityState state;
 }

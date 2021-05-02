@@ -67,8 +67,8 @@ public class FileRepositoryImpl implements  FileRepositoryCustom{
         if(input.getStateId()!=null){
             var fJoinFileStates=fileRoot.join(File_.FILE_STATES);
             var cJoinFileStates=countRoot.join(File_.FILE_STATES);
-            whereConditions.add(cb.equal(fJoinFileStates.get(FileState_.ID),input.getStateId()));
-            whereCountConditions.add(cb.equal(cJoinFileStates.get(FileState_.ID),input.getStateId()));
+            whereConditions.add(cb.and(cb.equal(fJoinFileStates.get(FileState_.CURRENT),true),cb.equal(fJoinFileStates.get(FileState_.TYPE).get(FileStateType_.ID),input.getStateId())));
+            whereCountConditions.add(cb.and(cb.equal(cJoinFileStates.get(FileState_.CURRENT),true),cb.equal(cJoinFileStates.get(FileState_.TYPE).get(FileStateType_.ID),input.getStateId())));
         }
         if(input.getProject()!=null){
             whereConditions.add(cb.like(fileRoot.get(File_.PROJECT),"%"+input.getProject()+"%"));

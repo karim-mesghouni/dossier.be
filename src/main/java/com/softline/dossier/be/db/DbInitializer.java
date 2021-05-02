@@ -22,22 +22,34 @@ public class DbInitializer implements ApplicationRunner {
 
     @Autowired
     ActivityRepository activityRepository;
+
     @Autowired
     FileStateTypeRepository fileStateTypeRepository;
+
     @Autowired
     BlockingLockingAddressRepository blockingLockingAddressRepository;
+
     @Autowired
     BlockingQualificationRepository blockingQualificationRepository;
+
     @Autowired
     BlockingLabelRepository blockingLabelRepository;
+
     @Autowired
     ClientRepository clientRepository;
+
     @Autowired
     CommuneRepository communeRepository;
+
     @Autowired
     AgentRepository agentRepository;
+
     @Autowired
     ReturnedCauseRepository returnedCauseRepository;
+
+    @Autowired
+    ActivityStateRepository activityStateRepository;
+
     Activity zapa;
     Activity fi;
     Activity ipon;
@@ -45,6 +57,7 @@ public class DbInitializer implements ApplicationRunner {
     Activity cdc;
 
     PasswordEncoder passwordEncoder;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         passwordEncoder=  PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -84,11 +97,21 @@ public class DbInitializer implements ApplicationRunner {
             communeRepository.save(Commune.builder().name("GUEREINS").INSEECode("01183").postalCode("1090").build());
         }
         if (fileStateTypeRepository.count() == 0) {
-            fileStateTypeRepository.save(FileStateType.builder().state("Attribué").initial(true).build());
-            fileStateTypeRepository.save(FileStateType.builder().state("LIVRÉ").Final(true).build());
-            fileStateTypeRepository.save(FileStateType.builder().state("Standby par le client").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("En cours").initial(true).build());
+            fileStateTypeRepository.save(FileStateType.builder().state("Terminé").Final(true).build());
+            fileStateTypeRepository.save(FileStateType.builder().state("Livré").build());
             fileStateTypeRepository.save(FileStateType.builder().state("À LIVRER").build());
-            fileStateTypeRepository.save(FileStateType.builder().state("Annulé par le client").Final(true).build());
+            fileStateTypeRepository.save(FileStateType.builder().state("RETIRÉ").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("STANDBY").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("PREFIBRÉ").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("À RETIRER").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("STANDBY CLIENT").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("MANQUANT").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("REPRISE PIQUETAGE").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("NON AFFECTÉ ÉTUDE").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("REPRISE EN COURS D'ETUDE").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("KIZÉO NON ATTRIBUÉ").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("ANNULÉ").Final(true).build());
 
         }
         if (agentRepository.count()==0){
@@ -123,7 +146,7 @@ public class DbInitializer implements ApplicationRunner {
         }
     }
     private void createZapaActivity() {
-         zapa = Activity.builder().name("ZAPA").description("ZAPA Description").tasks(new ArrayList<>()).build();
+        zapa = Activity.builder().name("ZAPA").description("ZAPA Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsEtude.add(TaskSituation.builder().name("En cours").build());
@@ -147,6 +170,13 @@ public class DbInitializer implements ApplicationRunner {
         var etdue = Task.builder().name("Etude").situations(taskSituationsEtude).activity(zapa).build();
         var controle = Task.builder().name("Controle").situations(taskSituationsControle).activity(zapa).states(states).build();
         etdue.getSituations().forEach(x -> x.setTask(etdue));
+
+        var activityStates = new ArrayList();
+        activityStates.add(ActivityState.builder().activity(zapa).name("En cours").initial(true).build());
+        activityStates.add(ActivityState.builder().activity(zapa).name("PREFIBRÉ").build());
+        activityStates.add(ActivityState.builder().activity(zapa).name("Terminé").Final(true).build());
+        zapa.setStates(activityStates);
+
 
         controle.getSituations().forEach(x -> x.setTask(controle));
         controle.getStates().forEach(x -> x.setTask(controle));
@@ -189,6 +219,14 @@ public class DbInitializer implements ApplicationRunner {
         etdue.getSituations().forEach(x -> x.setTask(etdue));
         controle.getSituations().forEach(x -> x.setTask(controle));
         controle.getStates().forEach(x -> x.setTask(controle));
+
+        var activityStates = new ArrayList();
+        activityStates.add(ActivityState.builder().activity(fi).name("En cours").initial(true).build());
+        activityStates.add(ActivityState.builder().activity(fi).name("PREFIBRÉ").build());
+        activityStates.add(ActivityState.builder().activity(fi).name("Terminé").Final(true).build());
+        fi.setStates(activityStates);
+
+
         fi.getTasks().add(etdue);
         fi.getTasks().add(controle);
         fi.getTasks().add(PreparatrionLivraison);
@@ -220,6 +258,14 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Annulé").Final(true).build());
         var PreparatrionLivraison = Task.builder().name("Préparatrion de livraison").situations(taskSituationsPreparatrionLivraison).activity(ipon).build();
         PreparatrionLivraison.getSituations().forEach(x->x.setTask(PreparatrionLivraison));
+
+        var activityStates = new ArrayList();
+        activityStates.add(ActivityState.builder().activity(ipon).name("En cours").initial(true).build());
+        activityStates.add(ActivityState.builder().activity(ipon).name("PREFIBRÉ").build());
+        activityStates.add(ActivityState.builder().activity(ipon).name("Terminé").Final(true).build());
+        ipon.setStates(activityStates);
+
+
         var states = new ArrayList();
         states.add(TaskState.builder().name("Valide").build());
         states.add(TaskState.builder().name("Non valide").build());
@@ -256,6 +302,14 @@ public class DbInitializer implements ApplicationRunner {
         var preparation = Task.builder().name("PRÉPARATION").situations(taskSituationsEtude).activity(piquetage).build();
         var control = Task.builder().name("PIQUETAGE").situations(taskSituationsControle).activity(piquetage).build();
         var verification = Task.builder().name("VÉRIFICATION DE RETOUR ").situations(taskSituationsverification).activity(piquetage).states(states).build();
+
+        var activityStates = new ArrayList();
+        activityStates.add(ActivityState.builder().activity(piquetage).name("En cours").initial(true).build());
+        activityStates.add(ActivityState.builder().activity(piquetage).name("PREFIBRÉ").build());
+        activityStates.add(ActivityState.builder().activity(piquetage).name("Terminé").Final(true).build());
+        activityStates.add(ActivityState.builder().activity(piquetage).name("PRISE DE RDV PIQUETAGE").build());
+        activityStates.add(ActivityState.builder().activity(piquetage).name("PIQUETÉ NON REÇU").build());
+        piquetage.setStates(activityStates);
 
         preparation.getSituations().forEach(x -> x.setTask(preparation));
         control.getSituations().forEach(x -> x.setTask(control));
@@ -303,6 +357,14 @@ public class DbInitializer implements ApplicationRunner {
         cdc.getTasks().add(etdueComac);
         cdc.getTasks().add(controle);
         cdc.getTasks().add(PreparatrionLivraison);
+
+        var activityStates = new ArrayList();
+        activityStates.add(ActivityState.builder().activity(cdc).name("En cours").initial(true).build());
+        activityStates.add(ActivityState.builder().activity(cdc).name("PREFIBRÉ").build());
+        activityStates.add(ActivityState.builder().activity(cdc).name("Terminé").Final(false).build());
+        cdc.setStates(activityStates);
+
+
         var groupFieldsCOMAC=ActivityFieldGroup.builder().name("COMAC").build();
         var fields = new ArrayList<ActivityField>();
         fields.add(ActivityField.builder().fieldName("Nombre  des Artères").fieldType(FieldType.String).group(groupFieldsCOMAC).activity(cdc).build());

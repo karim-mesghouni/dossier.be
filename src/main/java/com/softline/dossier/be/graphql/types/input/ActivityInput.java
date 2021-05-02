@@ -25,5 +25,6 @@ public class ActivityInput  {
         List<FileActivityInput> fileActivities;
 
         List<TaskInput> tasks;
+     List<ActivityStateInput>   states;
 
 }

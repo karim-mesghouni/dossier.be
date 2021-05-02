@@ -25,4 +25,5 @@ public class FileActivityInput  {
     List<ActivityDataFieldInput> dataFields;
   //  List<RepriseInput> reprises;
     List<FileTaskInput> fileTasks;
+    ActivityStateInput state;
 }

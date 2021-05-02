@@ -1,5 +1,7 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.Sse.model.EventDto;
+import com.softline.dossier.be.Sse.service.SseNotificationService;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.FieldType;
 import com.softline.dossier.be.graphql.types.FileDTO;
@@ -13,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -30,14 +33,17 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     ClientRepository clientRepository;
     @Autowired
     CommuneRepository communeRepository;
-
+    @Autowired
+    ActivityStateRepository activityStateRepository;
+    @Autowired
+    SseNotificationService sseNotificationService;
     @Override
     public List<File> getAll() {
         return (List<File>) repository.findAll();
     }
 
     @Override
-    public File create(FileInput input) {
+    public File create(FileInput input) throws IOException {
         var file = File.builder()
                 .project(input.getProject())
                 .provisionalDeliveryDate(input.getProvisionalDeliveryDate())
@@ -52,6 +58,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         var fileActivity = FileActivity.builder()
                 .file(file)
                 .current(true)
+                .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(activity.getId()))
                 .activity(activity)
                 .build();
 
@@ -87,6 +94,9 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
                     .build()
             );
         }
+
+        sseNotificationService.sendNotificationForAll(EventDto.builder().type("changedInBackend").body(1).build());
+
         return repository.save(file);
     }
 

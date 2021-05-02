@@ -17,7 +17,7 @@ import javax.persistence.OneToOne;
 @SuperBuilder
 @AllArgsConstructor
 @Data
-@SQLDelete(sql = "UPDATE DescriptionComment SET deleted=true WHERE id=?")
+@SQLDelete(sql = "UPDATE Comment SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 public class DescriptionComment extends Comment {
 

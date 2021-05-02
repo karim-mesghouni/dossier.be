@@ -1,12 +1,11 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.domain.Activity;
-import com.softline.dossier.be.domain.ActivityDataField;
-import com.softline.dossier.be.domain.File;
-import com.softline.dossier.be.domain.FileActivity;
+import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.FieldType;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
+import com.softline.dossier.be.repository.ActivityStateRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +16,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class FileActivityService extends IServiceBase<FileActivity, FileActivityInput, FileActivityRepository> {
-
+    @Autowired
+    ActivityStateRepository activityStateRepository;
     @Override
     public List<FileActivity> getAll() {
         return repository.findAll();
@@ -28,6 +28,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
         var fileActivity = FileActivity.builder()
                 .activity(Activity.builder().id(entityInput.getActivity().getId()).build())
                 .file(File.builder().id(entityInput.getFile().getId()).build())
+                .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(entityInput.getActivity().getId()))
                 .current(true)
                 .build();
         if (entityInput.getDataFields() != null && !entityInput.getDataFields().isEmpty()) {
@@ -66,9 +67,10 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
         return getRepository().findAllByFile_Id(fileId);
     }
 
-    public boolean changeValid(boolean valid, Long fileActivityId) {
+    public ActivityState changeActivityState(Long  activityStateId, Long fileActivityId) {
+       var activityState= activityStateRepository.findById(activityStateId).orElseThrow();
         var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
-        fileActivity.setValid(valid);
-        return true;
+        fileActivity.setState(activityState);
+        return activityState;
     }
 }

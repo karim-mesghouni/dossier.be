@@ -15,6 +15,7 @@ import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import graphql.schema.DataFetchingEnvironment;
 import org.apache.catalina.core.ApplicationPart;
+import org.apache.tomcat.jni.Address;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Sort;
@@ -77,7 +78,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                 comment
         );
         var currentAgent = agentRepository.findByUsername(((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
-        sseNotificationService.sendNotification(currentAgent.getId(), EventDto.builder().type("comment").body(comment).build());
+        sseNotificationService.sendNotificationForAll(EventDto.builder().type("comment").body(comment).build());
         return comment;
     }
 
@@ -90,6 +91,14 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
 
     @Override
     public boolean delete(long id) {
+        var comment= repository.findById(id).orElseThrow();
+        if(comment.getFileTask()!=null){
+            if (comment.getType()==CommentType.Returned){
+                comment.getFileTask().setRetour(null);
+            }else if (comment.getType()==CommentType.Description){
+                comment.getFileTask().setDescription(null);
+            }
+        }
         repository.deleteById(id);
         return true;
     }
@@ -106,7 +115,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
 
         var savedFile = new java.io.File(resourceLoader.getResource(new java.io.File("C:\\Users\\PC\\Documents\\fileStorage").toURI().toString()).getFile(), fileName);
         Files.copy(file.getInputStream(), savedFile.toPath());
-
+        //TODO add current ip adress
         return "http://localhost:8081/images/" + fileName;
     }
 

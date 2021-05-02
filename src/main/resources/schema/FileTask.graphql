@@ -27,7 +27,7 @@ extend type  Mutation{
     changeReturnedCause(fileTaskId:ID!,returnedCauseId: ID! ): ReturnedCause
     changeReturned(fileTaskId:ID! ,returned: Boolean!):Boolean
     createChildFileTask(input: FileTaskInput!):FileTask
-    changeParent(fileTaskId:ID!,parentId:ID!):FileTask
+    changeParent(fileTaskId:ID!,parentId:ID):FileTask
 }
 
 

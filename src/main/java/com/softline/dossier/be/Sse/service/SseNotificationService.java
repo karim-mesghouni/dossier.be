@@ -27,6 +27,24 @@ public class SseNotificationService implements NotificationService {
         doSendNotification(agentId, event);
     }
 
+    @Override
+    public void sendNotificationForAll(EventDto event) throws IOException {
+        emitterRepository.getAll().forEach(x->{
+
+                x.forEach(emitter -> {
+                            try {
+                                emitter.send(SseEmitter.event()
+                                        .id(RandomStringUtils.randomAlphanumeric(12))
+                                        .name(event.getType())
+                                        .data(new ObjectMapper().writeValueAsString(event.getBody())));
+                            } catch (Exception Exception) {
+                                emitter.complete();
+                            }
+                        }
+                        );}
+                );
+    }
+
     private void doSendNotification(Long agentId, EventDto event)  {
         emitterRepository.get(agentId).ifPresent(x->x.forEach(e-> {
 
@@ -35,7 +53,7 @@ public class SseNotificationService implements NotificationService {
                         .id(RandomStringUtils.randomAlphanumeric(12))
                         .name(event.getType())
                         .data(new ObjectMapper().writeValueAsString(event.getBody())));
-            } catch (IOException ioException) {
+            } catch (Exception Exception) {
                     e.complete();
             }
 

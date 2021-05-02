@@ -31,4 +31,6 @@ public class Activity extends BaseEntity {
         @OneToMany(mappedBy = Task_.ACTIVITY,cascade = CascadeType.ALL)
         List<Task> tasks;
 
+        @OneToMany(mappedBy = ActivityState_.ACTIVITY,cascade = CascadeType.ALL)
+        List<ActivityState> states;
 }

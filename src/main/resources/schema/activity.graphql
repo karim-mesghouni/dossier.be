@@ -19,6 +19,8 @@ type   Activity {
         fields:[ActivityField]
         fileActivities:[FileActivity]
         tasks: [Task]
+        states:[ActivityState]
+
 }
 
 input   ActivityInput {
@@ -28,4 +30,6 @@ input   ActivityInput {
         fields:[ActivityFieldInput]
         fileActivities:[FileActivityInput]
         tasks: [TaskInput]
+        states:[ActivityStateInput]
+
 }

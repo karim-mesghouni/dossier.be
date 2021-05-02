@@ -1,5 +1,6 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
+import com.softline.dossier.be.domain.ActivityState;
 import com.softline.dossier.be.domain.FileActivity;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
 import com.softline.dossier.be.repository.FileActivityRepository;
@@ -37,7 +38,7 @@ public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity,
     public List<FileActivity>  getAllFileActivityByFileId(Long fileId){
         return  service.getAllFileActivityByFileId(fileId);
     }
-    public boolean changeValid( boolean valid,Long fileActivityId){
-        return  service.changeValid(valid,fileActivityId);
+    public ActivityState changeActivityState(Long  activityStateId, Long fileActivityId){
+        return  service.changeActivityState(activityStateId,fileActivityId);
     }
 }

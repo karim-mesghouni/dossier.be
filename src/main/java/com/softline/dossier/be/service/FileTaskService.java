@@ -279,8 +279,12 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     public FileTask changeParent(Long fileTaskId, Long parentId) {
         var fileTask=getRepository().findById(fileTaskId).orElseThrow();
-        var parent=getRepository().findById(parentId).orElseThrow();
-        fileTask.setParent(parent);
+     if(parentId!=null) {
+         var parent = getRepository().findById(parentId).orElseThrow();
+         fileTask.setParent(parent);
+     }else
+         fileTask.setParent(null);
+
         return  fileTask;
     }
 }

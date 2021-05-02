@@ -10,7 +10,7 @@ extend type  Mutation{
      createFileActivity(FileActivity: FileActivityInput! ):FileActivity
      updateFileActivity(FileActivity: FileActivityInput! ):FileActivity
      deleteFileActivity(id: Int!):Boolean
-     changeValid(valid: Boolean!, fileActivityId: ID!):Boolean
+     changeActivityState(activityStateId: ID!, fileActivityId: ID!):ActivityState
 }
 
 type FileActivity {
@@ -21,7 +21,8 @@ type FileActivity {
      dataFields:[ActivityDataField]
      reprises:[Reprise]
      fileTasks:[FileTask]
-     valid: Boolean
+     state:ActivityState
+
 }
 input FileActivityInput  {
      id :ID
@@ -31,7 +32,7 @@ input FileActivityInput  {
      dataFields:[ActivityDataFieldInput]
      #repises:[RepriseInput]
      fileTasks:[FileTaskInput]
-     valid: Boolean
+     state:ActivityStateInput
 
 }
 type FileState  {
@@ -45,4 +46,20 @@ input FileStateInput  {
      current: Boolean
      type:FileStateTypeInput
      file: FileInput
+}
+type ActivityState{
+     id: ID
+     name:String
+     initial:Boolean
+     Final:Boolean
+     activity:Activity
+     fileActivities:[FileActivity]
+}
+input ActivityStateInput{
+     id: ID
+     name:String
+     initial:Boolean
+     Final:Boolean
+     activity:ActivityInput
+     fileActivities:[FileActivityInput]
 }

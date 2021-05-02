@@ -43,7 +43,7 @@ public class Comment extends BaseEntity implements  IComment{
     @OneToOne
     @JoinColumn
     FileTask fileTask;
-    @OneToMany(mappedBy = "comment")
+    @OneToMany(mappedBy = "comment",orphanRemoval = true)
     List<Message> messages;
 
 }

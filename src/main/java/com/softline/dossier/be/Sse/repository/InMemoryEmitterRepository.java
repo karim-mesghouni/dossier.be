@@ -1,7 +1,6 @@
 package com.softline.dossier.be.Sse.repository;
 
 import com.softline.dossier.be.Sse.model.EmitterAgent;
-import com.softline.dossier.be.Sse.model.EmitterItem;
 import com.softline.dossier.be.Sse.service.EmitterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +9,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.*;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Repository
 @RequiredArgsConstructor
@@ -31,7 +30,7 @@ public class InMemoryEmitterRepository implements EmitterRepository {
         }else
             existsEmitter=ifexistsEmitter.get();
 
-        EmitterService.Utf8SseEmitter emitter = new EmitterService.Utf8SseEmitter(1000*60*5);
+        EmitterService.Utf8SseEmitter emitter = new EmitterService.Utf8SseEmitter(1000*60*60*24*7);
         var sessionId= existsEmitter.addEmitterSession(emitter);
 
         emitter.onCompletion(() ->
@@ -61,6 +60,11 @@ public class InMemoryEmitterRepository implements EmitterRepository {
         emitters.stream().filter(x->x.getAgentId()==agentId).findFirst().ifPresent(x->{
             x.getEmitterSessions().removeIf(ei->ei.getEmitter().equals(emitter));
         });
+    }
+
+    @Override
+    public Stream<Stream<SseEmitter>> getAll() {
+        return   emitters.stream().map(x->x.getEmitterSessions().stream().map(s->s.getEmitter()));
     }
 
     @Override
