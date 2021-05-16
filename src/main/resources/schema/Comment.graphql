@@ -62,7 +62,6 @@ interface IComment {
     content:String
     fileActivity:FileActivity
     agent: Agent
-    createdDate: String
     fileTask: FileTask
     type: CommentType
 

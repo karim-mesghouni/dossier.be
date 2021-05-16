@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -59,10 +60,10 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
     public  List<FileTask>   getAllFileTaskByAssignedToId(Long assignedToId){
         return   service.getAllFileTaskByAssignedToId(assignedToId);
     }
-    public boolean changeToStartDate(Date toStartDate,Long fileTaskId){
+    public boolean changeToStartDate(LocalDate toStartDate, Long fileTaskId){
         return service.changeToStartDate(toStartDate,fileTaskId);
     }
-    public boolean changeDueDate(Date dueDate,Long fileTaskId){
+    public boolean changeDueDate(LocalDate dueDate,Long fileTaskId){
 
         return service.changeDueDate(dueDate,fileTaskId);
     }

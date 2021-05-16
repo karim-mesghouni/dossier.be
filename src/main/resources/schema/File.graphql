@@ -29,6 +29,7 @@ type File  {
      currentFileState:FileState
      currentFileActivity:FileActivity
      baseActivity: Activity
+     reprise: File
 }
 input FileInput  {
      id: ID
@@ -45,6 +46,7 @@ input FileInput  {
      currentFileState:FileStateInput
      currentFileActivity:FileActivityInput
      baseActivity: ActivityInput
+     reprise: FileInput
 
 }
 input FileFilterInput{

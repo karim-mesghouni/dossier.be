@@ -22,10 +22,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -115,7 +117,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
 
         var savedFile = new java.io.File(resourceLoader.getResource(new java.io.File("C:\\Users\\PC\\Documents\\fileStorage").toURI().toString()).getFile(), fileName);
         Files.copy(file.getInputStream(), savedFile.toPath());
-        //TODO add current ip adress
+        //TODO add current ip adress use for get current url : ServletUriComponentsBuilder.fromCurrentContextPath()
         return "http://localhost:8081/images/" + fileName;
     }
 

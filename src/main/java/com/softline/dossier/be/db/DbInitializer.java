@@ -13,6 +13,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.expression.Lists;
 
 import java.util.*;
@@ -57,7 +58,7 @@ public class DbInitializer implements ApplicationRunner {
     Activity cdc;
 
     PasswordEncoder passwordEncoder;
-
+    @Transactional
     @Override
     public void run(ApplicationArguments args) throws Exception {
         passwordEncoder=  PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -115,34 +116,114 @@ public class DbInitializer implements ApplicationRunner {
 
         }
         if (agentRepository.count()==0){
-            agentRepository.save(Agent.builder()
-                    .name("elhabib")
-                    .email("elahbib@gmail.com")
-                    .username("elhabib")
-                    .password(passwordEncoder.encode("000"))
-                    .enabled(true)
-                    .roles(List.of(
-                            Role.builder().name("Role_Manger").privileges(
-                                    List.of(Privilege.builder().name("View_Activity").build())
-                            ).build()
-                    ))
-                    .build()
+            var agents=List.of(
+                    "elhabib"
+                    ,"othman"
+                    ,"ELTIFI Sana"
+                    ,"HMAIDI Omar"
+                    ,"BENNOUR Imen"
+                    ,"AZIZI Chaima"
+                    ,"HAJRI Khaoula"
+                    ,"MABROUK Akrem"
+                    ,"BEN AMOR Talel"
+                    ,"KHEZAMI Aymen"
+                    ,"TARHOUNI Donia"
+                    ,"SININI Yosra"
+                    ,"ELKEFI Salma"
+                    ,"KOCHBATI Ep KAMOUN Nouha"
+                    ,"AMDOUNI Med Ali"
+                    ,"SASSI Olfa"
+                    ,"AROUI Mahdi"
+                    ,"LOUATI Ikbel"
+                    ,"JAMAI Hiba"
+                    ,"TOUZRI Jamil Aziz"
+                    ,"SAID Mouhamed"
+                    ,"BOULILA Fatma"
+                    ,"DAKHLAOUI Rahma"
+                    ,"BEN HLIMA Omar"
+                    ,"NEMRI Ep. ELOUSGI Sarra"
+                    ,"AGREBI Yosra"
+                    ,"MELKI Maroua"
+                    ,"MEJRI AFEF"
+                    ,"BEN RACHED Oumayma"
+                    ,"KAROUI Salim"
+                    ,"BEJAOUI Nadia"
+                    ,"AISSAOUI Mohamed Sofiene"
+                    ,"OUESLATI Mariem"
+                    ,"GUITOUNI Raoua"
+                    ,"MASMOUDI Ines"
+                    ,"HAMMAMI Aziza"
+                    ,"HAJJI Tasnim"
+                    ,"TAYEG Ghada"
+                    ,"HOSNY Sawssen"
+                    ,"BEN SALAH Ep. MOUSSA Mariem"
+                    ,"CHAMMEM Manel"
+                    ,"NEGUIA SalahEddine"
+                    ,"DIOUANE Amor"
+                    ,"GHEZALI Mahmoud"
+                    ,"CHIHI Rihem"
+                    ,"CHIHI Amal"
+                    ,"BRAHMI Asma"
+                    ,"LABIDI Khawla"
+                    ,"BEN ELBEY Lobna"
+                    ,"MAAROUFI Wissal"
+                    ,"HAMMAMI Ines"
+                    ,"KAABACHI Khaled"
+                    ,"DAHMENI Ahmed"
+                    ,"Cpcp"
+                    ,"Nasri"
+                    ,"Rafaa"
+                    ,"Julien"
+                    ,"Riahi Safa"
+                    ,"Wael+Firas"
+                    ,"Jelassi Wael"
+                    ,"Hmaied Firas"
+                    ,"Bennour Ramzi"
+                    ,"Riahi Mohamed"
+                    ,"Settou Mohamed"
+                    ,"Belhaj Med Souhaieb"
+                    ,"Hermi Ali"
+                    ,"Mezni Emna"
+                    ,"Sbai Malek"
+                    ,"Abcha Amani"
+                    ,"Aroui Mehdi"
+                    ,"Lakti Marwa"
+                    ,"Melki Marwa"
+                    ,"Jlassi Wael"
+                    ,"Souissi Beya"
+                    ,"Senini Yosra"
+                    ,"Ferchichi Aya"
+                    ,"Khaldi Khawla"
+                    ,"Touihri Nouha"
+                    ,"Khaldi Yosra "
+                    ,"Si Jemaa Akrem"
+                    ,"Hannachi Fadwa"
+                    ,"Karoui Mohamed"
+                    ,"Riahi Mohamed "
+                    ,"Hedidar Naouel"
+                    ,"Nahali Nesrine"
+                    ,"Mathlouthi Amel"
+                    ,"Romdhani Chaima"
+                    ,"Khelifi Ghassen"
+                    ,"Bouhlel Oussema");
+            for (var agent:agents) {
 
-            );
-            agentRepository.save(Agent.builder()
-                    .name("othman")
-                    .email("othman@gmail.com")
-                    .username("othman")
-                    .password(passwordEncoder.encode("000"))
-                    .enabled(true)
-                    .roles(List.of(
-                            Role.builder().name("Role_Manger").privileges(
-                                    List.of(Privilege.builder().name("View_Activity").build())
-                            ).build()
-                    ))
-                    .build()
+                agentRepository.save(Agent.builder()
+                        .name(agent)
+                        .email(agent+"@gmail.com")
+                        .username(agent.replace(" ","_"))
+                        .password(passwordEncoder.encode("000"))
+                        .enabled(true)
+                        .roles(List.of(
+                                Role.builder().name("Role_Manger").privileges(
+                                        List.of(Privilege.builder().name("View_Activity").build())
+                                ).build()
+                        ))
+                        .build()
 
-            );
+                );
+            }
+
         }
     }
     private void createZapaActivity() {

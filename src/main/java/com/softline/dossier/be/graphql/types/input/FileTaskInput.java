@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -20,10 +21,10 @@ public class FileTaskInput {
     boolean current;
     FileActivityInput fileActivity;
     TaskInput task;
-    Date toStartDate;
-    Date dueDate;
-    Date startDate;
-    Date endDate;
+    LocalDate toStartDate;
+    LocalDate dueDate;
+    LocalDate startDate;
+    LocalDate endDate;
     AgentInput reporter;
     AgentInput assignedTo;
     List<FileTaskSituationInput> fileTaskStates;

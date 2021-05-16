@@ -44,6 +44,10 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
 
     @Override
     public File create(FileInput input) throws IOException {
+        File reprise=null;
+        if(input.getReprise()!=null&&input.getReprise().getId()!=null){
+            reprise =getRepository().findById(input.getReprise().getId()).orElseThrow();
+        }
         var file = File.builder()
                 .project(input.getProject())
                 .provisionalDeliveryDate(input.getProvisionalDeliveryDate())
@@ -51,18 +55,19 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
                 .deliveryDate(input.getDeliveryDate())
                 .returnDeadline(input.getReturnDeadline())
                 .fileStates(new ArrayList<>())
+                .reprise(reprise)
                 .fileActivities(new ArrayList<>())
                 .client(Client.builder().id(input.getClient().getId()).build())
                 .commune(Commune.builder().id(input.getCommune().getId()).build()).build();
-        var activity = activityRepository.findById(input.getCurrentFileActivity().getActivity().getId()).orElseThrow();
-        var fileActivity = FileActivity.builder()
+        var activity = activityRepository.findById(input.getBaseActivity().getId()).orElseThrow();
+     /*   var fileActivity = FileActivity.builder()
                 .file(file)
                 .current(true)
                 .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(activity.getId()))
                 .activity(activity)
-                .build();
+                .build();*/
 
-        if (activity.getFields() != null && !activity.getFields().isEmpty()) {
+      /*  if (activity.getFields() != null && !activity.getFields().isEmpty()) {
             var dataFields = activity.getFields().stream()
                     .map(x -> ActivityDataField.builder()
                             .data("")
@@ -73,9 +78,9 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
                             .build()
                     );
             fileActivity.setDataFields(dataFields.collect(Collectors.toList()));
-        }
+        }*/
         file.setBaseActivity(activity);
-        file.getFileActivities().add(fileActivity);
+       // file.getFileActivities().add(fileActivity);
         if (input.getCurrentFileState() != null && input.getCurrentFileState().getType() != null && input.getCurrentFileState().getType().getId() != null) {
 
             file.getFileStates().add(FileState.builder()
@@ -102,13 +107,19 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
 
     @Override
     public File update(FileInput input) {
-
+        File reprise=null;
+        if(input.getReprise()!=null&&input.getReprise().getId()!=null){
+            reprise =getRepository().findById(input.getReprise().getId()).orElseThrow();
+        }
         var fileExist = repository.findById(input.getId()).orElseThrow();
+        var baseActivity= activityRepository.findById(input.getBaseActivity().getId()).orElseThrow();
         fileExist.setClient(clientRepository.findById(input.getClient().getId()).orElseThrow());
         fileExist.setAttributionDate(input.getAttributionDate());
+        fileExist.setBaseActivity(baseActivity);
         fileExist.setReturnDeadline(input.getReturnDeadline());
-        fileExist.setDeliveryDate(input.getDeliveryDate());
+        fileExist.setProvisionalDeliveryDate(input.getProvisionalDeliveryDate());
         fileExist.setProject(input.getProject());
+        fileExist.setReprise(reprise);
         fileExist.setCommune(communeRepository.findById(input.getCommune().getId()).orElseThrow());
         var oldfileState = fileStateRepository.findFirstByCurrentIsTrueAndFile_Id(fileExist.getId());
         if (oldfileState != null && input.getCurrentFileState() != null && input.getCurrentFileState().getType() != null) {

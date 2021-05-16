@@ -15,7 +15,7 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @Entity
-@SQLDelete(sql = "UPDATE FileDoc SET deleted=true WHERE id=?")
+@SQLDelete(sql = "UPDATE file_doc  SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 public class FileDoc extends  BaseEntity {
     @Id

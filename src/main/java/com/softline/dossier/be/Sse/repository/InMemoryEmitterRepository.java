@@ -69,16 +69,16 @@ public class InMemoryEmitterRepository implements EmitterRepository {
 
     @Override
     public Optional<SseEmitter> get(Long agentId,Long sessionId) {
-        var existsEmitter = emitters.stream().filter(x->x.getAgentId()==agentId).findFirst();
+        var existsEmitter = emitters.stream().filter(x->x.getAgentId().equals(agentId)).findFirst();
         if(existsEmitter.isPresent()){
-          return   existsEmitter.get().getEmitterSessions().stream().filter(x->x.getSessionId()==sessionId).findFirst().map(x->x.getEmitter());
+          return   existsEmitter.get().getEmitterSessions().stream().filter(x->x.getSessionId().equals(sessionId)).findFirst().map(x->x.getEmitter());
         }
         return  Optional.empty();
     }
 
     @Override
     public Optional<List<SseEmitter>> get(Long agentId) {
-        var existsEmitter = emitters.stream().filter(x->x.getAgentId()==agentId).findFirst();
+        var existsEmitter = emitters.stream().filter(x->x.getAgentId().equals(agentId)).findFirst();
 
         if(existsEmitter.isPresent()){
             return  Optional.ofNullable(existsEmitter.get().getEmitterSessions().stream().map(x->x.getEmitter()).collect(Collectors.toList()));

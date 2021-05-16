@@ -3,6 +3,7 @@ package com.softline.dossier.be.graphql.types;
 import lombok.Data;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 @Data
 public class FileFilterInput {
@@ -12,12 +13,12 @@ public class FileFilterInput {
    Long clientId;
    Long  activityId;
    Long  stateId;
-   Date   attributionDateFrom;
-   Date attributionDateTo;
-   Date   returnDeadlineFrom;
-   Date  returnDeadlineTo;
-   Date   provisionalDeliveryDateFrom;
-   Date  provisionalDeliveryDateTo;
-   Date  deliveryDateFrom;
-   Date  deliveryDateTo;
+   LocalDate   attributionDateFrom;
+   LocalDate attributionDateTo;
+   LocalDate   returnDeadlineFrom;
+   LocalDate  returnDeadlineTo;
+   LocalDate   provisionalDeliveryDateFrom;
+   LocalDate  provisionalDeliveryDateTo;
+   LocalDate deliveryDateFrom;
+   LocalDate  deliveryDateTo;
 }

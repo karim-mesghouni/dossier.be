@@ -8,6 +8,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.*;
 
 @SuperBuilder
@@ -23,14 +24,10 @@ public class File extends BaseEntity {
     long id;
 
     String project;
-    @Temporal(TemporalType.DATE)
-    Date attributionDate;
-    @Temporal(TemporalType.DATE)
-    Date returnDeadline;
-    @Temporal(TemporalType.DATE)
-    Date provisionalDeliveryDate;
-    @Temporal(TemporalType.DATE)
-    Date deliveryDate;
+    LocalDate attributionDate;
+    LocalDate returnDeadline;
+    LocalDate provisionalDeliveryDate;
+    LocalDate deliveryDate;
 
 
     @ManyToOne
@@ -53,6 +50,10 @@ public class File extends BaseEntity {
     @OneToOne()
     @JoinColumn()
     Activity baseActivity;
+
+    @ManyToOne
+    @JoinColumn
+    File reprise;
 
     @Transient()
     FileState currentFileState;

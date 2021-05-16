@@ -30,6 +30,7 @@ public class FileRepositoryImpl implements  FileRepositoryCustom{
 
         List<Predicate> whereConditions = new ArrayList<>();
         List<Predicate> whereCountConditions = new ArrayList<>();
+
         if(input.getAttributionDateFrom()!=null){
             whereConditions.add(cb.greaterThanOrEqualTo(fileRoot.get(File_.ATTRIBUTION_DATE),input.getAttributionDateFrom()));
             whereCountConditions.add(cb.greaterThanOrEqualTo(countRoot.get(File_.ATTRIBUTION_DATE),input.getAttributionDateFrom()));
@@ -38,6 +39,7 @@ public class FileRepositoryImpl implements  FileRepositoryCustom{
             whereConditions.add(cb.lessThanOrEqualTo(fileRoot.get(File_.ATTRIBUTION_DATE),input.getAttributionDateTo()));
             whereCountConditions.add(cb.lessThanOrEqualTo(countRoot.get(File_.ATTRIBUTION_DATE),input.getAttributionDateTo()));
         }
+
         if(input.getProvisionalDeliveryDateFrom()!=null){
             whereConditions.add(cb.greaterThanOrEqualTo(fileRoot.get(File_.PROVISIONAL_DELIVERY_DATE),input.getProvisionalDeliveryDateFrom()));
             whereCountConditions.add(cb.greaterThanOrEqualTo(countRoot.get(File_.PROVISIONAL_DELIVERY_DATE),input.getProvisionalDeliveryDateFrom()));
@@ -46,6 +48,7 @@ public class FileRepositoryImpl implements  FileRepositoryCustom{
             whereConditions.add(cb.lessThanOrEqualTo(fileRoot.get(File_.PROVISIONAL_DELIVERY_DATE),input.getProvisionalDeliveryDateTo()));
             whereCountConditions.add(cb.lessThanOrEqualTo(countRoot.get(File_.PROVISIONAL_DELIVERY_DATE),input.getProvisionalDeliveryDateTo()));
         }
+
         if(input.getDeliveryDateFrom()!=null){
             whereConditions.add(cb.greaterThanOrEqualTo(fileRoot.get(File_.DELIVERY_DATE),input.getDeliveryDateFrom()));
             whereCountConditions.add(cb.greaterThanOrEqualTo(countRoot.get(File_.DELIVERY_DATE),input.getDeliveryDateFrom()));
@@ -54,6 +57,7 @@ public class FileRepositoryImpl implements  FileRepositoryCustom{
             whereConditions.add(cb.lessThanOrEqualTo(fileRoot.get(File_.DELIVERY_DATE),input.getDeliveryDateTo()));
             whereCountConditions.add(cb.lessThanOrEqualTo(countRoot.get(File_.DELIVERY_DATE),input.getDeliveryDateTo()));
         }
+
         if(input.getClientId()!=null){
             whereConditions.add(cb.equal(fileRoot.get(File_.CLIENT).get(Client_.ID),input.getClientId()));
             whereCountConditions.add(cb.equal(countRoot.get(File_.CLIENT).get(Client_.ID),input.getClientId()));
@@ -75,11 +79,11 @@ public class FileRepositoryImpl implements  FileRepositoryCustom{
             whereCountConditions.add(cb.equal(countRoot.get(File_.PROJECT),"%"+input.getProject()+"%"));
         }
         cq.where(cb.and(whereConditions.toArray(new Predicate[]{})));
-        TypedQuery<File> query = entityManager.createQuery(cq);
+        TypedQuery<File> query = entityManager.createQuery(cq.distinct(true));
         CountQury= CountQury.select(cb.count(countRoot));
         CountQury.where(cb.and(whereCountConditions.toArray(new Predicate[]{})));
 
-        return  new Pair<>(entityManager.createQuery(CountQury).getSingleResult(),query.setFirstResult(input.getPageNumber()* input.getPageSize()).setMaxResults(input.getPageSize()).getResultList());
+        return  new Pair<>(entityManager.createQuery(CountQury.distinct(true)).getSingleResult(),query.setFirstResult(input.getPageNumber()* input.getPageSize()).setMaxResults(input.getPageSize()).getResultList());
     }
 
 }
