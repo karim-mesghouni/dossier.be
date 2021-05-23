@@ -21,4 +21,5 @@ public class FileFilterInput {
    LocalDate  provisionalDeliveryDateTo;
    LocalDate deliveryDateFrom;
    LocalDate  deliveryDateTo;
+   FileType fileType  ;
 }

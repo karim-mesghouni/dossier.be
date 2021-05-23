@@ -2,6 +2,7 @@ package com.softline.dossier.be.repository.custom;
 
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.graphql.types.FileFilterInput;
+import com.softline.dossier.be.graphql.types.FileType;
 import org.javatuples.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,6 +78,15 @@ public class FileRepositoryImpl implements  FileRepositoryCustom{
         if(input.getProject()!=null){
             whereConditions.add(cb.like(fileRoot.get(File_.PROJECT),"%"+input.getProject()+"%"));
             whereCountConditions.add(cb.equal(countRoot.get(File_.PROJECT),"%"+input.getProject()+"%"));
+        }
+        if(input.getFileType()!=null){
+            if (input.getFileType()== FileType.Reprise) {
+                whereConditions.add(cb.isNotNull(fileRoot.get(File_.reprise)));
+                whereCountConditions.add(cb.isNotNull(countRoot.get(File_.reprise)));
+            }else{
+                whereConditions.add(cb.isNull(fileRoot.get(File_.reprise)));
+                whereCountConditions.add(cb.isNull(countRoot.get(File_.reprise)));
+            }
         }
         cq.where(cb.and(whereConditions.toArray(new Predicate[]{})));
         TypedQuery<File> query = entityManager.createQuery(cq.distinct(true));

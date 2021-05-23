@@ -12,6 +12,7 @@ import org.hibernate.annotations.Where;
 import javax.persistence.*;
 import java.nio.file.attribute.FileTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @SuperBuilder
@@ -41,14 +42,10 @@ public class FileTask extends BaseEntity{
     @ManyToOne
     @JoinColumn
     Task task;
-    @Column(columnDefinition = "date")
-    LocalDate toStartDate;
-    @Column(columnDefinition = "date")
-    LocalDate dueDate;
-    @Column(columnDefinition = "date")
-    LocalDate startDate;
-    @Column(columnDefinition = "date")
-    LocalDate endDate;
+    LocalDateTime toStartDate;
+    LocalDateTime dueDate;
+    LocalDateTime startDate;
+    LocalDateTime endDate;
     @OneToOne
     Agent reporter;
     @OneToOne

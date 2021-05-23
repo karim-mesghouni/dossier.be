@@ -88,15 +88,8 @@ public class DbInitializer implements ApplicationRunner {
             clientRepository.save(Client.builder().name("SPIE").build());
         }
         if (communeRepository.count() == 0) {
-            communeRepository.save(Commune.builder().name("BOURG EN BRESSE").INSEECode("01053").postalCode("1000").build());
-            communeRepository.save(Commune.builder().name("SAINT DENIS LES BOURG").INSEECode("01344").postalCode("1000").build());
-            communeRepository.save(Commune.builder().name("BROU").INSEECode("01914").postalCode("1000").build());
-            communeRepository.save(Commune.builder().name("AMAREINS").INSEECode("01003").postalCode("1090").build());
-            communeRepository.save(Commune.builder().name("CESSEINS").INSEECode("01070").postalCode("1090").build());
-            communeRepository.save(Commune.builder().name("AMAREINS FRANCHELEINS CES").INSEECode("01165").postalCode("1090").build());
-            communeRepository.save(Commune.builder().name("GENOUILLEUX").INSEECode("01169").postalCode("1090").build());
-            communeRepository.save(Commune.builder().name("GUEREINS").INSEECode("01183").postalCode("1090").build());
-        }
+            createCommunes();
+            }
         if (fileStateTypeRepository.count() == 0) {
             fileStateTypeRepository.save(FileStateType.builder().state("En cours").initial(true).build());
             fileStateTypeRepository.save(FileStateType.builder().state("Terminé").Final(true).build());
@@ -226,6 +219,18 @@ public class DbInitializer implements ApplicationRunner {
 
         }
     }
+    private void createCommunes() {
+        communeRepository.save(Commune.builder().name("BOURG EN BRESSE").INSEECode("01053").postalCode("1000").build());
+        communeRepository.save(Commune.builder().name("SAINT DENIS LES BOURG").INSEECode("01344").postalCode("1000").build());
+        communeRepository.save(Commune.builder().name("BROU").INSEECode("01914").postalCode("1000").build());
+        communeRepository.save(Commune.builder().name("AMAREINS").INSEECode("01003").postalCode("1090").build());
+        communeRepository.save(Commune.builder().name("CESSEINS").INSEECode("01070").postalCode("1090").build());
+        communeRepository.save(Commune.builder().name("AMAREINS FRANCHELEINS CES").INSEECode("01165").postalCode("1090").build());
+        communeRepository.save(Commune.builder().name("GENOUILLEUX").INSEECode("01169").postalCode("1090").build());
+        communeRepository.save(Commune.builder().name("GUEREINS").INSEECode("01183").postalCode("1090").build());
+
+
+    }
     private void createZapaActivity() {
         zapa = Activity.builder().name("ZAPA").description("ZAPA Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
@@ -320,7 +325,10 @@ public class DbInitializer implements ApplicationRunner {
         fi.setFields(fields);
         activityRepository.save(fi);
     }
-    private void createIPONActivity() {
+    private void createIPONActivity()
+
+
+    {
          ipon = Activity.builder().name("IPON").description("IPON Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());

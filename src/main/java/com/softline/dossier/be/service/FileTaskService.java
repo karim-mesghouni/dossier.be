@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Transactional
@@ -61,7 +62,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         var fileTask = FileTask.builder()
                 .fileActivity(fileActivity)
                 .task(task)
-                .toStartDate(LocalDate.now())
+                .toStartDate(LocalDateTime.now())
                 .number((count + 1))
                 .fileTaskSituations(new ArrayList<>())
                 .reporter(reporter)
@@ -135,9 +136,9 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
             oldSituation.setCurrent(false);
         }
         if (situation.isFinal()) {
-            fileTask.setEndDate(LocalDate.now());
+            fileTask.setEndDate(LocalDateTime.now());
         } else if (!situation.isFinal() && !situation.isInitial()) {
-            fileTask.setStartDate(LocalDate.now());
+            fileTask.setStartDate(LocalDateTime.now());
         }
         var fileSituation = fileTaskSituationRepository.save(FileTaskSituation.builder()
                 .situation(situation)
@@ -156,13 +157,13 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return getRepository().findAllByAssignedTo_Id(assignedToId);
     }
 
-    public boolean changeToStartDate(LocalDate toStartDate, Long fileTaskId) {
+    public boolean changeToStartDate(LocalDateTime toStartDate, Long fileTaskId) {
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         fileTask.setToStartDate(toStartDate);
         return true;
     }
 
-    public boolean changeDueDate(LocalDate dueDate, Long fileTaskId) {
+    public boolean changeDueDate(LocalDateTime dueDate, Long fileTaskId) {
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         fileTask.setDueDate(dueDate);
         return true;
@@ -261,7 +262,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         var fileTask = FileTask.builder()
                 .fileActivity(fileActivity)
                 .task(task)
-                .toStartDate(LocalDate.now())
+                .toStartDate(LocalDateTime.now())
                 .number((count + 1))
                 .parent(parent)
                 .reporter(reporter)

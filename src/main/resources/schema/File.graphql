@@ -64,6 +64,11 @@ input FileFilterInput{
      provisionalDeliveryDateTo: String
      deliveryDateFrom: String
      deliveryDateTo: String
+     fileType: FileType
+}
+enum  FileType{
+     Attribution
+     Reprise
 }
 type PageList{
      page: [File]
