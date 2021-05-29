@@ -54,7 +54,7 @@ public class File extends BaseEntity {
     @ManyToOne
     @JoinColumn
     File reprise;
-
+    boolean fileReprise;
     @Transient()
     FileState currentFileState;
     @Transient()

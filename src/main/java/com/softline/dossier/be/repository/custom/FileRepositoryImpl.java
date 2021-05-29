@@ -64,10 +64,9 @@ public class FileRepositoryImpl implements  FileRepositoryCustom{
             whereCountConditions.add(cb.equal(countRoot.get(File_.CLIENT).get(Client_.ID),input.getClientId()));
         }
         if(input.getActivityId()!=null){
-            var fJoinFileActivities=fileRoot.join(File_.FILE_ACTIVITIES);
-            var cJoinFileActivities=countRoot.join(File_.FILE_ACTIVITIES);
-            whereConditions.add(cb.equal(fJoinFileActivities.get(FileActivity_.ACTIVITY).get(Activity_.ID),input.getActivityId()));
-            whereCountConditions.add(cb.equal(cJoinFileActivities.get(FileActivity_.ACTIVITY).get(Activity_.ID),input.getActivityId()));
+
+            whereConditions.add(cb.equal(fileRoot.get(File_.BASE_ACTIVITY).get(Activity_.ID),input.getActivityId()));
+            whereCountConditions.add(cb.equal(fileRoot.get(File_.BASE_ACTIVITY).get(Activity_.ID),input.getActivityId()));
         }
         if(input.getStateId()!=null){
             var fJoinFileStates=fileRoot.join(File_.FILE_STATES);
@@ -89,6 +88,7 @@ public class FileRepositoryImpl implements  FileRepositoryCustom{
             }
         }
         cq.where(cb.and(whereConditions.toArray(new Predicate[]{})));
+        cq= cq.orderBy(cb.desc(fileRoot.get(File_.ATTRIBUTION_DATE)));
         TypedQuery<File> query = entityManager.createQuery(cq.distinct(true));
         CountQury= CountQury.select(cb.count(countRoot));
         CountQury.where(cb.and(whereCountConditions.toArray(new Predicate[]{})));

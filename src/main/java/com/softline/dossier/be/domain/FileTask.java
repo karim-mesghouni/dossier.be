@@ -42,6 +42,7 @@ public class FileTask extends BaseEntity{
     @ManyToOne
     @JoinColumn
     Task task;
+
     LocalDateTime toStartDate;
     LocalDateTime dueDate;
     LocalDateTime startDate;

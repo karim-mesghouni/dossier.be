@@ -39,6 +39,7 @@ public class FileInput {
     List<FileStateInput> fileStates;
     List<FileActivityInput> fileActivities;
     ActivityInput baseActivity;
+    boolean fileReprise;
 
     FileStateInput currentFileState;
     FileActivityInput currentFileActivity;

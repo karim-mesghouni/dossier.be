@@ -1,9 +1,12 @@
 package com.softline.dossier.be.graphql;
 
+import com.coxautodev.graphql.tools.SchemaParserOptions;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.oembedler.moon.graphql.boot.error.ThrowableGraphQLError;
 import graphql.GraphQLError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,4 +28,6 @@ public class graphqlConfig {
     public GraphQLError exceptionHandler(EntityNotFoundException e) {
         return new ThrowableGraphQLError(e, "Entity not found");
     }
+
 }
+

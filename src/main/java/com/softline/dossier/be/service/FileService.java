@@ -56,6 +56,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
                 .returnDeadline(input.getReturnDeadline())
                 .fileStates(new ArrayList<>())
                 .reprise(reprise)
+                .fileReprise(input.isFileReprise())
                 .fileActivities(new ArrayList<>())
                 .client(Client.builder().id(input.getClient().getId()).build())
                 .commune(Commune.builder().id(input.getCommune().getId()).build()).build();
@@ -120,6 +121,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         fileExist.setProvisionalDeliveryDate(input.getProvisionalDeliveryDate());
         fileExist.setProject(input.getProject());
         fileExist.setReprise(reprise);
+        fileExist.setFileReprise(input.isFileReprise());
         fileExist.setCommune(communeRepository.findById(input.getCommune().getId()).orElseThrow());
         var oldfileState = fileStateRepository.findFirstByCurrentIsTrueAndFile_Id(fileExist.getId());
         if (oldfileState != null && input.getCurrentFileState() != null && input.getCurrentFileState().getType() != null) {

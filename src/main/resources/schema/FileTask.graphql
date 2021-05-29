@@ -16,7 +16,7 @@ extend type  Mutation{
     changeFileTaskSituation(situationId: ID!,fileTaskId: ID! ):FileTaskSituation
     changeToStartDate(toStartDate: String!,fileTaskId: ID! ):Boolean
     changeDueDate(dueDate: String!,fileTaskId: ID! ):Boolean
-    changeTitle(title: String!,fileTaskId: ID! ):Boolean
+    changeTitle(title: String,fileTaskId: ID! ):Boolean
     changeDescription(input: CommentInput):DescriptionComment
     changeRetour(input: CommentInput):ReturnedComment
     changeDataField(input: ActivityDataFieldInput):Boolean

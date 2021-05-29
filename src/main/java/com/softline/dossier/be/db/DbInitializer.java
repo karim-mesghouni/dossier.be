@@ -91,7 +91,7 @@ public class DbInitializer implements ApplicationRunner {
             createCommunes();
             }
         if (fileStateTypeRepository.count() == 0) {
-            fileStateTypeRepository.save(FileStateType.builder().state("En cours").initial(true).build());
+            fileStateTypeRepository.save(FileStateType.builder().state("En cours").build());
             fileStateTypeRepository.save(FileStateType.builder().state("Terminé").Final(true).build());
             fileStateTypeRepository.save(FileStateType.builder().state("Livré").build());
             fileStateTypeRepository.save(FileStateType.builder().state("À LIVRER").build());
@@ -102,7 +102,7 @@ public class DbInitializer implements ApplicationRunner {
             fileStateTypeRepository.save(FileStateType.builder().state("STANDBY CLIENT").build());
             fileStateTypeRepository.save(FileStateType.builder().state("MANQUANT").build());
             fileStateTypeRepository.save(FileStateType.builder().state("REPRISE PIQUETAGE").build());
-            fileStateTypeRepository.save(FileStateType.builder().state("NON AFFECTÉ ÉTUDE").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("NON AFFECTÉ").initial(true).build());
             fileStateTypeRepository.save(FileStateType.builder().state("REPRISE EN COURS D'ETUDE").build());
             fileStateTypeRepository.save(FileStateType.builder().state("KIZÉO NON ATTRIBUÉ").build());
             fileStateTypeRepository.save(FileStateType.builder().state("ANNULÉ").Final(true).build());
@@ -271,9 +271,8 @@ public class DbInitializer implements ApplicationRunner {
         zapa.getTasks().add(PreparatrionLivraison);
         var fields = new ArrayList<ActivityField>();
         fields.add(ActivityField.builder().fieldName("CEM").fieldType(FieldType.String).activity(zapa).build());
-        fields.add(ActivityField.builder().fieldName("EL ZAPA TOT").fieldType(FieldType.String).activity(zapa).build());
+        fields.add(ActivityField.builder().fieldName("NBre EL BE").fieldType(FieldType.String).activity(zapa).build());
         fields.add(ActivityField.builder().fieldName("NBRE EL Client").fieldType(FieldType.String).activity(zapa).build());
-        fields.add(ActivityField.builder().fieldName("NBRE EL Etudiant").fieldType(FieldType.String).activity(zapa).build());
         fields.add(ActivityField.builder().fieldName("NBRE FOA").fieldType(FieldType.String).activity(zapa).build());
         zapa.setFields(fields);
         activityRepository.save(zapa);
@@ -325,10 +324,7 @@ public class DbInitializer implements ApplicationRunner {
         fi.setFields(fields);
         activityRepository.save(fi);
     }
-    private void createIPONActivity()
-
-
-    {
+    private void createIPONActivity() {
          ipon = Activity.builder().name("IPON").description("IPON Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());
@@ -389,8 +385,11 @@ public class DbInitializer implements ApplicationRunner {
         states.add(TaskState.builder().name("Valide").build());
         states.add(TaskState.builder().name("Non Valide").build());
         var preparation = Task.builder().name("PRÉPARATION").situations(taskSituationsEtude).activity(piquetage).build();
-        var control = Task.builder().name("PIQUETAGE").situations(taskSituationsControle).activity(piquetage).build();
-        var verification = Task.builder().name("VÉRIFICATION DE RETOUR ").situations(taskSituationsverification).activity(piquetage).states(states).build();
+        var control = Task.builder().name("PIQUETAGE").situations(taskSituationsControle).activity(piquetage).states(states).build();
+        var verificationStates = new ArrayList();
+        verificationStates.add(TaskState.builder().name("Valide").build());
+        verificationStates.add(TaskState.builder().name("Non Valide").build());
+        var verification = Task.builder().name("VÉRIFICATION DE RETOUR ").situations(taskSituationsverification).activity(piquetage).states(verificationStates).build();
 
         var activityStates = new ArrayList();
         activityStates.add(ActivityState.builder().activity(piquetage).name("En cours").initial(true).build());
@@ -460,13 +459,13 @@ public class DbInitializer implements ApplicationRunner {
         fields.add(ActivityField.builder().fieldName("Nombre  des appuis").fieldType(FieldType.String).group(groupFieldsCOMAC).activity(cdc).build());
         fields.add(ActivityField.builder().fieldName("Nombre d’Appuis implanter").fieldType(FieldType.String).group(groupFieldsCOMAC).activity(cdc).build());
         fields.add(ActivityField.builder().fieldName("Nombre de CRIT").fieldType(FieldType.String).activity(cdc).group(groupFieldsCOMAC).build());
+        fields.add(ActivityField.builder().fieldName("Nombre d’Appuis à remplacer").fieldType(FieldType.String).activity(cdc).group(groupFieldsCOMAC).build());
         var groupFieldsCAPFT=ActivityFieldGroup.builder().name("CAPFT").build();
 
         fields.add(ActivityField.builder().fieldName("Nombre  des Artères").fieldType(FieldType.String).group(groupFieldsCAPFT).activity(cdc).build());
         fields.add(ActivityField.builder().fieldName("Nombre  des appuis").fieldType(FieldType.String).group(groupFieldsCAPFT).activity(cdc).build());
         fields.add(ActivityField.builder().fieldName("Nombre d’Appuis implanter").fieldType(FieldType.String).group(groupFieldsCAPFT).activity(cdc).build());
         fields.add(ActivityField.builder().fieldName("Nombre de CRIT").fieldType(FieldType.String).activity(cdc).group(groupFieldsCAPFT).build());
-        fields.add(ActivityField.builder().fieldName("Nombre d’Appuis à remplacer").fieldType(FieldType.String).activity(cdc).group(groupFieldsCAPFT).build());
         cdc.setFields(fields);
         activityRepository.save(cdc);
     }

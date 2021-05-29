@@ -30,6 +30,8 @@ type File  {
      currentFileActivity:FileActivity
      baseActivity: Activity
      reprise: File
+     fileReprise: Boolean
+
 }
 input FileInput  {
      id: ID
@@ -47,6 +49,7 @@ input FileInput  {
      currentFileActivity:FileActivityInput
      baseActivity: ActivityInput
      reprise: FileInput
+     fileReprise: Boolean
 
 }
 input FileFilterInput{
