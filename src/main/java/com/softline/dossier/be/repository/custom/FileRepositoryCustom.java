@@ -12,4 +12,5 @@ public interface FileRepositoryCustom {
     Pair<Long,List<File>> getByFilter(FileFilterInput input);
 
 
+    Pair<Long,List<File>> getInTrashByFilter(FileFilterInput input);
 }

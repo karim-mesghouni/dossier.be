@@ -205,4 +205,19 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         return fileStateTypeRepository.findAll();
     }
 
+    public PageList<File> getAllFileInTrashPageFilter(FileFilterInput input) {
+        var result = getRepository().getInTrashByFilter(input);
+        return new PageList<>(result.getValue1(), result.getValue0());
+    }
+
+    public boolean sendFileToTrash(Long fileId) {
+       var file =getRepository().findById(fileId).orElseThrow();
+        file.setInTrash(true);
+        return  true;
+    }
+    public boolean recoverFileFromTrash(Long fileId) {
+        var file =getRepository().getOne(fileId);
+        file.setInTrash(false);
+        return  true;
+    }
 }

@@ -37,8 +37,17 @@ public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity,
     }
     public List<FileActivity>  getAllFileActivityByFileId(Long fileId){
         return  service.getAllFileActivityByFileId(fileId);
+    }public List<FileActivity>  getAllFileActivityByFileIdInTrash(Long fileId){
+        return  service.getAllFileActivityByFileIdInTrash(fileId);
     }
     public ActivityState changeActivityState(Long  activityStateId, Long fileActivityId){
         return  service.changeActivityState(activityStateId,fileActivityId);
+    }
+
+    public  boolean recoverFileActivityFromTrash(Long fileActivityId ){
+        return  service.recoverFileActivityFromTrash(fileActivityId);
+    }
+    public  boolean sendFileActivityToTrash(Long fileActivityId ){
+        return  service.sendFileActivityToTrash(fileActivityId);
     }
 }

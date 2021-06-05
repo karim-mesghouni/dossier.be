@@ -6,6 +6,7 @@ extend type Query  {
   #  currentFilePhaseState(fileAgentId: ID! ):FilePhaseState
    # currentFilePhaseAgent(filePhaseId: ID! ):FilePhaseAgent
     allFileTaskByFileActivityId(fileActivityId: ID!):[FileTask]
+    allFileTaskByFileActivityIdInTrash(fileActivityId: ID!):[FileTask]
     allReturnedCause:[ReturnedCause]
 }
 
@@ -28,6 +29,8 @@ extend type  Mutation{
     changeReturned(fileTaskId:ID! ,returned: Boolean!):Boolean
     createChildFileTask(input: FileTaskInput!):FileTask
     changeParent(fileTaskId:ID!,parentId:ID):FileTask
+    sendFileTaskToTrash(fileTaskId: ID!): Boolean
+    recoverFileTaskFromTrash(fileTaskId: ID!): Boolean
 }
 
 
@@ -51,6 +54,7 @@ type FileTask {
     retour: ReturnedComment
     returnedCause:ReturnedCause
     returned:Boolean
+    inTrash:Boolean
     parent: FileTask
 }
 input FileTaskInput {

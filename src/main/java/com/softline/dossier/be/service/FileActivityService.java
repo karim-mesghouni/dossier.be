@@ -73,4 +73,20 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
         fileActivity.setState(activityState);
         return activityState;
     }
+
+    public List<FileActivity> getAllFileActivityByFileIdInTrash(Long fileId) {
+        return getRepository().findAllByFile_Id_In_Trash(fileId);
+    }
+
+    public boolean sendFileActivityToTrash(Long fileActivityId) {
+        var fileActivity =getRepository().getOne(fileActivityId);
+        fileActivity.setInTrash(true);
+        return  true;
+    }
+
+    public boolean recoverFileActivityFromTrash(Long fileActivityId) {
+        var fileActivity =getRepository().getOne(fileActivityId);
+        fileActivity.setInTrash(false);
+        return  true;
+    }
 }

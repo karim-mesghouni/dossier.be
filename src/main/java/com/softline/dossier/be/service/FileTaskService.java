@@ -289,4 +289,19 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
         return  fileTask;
     }
+
+    public List<FileTask> getAllFileTaskByFileActivityIdInTrash(Long fileActivityId) {
+        return getRepository().findAllByFileActivity_Id_In_Trash(fileActivityId);
+    }
+
+    public boolean recoverFileTaskFromTrash(Long fileTaskId) {
+        var fileTask =getRepository().getOne(fileTaskId);
+        fileTask.setInTrash(false);
+        return  true;
+    }
+    public boolean sendFileTaskToTrash(Long fileTaskId) {
+        var fileTask =getRepository().getOne(fileTaskId);
+        fileTask.setInTrash(true);
+        return  true;
+    }
 }

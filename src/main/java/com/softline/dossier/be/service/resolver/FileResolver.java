@@ -23,7 +23,5 @@ public class FileResolver implements GraphQLResolver<File> {
         var res=  fileStateRepository.findFirstByCurrentIsTrueAndFile_Id(file.getId());
         return  res;
     }
-    public FileActivity getCurrentFileActivity(File file){
-        return  fileActivityRepository.findFirstByCurrentIsTrueAndFile_Id(file.getId());
-    }
+
 }

@@ -58,6 +58,10 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
         return   service.getAllFileTaskByFileActivityId(fileActivityId);
 
     }
+    public  List<FileTask>  getAllFileTaskByFileActivityIdInTrash(Long fileActivityId){
+        return   service.getAllFileTaskByFileActivityIdInTrash(fileActivityId);
+
+    }
     public  List<FileTask>   getAllFileTaskByAssignedToId(Long assignedToId){
         return   service.getAllFileTaskByAssignedToId(assignedToId);
     }
@@ -98,5 +102,10 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
     public  FileTask changeParent(Long FileTaskId,Long parentId ){
         return  service.changeParent(FileTaskId,parentId);
     }
-
+       public  boolean recoverFileTaskFromTrash(Long fileTaskId ){
+            return  service.recoverFileTaskFromTrash(fileTaskId);
+       }
+    public  boolean sendFileTaskToTrash(Long fileTaskId ){
+        return  service.sendFileTaskToTrash(fileTaskId);
+    }
 }

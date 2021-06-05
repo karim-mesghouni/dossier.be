@@ -21,7 +21,7 @@ import java.util.*;
 @AllArgsConstructor
 @Data
 @SQLDelete(sql = "UPDATE FileTask SET deleted=true WHERE id=?")
-@Where(clause = "deleted = false")
+@Where(clause = "deleted = false ")
 public class FileTask extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,6 +62,8 @@ public class FileTask extends BaseEntity{
     @JoinColumn
     FileTask parent;
     boolean returned;
+    boolean inTrash = false;
+
     @ManyToOne
     @JoinColumn
     ReturnedCause returnedCause;

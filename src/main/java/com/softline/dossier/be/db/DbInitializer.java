@@ -260,6 +260,8 @@ public class DbInitializer implements ApplicationRunner {
         var activityStates = new ArrayList();
         activityStates.add(ActivityState.builder().activity(zapa).name("En cours").initial(true).build());
         activityStates.add(ActivityState.builder().activity(zapa).name("PREFIBRÉ").build());
+        activityStates.add(ActivityState.builder().activity(zapa).name("Annulé").Final(true).build());
+        activityStates.add(ActivityState.builder().activity(zapa).name("Retiré").Final(true).build());
         activityStates.add(ActivityState.builder().activity(zapa).name("Terminé").Final(true).build());
         zapa.setStates(activityStates);
 
@@ -308,6 +310,8 @@ public class DbInitializer implements ApplicationRunner {
         var activityStates = new ArrayList();
         activityStates.add(ActivityState.builder().activity(fi).name("En cours").initial(true).build());
         activityStates.add(ActivityState.builder().activity(fi).name("PREFIBRÉ").build());
+        activityStates.add(ActivityState.builder().activity(fi).name("Annulé").Final(true).build());
+        activityStates.add(ActivityState.builder().activity(fi).name("Retiré").Final(true).build());
         activityStates.add(ActivityState.builder().activity(fi).name("Terminé").Final(true).build());
         fi.setStates(activityStates);
 
@@ -347,6 +351,8 @@ public class DbInitializer implements ApplicationRunner {
         var activityStates = new ArrayList();
         activityStates.add(ActivityState.builder().activity(ipon).name("En cours").initial(true).build());
         activityStates.add(ActivityState.builder().activity(ipon).name("PREFIBRÉ").build());
+        activityStates.add(ActivityState.builder().activity(ipon).name("Annulé").Final(true).build());
+        activityStates.add(ActivityState.builder().activity(ipon).name("Retiré").Final(true).build());
         activityStates.add(ActivityState.builder().activity(ipon).name("Terminé").Final(true).build());
         ipon.setStates(activityStates);
 
@@ -397,7 +403,8 @@ public class DbInitializer implements ApplicationRunner {
         activityStates.add(ActivityState.builder().activity(piquetage).name("Terminé").Final(true).build());
         activityStates.add(ActivityState.builder().activity(piquetage).name("PRISE DE RDV PIQUETAGE").build());
         activityStates.add(ActivityState.builder().activity(piquetage).name("PIQUETÉ NON REÇU").build());
-        piquetage.setStates(activityStates);
+        activityStates.add(ActivityState.builder().activity(piquetage).name("Annulé").Final(true).build());
+        activityStates.add(ActivityState.builder().activity(piquetage).name("Retiré").Final(true).build());    piquetage.setStates(activityStates);
 
         preparation.getSituations().forEach(x -> x.setTask(preparation));
         control.getSituations().forEach(x -> x.setTask(control));
@@ -437,7 +444,7 @@ public class DbInitializer implements ApplicationRunner {
         var states = new ArrayList();
         states.add(TaskState.builder().name("Valide").build());
         states.add(TaskState.builder().name("Non valide").build());
-        var etdueComac = Task.builder().name("Etdue").situations(taskSituationsEtdueComac).activity(cdc).build();
+        var etdueComac = Task.builder().name("Etude").situations(taskSituationsEtdueComac).activity(cdc).build();
         var controle = Task.builder().name("Controle").situations(taskSituationsControle).activity(cdc).states(states).build();
         etdueComac.getSituations().forEach(x -> x.setTask(etdueComac));
         controle.getSituations().forEach(x -> x.setTask(controle));
@@ -450,6 +457,8 @@ public class DbInitializer implements ApplicationRunner {
         activityStates.add(ActivityState.builder().activity(cdc).name("En cours").initial(true).build());
         activityStates.add(ActivityState.builder().activity(cdc).name("PREFIBRÉ").build());
         activityStates.add(ActivityState.builder().activity(cdc).name("Terminé").Final(false).build());
+        activityStates.add(ActivityState.builder().activity(cdc).name("Annulé").Final(true).build());
+        activityStates.add(ActivityState.builder().activity(cdc).name("Retiré").Final(true).build());
         cdc.setStates(activityStates);
 
 

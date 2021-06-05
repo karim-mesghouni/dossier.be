@@ -40,12 +40,22 @@ public class FileSchemaResolver extends SchemaResolverBase<File, FileInput, File
         return get(id);
     }
     public PageList<File> getAllFilePageFilter(FileFilterInput input){
-       return  service.getAllFilePageFilter(input);
-     }
+        return  service.getAllFilePageFilter(input);
+    }
+    public PageList<File> getAllFileInTrashPageFilter(FileFilterInput input){
+        return  service.getAllFileInTrashPageFilter(input);
+    }
     public List<FileHistoryDTO> getFileHistory(Long id){
             return  service.getFileHistory(id);
     }
     public  List<FileStateType> getAllFileStateType(){
       return service.getAllFileStateType();
   }
+    public  boolean sendFileToTrash(Long fileId ){
+        return  service.sendFileToTrash(fileId);
+    }
+    public  boolean recoverFileFromTrash(Long fileId ){
+        return  service.recoverFileFromTrash(fileId);
+    }
+
 }

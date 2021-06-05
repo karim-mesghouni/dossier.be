@@ -55,6 +55,7 @@ public class File extends BaseEntity {
     @JoinColumn
     File reprise;
     boolean fileReprise;
+    boolean inTrash = false;
     @Transient()
     FileState currentFileState;
     @Transient()

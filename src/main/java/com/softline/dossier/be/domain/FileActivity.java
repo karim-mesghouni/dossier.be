@@ -18,7 +18,7 @@ import java.util.*;
 @NoArgsConstructor
 @Entity
 @SQLDelete(sql = "UPDATE FileActivity SET deleted=true WHERE id=?")
-@Where(clause = "deleted = false")
+@Where(clause = "deleted = false ")
 public class FileActivity extends  BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +43,8 @@ public class FileActivity extends  BaseEntity{
     File file;
     @OneToMany(mappedBy = Comment_.FILE_ACTIVITY)
     List<Comment> comments;
+    boolean inTrash = false;
+
     @ManyToOne()
     @JoinColumn
     ActivityState state;

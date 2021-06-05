@@ -3,6 +3,7 @@ extend type Query  {
      allFileActivity:[FileActivity]
      fileActivity(id: ID! ):FileActivity
      allFileActivityByFileId(fileId: ID!):[FileActivity]
+     allFileActivityByFileIdInTrash(fileId: ID!):[FileActivity]
 }
 
 #mutation
@@ -11,6 +12,8 @@ extend type  Mutation{
      updateFileActivity(FileActivity: FileActivityInput! ):FileActivity
      deleteFileActivity(id: Int!):Boolean
      changeActivityState(activityStateId: ID!, fileActivityId: ID!):ActivityState
+     sendFileActivityToTrash(fileActivityId: ID!): Boolean
+     recoverFileActivityFromTrash(fileActivityId: ID!): Boolean
 }
 
 type FileActivity {
@@ -22,6 +25,7 @@ type FileActivity {
      reprises:[Reprise]
      fileTasks:[FileTask]
      state:ActivityState
+     inTrash:Boolean
 
 }
 input FileActivityInput  {
