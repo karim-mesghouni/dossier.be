@@ -44,5 +44,5 @@ public class FileInput {
     FileStateInput currentFileState;
     FileActivityInput currentFileActivity;
     FileInput reprise;
-
+    boolean inTrash;
 }

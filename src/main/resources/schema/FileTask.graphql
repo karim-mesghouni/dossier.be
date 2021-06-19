@@ -8,6 +8,7 @@ extend type Query  {
     allFileTaskByFileActivityId(fileActivityId: ID!):[FileTask]
     allFileTaskByFileActivityIdInTrash(fileActivityId: ID!):[FileTask]
     allReturnedCause:[ReturnedCause]
+    attachedFileByTaskFileId(idFileTask: ID!):[AttachFile]
 }
 
 extend type  Mutation{
@@ -31,6 +32,7 @@ extend type  Mutation{
     changeParent(fileTaskId:ID!,parentId:ID):FileTask
     sendFileTaskToTrash(fileTaskId: ID!): Boolean
     recoverFileTaskFromTrash(fileTaskId: ID!): Boolean
+    uploadAttached(attached: [Upload]!,fileTaskId:ID!):[AttachFile]
 }
 
 
@@ -56,6 +58,8 @@ type FileTask {
     returned:Boolean
     inTrash:Boolean
     parent: FileTask
+    attachFiles: [AttachFile]
+
 }
 input FileTaskInput {
     id:ID
@@ -77,5 +81,19 @@ input FileTaskInput {
     returnedCause:ReturnedCauseInput
     returned:Boolean
     parent: FileTaskInput
+    attachFiles: [AttachFileInput]
 
+
+}
+type AttachFile   {
+    id: ID
+    path:String
+    name:String
+    fileTask:FileTask
+}
+input AttachFileInput   {
+    id: ID
+    path:String
+    name:String
+    fileTask:FileTaskInput
 }

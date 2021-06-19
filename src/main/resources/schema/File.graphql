@@ -54,7 +54,7 @@ input FileInput  {
      baseActivity: ActivityInput
      reprise: FileInput
      fileReprise: Boolean
-
+     inTrash:Boolean
 }
 input FileFilterInput{
      pageNumber:Int

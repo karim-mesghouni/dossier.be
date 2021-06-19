@@ -51,6 +51,7 @@ input FileStateInput  {
      type:FileStateTypeInput
      file: FileInput
 }
+
 type ActivityState{
      id: ID
      name:String
@@ -59,6 +60,7 @@ type ActivityState{
      activity:Activity
      fileActivities:[FileActivity]
 }
+
 input ActivityStateInput{
      id: ID
      name:String

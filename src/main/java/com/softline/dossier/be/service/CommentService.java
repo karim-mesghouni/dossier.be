@@ -1,5 +1,6 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.Halpers.EnvUtil;
 import com.softline.dossier.be.Halpers.ImageHalper;
 import com.softline.dossier.be.Sse.model.EventDto;
 import com.softline.dossier.be.Sse.service.SseNotificationService;
@@ -51,7 +52,8 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     SseNotificationService sseNotificationService;
     @Autowired
     MessageRepository messageRepository;
-
+    @Autowired
+    EnvUtil envUtil;
     @Override
     public List<Comment> getAll() {
         return repository.findAll();
@@ -113,12 +115,14 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     public String saveFile(DataFetchingEnvironment environment) throws IOException, NoSuchAlgorithmException {
         var file = (ApplicationPart) environment.getArgument("image");
 
-        var fileName = ImageHalper.getFilename(20L, file);
+        var fileName = ImageHalper.getImageName(20L, file);
 
         var savedFile = new java.io.File(resourceLoader.getResource(new java.io.File("C:\\Users\\PC\\Documents\\fileStorage").toURI().toString()).getFile(), fileName);
         Files.copy(file.getInputStream(), savedFile.toPath());
         //TODO add current ip adress use for get current url : ServletUriComponentsBuilder.fromCurrentContextPath()
-        return "http://localhost:8081/images/" + fileName;
+        String urlServer= envUtil.getServerUrlPrefi();
+
+        return urlServer+"/images/" + fileName;
     }
 
     public List<Comment> getAllCommentByFileId(Long fileId) {

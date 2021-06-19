@@ -1,5 +1,6 @@
 package com.softline.dossier.be.graphql.types.input;
 
+import com.softline.dossier.be.domain.AttachFile;
 import com.softline.dossier.be.domain.DescriptionComment;
 import com.softline.dossier.be.domain.TaskState;
 import lombok.AllArgsConstructor;
@@ -37,4 +38,6 @@ public class FileTaskInput {
     ReturnedCauseInput returnedCause;
     boolean returned;
     FileTaskInput parent;
+    List<AttachFileInput> attachFiles;
+
 }

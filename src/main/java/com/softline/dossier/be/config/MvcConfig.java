@@ -12,9 +12,13 @@ import java.io.File;
 public class MvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
         registry
                 .addResourceHandler("/images/**")
                 .addResourceLocations(new File("C:\\Users\\PC\\Documents\\fileStorage").toURI().toString());
+        registry
+                .addResourceHandler("/attached/**")
+                .addResourceLocations(new File("C:\\Users\\PC\\Documents\\fileStorage2").toURI().toString());
 
     }
 

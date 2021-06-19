@@ -1,5 +1,7 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.Halpers.EnvUtil;
+import com.softline.dossier.be.Halpers.ImageHalper;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
@@ -9,11 +11,18 @@ import com.softline.dossier.be.graphql.types.input.ReturnedCauseInput;
 import com.softline.dossier.be.repository.*;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.repository.AgentRepository;
+import graphql.schema.DataFetchingEnvironment;
+import org.apache.catalina.core.ApplicationPart;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -43,8 +52,12 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     FileActivityRepository fileActivityRepository;
     @Autowired
     ReturnedCauseRepository returnedCauseRepository;
-
-
+    @Autowired
+    private ResourceLoader resourceLoader;
+    @Autowired
+    AttachFileRepository attachFileRepository;
+    @Autowired
+    EnvUtil envUtil;
     @Override
     public List<FileTask> getAll() {
 
@@ -303,5 +316,27 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         var fileTask =getRepository().getOne(fileTaskId);
         fileTask.setInTrash(true);
         return  true;
+    }
+
+    public List<AttachFile> saveAttached(Long fileTaskId,DataFetchingEnvironment environment) throws NoSuchAlgorithmException, IOException {
+        var files = (ArrayList<ApplicationPart>) environment.getArgument("attached");
+        var filesAttached=new ArrayList<AttachFile>();
+        var fileTask= getRepository().findById(fileTaskId).orElseThrow();
+        for (var file:files){
+            var fileName = ImageHalper.getFileName(20L, file);
+
+            var savedFile = new java.io.File(resourceLoader.getResource(new java.io.File("C:\\Users\\PC\\Documents\\fileStorage2").toURI().toString()).getFile(), fileName);
+            Files.copy(file.getInputStream(), savedFile.toPath());
+           String urlServer= envUtil.getServerUrlPrefi();
+            filesAttached.add(AttachFile.builder().path(urlServer+"/attached/" + fileName)
+                    .name(file.getSubmittedFileName()).fileTask(fileTask).build());
+            attachFileRepository.saveAll(filesAttached);
+        }
+
+        return filesAttached ;
+    }
+
+    public List<AttachFile> getAttachedFileByTaskFileId(Long idFileTAsk) {
+            return       attachFileRepository.findAllByFileTask_Id(idFileTAsk);
     }
 }

@@ -44,6 +44,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
                 .antMatchers(HttpMethod.POST, "/user/save").permitAll()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
                 .antMatchers("/images/").permitAll()
+                .antMatchers("/attached/").permitAll()
                 .anyRequest().permitAll()
                 .and()
                 .addFilter(new AuthenticationFilter(authenticationManager()))

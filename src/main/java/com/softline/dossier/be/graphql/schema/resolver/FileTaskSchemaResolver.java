@@ -8,15 +8,18 @@ import com.softline.dossier.be.graphql.types.input.FileTaskInput;
 import com.softline.dossier.be.repository.FileTaskRepository;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.service.FileTaskService;
+import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.Part;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -107,5 +110,13 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
        }
     public  boolean sendFileTaskToTrash(Long fileTaskId ){
         return  service.sendFileTaskToTrash(fileTaskId);
+    }
+
+    public List<AttachFile> uploadAttached(List<Part> part,Long fileTaskId, DataFetchingEnvironment environment) throws IOException, NoSuchAlgorithmException {
+        return  service.saveAttached(fileTaskId,environment);
+    }
+
+    public List<AttachFile> getAttachedFileByTaskFileId(Long idFileTAsk)  {
+        return  service.getAttachedFileByTaskFileId(idFileTAsk);
     }
 }

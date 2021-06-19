@@ -67,4 +67,6 @@ public class FileTask extends BaseEntity{
     @ManyToOne
     @JoinColumn
     ReturnedCause returnedCause;
+    @OneToMany(mappedBy = AttachFile_.FILE_TASK)
+    List<AttachFile> attachFiles;
 }
