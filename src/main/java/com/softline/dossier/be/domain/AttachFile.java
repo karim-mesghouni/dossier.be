@@ -14,14 +14,13 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @Entity
-@SQLDelete(sql = "UPDATE AttachFile  SET deleted=true WHERE id=?")
-@Where(clause = "deleted = false")
 public class AttachFile  extends  BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  long id;
     private String  path;
-    public String name;
+    private String name;
+    private String url;
     @ManyToOne()
     @JoinColumn()
     FileTask fileTask;

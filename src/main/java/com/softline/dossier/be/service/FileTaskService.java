@@ -7,7 +7,6 @@ import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
-import com.softline.dossier.be.graphql.types.input.ReturnedCauseInput;
 import com.softline.dossier.be.repository.*;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.repository.AgentRepository;
@@ -19,13 +18,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Transactional
 @Service
@@ -327,16 +327,23 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
             var savedFile = new java.io.File(resourceLoader.getResource(new java.io.File("C:\\Users\\PC\\Documents\\fileStorage2").toURI().toString()).getFile(), fileName);
             Files.copy(file.getInputStream(), savedFile.toPath());
-           String urlServer= envUtil.getServerUrlPrefi();
-            filesAttached.add(AttachFile.builder().path(urlServer+"/attached/" + fileName)
+            String urlServer= envUtil.getServerUrlPrefi();
+            filesAttached.add(AttachFile.builder().url(urlServer+"/attached/" + fileName).path(savedFile.toPath().toString())
                     .name(file.getSubmittedFileName()).fileTask(fileTask).build());
             attachFileRepository.saveAll(filesAttached);
         }
 
-        return filesAttached ;
+        return filesAttached;
     }
 
     public List<AttachFile> getAttachedFileByTaskFileId(Long idFileTAsk) {
-            return       attachFileRepository.findAllByFileTask_Id(idFileTAsk);
+        return attachFileRepository.findAllByFileTask_Id(idFileTAsk);
+    }
+
+    public boolean deleteAttached(Long attachedId) throws IOException {
+        var attached = attachFileRepository.findById(attachedId).orElseThrow();
+        attachFileRepository.delete(attached);
+        Files.delete(Path.of(attached.getPath()));
+        return true;
     }
 }

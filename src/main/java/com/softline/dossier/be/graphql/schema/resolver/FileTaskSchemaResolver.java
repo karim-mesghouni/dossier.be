@@ -119,4 +119,7 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
     public List<AttachFile> getAttachedFileByTaskFileId(Long idFileTAsk)  {
         return  service.getAttachedFileByTaskFileId(idFileTAsk);
     }
+    public boolean deleteAttached(Long attachedId) throws IOException {
+        return  service.deleteAttached(attachedId);
+    }
 }
