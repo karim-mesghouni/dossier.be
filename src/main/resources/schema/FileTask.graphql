@@ -91,6 +91,7 @@ type AttachFile   {
     path:String
     name:String
     fileTask:FileTask
+    url: String
 }
 input AttachFileInput   {
     id: ID
