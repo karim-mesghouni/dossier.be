@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,7 +76,19 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     }
 
     public List<FileActivity> getAllFileActivityByFileIdInTrash(Long fileId) {
-        return getRepository().findAllByFile_Id_In_Trash(fileId);
+        var fileActivityInTrash=getRepository().findAllByFile_Id_In_Trash(fileId);
+        var fileActivityInTrashWithTask=getRepository().findAllByFile_Id_In_TrashWithTask(fileId);
+        if(fileActivityInTrash.size()==0){
+            return fileActivityInTrashWithTask;
+        }else
+        if(fileActivityInTrashWithTask.size()==0){
+            return fileActivityInTrash;
+        }else{
+            var allFileActivity=new ArrayList<FileActivity>();
+            fileActivityInTrash.stream().filter(x->fileActivityInTrashWithTask.stream().filter(f->f.getId()==x.getId()).count()==0).forEach(x->allFileActivity.add(x));
+            fileActivityInTrashWithTask.forEach(x->allFileActivity.add(x));
+            return allFileActivity;
+        }
     }
 
     public boolean sendFileActivityToTrash(Long fileActivityId) {

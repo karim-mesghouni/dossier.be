@@ -206,8 +206,38 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     }
 
     public PageList<File> getAllFileInTrashPageFilter(FileFilterInput input) {
-        var result = getRepository().getInTrashByFilter(input);
-        return new PageList<>(result.getValue1(), result.getValue0());
+        var allFile=new ArrayList<File>();
+        var fileOnly = getRepository().getInTrashByFilter(input);
+        var fileWithTask= getRepository().getInTrashByFilterWithTask(input);
+        var fileWithActivity= getRepository().getInTrashByFilterWithActivity(input);
+        if(fileWithTask.getValue1().size() ==0&&fileOnly.getValue1().size()==0&&fileWithActivity.getValue1().size()>0){
+            return    new PageList<>(fileWithActivity.getValue1(), fileWithActivity.getValue0());
+        }
+        if(fileWithTask.getValue1().size() >0&&fileOnly.getValue1().size()==0&&fileWithActivity.getValue1().size()==0){
+            return    new PageList<>(fileWithTask.getValue1(), fileWithTask.getValue0());
+        }
+        if(fileWithTask.getValue1().size() ==0&&fileOnly.getValue1().size()>0&&fileWithActivity.getValue1().size()==0){
+            return    new PageList<>(fileOnly.getValue1(), fileOnly.getValue0());
+        }
+        if(fileWithTask.getValue1().size() ==0&&fileOnly.getValue1().size()==0&&fileWithActivity.getValue1().size()==0){
+            return    new PageList<>(new ArrayList<>(), 0);
+        }
+        if(fileWithTask.getValue1().size() >0&&fileOnly.getValue1().size()>0&&fileWithActivity.getValue1().size()==0){
+            fileOnly.getValue1().stream().filter(x->fileWithTask.getValue1().stream().filter(f->f.getId()==x.getId()).count()==0).forEach(x->allFile.add(x));
+            fileWithTask.getValue1().forEach(x->allFile.add(x));
+        }else
+        if(fileWithTask.getValue1().size() ==0&&fileOnly.getValue1().size()>0&&fileWithActivity.getValue1().size()>0){
+            fileOnly.getValue1().stream().filter(x->fileWithActivity.getValue1().stream().filter(f->f.getId()==x.getId()).count()==0).forEach(x->allFile.add(x));
+            fileWithActivity.getValue1().forEach(x->allFile.add(x));
+        }else
+        if(fileWithTask.getValue1().size() >0&&fileOnly.getValue1().size()>0&&fileWithActivity.getValue1().size()>0){
+            fileOnly.getValue1().stream().filter(x->fileWithActivity.getValue1().stream().filter(f->f.getId()==x.getId()).count()==0
+            &&fileWithTask.getValue1().stream().filter(f->f.getId()==x.getId()).count()==0).forEach(x->allFile.add(x));
+            fileWithActivity.getValue1().forEach(x->allFile.add(x));
+            fileWithTask.getValue1().forEach(x->allFile.add(x));
+        }
+        return    new PageList<>(allFile, allFile.size());
+
     }
 
     public boolean sendFileToTrash(Long fileId) {

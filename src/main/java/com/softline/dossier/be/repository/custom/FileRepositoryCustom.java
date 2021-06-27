@@ -13,4 +13,6 @@ public interface FileRepositoryCustom {
 
 
     Pair<Long,List<File>> getInTrashByFilter(FileFilterInput input);
+    Pair<Long,List<File>> getInTrashByFilterWithActivity(FileFilterInput input);
+    Pair<Long,List<File>> getInTrashByFilterWithTask(FileFilterInput input);
 }
