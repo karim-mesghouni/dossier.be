@@ -18,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -340,10 +339,14 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return attachFileRepository.findAllByFileTask_Id(idFileTAsk);
     }
 
-    public boolean deleteAttached(Long attachedId) throws IOException {
+    public boolean deleteAttached(Long attachedId) {
         var attached = attachFileRepository.findById(attachedId).orElseThrow();
-        attachFileRepository.delete(attached);
-        Files.delete(Path.of(attached.getPath()));
-        return true;
+        try {
+            Files.deleteIfExists(Path.of(attached.getPath()));
+            attachFileRepository.delete(attached);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
