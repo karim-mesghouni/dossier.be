@@ -13,6 +13,7 @@ import com.softline.dossier.be.security.repository.AgentRepository;
 import graphql.schema.DataFetchingEnvironment;
 import org.apache.catalina.core.ApplicationPart;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -323,8 +324,10 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         var fileTask= getRepository().findById(fileTaskId).orElseThrow();
         for (var file:files){
             var fileName = ImageHalper.getFileName(20L, file);
-
-            var savedFile = new java.io.File(resourceLoader.getResource(new java.io.File("C:\\Users\\PC\\Documents\\fileStorage2").toURI().toString()).getFile(), fileName);
+           if (!new ClassPathResource("fileStorage2").getFile().exists()){
+               new ClassPathResource("fileStorage2").getFile().createNewFile();
+           }
+            var savedFile = new java.io.File(new ClassPathResource("fileStorage2").getFile(), fileName);
             Files.copy(file.getInputStream(), savedFile.toPath());
             String urlServer= envUtil.getServerUrlPrefi();
             filesAttached.add(AttachFile.builder().url(urlServer+"/attached/" + fileName).path(savedFile.toPath().toString())

@@ -18,6 +18,7 @@ import graphql.schema.DataFetchingEnvironment;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.tomcat.jni.Address;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -117,7 +118,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
 
         var fileName = ImageHalper.getImageName(20L, file);
 
-        var savedFile = new java.io.File(resourceLoader.getResource(new java.io.File("C:\\Users\\PC\\Documents\\fileStorage").toURI().toString()).getFile(), fileName);
+        var savedFile = new java.io.File(new ClassPathResource("fileStorage").getFile(), fileName);
         Files.copy(file.getInputStream(), savedFile.toPath());
         //TODO add current ip adress use for get current url : ServletUriComponentsBuilder.fromCurrentContextPath()
         String urlServer= envUtil.getServerUrlPrefi();
