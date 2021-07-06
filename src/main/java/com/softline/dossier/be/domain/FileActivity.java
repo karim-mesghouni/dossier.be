@@ -1,6 +1,7 @@
 package com.softline.dossier.be.domain;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -44,6 +45,8 @@ public class FileActivity extends  BaseEntity{
     @OneToMany(mappedBy = Comment_.FILE_ACTIVITY)
     List<Comment> comments;
     boolean inTrash = false;
+    @Column( columnDefinition = "int default 1")
+    int fileActivityOrder;
 
     @ManyToOne()
     @JoinColumn

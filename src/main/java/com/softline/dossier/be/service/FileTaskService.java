@@ -67,6 +67,8 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     @Override
     public FileTask create(FileTaskInput input) {
+        var fileTaskOrder=getRepository().getMaxOrder()+1;
+
         var reporter=   agentRepository.findByUsername(((Agent)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
 
         var task = taskRepository.findById(input.getTask().getId()).orElseThrow();
@@ -79,6 +81,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .number((count + 1))
                 .fileTaskSituations(new ArrayList<>())
                 .reporter(reporter)
+                .fileTaskOrder(fileTaskOrder)
                 .build();
         var fileTaskSituation = FileTaskSituation.builder()
                 .situation(task.getSituations().stream().filter(x -> x.isInitial()).findFirst().orElseThrow())
@@ -351,5 +354,45 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         } catch (Exception e) {
             return false;
         }
+    }
+
+
+    public boolean fileTaskOrderUp(Long fileTaskId) {
+        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        var sourceOrder = fileTask.getFileTaskOrder();
+        if (sourceOrder <= 1) {
+            return false;
+        }
+        int targetOrder = sourceOrder;
+        while (targetOrder > 0) {
+            targetOrder = targetOrder - 1;
+            var previousFiles = getRepository().getAllByFileTaskOrder(targetOrder);
+            if (!previousFiles.isEmpty()) {
+                previousFiles.forEach(fileTask1 -> fileTask1.setFileTaskOrder(fileTask1.getFileTaskOrder() + 1));
+                fileTask.setFileTaskOrder(targetOrder);
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean fileTaskOrderDown(Long fileTaskId) {
+        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        var sourceOrder = fileTask.getFileTaskOrder();
+        var maxOrder=  getRepository().getMaxOrder();
+
+        if (sourceOrder == maxOrder) {
+            return false;
+        }
+        int targetOrder = sourceOrder;
+        while (targetOrder <=maxOrder) {
+            targetOrder = targetOrder + 1;
+            var previousFiles = getRepository().getAllByFileTaskOrder(targetOrder);
+            if (!previousFiles.isEmpty()) {
+                previousFiles.forEach(fileTask1 -> fileTask1.setFileTaskOrder(fileTask1.getFileTaskOrder() - 1));
+                fileTask.setFileTaskOrder(targetOrder);
+                return true;
+            }
+        }
+        return false;
     }
 }

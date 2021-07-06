@@ -26,11 +26,13 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
 
     @Override
     public FileActivity create(FileActivityInput entityInput) {
+        var fileActivityOrder=getRepository().getMaxOrder()+1;
         var fileActivity = FileActivity.builder()
                 .activity(Activity.builder().id(entityInput.getActivity().getId()).build())
                 .file(File.builder().id(entityInput.getFile().getId()).build())
                 .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(entityInput.getActivity().getId()))
                 .current(true)
+                .fileActivityOrder(fileActivityOrder)
                 .build();
         if (entityInput.getDataFields() != null && !entityInput.getDataFields().isEmpty()) {
             var dataFields = entityInput.getDataFields().stream()
@@ -101,5 +103,43 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
         var fileActivity =getRepository().getOne(fileActivityId);
         fileActivity.setInTrash(false);
         return  true;
+    }
+    public boolean fileActivityOrderUp(Long fileActivityId) {
+        var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
+        var sourceOrder = fileActivity.getFileActivityOrder();
+        if (sourceOrder <= 1) {
+            return false;
+        }
+        int targetOrder = sourceOrder;
+        while (targetOrder > 0) {
+            targetOrder = targetOrder - 1;
+            var previousFiles = getRepository().getFileByFileActivityOrder(targetOrder);
+            if (!previousFiles.isEmpty()) {
+                previousFiles.forEach(fileActivity1 -> fileActivity1.setFileActivityOrder(fileActivity1.getFileActivityOrder() + 1));
+                fileActivity.setFileActivityOrder(targetOrder);
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean fileActivityOrderDown(Long fileActivityId) {
+        var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
+        var sourceOrder = fileActivity.getFileActivityOrder();
+        var maxOrder=  getRepository().getMaxOrder();
+
+        if (sourceOrder == maxOrder) {
+            return false;
+        }
+        int targetOrder = sourceOrder;
+        while (targetOrder <=maxOrder) {
+            targetOrder = targetOrder + 1;
+            var previousFiles = getRepository().getFileByFileActivityOrder(targetOrder);
+            if (!previousFiles.isEmpty()) {
+                previousFiles.forEach(fileActivity1 -> fileActivity1.setFileActivityOrder(fileActivity1.getFileActivityOrder() - 1));
+                fileActivity.setFileActivityOrder(targetOrder);
+                return true;
+            }
+        }
+        return false;
     }
 }

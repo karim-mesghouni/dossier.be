@@ -50,7 +50,6 @@ public class File extends BaseEntity {
     @OneToOne()
     @JoinColumn()
     Activity baseActivity;
-
     @ManyToOne
     @JoinColumn
     File reprise;

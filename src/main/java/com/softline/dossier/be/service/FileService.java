@@ -3,22 +3,18 @@ package com.softline.dossier.be.service;
 import com.softline.dossier.be.Sse.model.EventDto;
 import com.softline.dossier.be.Sse.service.SseNotificationService;
 import com.softline.dossier.be.domain.*;
-import com.softline.dossier.be.domain.enums.FieldType;
-import com.softline.dossier.be.graphql.types.FileDTO;
 import com.softline.dossier.be.graphql.types.FileFilterInput;
 import com.softline.dossier.be.graphql.types.FileHistoryDTO;
 import com.softline.dossier.be.graphql.types.PageList;
 import com.softline.dossier.be.graphql.types.input.FileInput;
 import com.softline.dossier.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 @Transactional
 @Service
@@ -48,6 +44,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         if(input.getReprise()!=null&&input.getReprise().getId()!=null){
             reprise =getRepository().findById(input.getReprise().getId()).orElseThrow();
         }
+
         var file = File.builder()
                 .project(input.getProject())
                 .provisionalDeliveryDate(input.getProvisionalDeliveryDate())
@@ -206,6 +203,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     }
 
     public PageList<File> getAllFileInTrashPageFilter(FileFilterInput input) {
+
         var allFile=new ArrayList<File>();
         var fileOnly = getRepository().getInTrashByFilter(input);
         var fileWithTask= getRepository().getInTrashByFilterWithTask(input);
@@ -241,13 +239,16 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     }
 
     public boolean sendFileToTrash(Long fileId) {
-       var file =getRepository().findById(fileId).orElseThrow();
+        var file = getRepository().findById(fileId).orElseThrow();
         file.setInTrash(true);
-        return  true;
+        return true;
     }
+
     public boolean recoverFileFromTrash(Long fileId) {
-        var file =getRepository().getOne(fileId);
+        var file = getRepository().getOne(fileId);
         file.setInTrash(false);
-        return  true;
+        return true;
     }
+
+
 }

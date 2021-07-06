@@ -50,4 +50,10 @@ public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity,
     public  boolean sendFileActivityToTrash(Long fileActivityId ){
         return  service.sendFileActivityToTrash(fileActivityId);
     }
+    public  boolean fileActivityOrderUp(Long fileActivityId){
+        return  service.fileActivityOrderUp(fileActivityId);
+    }
+    public  boolean fileActivityOrderDown(Long fileActivityId){
+        return  service.fileActivityOrderDown(fileActivityId);
+    }
 }

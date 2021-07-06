@@ -15,6 +15,7 @@ extend type  Mutation{
      deleteFile(id: Int!): Boolean
      sendFileToTrash(fileId: ID!): Boolean
      recoverFileFromTrash(fileId: ID!): Boolean
+
 }
 
 type File  {
@@ -35,7 +36,6 @@ type File  {
      reprise: File
      fileReprise: Boolean
      inTrash:Boolean
-
 }
 input FileInput  {
      id: ID
@@ -55,6 +55,7 @@ input FileInput  {
      reprise: FileInput
      fileReprise: Boolean
      inTrash:Boolean
+
 }
 input FileFilterInput{
      pageNumber:Int

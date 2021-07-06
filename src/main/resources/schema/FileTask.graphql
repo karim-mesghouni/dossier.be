@@ -34,6 +34,9 @@ extend type  Mutation{
     recoverFileTaskFromTrash(fileTaskId: ID!): Boolean
     uploadAttached(attached: [Upload]!,fileTaskId:ID!):[AttachFile]
     deleteAttached(attachedId: ID!):Boolean
+    fileTaskOrderUp(fileTaskId: ID!): Boolean
+    fileTaskOrderDown(fileTaskId: ID!): Boolean
+
 }
 
 

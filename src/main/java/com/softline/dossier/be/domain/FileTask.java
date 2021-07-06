@@ -63,7 +63,7 @@ public class FileTask extends BaseEntity{
     FileTask parent;
     boolean returned;
     boolean inTrash = false;
-
+    int fileTaskOrder;
     @ManyToOne
     @JoinColumn
     ReturnedCause returnedCause;

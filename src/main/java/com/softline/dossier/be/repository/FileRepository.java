@@ -18,4 +18,6 @@ public interface FileRepository   extends JpaRepository<File,Long> , FileReposit
     @Query("select  f from  File f where f.inTrash=false ")
     List<File> findAll();
     Optional<File> findById(Long aLong);
+
+
 }
