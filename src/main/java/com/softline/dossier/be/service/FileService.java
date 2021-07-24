@@ -14,7 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Transactional
 @Service
@@ -153,7 +154,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     }
 
     public List<FileHistoryDTO> getFileHistory(long id) {
-     /*   Comparator<FileHistoryDTO> dateComparator = new Comparator<FileHistoryDTO>() {
+       Comparator<FileHistoryDTO> dateComparator = new Comparator<FileHistoryDTO>() {
             @Override
             public int compare(FileHistoryDTO o1, FileHistoryDTO o2) {
                 return o1.getDate().compareTo(o2.getDate());
@@ -165,36 +166,47 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         history.add(FileHistoryDTO.builder().id(i.incrementAndGet())
                 .who("Agent 1")
                 .date(file.getCreatedDate())
-                .message("create File").build());
+                .message("create.File").build());
+
+        file.getFileActivities().forEach(x->
+                {
+                    var fileActivity=FileHistoryDTO.builder().id(i.incrementAndGet())
+                            .who("Agent 1")
+                            .date(x.getCreatedDate())
+                            .message("change.file."+x.getActivity().getName())
+                            .children(new ArrayList<>()).build();
+                    x.getFileTasks().forEach(fileTask -> {
+                       var taskHistory=FileHistoryDTO.builder().id(i.incrementAndGet())
+                                .who("Agent 1")
+                                .date(fileTask.getCreatedDate())
+                                .message("create.File.task."+fileTask.getTask().getName())
+                               .children(new ArrayList<>()).build();
+                        fileTask.getFileTaskSituations().forEach(fileTaskSituation -> {
+                            taskHistory.getChildren().add(FileHistoryDTO.builder().id(i.incrementAndGet())
+                                    .who("Agent 1")
+                                    .date(fileTaskSituation.getCreatedDate())
+                                    .message("create.File.task.situation."+fileTaskSituation.getSituation().getName())
+                                    .children(new ArrayList<>()).build());
+
+                        });
+                        fileActivity.getChildren().add(taskHistory);
+                    });
+                    history.add(fileActivity);
+                }
+        );
+
+
         file.getFileStates().forEach(x->
         {
             var state=FileHistoryDTO.builder().id(i.incrementAndGet())
                     .who("Agent 1")
                     .date(x.getCreatedDate())
-                    .message("change file to " + x.getActivity().getName()).build();
-            state.setChildren(new ArrayList());
-            x.getFilePhases().forEach(filePhase->{
-                state.getChildren().add(FileHistoryDTO.builder().id(i.incrementAndGet())
-                        .who("Agent 1")
-                        .date(filePhase.getCreatedDate())
-                        .message("change  filePhase "+x.getActivity().getName()+" to " + filePhase.getPhase().getName()).build());
-                filePhase.getFilePhaseAgents().forEach(phaseAgent->{
-                    phaseAgent.getFilePhaseStates().forEach(filePhaseState -> {
-                        state.getChildren().add(FileHistoryDTO.builder().id(i.incrementAndGet())
-                                .who("Agent 1")
-                                .date(filePhaseState.getCreatedDate())
-                                .message("change  file Phase "+filePhase.getPhase().getName()+" to " + filePhaseState.getState().getState()).build());
-                        state.getChildren().sort(dateComparator);
-                    });
-
-                });
-            });
+                    .message("change.file."+x.getType().getState()).build();
             history.add(state);
          }
         );
         history.sort(dateComparator);
-        return  history;*/
-        return null;
+        return  history;
 
     }
 
