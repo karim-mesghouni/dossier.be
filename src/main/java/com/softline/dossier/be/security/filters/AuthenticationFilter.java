@@ -2,7 +2,9 @@ package com.softline.dossier.be.security.filters;
 
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.softline.dossier.be.security.details.CustomAgentDetails;
 import com.softline.dossier.be.security.domain.Agent;
+import graphql.GraphQLException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -44,7 +46,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                             Arrays.asList())
             );
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new GraphQLException(e);
         }
 
     }
@@ -65,6 +67,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         return JWT.create()
                 .withSubject(name)
                 .withClaim("grantedAuthorities", grantedAuthorities)
+                .withClaim("id", ((CustomAgentDetails)auth.getPrincipal()).getAgent().getId())
                 .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .sign(HMAC512(SECRET.getBytes()));
     }

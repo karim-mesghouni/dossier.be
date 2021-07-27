@@ -67,9 +67,12 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     @Override
     public FileTask create(FileTaskInput input) {
-        var fileTaskOrder=getRepository().getMaxOrder()+1;
-
-        var reporter=   agentRepository.findByUsername(((Agent)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+        var fileTaskOrder = getRepository().getMaxOrder();
+        if (fileTaskOrder == null) {
+            fileTaskOrder = 0;
+        }
+        fileTaskOrder++;
+        var reporter = agentRepository.findByUsername(((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
 
         var task = taskRepository.findById(input.getTask().getId()).orElseThrow();
         var fileActivity = fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();

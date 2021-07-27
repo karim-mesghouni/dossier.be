@@ -26,7 +26,11 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
 
     @Override
     public FileActivity create(FileActivityInput entityInput) {
-        var fileActivityOrder=getRepository().getMaxOrder()+1;
+        var fileActivityOrder=getRepository().getMaxOrder();
+        if (fileActivityOrder==null){
+            fileActivityOrder=0;
+        }
+        fileActivityOrder++;
         var fileActivity = FileActivity.builder()
                 .activity(Activity.builder().id(entityInput.getActivity().getId()).build())
                 .file(File.builder().id(entityInput.getFile().getId()).build())

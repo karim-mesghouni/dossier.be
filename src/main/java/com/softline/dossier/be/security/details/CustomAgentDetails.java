@@ -1,11 +1,12 @@
 package com.softline.dossier.be.security.details;
 
 import com.softline.dossier.be.security.domain.Agent;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-
+@Data
 public class CustomAgentDetails implements UserDetails {
 
     private final Agent agent;

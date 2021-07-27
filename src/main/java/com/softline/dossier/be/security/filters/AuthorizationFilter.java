@@ -69,7 +69,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
                     .build()
                     .verify(token.replace(TOKEN_PREFIX, ""));
             String user = decoded.getSubject();
-            Agent agent = Agent.builder().username(user).name(user).build();
+            Agent agent = Agent.builder().id(decoded.getClaim("id").asLong()).username(user).name(user).build();
             if (user != null) {
                 Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
                 for (String authority : decoded.getClaim("grantedAuthorities").asList(String.class)) {

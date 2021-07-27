@@ -22,6 +22,6 @@ public interface FileActivityRepository extends JpaRepository<FileActivity,Long>
     @Query("select  fa from  FileActivity fa  where fa.file.id=?1 and fa.current =true and fa.inTrash=false  ")
     FileActivity findFirstByCurrentIsTrueAndFile_Id(Long fileId);
     @Query("select  max(f.fileActivityOrder) from  FileActivity f where f.inTrash=false ")
-    int getMaxOrder();
+    Integer getMaxOrder();
     List<FileActivity> getFileByFileActivityOrder(int fileOrder);
 }
