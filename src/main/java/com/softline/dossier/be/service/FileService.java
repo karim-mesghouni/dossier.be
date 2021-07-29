@@ -164,28 +164,31 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         var history=new ArrayList<FileHistoryDTO>();
          var file=   repository.findById(id).orElseThrow();
         history.add(FileHistoryDTO.builder().id(i.incrementAndGet())
-                .who("Agent 1")
+                .who(file.getAgent().getName())
                 .date(file.getCreatedDate())
-                .message("create.File").build());
+                .message("create.file").data(file.getProject()).build());
 
         file.getFileActivities().forEach(x->
                 {
                     var fileActivity=FileHistoryDTO.builder().id(i.incrementAndGet())
-                            .who("Agent 1")
+                            .who(x.getAgent().getName())
                             .date(x.getCreatedDate())
-                            .message("change.file."+x.getActivity().getName())
+                            .message("create.file.activity")
+                            .data(x.getActivity().getName())
                             .children(new ArrayList<>()).build();
                     x.getFileTasks().forEach(fileTask -> {
                        var taskHistory=FileHistoryDTO.builder().id(i.incrementAndGet())
-                                .who("Agent 1")
+                                .who(fileTask.getAgent().getName())
                                 .date(fileTask.getCreatedDate())
-                                .message("create.File.task."+fileTask.getTask().getName())
+                                .message("create.file.task")
+                                 .data(fileTask.getTask().getName())
                                .children(new ArrayList<>()).build();
                         fileTask.getFileTaskSituations().forEach(fileTaskSituation -> {
                             taskHistory.getChildren().add(FileHistoryDTO.builder().id(i.incrementAndGet())
-                                    .who("Agent 1")
+                                    .who(fileTaskSituation.getAgent().getName())
                                     .date(fileTaskSituation.getCreatedDate())
-                                    .message("create.File.task.situation."+fileTaskSituation.getSituation().getName())
+                                    .message("change.File.task.situation")
+                                    .data(fileTaskSituation.getSituation().getName())
                                     .children(new ArrayList<>()).build());
 
                         });
@@ -199,9 +202,10 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         file.getFileStates().forEach(x->
         {
             var state=FileHistoryDTO.builder().id(i.incrementAndGet())
-                    .who("Agent 1")
+                    .who(x.getAgent().getName())
                     .date(x.getCreatedDate())
-                    .message("change.file."+x.getType().getState()).build();
+                    .message("change.file.state")
+                    .data(x.getType().getState()).build();
             history.add(state);
          }
         );

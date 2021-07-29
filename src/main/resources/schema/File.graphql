@@ -99,6 +99,7 @@ type HistoryDTO{
      id: Int
      who: String
      date: String
+     data: String
      message:String
      children:[HistoryDTO]
 }

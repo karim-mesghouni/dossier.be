@@ -14,5 +14,6 @@ public class FileHistoryDTO {
     String who;
     Date date;
     String message;
+    String data;
     List<FileHistoryDTO> children;
 }
