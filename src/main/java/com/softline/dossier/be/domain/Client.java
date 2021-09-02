@@ -18,16 +18,17 @@ import java.util.*;
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE Client SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class Client extends  BaseEntity{
+public class Client extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String name;
+    private String address;
     @OneToMany(mappedBy = File_.CLIENT)
     List<File> files;
     @OneToMany(mappedBy = VisAVis_.CLIENT)
     List<VisAVis> visAVis;
 
-    @OneToMany
+    @OneToMany(mappedBy = "client")
     List<Contact> contacts;
 }
