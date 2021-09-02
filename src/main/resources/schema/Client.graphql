@@ -1,14 +1,16 @@
 # Query
 extend type Query  {
     allClient:[Client]
+    getClientsTable(search: String): [Client]
 }
 
 type Client {
      id: ID
     name: String
-
+    address: String
     files: [File]
     visAVis:[VisAVis]
+    contacts: [Contact]
 }
 input ClientInput {
     id: ID
