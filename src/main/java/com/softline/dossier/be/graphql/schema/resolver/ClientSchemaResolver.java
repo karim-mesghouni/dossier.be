@@ -38,4 +38,9 @@ public class ClientSchemaResolver extends SchemaResolverBase<Client, ClientInput
         return get(id);
     }
 
+    public List<Client> getClientsTable(String search)
+    {
+        return service.getClientsTable(search);
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.softline.dossier.be.service;
 
+import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import com.softline.dossier.be.domain.Client;
 import com.softline.dossier.be.graphql.types.input.ClientInput;
 import com.softline.dossier.be.repository.ClientRepository;
@@ -10,7 +11,8 @@ import java.util.List;
 @Transactional
 
 @Service
-public class ClientService extends IServiceBase<Client, ClientInput, ClientRepository> {
+public class ClientService extends IServiceBase<Client, ClientInput, ClientRepository>
+{
     @Override
     public List<Client> getAll() {
         return  repository.findAll();
@@ -34,5 +36,10 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
     @Override
     public Client getById(long id) {
         return null;
+    }
+
+    public List<Client> getClientsTable(String search)
+    {
+        return repository.findAllWithContactsByNameContaining(search);
     }
 }
