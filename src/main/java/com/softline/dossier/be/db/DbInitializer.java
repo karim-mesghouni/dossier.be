@@ -1,5 +1,6 @@
 package com.softline.dossier.be.db;
 
+import com.github.javafaker.Faker;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.FieldType;
 import com.softline.dossier.be.repository.*;
@@ -19,7 +20,7 @@ import org.thymeleaf.expression.Lists;
 import java.util.*;
 
 @Component
-public class DbInitializer implements ApplicationRunner {
+public class DbInitializer implements ApplicationRunner{
 
     @Autowired
     ActivityRepository activityRepository;
@@ -51,6 +52,10 @@ public class DbInitializer implements ApplicationRunner {
     @Autowired
     ActivityStateRepository activityStateRepository;
 
+    @Autowired
+    ContactRepository contactRepository;
+    Faker faker = new Faker(new Locale("fr"));
+
     Activity zapa;
     Activity fi;
     Activity ipon;
@@ -59,7 +64,7 @@ public class DbInitializer implements ApplicationRunner {
 
     PasswordEncoder passwordEncoder;
     @Transactional
-    @Override
+
     public void run(ApplicationArguments args) throws Exception {
         passwordEncoder=  PasswordEncoderFactories.createDelegatingPasswordEncoder();
         if (activityRepository.count() == 0) {
@@ -71,21 +76,20 @@ public class DbInitializer implements ApplicationRunner {
             createCDCActivity();
         }
         if (clientRepository.count() == 0) {
-            clientRepository.save(Client.builder().name("RH").build());
-            clientRepository.save(Client.builder().name("AXIANS").build());
-            clientRepository.save(Client.builder().name("AXIANS IDF").build());
-            clientRepository.save(Client.builder().name("COVAGE").build());
-            clientRepository.save(Client.builder().name("CPCP ROGNAC").build());
-            clientRepository.save(Client.builder().name("CPCP SUD").build());
-            clientRepository.save(Client.builder().name("FREE").build());
-            clientRepository.save(Client.builder().name("HAUWEI").build());
-            clientRepository.save(Client.builder().name("NET DESIGNER").build());
-            clientRepository.save(Client.builder().name("NET GEO").build());
-            clientRepository.save(Client.builder().name("OPT").build());
-            clientRepository.save(Client.builder().name("OPTTICOM").build());
-            clientRepository.save(Client.builder().name("S30").build());
-            clientRepository.save(Client.builder().name("SCOPELEC").build());
-            clientRepository.save(Client.builder().name("SPIE").build());
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("RH"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("AXIANS"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("AXIANS IDF"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("COVAGE"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("CPCP ROGNAC"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("CPCP SUD"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("FREE"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("NET DESIGNER"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("NET GEO"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("OPT"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("OPTTICOM"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("S30"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("SCOPELEC"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("SPIE"))));
         }
         if (communeRepository.count() == 0) {
             createCommunes();
@@ -218,6 +222,50 @@ public class DbInitializer implements ApplicationRunner {
             }
 
         }
+    }
+    private Client fakeClient(String name)
+    {
+        return Client.builder()
+                .name(name)
+                .address(faker.address().fullAddress())
+                .build();
+    }
+    private List<Contact> fakeContacts(int count)
+    {
+        List<Contact> contacts = new ArrayList<>();
+        for(int i = 0; i < count; i++)
+        {
+            contacts.add(fakeContact());
+        }
+        return contacts;
+    }
+
+    private Contact fakeContact()
+    {
+        return Contact.builder()
+                .name(faker.name().fullName())
+                .email(faker.internet().emailAddress())
+                .phone(faker.phoneNumber().phoneNumber())
+                .build();
+    }
+    private List<Contact> fakeContacts(int count, Client c)
+    {
+        List<Contact> contacts = new ArrayList<>();
+        for(int i = 0; i < count; i++)
+        {
+            contacts.add(fakeContact(c));
+        }
+        return contacts;
+    }
+
+    private Contact fakeContact(Client c)
+    {
+        return Contact.builder()
+                .name(faker.name().fullName())
+                .email(faker.internet().emailAddress())
+                .phone(faker.phoneNumber().phoneNumber())
+                .client(c)
+                .build();
     }
     private void createCommunes() {
         communeRepository.save(Commune.builder().name("BOURG EN BRESSE").INSEECode("01053").postalCode("1000").build());
