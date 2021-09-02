@@ -27,4 +27,7 @@ public class Client extends  BaseEntity{
     List<File> files;
     @OneToMany(mappedBy = VisAVis_.CLIENT)
     List<VisAVis> visAVis;
+
+    @OneToMany
+    List<Contact> contacts;
 }
