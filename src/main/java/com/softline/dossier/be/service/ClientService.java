@@ -3,6 +3,7 @@ package com.softline.dossier.be.service;
 import com.softline.dossier.be.domain.Client;
 import com.softline.dossier.be.graphql.types.input.ClientInput;
 import com.softline.dossier.be.repository.ClientRepository;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,9 +31,16 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
         return repository.save(client);
     }
 
+    @SneakyThrows
     @Override
     public boolean delete(long id) {
-        return false;
+        Client client = repository.findWithFilesById(id);
+        if(client.getFiles().size() > 0)
+        {
+            throw new Exception("client has open files");
+        }
+        repository.deleteById(id);
+        return true;
     }
 
     @Override
