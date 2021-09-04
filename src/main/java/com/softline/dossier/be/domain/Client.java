@@ -1,14 +1,15 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.graphql.types.input.ClientInput;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
 import java.util.*;
 
 @Data
@@ -30,5 +31,5 @@ public class Client extends BaseEntity{
     List<VisAVis> visAVis;
 
     @OneToMany(mappedBy = "client")
-    List<Contact> contacts;
+    List<Contact> contacts = new ArrayList<>();
 }
