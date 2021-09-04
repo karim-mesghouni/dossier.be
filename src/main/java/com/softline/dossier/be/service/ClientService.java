@@ -1,6 +1,5 @@
 package com.softline.dossier.be.service;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import com.softline.dossier.be.domain.Client;
 import com.softline.dossier.be.graphql.types.input.ClientInput;
 import com.softline.dossier.be.repository.ClientRepository;
@@ -19,8 +18,8 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
     }
 
     @Override
-    public Client create(ClientInput clientInput) {
-        return null;
+    public Client create(ClientInput input) {
+        return repository.save(Client.builder().name(input.getName()).address(input.getAddress()).build());
     }
 
     @Override
