@@ -23,8 +23,11 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
     }
 
     @Override
-    public Client update(ClientInput clientInput) {
-        return null;
+    public Client update(ClientInput input) {
+        Client client = repository.getOne(input.getId());
+        client.setAddress(input.getAddress());
+        client.setName(input.getName());
+        return repository.save(client);
     }
 
     @Override
