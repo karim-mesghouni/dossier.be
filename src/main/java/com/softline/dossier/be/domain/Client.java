@@ -30,6 +30,7 @@ public class Client extends BaseEntity{
     @OneToMany(mappedBy = VisAVis_.CLIENT)
     List<VisAVis> visAVis;
 
+    @Cascade(CascadeType.ALL)
     @OneToMany(mappedBy = "client")
     List<Contact> contacts = new ArrayList<>();
 }
