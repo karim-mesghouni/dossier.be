@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ContactInput
 {
-    private Long id;
+    private long id;
     private String name;
     private String phone;
     private String email;
