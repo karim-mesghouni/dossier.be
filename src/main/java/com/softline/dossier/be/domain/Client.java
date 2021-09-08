@@ -7,10 +7,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.*;
+import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
 import java.util.*;
+import java.util.function.Predicate;
 
 @Data
 @SuperBuilder
@@ -33,4 +35,18 @@ public class Client extends BaseEntity{
     @Cascade(CascadeType.ALL)
     @OneToMany(mappedBy = "client")
     List<Contact> contacts = new ArrayList<>();
+
+
+
+    public void addContact(Contact c)
+    {
+        this.contacts.add(c);
+    }
+    public Contact findInContacts(Predicate<Contact> search)
+    {
+        return this.contacts.stream()
+                .filter(search)
+                .findFirst()
+                .orElseThrow();
+    }
 }
