@@ -32,7 +32,7 @@ public class Contact
             name = "native",
             strategy = "native"
     )
-    private Long id;
+    private long id;
     private String name;
     private String phone;
     private String email;
