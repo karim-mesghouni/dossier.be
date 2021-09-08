@@ -11,4 +11,10 @@ input ContactInput{
     name: String
     phone: String
     email: String
+    client: ClientInput
+}
+extend type Mutation  {
+    createContact(contact: ContactInput): Contact
+    updateContact(contact: ContactInput): Contact
+    deleteContact(id: ID): Boolean
 }
