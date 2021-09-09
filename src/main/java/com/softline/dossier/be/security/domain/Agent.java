@@ -4,6 +4,7 @@ import com.softline.dossier.be.domain.BaseEntity;
 import com.softline.dossier.be.domain.Comment;
 import com.softline.dossier.be.domain.Comment_;
 import com.softline.dossier.be.domain.Notification;
+import com.softline.dossier.be.security.domain.casl.CaslRawRule;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -43,7 +44,9 @@ public class Agent extends BaseEntity {
     @OneToMany(mappedBy = "agent")
     List<Notification> notifications;
     @Transient()
-    List<Object> authorities;
+    List<String> authorities;
+    @Transient()
+    List<CaslRawRule> caslRules;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_role",
