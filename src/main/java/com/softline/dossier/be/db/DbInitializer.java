@@ -1,6 +1,7 @@
 package com.softline.dossier.be.db;
 
 import com.github.javafaker.Faker;
+import com.softline.dossier.be.Halpers.ListUtils;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.FieldType;
 import com.softline.dossier.be.repository.*;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.expression.Lists;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class DbInitializer implements ApplicationRunner{
@@ -146,93 +148,7 @@ public class DbInitializer implements ApplicationRunner{
                 );
                 ADMIN_ROLE = roleRepository.save(Role.builder().name("ROLE_ADMIN").privileges(allPrivileges).build());
             }
-            var agents=List.of("ELTIFI Sana"
-                    ,"HMAIDI Omar"
-                    ,"BENNOUR Imen"
-                    ,"AZIZI Chaima"
-                    ,"HAJRI Khaoula"
-                    ,"MABROUK Akrem"
-                    ,"BEN AMOR Talel"
-                    ,"KHEZAMI Aymen"
-                    ,"TARHOUNI Donia"
-                    ,"SININI Yosra"
-                    ,"ELKEFI Salma"
-                    ,"KOCHBATI Ep KAMOUN Nouha"
-                    ,"AMDOUNI Med Ali"
-                    ,"SASSI Olfa"
-                    ,"AROUI Mahdi"
-                    ,"LOUATI Ikbel"
-                    ,"JAMAI Hiba"
-                    ,"TOUZRI Jamil Aziz"
-                    ,"SAID Mouhamed"
-                    ,"BOULILA Fatma"
-                    ,"DAKHLAOUI Rahma"
-                    ,"BEN HLIMA Omar"
-                    ,"NEMRI Ep. ELOUSGI Sarra"
-                    ,"AGREBI Yosra"
-                    ,"MELKI Maroua"
-                    ,"MEJRI AFEF"
-                    ,"BEN RACHED Oumayma"
-                    ,"KAROUI Salim"
-                    ,"BEJAOUI Nadia"
-                    ,"AISSAOUI Mohamed Sofiene"
-                    ,"OUESLATI Mariem"
-                    ,"GUITOUNI Raoua"
-                    ,"MASMOUDI Ines"
-                    ,"HAMMAMI Aziza"
-                    ,"HAJJI Tasnim"
-                    ,"TAYEG Ghada"
-                    ,"HOSNY Sawssen"
-                    ,"BEN SALAH Ep. MOUSSA Mariem"
-                    ,"CHAMMEM Manel"
-                    ,"NEGUIA SalahEddine"
-                    ,"DIOUANE Amor"
-                    ,"GHEZALI Mahmoud"
-                    ,"CHIHI Rihem"
-                    ,"CHIHI Amal"
-                    ,"BRAHMI Asma"
-                    ,"LABIDI Khawla"
-                    ,"BEN ELBEY Lobna"
-                    ,"MAAROUFI Wissal"
-                    ,"HAMMAMI Ines"
-                    ,"KAABACHI Khaled"
-                    ,"DAHMENI Ahmed"
-                    ,"Cpcp"
-                    ,"Nasri"
-                    ,"Rafaa"
-                    ,"Julien"
-                    ,"Riahi Safa"
-                    ,"Wael+Firas"
-                    ,"Jelassi Wael"
-                    ,"Hmaied Firas"
-                    ,"Bennour Ramzi"
-                    ,"Riahi Mohamed"
-                    ,"Settou Mohamed"
-                    ,"Belhaj Med Souhaieb"
-                    ,"Hermi Ali"
-                    ,"Mezni Emna"
-                    ,"Sbai Malek"
-                    ,"Abcha Amani"
-                    ,"Aroui Mehdi"
-                    ,"Lakti Marwa"
-                    ,"Melki Marwa"
-                    ,"Jlassi Wael"
-                    ,"Souissi Beya"
-                    ,"Senini Yosra"
-                    ,"Ferchichi Aya"
-                    ,"Khaldi Khawla"
-                    ,"Touihri Nouha"
-                    ,"Khaldi Yosra "
-                    ,"Si Jemaa Akrem"
-                    ,"Hannachi Fadwa"
-                    ,"Karoui Mohamed"
-                    ,"Riahi Mohamed "
-                    ,"Hedidar Naouel"
-                    ,"Nahali Nesrine"
-                    ,"Mathlouthi Amel"
-                    ,"Romdhani Chaima"
-                    ,"Khelifi Ghassen"
-                    ,"Bouhlel Oussema");
+            var agents= ListUtils.createCount(20, () -> faker.name().username()).stream().distinct().collect(Collectors.toList());
             // admin user
             for (var admin: List.of("elhabib", "othman", "boubaker"))
             {
