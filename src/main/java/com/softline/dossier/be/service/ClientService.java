@@ -7,6 +7,8 @@ import com.softline.dossier.be.repository.ClientRepository;
 import com.softline.dossier.be.repository.ContactRepository;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
     }
 
     @Override
+    @PreAuthorize("hasPermission(null, 'CREATE_CLIENT')")
     public Client create(ClientInput input) {
         Client client = Client.builder().name(input.getName()).address(input.getAddress()).build();
         List<Contact> contacts = new ArrayList<>();
@@ -61,6 +64,7 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
 
     @SneakyThrows
     @Override
+    @PreAuthorize("hasPermission(null, 'DELETE_CLIENT')")
     public boolean delete(long id) {
         Client client = repository.findWithFilesById(id);
         if(client.getFiles().size() > 0)
@@ -76,6 +80,7 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
         return null;
     }
 
+    @PostFilter("hasPermission(filterObject, 'READ_CLIENT')")
     public List<Client> getClientsTable(String search)
     {
         return repository.findAllWithContactsByNameContaining(search);

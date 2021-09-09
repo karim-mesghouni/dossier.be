@@ -44,7 +44,7 @@ public class ContactService extends IServiceBase<Contact, ContactInput, ContactR
 
     @SneakyThrows
     @Override
-    @PreAuthorize("hasPermission(#id,'PROJECTS_CREATE')")
+    @PreAuthorize("hasPermission(null, 'DELETE_CONTACT')")
     public boolean delete(long id) {
         repository.delete(repository.findById(id).orElseThrow());
         return true;
