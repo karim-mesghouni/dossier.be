@@ -8,6 +8,7 @@ import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.domain.Privilege;
 import com.softline.dossier.be.security.domain.Role;
 import com.softline.dossier.be.security.repository.AgentRepository;
+import com.softline.dossier.be.security.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -54,6 +55,11 @@ public class DbInitializer implements ApplicationRunner{
 
     @Autowired
     ContactRepository contactRepository;
+
+    @Autowired
+    RoleRepository roleRepository;
+
+
     Faker faker = new Faker(new Locale("fr"));
 
     Activity zapa;
@@ -112,11 +118,35 @@ public class DbInitializer implements ApplicationRunner{
             fileStateTypeRepository.save(FileStateType.builder().state("ANNULÉ").Final(true).build());
 
         }
+
         if (agentRepository.count()==0){
-            var agents=List.of(
-                    "elhabib"
-                    ,"othman"
-                    ,"ELTIFI Sana"
+            final Role ADMIN_ROLE;
+            {// block to encapsulate these crud variables
+                String c = "CREATE_", r = "READ_", u = "UPDATE_", d = "DELETE_";
+                List<Privilege> allPrivileges = List.of(
+                        Privilege.builder().name(c+"FILES").build(),
+                        Privilege.builder().name(r+"FILES").build(),
+                        Privilege.builder().name(u+"FILES").build(),
+                        Privilege.builder().name(d+"FILES").build(),
+
+                        Privilege.builder().name(c+"TASKS").build(),
+                        Privilege.builder().name(r+"TASKS").build(),
+                        Privilege.builder().name(u+"TASKS").build(),
+                        Privilege.builder().name(d+"TASKS").build(),
+
+                        Privilege.builder().name(c+"CLIENTS").build(),
+                        Privilege.builder().name(r+"CLIENTS").build(),
+                        Privilege.builder().name(u+"CLIENTS").build(),
+                        Privilege.builder().name(d+"CLIENTS").build(),
+
+                        Privilege.builder().name(c+"ROLES").build(),
+                        Privilege.builder().name(r+"ROLES").build(),
+                        Privilege.builder().name(u+"ROLES").build(),
+                        Privilege.builder().name(d+"ROLES").build()
+                );
+                ADMIN_ROLE = roleRepository.save(Role.builder().name("ROLE_ADMIN").privileges(allPrivileges).build());
+            }
+            var agents=List.of("ELTIFI Sana"
                     ,"HMAIDI Omar"
                     ,"BENNOUR Imen"
                     ,"AZIZI Chaima"
@@ -203,21 +233,27 @@ public class DbInitializer implements ApplicationRunner{
                     ,"Romdhani Chaima"
                     ,"Khelifi Ghassen"
                     ,"Bouhlel Oussema");
+            // admin user
+            for (var admin: List.of("elhabib", "othman", "boubaker"))
+            {
+                agentRepository.save(Agent.builder()
+                        .name(admin)
+                        .email(admin+"@gmail.com")
+                        .username(admin)
+                        .password(passwordEncoder.encode("000"))
+                        .enabled(true)
+                        .roles(List.of(ADMIN_ROLE))
+                        .build()
+                );
+            }
             for (var agent:agents) {
-
                 agentRepository.save(Agent.builder()
                         .name(agent)
                         .email(agent+"@gmail.com")
                         .username(agent.replace(" ","_"))
                         .password(passwordEncoder.encode("000"))
                         .enabled(true)
-                        .roles(List.of(
-                                Role.builder().name("Role_Manger").privileges(
-                                        List.of(Privilege.builder().name("View_Activity").build())
-                                ).build()
-                        ))
                         .build()
-
                 );
             }
 
