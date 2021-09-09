@@ -2,12 +2,19 @@ package com.softline.dossier.be.service;
 
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.graphql.types.input.AgentInput;
+import com.softline.dossier.be.security.domain.casl.CaslRawRule;
 import com.softline.dossier.be.security.repository.AgentRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -39,12 +46,19 @@ public class AgentService extends IServiceBase<Agent, AgentInput, AgentRepositor
         return repository.findById(id).orElseThrow();
     }
 
-
     public Agent getCurrentAgent() {
-      var agent=  (Agent)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-      if (agent!=null){
-        return   getRepository().findByUsername(agent.getUsername());
-      }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var agent = (Agent) authentication.getPrincipal();
+        if (agent != null){
+            Agent current = getRepository().findByUsername(agent.getUsername());
+            List<CaslRawRule> rules = authentication.getAuthorities().stream().filter(e -> !e.getAuthority().contains("ROLE_")).map(authority ->
+            {
+                var parts = authority.getAuthority().split("_");
+                return new CaslRawRule(parts[0].toLowerCase(), StringUtils.capitalize(parts[1].replaceFirst("S$", "").toLowerCase()));
+            }).collect(Collectors.toList());
+            current.setCaslRules(rules);
+            return current;
+        }
       return null;
     }
 }
