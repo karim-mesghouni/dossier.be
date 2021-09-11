@@ -144,7 +144,12 @@ public class DbInitializer implements ApplicationRunner{
                         Privilege.builder().name(c+"ROLES").build(),
                         Privilege.builder().name(r+"ROLES").build(),
                         Privilege.builder().name(u+"ROLES").build(),
-                        Privilege.builder().name(d+"ROLES").build()
+                        Privilege.builder().name(d+"ROLES").build(),
+
+                        Privilege.builder().name(c+"Trash").build(),
+                        Privilege.builder().name(r+"Trash").build(),
+                        Privilege.builder().name(u+"Trash").build(),
+                        Privilege.builder().name(d+"Trash").build()
                 );
                 ADMIN_ROLE = roleRepository.save(Role.builder().name("ROLE_ADMIN").privileges(allPrivileges).build());
             }
