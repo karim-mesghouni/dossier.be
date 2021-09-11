@@ -16,10 +16,11 @@ import java.util.List;
 @Data
 @SQLDelete(sql = "UPDATE BlockingQualification SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class BlockingQualification {
+public class BlockingQualification  extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     @OneToMany(mappedBy = Blocking_.QUALIFICATION)
     List<Blocking> blocking;
+    String name;
 }

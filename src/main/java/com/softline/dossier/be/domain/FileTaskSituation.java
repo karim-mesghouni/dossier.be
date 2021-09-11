@@ -25,8 +25,8 @@ public class FileTaskSituation extends  BaseEntity{
     @ManyToOne
     @JoinColumn
     TaskSituation situation;
-    @OneToMany(mappedBy = Blocking_.STATE)
-    List<Blocking> blockings;
+    @OneToOne(mappedBy = Blocking_.STATE)
+    Blocking blocking;
     @ManyToOne
     @JoinColumn()
     FileTask fileTask;

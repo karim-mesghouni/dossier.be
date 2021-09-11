@@ -1,14 +1,29 @@
 
+# Query
+extend type Query  {
+    blocking(id: ID! ):Blocking
+    blockingByFileTaskId(fileTaskId: ID! ):[Blocking]
+    allLockingAddress:[BlockingLockingAddress]
+    allLables:[BlockingLabel]
+    allQualification:[BlockingQualification]
+}
+
+#mutation
+extend type  Mutation{
+    createBlocking(input: BlockingInput! ):Blocking
+    updateBlocking(input: BlockingInput! ):Blocking
+    deleteBlocking(id: ID!): Boolean
+}
+
 type  Blocking {
-    id: ID
-
+     id: ID
      state: FileTaskSituation
-
      lockingAddress: BlockingLockingAddress
-
      qualification:BlockingQualification
-
      label: BlockingLabel
+     explication:String
+     block:Boolean
+     date:String
 }
 
 input  BlockingInput {
@@ -17,4 +32,7 @@ input  BlockingInput {
     lockingAddress: BlockingLockingAddressInput
     qualification:BlockingQualificationInput
     label: BlockingLabelInput
+    explication:String
+    block:Boolean
+    date:String
 }

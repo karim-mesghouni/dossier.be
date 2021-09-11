@@ -3,9 +3,12 @@ type BlockingLockingAddress {
     id:ID
     blocking:[Blocking]
     visAVis:[VisAVis]
+    address:String
 }
 input BlockingLockingAddressInput {
     id:ID
     blocking:[BlockingInput]
     visAVis:[VisAVisInput]
+    address:String
+
 }

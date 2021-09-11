@@ -17,10 +17,12 @@ import java.util.*;
 @Data
 @SQLDelete(sql = "UPDATE BlockingLabel SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class BlockingLabel {
+public class BlockingLabel extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    Long id;
     @OneToMany(mappedBy=Blocking_.LABEL)
     List<Blocking> blocking;
+    String name;
+
 }

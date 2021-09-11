@@ -16,7 +16,7 @@ import java.util.List;
 @Data
 @SQLDelete(sql = "UPDATE BlockingLockingAddress SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class BlockingLockingAddress {
+public class BlockingLockingAddress  extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -24,4 +24,6 @@ public class BlockingLockingAddress {
     List<Blocking> blocking;
     @OneToMany(mappedBy = VisAVis_.LOCKING_ADDRESS)
     List<VisAVis> visAVis;
+    String address;
+
 }

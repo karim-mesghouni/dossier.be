@@ -2,8 +2,11 @@
 type BlockingLabel  {
     id: ID
     blocking:[Blocking]
+    name:String
 }
 input BlockingLabelInput  {
     id: ID
     blocking:[BlockingInput]
+    name:String
+
 }

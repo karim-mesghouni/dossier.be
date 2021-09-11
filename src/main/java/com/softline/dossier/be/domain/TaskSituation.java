@@ -24,6 +24,7 @@ public class TaskSituation extends BaseEntity {
     String name;
     boolean initial;
     boolean Final;
+    boolean block;
     @ManyToOne()
     @JoinColumn()
     Task task;

@@ -14,9 +14,9 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.expression.Lists;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class DbInitializer implements ApplicationRunner {
@@ -218,6 +218,21 @@ public class DbInitializer implements ApplicationRunner {
             }
 
         }
+        if (blockingLabelRepository.count() == 0) {
+            for (int i = 0; i < 5; i++) {
+                blockingLabelRepository.save(BlockingLabel.builder().name("label " + i).build());
+            }
+        }
+        if (blockingQualificationRepository.count() == 0) {
+            for (int i = 0; i < 5; i++) {
+                blockingQualificationRepository.save(BlockingQualification.builder().name("Qualification " + i).build());
+            }
+        }
+        if (blockingLockingAddressRepository.count() == 0) {
+            for (int i = 0; i < 5; i++) {
+                blockingLockingAddressRepository.save(BlockingLockingAddress.builder().address("Locking Address " + i).build());
+            }
+        }
     }
     private void createCommunes() {
         communeRepository.save(Commune.builder().name("BOURG EN BRESSE").INSEECode("01053").postalCode("1000").build());
@@ -228,8 +243,6 @@ public class DbInitializer implements ApplicationRunner {
         communeRepository.save(Commune.builder().name("AMAREINS FRANCHELEINS CES").INSEECode("01165").postalCode("1090").build());
         communeRepository.save(Commune.builder().name("GENOUILLEUX").INSEECode("01169").postalCode("1090").build());
         communeRepository.save(Commune.builder().name("GUEREINS").INSEECode("01183").postalCode("1090").build());
-
-
     }
     private void createZapaActivity() {
         zapa = Activity.builder().name("ZAPA").description("ZAPA Description").tasks(new ArrayList<>()).build();
@@ -238,16 +251,20 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsEtude.add(TaskSituation.builder().name("En cours").build());
         taskSituationsEtude.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsEtude.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        taskSituationsEtude.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
+
         var taskSituationsControle = new ArrayList<TaskSituation>();
         taskSituationsControle.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("En cours").build());
         taskSituationsControle.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        taskSituationsControle.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var taskSituationsPreparatrionLivraison= new ArrayList<TaskSituation>();
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var PreparatrionLivraison = Task.builder().name("Préparatrion de livraison").situations(taskSituationsPreparatrionLivraison).activity(zapa).build();
         PreparatrionLivraison.getSituations().forEach(x->x.setTask(PreparatrionLivraison));
         var states = new ArrayList();
@@ -286,16 +303,19 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsEtude.add(TaskSituation.builder().name("En cours").build());
         taskSituationsEtude.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsEtude.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        taskSituationsEtude.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var taskSituationsControle = new ArrayList<TaskSituation>();
         taskSituationsControle.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("En cours").build());
         taskSituationsControle.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        taskSituationsControle.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var taskSituationsPreparatrionLivraison= new ArrayList<TaskSituation>();
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var PreparatrionLivraison = Task.builder().name("Préparatrion de livraison").situations(taskSituationsPreparatrionLivraison).activity(fi).build();
         PreparatrionLivraison.getSituations().forEach(x->x.setTask(PreparatrionLivraison));
         var states = new ArrayList();
@@ -335,16 +355,19 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsEtude.add(TaskSituation.builder().name("En cours").build());
         taskSituationsEtude.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsEtude.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        taskSituationsEtude.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var taskSituationsControle = new ArrayList<TaskSituation>();
         taskSituationsControle.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("En cours").build());
         taskSituationsControle.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        taskSituationsControle.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var taskSituationsPreparatrionLivraison= new ArrayList<TaskSituation>();
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var PreparatrionLivraison = Task.builder().name("Préparatrion de livraison").situations(taskSituationsPreparatrionLivraison).activity(ipon).build();
         PreparatrionLivraison.getSituations().forEach(x->x.setTask(PreparatrionLivraison));
 
@@ -377,16 +400,19 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsEtude.add(TaskSituation.builder().name("En cours").build());
         taskSituationsEtude.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsEtude.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        taskSituationsEtude.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var taskSituationsControle = new ArrayList<TaskSituation>();
         taskSituationsControle.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("En cours").build());
         taskSituationsControle.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        taskSituationsControle.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var taskSituationsverification = new ArrayList<TaskSituation>();
         taskSituationsverification.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsverification.add(TaskSituation.builder().name("En cours").build());
         taskSituationsverification.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsverification.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        taskSituationsverification.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var states = new ArrayList();
         states.add(TaskState.builder().name("Valide").build());
         states.add(TaskState.builder().name("Non Valide").build());
@@ -429,16 +455,19 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsEtdueComac.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsEtdueComac.add(TaskSituation.builder().name("Annulé").Final(true).build());
 
+        taskSituationsEtdueComac.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var taskSituationsControle = new ArrayList<TaskSituation>();
         taskSituationsControle.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("En cours").build());
         taskSituationsControle.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        taskSituationsControle.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var taskSituationsPreparatrionLivraison= new ArrayList<TaskSituation>();
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Annulé").Final(true).build());
+        taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var PreparatrionLivraison = Task.builder().name("Préparatrion de livraison").situations(taskSituationsPreparatrionLivraison).activity(cdc).build();
         PreparatrionLivraison.getSituations().forEach(x->x.setTask(PreparatrionLivraison));
         var states = new ArrayList();

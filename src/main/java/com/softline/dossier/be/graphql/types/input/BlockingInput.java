@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
+
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,4 +23,6 @@ public class BlockingInput  {
     BlockingQualificationInput qualification;
 
     BlockingLabelInput label;
+    LocalDateTime date;
+    private String explication;
 }

@@ -8,6 +8,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @SuperBuilder
 @Entity
@@ -20,18 +21,22 @@ import javax.persistence.*;
 public class Blocking extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    private Long id;
 
+    @OneToOne
+    @JoinColumn
+    private FileTaskSituation state;
     @ManyToOne
     @JoinColumn
-    FileTaskSituation state;
+    private BlockingLockingAddress lockingAddress;
     @ManyToOne
     @JoinColumn
-    BlockingLockingAddress lockingAddress;
+    private BlockingQualification qualification;
     @ManyToOne
     @JoinColumn
-    BlockingQualification qualification;
-    @ManyToOne
-    @JoinColumn
-    BlockingLabel label;
+    private BlockingLabel label;
+    private String explication;
+    boolean block;
+
+    private LocalDateTime date;
 }

@@ -2,8 +2,10 @@
 type BlockingQualification {
     id:ID
     blocking:[Blocking]
+    name:String
 }
 input BlockingQualificationInput {
     id:ID
     blocking:[BlockingInput]
+    name:String
 }

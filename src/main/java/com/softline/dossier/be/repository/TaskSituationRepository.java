@@ -10,4 +10,5 @@ import java.util.List;
 public interface TaskSituationRepository extends JpaRepository<TaskSituation,Long> {
 
     List<TaskSituation> findAllByTask_Id(Long taskId);
+    TaskSituation findAllByTask_IdAndBlockIsTrue(Long taskId);
 }

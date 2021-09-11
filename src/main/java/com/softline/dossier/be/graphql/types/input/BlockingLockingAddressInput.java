@@ -17,4 +17,5 @@ public class BlockingLockingAddressInput {
 
     List<BlockingInput> blocking;
     List<VisAVisInput> visAVis;
+    String address;
 }

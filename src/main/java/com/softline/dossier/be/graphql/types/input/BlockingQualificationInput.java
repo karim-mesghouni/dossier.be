@@ -15,4 +15,5 @@ public class BlockingQualificationInput {
 
     long id;
     List<BlockingInput> blocking;
+    String name;
 }

@@ -16,4 +16,5 @@ public class BlockingLabelInput {
     long id;
 
     List<BlockingInput> blocking;
+    String name;
 }
