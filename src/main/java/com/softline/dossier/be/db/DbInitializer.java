@@ -120,7 +120,6 @@ public class DbInitializer implements ApplicationRunner{
             fileStateTypeRepository.save(FileStateType.builder().state("ANNULÉ").Final(true).build());
 
         }
-
         if (agentRepository.count()==0){
             final Role ADMIN_ROLE;
             {// block to encapsulate these crud variables
@@ -141,6 +140,11 @@ public class DbInitializer implements ApplicationRunner{
                         Privilege.builder().name(u+"CLIENTS").build(),
                         Privilege.builder().name(d+"CLIENTS").build(),
 
+                        Privilege.builder().name(c+"CONTACTS").build(),
+                        Privilege.builder().name(r+"CONTACTS").build(),
+                        Privilege.builder().name(u+"CONTACTS").build(),
+                        Privilege.builder().name(d+"CONTACTS").build(),
+
                         Privilege.builder().name(c+"ROLES").build(),
                         Privilege.builder().name(r+"ROLES").build(),
                         Privilege.builder().name(u+"ROLES").build(),
@@ -153,7 +157,6 @@ public class DbInitializer implements ApplicationRunner{
                 );
                 ADMIN_ROLE = roleRepository.save(Role.builder().name("ROLE_ADMIN").privileges(allPrivileges).build());
             }
-            var agents= ListUtils.createCount(20, () -> faker.name().username()).stream().distinct().collect(Collectors.toList());
             // admin user
             for (var admin: List.of("elhabib", "othman", "boubaker"))
             {
@@ -167,7 +170,7 @@ public class DbInitializer implements ApplicationRunner{
                         .build()
                 );
             }
-            for (var agent:agents) {
+            ListUtils.createCount(20, () -> faker.name().username()).stream().distinct().forEach(agent -> {
                 agentRepository.save(Agent.builder()
                         .name(agent)
                         .email(agent+"@gmail.com")
@@ -176,8 +179,7 @@ public class DbInitializer implements ApplicationRunner{
                         .enabled(true)
                         .build()
                 );
-            }
-
+            });
         }
     }
     private Client fakeClient(String name)
