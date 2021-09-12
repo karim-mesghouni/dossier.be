@@ -8,7 +8,7 @@
     "condition": "subject.authorities.contains('DELETE_CLIENT')"
   },
   {
-    "target": "action == 'DELETE_CONTACTS'",
+    "target": "action == 'DELETE_CONTACT'",
     "condition": "subject.authorities.contains('DELETE_CONTACT')"
   },
   {
