@@ -51,11 +51,15 @@ public class AgentService extends IServiceBase<Agent, AgentInput, AgentRepositor
         var agent = (Agent) authentication.getPrincipal();
         if (agent != null){
             Agent current = getRepository().findByUsername(agent.getUsername());
-            List<CaslRawRule> rules = authentication.getAuthorities().stream().filter(e -> !e.getAuthority().contains("ROLE_")).map(authority ->
-            {
-                var parts = authority.getAuthority().split("_");
-                return new CaslRawRule(parts[0].toLowerCase(), StringUtils.capitalize(parts[1].replaceFirst("S$", "").toLowerCase()));
-            }).collect(Collectors.toList());
+            // map authorities to caslRules
+            List<CaslRawRule> rules = authentication.getAuthorities()
+                    .stream()
+                    .filter(e -> !e.getAuthority().startsWith("ROLE_"))
+                    .map(authority -> {
+                        var parts = authority.getAuthority().split("_");
+                        return new CaslRawRule(parts[0].toLowerCase(), StringUtils.capitalize(parts[1].replaceFirst("S$", "").toLowerCase()));
+                    }
+            ).collect(Collectors.toList());
             current.setCaslRules(rules);
             return current;
         }
