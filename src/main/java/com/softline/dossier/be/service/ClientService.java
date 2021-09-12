@@ -80,7 +80,7 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
         return null;
     }
 
-    @PostFilter("hasPermission(filterObject, 'READ_CLIENT')")
+    @PreAuthorize("hasPermission(null, 'READ_CLIENT')")
     public List<Client> getClientsTable(String search)
     {
         return repository.findAllWithContactsByNameContaining(search);
