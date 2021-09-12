@@ -120,7 +120,17 @@ public class DbInitializer implements ApplicationRunner{
             fileStateTypeRepository.save(FileStateType.builder().state("ANNULÉ").Final(true).build());
 
         }
-        if (agentRepository.count()==0){
+        String c = "CREATE_", r = "READ_", u = "UPDATE_", d = "DELETE_";
+//        var role = roleRepository.findOne(Example.of(Role.builder().name("ROLE_ADMIN").build())).get();
+//        var privs = role.getPrivileges();
+//        privs.addAll(List.of(Privilege.builder().name(c+"HISTORY").build(),
+//                Privilege.builder().name(r+"HISTORY").build(),
+//                Privilege.builder().name(u+"HISTORY").build(),
+//                Privilege.builder().name(d+"HISTORY").build()));
+//        role.setPrivileges(privs);
+//        roleRepository.save(role);
+        if (agentRepository.count() == 0)
+        {
             final Role ADMIN_ROLE;
             {// block to encapsulate these crud variables
                 String c = "CREATE_", r = "READ_", u = "UPDATE_", d = "DELETE_";
@@ -145,10 +155,15 @@ public class DbInitializer implements ApplicationRunner{
                         Privilege.builder().name(u+"CONTACTS").build(),
                         Privilege.builder().name(d+"CONTACTS").build(),
 
-                        Privilege.builder().name(c+"ROLES").build(),
-                        Privilege.builder().name(r+"ROLES").build(),
-                        Privilege.builder().name(u+"ROLES").build(),
-                        Privilege.builder().name(d+"ROLES").build(),
+                    Privilege.builder().name(c + "HISTORY").build(),
+                    Privilege.builder().name(r + "HISTORY").build(),
+                    Privilege.builder().name(u + "HISTORY").build(),
+                    Privilege.builder().name(d + "HISTORY").build(),
+
+                    Privilege.builder().name(c + "ROLE").build(),
+                    Privilege.builder().name(r + "ROLE").build(),
+                    Privilege.builder().name(u + "ROLE").build(),
+                    Privilege.builder().name(d + "ROLE").build(),
 
                         Privilege.builder().name(c+"Trash").build(),
                         Privilege.builder().name(r+"Trash").build(),
