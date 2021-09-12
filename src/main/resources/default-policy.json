@@ -1,18 +1,18 @@
 [
   {
     "target": "action == 'READ_CLIENT'",
-    "condition": "subject.authorities.contains('READ_CLIENTS_PRIVILEGE')"
+    "condition": "subject.authorities.contains('READ_CLIENTS')"
   },
   {
     "target": "action == 'DELETE_CLIENT'",
-    "condition": "subject.authorities.contains('DELETE_CLIENTS_PRIVILEGE')"
+    "condition": "subject.authorities.contains('DELETE_CLIENTS')"
   },
   {
     "target": "action == 'DELETE_CONTACTS'",
-    "condition": "subject.authorities.contains('DELETE_CONTACTS_PRIVILEGE')"
+    "condition": "subject.authorities.contains('DELETE_CONTACTS')"
   },
   {
     "target": "action == 'CREATE_CONTACT'",
-    "condition": "subject.authorities.contains('CREATE_CONTACTS_PRIVILEGE')"
+    "condition": "subject.authorities.contains('CREATE_CONTACTS')"
   }
 ]
