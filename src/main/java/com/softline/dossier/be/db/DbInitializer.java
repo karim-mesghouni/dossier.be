@@ -132,28 +132,32 @@ public class DbInitializer implements ApplicationRunner{
         if (agentRepository.count() == 0)
         {
             final Role ADMIN_ROLE;
-            {// block to encapsulate these crud variables
-                String c = "CREATE_", r = "READ_", u = "UPDATE_", d = "DELETE_";
-                List<Privilege> allPrivileges = List.of(
-                        Privilege.builder().name(c+"FILES").build(),
-                        Privilege.builder().name(r+"FILES").build(),
-                        Privilege.builder().name(u+"FILES").build(),
-                        Privilege.builder().name(d+"FILES").build(),
 
-                        Privilege.builder().name(c+"TASKS").build(),
-                        Privilege.builder().name(r+"TASKS").build(),
-                        Privilege.builder().name(u+"TASKS").build(),
-                        Privilege.builder().name(d+"TASKS").build(),
+            List<Privilege> allPrivileges = List.of(
+                    Privilege.builder().name(c + "FILE").build(),
+                    Privilege.builder().name(r + "FILE").build(),
+                    Privilege.builder().name(u + "FILE").build(),
+                    Privilege.builder().name(d + "FILE").build(),
 
-                        Privilege.builder().name(c+"CLIENTS").build(),
-                        Privilege.builder().name(r+"CLIENTS").build(),
-                        Privilege.builder().name(u+"CLIENTS").build(),
-                        Privilege.builder().name(d+"CLIENTS").build(),
+                    Privilege.builder().name(c + "TASK").build(),
+                    Privilege.builder().name(r + "TASK").build(),
+                    Privilege.builder().name(u + "TASK").build(),
+                    Privilege.builder().name(d + "TASK").build(),
 
-                        Privilege.builder().name(c+"CONTACTS").build(),
-                        Privilege.builder().name(r+"CONTACTS").build(),
-                        Privilege.builder().name(u+"CONTACTS").build(),
-                        Privilege.builder().name(d+"CONTACTS").build(),
+                    Privilege.builder().name(c + "CLIENT").build(),
+                    Privilege.builder().name(r + "CLIENT").build(),
+                    Privilege.builder().name(u + "CLIENT").build(),
+                    Privilege.builder().name(d + "CLIENT").build(),
+
+                    Privilege.builder().name(c + "CONTACT").build(),
+                    Privilege.builder().name(r + "CONTACT").build(),
+                    Privilege.builder().name(u + "CONTACT").build(),
+                    Privilege.builder().name(d + "CONTACT").build(),
+
+                    Privilege.builder().name(c + "ACTIVITY").build(),
+                    Privilege.builder().name(r + "ACTIVITY").build(),
+                    Privilege.builder().name(u + "ACTIVITY").build(),
+                    Privilege.builder().name(d + "ACTIVITY").build(),
 
                     Privilege.builder().name(c + "HISTORY").build(),
                     Privilege.builder().name(r + "HISTORY").build(),

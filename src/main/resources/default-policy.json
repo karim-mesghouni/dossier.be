@@ -1,18 +1,18 @@
 [
   {
     "target": "action == 'READ_CLIENT'",
-    "condition": "subject.authorities.contains('READ_CLIENTS')"
+    "condition": "subject.authorities.contains('READ_CLIENT')"
   },
   {
     "target": "action == 'DELETE_CLIENT'",
-    "condition": "subject.authorities.contains('DELETE_CLIENTS')"
+    "condition": "subject.authorities.contains('DELETE_CLIENT')"
   },
   {
     "target": "action == 'DELETE_CONTACTS'",
-    "condition": "subject.authorities.contains('DELETE_CONTACTS')"
+    "condition": "subject.authorities.contains('DELETE_CONTACT')"
   },
   {
     "target": "action == 'CREATE_CONTACT'",
-    "condition": "subject.authorities.contains('CREATE_CONTACTS')"
+    "condition": "subject.authorities.contains('CREATE_CONTACT')"
   }
 ]

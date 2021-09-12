@@ -57,7 +57,7 @@ public class AgentService extends IServiceBase<Agent, AgentInput, AgentRepositor
                     .filter(e -> !e.getAuthority().startsWith("ROLE_"))
                     .map(authority -> {
                         var parts = authority.getAuthority().split("_");
-                        return new CaslRawRule(parts[0].toLowerCase(), StringUtils.capitalize(parts[1].replaceFirst("S$", "").toLowerCase()));
+                        return new CaslRawRule(parts[0].toLowerCase(), StringUtils.capitalize(parts[1].toLowerCase()));
                     }
             ).collect(Collectors.toList());
             current.setCaslRules(rules);
