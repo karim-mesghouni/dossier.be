@@ -1,18 +1,28 @@
 # Query
 extend type Query  {
     allClient:[Client]
+    getClientsTable(search: String): [Client]
+}
+
+extend type Mutation  {
+    createClient(client: ClientInput): Client
+    updateClient(client: ClientInput): Client
+    deleteClient(id: ID): Boolean
 }
 
 type Client {
-     id: ID
+    id: ID
     name: String
-
+    address: String
     files: [File]
     visAVis:[VisAVis]
+    contacts: [Contact]
 }
 input ClientInput {
     id: ID
     name: String
+    address: String
     files: [FileInput]
     visAVis:[VisAVisInput]
+    contacts: [ContactInput]
 }

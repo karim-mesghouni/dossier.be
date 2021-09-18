@@ -1,9 +1,18 @@
 [
-
   {
-    "name": "PM view his project",
-    "description": "PM read the details of his project only.",
-    "target": "action=='Get_List_Activity'",
-    "condition": "subject.authorities.contains('View_Activity')"
+    "target": "action == 'READ_CLIENT'",
+    "condition": "subject.authorities.contains('READ_CLIENT')"
+  },
+  {
+    "target": "action == 'DELETE_CLIENT'",
+    "condition": "subject.authorities.contains('DELETE_CLIENT')"
+  },
+  {
+    "target": "action == 'DELETE_CONTACT'",
+    "condition": "subject.authorities.contains('DELETE_CONTACT')"
+  },
+  {
+    "target": "action == 'CREATE_CONTACT'",
+    "condition": "subject.authorities.contains('CREATE_CONTACT')"
   }
 ]

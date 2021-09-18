@@ -4,11 +4,16 @@ extend type Query  {
      currentAgent:Agent
 }
 type Agent {
-
      id:ID
      name:String
      username: String
      password: String
+     caslRules: [RawRule]
+}
+
+type RawRule {
+     action: String!
+     subject: String
 }
 input AgentInput{
      id:ID

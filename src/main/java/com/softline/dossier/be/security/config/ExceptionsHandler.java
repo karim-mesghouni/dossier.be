@@ -13,7 +13,7 @@ public class ExceptionsHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public GraphQLError exceptionHandler(AccessDeniedException e) {
-        return new ThrowableGraphQLError(e, "no thinek");
+        return new ThrowableGraphQLError(e, "Privilege error");
     }
 
     @ExceptionHandler(EntityNotFoundException.class)

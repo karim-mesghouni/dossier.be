@@ -1,5 +1,7 @@
 package com.softline.dossier.be.db;
 
+import com.github.javafaker.Faker;
+import com.softline.dossier.be.Halpers.ListUtils;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.FieldType;
 import com.softline.dossier.be.repository.*;
@@ -7,6 +9,7 @@ import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.domain.Privilege;
 import com.softline.dossier.be.security.domain.Role;
 import com.softline.dossier.be.security.repository.AgentRepository;
+import com.softline.dossier.be.security.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -17,9 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Component
-public class DbInitializer implements ApplicationRunner {
+public class DbInitializer implements ApplicationRunner
+{
 
     @Autowired
     ActivityRepository activityRepository;
@@ -51,6 +56,15 @@ public class DbInitializer implements ApplicationRunner {
     @Autowired
     ActivityStateRepository activityStateRepository;
 
+    @Autowired
+    ContactRepository contactRepository;
+
+    @Autowired
+    RoleRepository roleRepository;
+
+
+    Faker faker = new Faker(new Locale("fr"));
+
     Activity zapa;
     Activity fi;
     Activity ipon;
@@ -58,11 +72,14 @@ public class DbInitializer implements ApplicationRunner {
     Activity cdc;
 
     PasswordEncoder passwordEncoder;
+
     @Transactional
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        passwordEncoder=  PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        if (activityRepository.count() == 0) {
+
+    public void run(ApplicationArguments args) throws Exception
+    {
+        passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        if (activityRepository.count() == 0)
+        {
 
             createZapaActivity();
             createFIActivity();
@@ -70,27 +87,29 @@ public class DbInitializer implements ApplicationRunner {
             createPiquetageActivity();
             createCDCActivity();
         }
-        if (clientRepository.count() == 0) {
-            clientRepository.save(Client.builder().name("RH").build());
-            clientRepository.save(Client.builder().name("AXIANS").build());
-            clientRepository.save(Client.builder().name("AXIANS IDF").build());
-            clientRepository.save(Client.builder().name("COVAGE").build());
-            clientRepository.save(Client.builder().name("CPCP ROGNAC").build());
-            clientRepository.save(Client.builder().name("CPCP SUD").build());
-            clientRepository.save(Client.builder().name("FREE").build());
-            clientRepository.save(Client.builder().name("HAUWEI").build());
-            clientRepository.save(Client.builder().name("NET DESIGNER").build());
-            clientRepository.save(Client.builder().name("NET GEO").build());
-            clientRepository.save(Client.builder().name("OPT").build());
-            clientRepository.save(Client.builder().name("OPTTICOM").build());
-            clientRepository.save(Client.builder().name("S30").build());
-            clientRepository.save(Client.builder().name("SCOPELEC").build());
-            clientRepository.save(Client.builder().name("SPIE").build());
+        if (clientRepository.count() == 0)
+        {
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("RH"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("AXIANS"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("AXIANS IDF"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("COVAGE"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("CPCP ROGNAC"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("CPCP SUD"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("FREE"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("NET DESIGNER"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("NET GEO"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("OPT"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("OPTTICOM"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("S30"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("SCOPELEC"))));
+            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("SPIE"))));
         }
-        if (communeRepository.count() == 0) {
+        if (communeRepository.count() == 0)
+        {
             createCommunes();
-            }
-        if (fileStateTypeRepository.count() == 0) {
+        }
+        if (fileStateTypeRepository.count() == 0)
+        {
             fileStateTypeRepository.save(FileStateType.builder().state("En cours").build());
             fileStateTypeRepository.save(FileStateType.builder().state("Terminé").Final(true).build());
             fileStateTypeRepository.save(FileStateType.builder().state("Livré").build());
@@ -108,115 +127,121 @@ public class DbInitializer implements ApplicationRunner {
             fileStateTypeRepository.save(FileStateType.builder().state("ANNULÉ").Final(true).build());
 
         }
-        if (agentRepository.count()==0){
-            var agents=List.of(
-                    "elhabib"
-                    ,"othman"
-                    ,"ELTIFI Sana"
-                    ,"HMAIDI Omar"
-                    ,"BENNOUR Imen"
-                    ,"AZIZI Chaima"
-                    ,"HAJRI Khaoula"
-                    ,"MABROUK Akrem"
-                    ,"BEN AMOR Talel"
-                    ,"KHEZAMI Aymen"
-                    ,"TARHOUNI Donia"
-                    ,"SININI Yosra"
-                    ,"ELKEFI Salma"
-                    ,"KOCHBATI Ep KAMOUN Nouha"
-                    ,"AMDOUNI Med Ali"
-                    ,"SASSI Olfa"
-                    ,"AROUI Mahdi"
-                    ,"LOUATI Ikbel"
-                    ,"JAMAI Hiba"
-                    ,"TOUZRI Jamil Aziz"
-                    ,"SAID Mouhamed"
-                    ,"BOULILA Fatma"
-                    ,"DAKHLAOUI Rahma"
-                    ,"BEN HLIMA Omar"
-                    ,"NEMRI Ep. ELOUSGI Sarra"
-                    ,"AGREBI Yosra"
-                    ,"MELKI Maroua"
-                    ,"MEJRI AFEF"
-                    ,"BEN RACHED Oumayma"
-                    ,"KAROUI Salim"
-                    ,"BEJAOUI Nadia"
-                    ,"AISSAOUI Mohamed Sofiene"
-                    ,"OUESLATI Mariem"
-                    ,"GUITOUNI Raoua"
-                    ,"MASMOUDI Ines"
-                    ,"HAMMAMI Aziza"
-                    ,"HAJJI Tasnim"
-                    ,"TAYEG Ghada"
-                    ,"HOSNY Sawssen"
-                    ,"BEN SALAH Ep. MOUSSA Mariem"
-                    ,"CHAMMEM Manel"
-                    ,"NEGUIA SalahEddine"
-                    ,"DIOUANE Amor"
-                    ,"GHEZALI Mahmoud"
-                    ,"CHIHI Rihem"
-                    ,"CHIHI Amal"
-                    ,"BRAHMI Asma"
-                    ,"LABIDI Khawla"
-                    ,"BEN ELBEY Lobna"
-                    ,"MAAROUFI Wissal"
-                    ,"HAMMAMI Ines"
-                    ,"KAABACHI Khaled"
-                    ,"DAHMENI Ahmed"
-                    ,"Cpcp"
-                    ,"Nasri"
-                    ,"Rafaa"
-                    ,"Julien"
-                    ,"Riahi Safa"
-                    ,"Wael+Firas"
-                    ,"Jelassi Wael"
-                    ,"Hmaied Firas"
-                    ,"Bennour Ramzi"
-                    ,"Riahi Mohamed"
-                    ,"Settou Mohamed"
-                    ,"Belhaj Med Souhaieb"
-                    ,"Hermi Ali"
-                    ,"Mezni Emna"
-                    ,"Sbai Malek"
-                    ,"Abcha Amani"
-                    ,"Aroui Mehdi"
-                    ,"Lakti Marwa"
-                    ,"Melki Marwa"
-                    ,"Jlassi Wael"
-                    ,"Souissi Beya"
-                    ,"Senini Yosra"
-                    ,"Ferchichi Aya"
-                    ,"Khaldi Khawla"
-                    ,"Touihri Nouha"
-                    ,"Khaldi Yosra "
-                    ,"Si Jemaa Akrem"
-                    ,"Hannachi Fadwa"
-                    ,"Karoui Mohamed"
-                    ,"Riahi Mohamed "
-                    ,"Hedidar Naouel"
-                    ,"Nahali Nesrine"
-                    ,"Mathlouthi Amel"
-                    ,"Romdhani Chaima"
-                    ,"Khelifi Ghassen"
-                    ,"Bouhlel Oussema");
-            for (var agent:agents) {
+        String c = "CREATE_", r = "READ_", u = "UPDATE_", d = "DELETE_";
+//        var role = roleRepository.findOne(Example.of(Role.builder().name("ROLE_ADMIN").build())).get();
+//        var privs = role.getPrivileges();
+//        privs.addAll(List.of(Privilege.builder().name(c+"HISTORY").build(),
+//                Privilege.builder().name(r+"HISTORY").build(),
+//                Privilege.builder().name(u+"HISTORY").build(),
+//                Privilege.builder().name(d+"HISTORY").build()));
+//        role.setPrivileges(privs);
+//        roleRepository.save(role);
+        if (agentRepository.count() == 0)
+        {
+            final Role ADMIN_ROLE;
 
+            List<Privilege> allPrivileges = List.of(
+                    Privilege.builder().name(c + "FILE").build(),
+                    Privilege.builder().name(r + "FILE").build(),
+                    Privilege.builder().name(u + "FILE").build(),
+                    Privilege.builder().name(d + "FILE").build(),
+
+                    Privilege.builder().name(c + "TASK").build(),
+                    Privilege.builder().name(r + "TASK").build(),
+                    Privilege.builder().name(u + "TASK").build(),
+                    Privilege.builder().name(d + "TASK").build(),
+
+                    Privilege.builder().name(c + "CLIENT").build(),
+                    Privilege.builder().name(r + "CLIENT").build(),
+                    Privilege.builder().name(u + "CLIENT").build(),
+                    Privilege.builder().name(d + "CLIENT").build(),
+
+                    Privilege.builder().name(c + "CONTACT").build(),
+                    Privilege.builder().name(r + "CONTACT").build(),
+                    Privilege.builder().name(u + "CONTACT").build(),
+                    Privilege.builder().name(d + "CONTACT").build(),
+
+                    Privilege.builder().name(c + "ACTIVITY").build(),
+                    Privilege.builder().name(r + "ACTIVITY").build(),
+                    Privilege.builder().name(u + "ACTIVITY").build(),
+                    Privilege.builder().name(d + "ACTIVITY").build(),
+
+                    Privilege.builder().name(c + "HISTORY").build(),
+                    Privilege.builder().name(r + "HISTORY").build(),
+                    Privilege.builder().name(u + "HISTORY").build(),
+                    Privilege.builder().name(d + "HISTORY").build(),
+
+                    Privilege.builder().name(c + "ROLE").build(),
+                    Privilege.builder().name(r + "ROLE").build(),
+                    Privilege.builder().name(u + "ROLE").build(),
+                    Privilege.builder().name(d + "ROLE").build(),
+
+                    Privilege.builder().name(c + "Trash").build(),
+                    Privilege.builder().name(r + "Trash").build(),
+                    Privilege.builder().name(u + "Trash").build(),
+                    Privilege.builder().name(d + "Trash").build()
+            );
+            ADMIN_ROLE = roleRepository.save(Role.builder().name("ROLE_ADMIN").privileges(allPrivileges).build());
+            // admin user
+            for (var admin : List.of("elhabib", "othman", "boubaker"))
+            {
                 agentRepository.save(Agent.builder()
-                        .name(agent)
-                        .email(agent+"@gmail.com")
-                        .username(agent.replace(" ","_"))
+                        .name(admin)
+                        .email(admin + "@gmail.com")
+                        .username(admin)
                         .password(passwordEncoder.encode("000"))
                         .enabled(true)
-                        .roles(List.of(
-                                Role.builder().name("Role_Manger").privileges(
-                                        List.of(Privilege.builder().name("View_Activity").build())
-                                ).build()
-                        ))
+                        .roles(List.of(ADMIN_ROLE))
                         .build()
-
                 );
             }
+            ListUtils.createCount(20, () -> faker.name().username()).stream().distinct().forEach(agent ->
+            {
+                agentRepository.save(Agent.builder()
+                        .name(agent)
+                        .email(agent + "@gmail.com")
+                        .username(agent.replace(" ", "_"))
+                        .password(passwordEncoder.encode("000"))
+                        .enabled(true)
+                        .build()
+                );
+            });
+        }
+    }
 
+    private Client fakeClient(String name)
+    {
+        return Client.builder()
+                .name(name)
+                .address(faker.address().fullAddress())
+                .build();
+    }
+
+    private List<Contact> fakeContacts(int count)
+    {
+        List<Contact> contacts = new ArrayList<>();
+        for (int i = 0; i < count; i++)
+        {
+            contacts.add(fakeContact());
+        }
+        return contacts;
+    }
+
+    private Contact fakeContact()
+    {
+        return Contact.builder()
+                .name(faker.name().fullName())
+                .email(faker.internet().emailAddress())
+                .phone(faker.phoneNumber().phoneNumber())
+                .build();
+    }
+
+    private List<Contact> fakeContacts(int count, Client c)
+    {
+        List<Contact> contacts = new ArrayList<>();
+        for (int i = 0; i < count; i++)
+        {
+            contacts.add(fakeContact(c));
         }
         if (blockingLabelRepository.count() == 0) {
             for (int i = 0; i < 5; i++) {
@@ -233,8 +258,21 @@ public class DbInitializer implements ApplicationRunner {
                 blockingLockingAddressRepository.save(BlockingLockingAddress.builder().address("Locking Address " + i).build());
             }
         }
+        return contacts;
     }
-    private void createCommunes() {
+
+    private Contact fakeContact(Client c)
+    {
+        return Contact.builder()
+                .name(faker.name().fullName())
+                .email(faker.internet().emailAddress())
+                .phone(faker.phoneNumber().phoneNumber())
+                .client(c)
+                .build();
+    }
+
+    private void createCommunes()
+    {
         communeRepository.save(Commune.builder().name("BOURG EN BRESSE").INSEECode("01053").postalCode("1000").build());
         communeRepository.save(Commune.builder().name("SAINT DENIS LES BOURG").INSEECode("01344").postalCode("1000").build());
         communeRepository.save(Commune.builder().name("BROU").INSEECode("01914").postalCode("1000").build());
@@ -244,7 +282,9 @@ public class DbInitializer implements ApplicationRunner {
         communeRepository.save(Commune.builder().name("GENOUILLEUX").INSEECode("01169").postalCode("1090").build());
         communeRepository.save(Commune.builder().name("GUEREINS").INSEECode("01183").postalCode("1090").build());
     }
-    private void createZapaActivity() {
+
+    private void createZapaActivity()
+    {
         zapa = Activity.builder().name("ZAPA").description("ZAPA Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());
@@ -266,7 +306,7 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Annulé").Final(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var PreparatrionLivraison = Task.builder().name("Préparatrion de livraison").situations(taskSituationsPreparatrionLivraison).activity(zapa).build();
-        PreparatrionLivraison.getSituations().forEach(x->x.setTask(PreparatrionLivraison));
+        PreparatrionLivraison.getSituations().forEach(x -> x.setTask(PreparatrionLivraison));
         var states = new ArrayList();
         states.add(TaskState.builder().name("Valide").build());
         states.add(TaskState.builder().name("Non valide").build());
@@ -296,8 +336,10 @@ public class DbInitializer implements ApplicationRunner {
         zapa.setFields(fields);
         activityRepository.save(zapa);
     }
-    private void createFIActivity() {
-         fi = Activity.builder().name("FI").description("FI Description").tasks(new ArrayList<>()).build();
+
+    private void createFIActivity()
+    {
+        fi = Activity.builder().name("FI").description("FI Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsEtude.add(TaskSituation.builder().name("En cours").build());
@@ -317,7 +359,7 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Annulé").Final(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var PreparatrionLivraison = Task.builder().name("Préparatrion de livraison").situations(taskSituationsPreparatrionLivraison).activity(fi).build();
-        PreparatrionLivraison.getSituations().forEach(x->x.setTask(PreparatrionLivraison));
+        PreparatrionLivraison.getSituations().forEach(x -> x.setTask(PreparatrionLivraison));
         var states = new ArrayList();
         states.add(TaskState.builder().name("Valide").build());
         states.add(TaskState.builder().name("Non valide").build());
@@ -348,8 +390,10 @@ public class DbInitializer implements ApplicationRunner {
         fi.setFields(fields);
         activityRepository.save(fi);
     }
-    private void createIPONActivity() {
-         ipon = Activity.builder().name("IPON").description("IPON Description").tasks(new ArrayList<>()).build();
+
+    private void createIPONActivity()
+    {
+        ipon = Activity.builder().name("IPON").description("IPON Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsEtude.add(TaskSituation.builder().name("En cours").build());
@@ -363,13 +407,14 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var taskSituationsPreparatrionLivraison= new ArrayList<TaskSituation>();
+
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Annulé").Final(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var PreparatrionLivraison = Task.builder().name("Préparatrion de livraison").situations(taskSituationsPreparatrionLivraison).activity(ipon).build();
-        PreparatrionLivraison.getSituations().forEach(x->x.setTask(PreparatrionLivraison));
+        PreparatrionLivraison.getSituations().forEach(x -> x.setTask(PreparatrionLivraison));
 
         var activityStates = new ArrayList();
         activityStates.add(ActivityState.builder().activity(ipon).name("En cours").initial(true).build());
@@ -393,8 +438,10 @@ public class DbInitializer implements ApplicationRunner {
         ipon.getTasks().add(PreparatrionLivraison);
         activityRepository.save(ipon);
     }
-    private void createPiquetageActivity() {
-         piquetage = Activity.builder().name("Piquetage").description("Piquetage Description").tasks(new ArrayList<>()).build();
+
+    private void createPiquetageActivity()
+    {
+        piquetage = Activity.builder().name("Piquetage").description("Piquetage Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsEtude.add(TaskSituation.builder().name("En cours").build());
@@ -430,7 +477,8 @@ public class DbInitializer implements ApplicationRunner {
         activityStates.add(ActivityState.builder().activity(piquetage).name("PRISE DE RDV PIQUETAGE").build());
         activityStates.add(ActivityState.builder().activity(piquetage).name("PIQUETÉ NON REÇU").build());
         activityStates.add(ActivityState.builder().activity(piquetage).name("Annulé").Final(true).build());
-        activityStates.add(ActivityState.builder().activity(piquetage).name("Retiré").Final(true).build());    piquetage.setStates(activityStates);
+        activityStates.add(ActivityState.builder().activity(piquetage).name("Retiré").Final(true).build());
+        piquetage.setStates(activityStates);
 
         preparation.getSituations().forEach(x -> x.setTask(preparation));
         control.getSituations().forEach(x -> x.setTask(control));
@@ -447,7 +495,9 @@ public class DbInitializer implements ApplicationRunner {
         piquetage.setFields(fields);
         activityRepository.save(piquetage);
     }
-    private void createCDCActivity() {
+
+    private void createCDCActivity()
+    {
         cdc = Activity.builder().name("CDC").description("CDC Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtdueComac = new ArrayList<TaskSituation>();
         taskSituationsEtdueComac.add(TaskSituation.builder().name("A faire").initial(true).build());
@@ -463,13 +513,14 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var taskSituationsPreparatrionLivraison= new ArrayList<TaskSituation>();
+
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Annulé").Final(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var PreparatrionLivraison = Task.builder().name("Préparatrion de livraison").situations(taskSituationsPreparatrionLivraison).activity(cdc).build();
-        PreparatrionLivraison.getSituations().forEach(x->x.setTask(PreparatrionLivraison));
+        PreparatrionLivraison.getSituations().forEach(x -> x.setTask(PreparatrionLivraison));
         var states = new ArrayList();
         states.add(TaskState.builder().name("Valide").build());
         states.add(TaskState.builder().name("Non valide").build());
@@ -491,14 +542,14 @@ public class DbInitializer implements ApplicationRunner {
         cdc.setStates(activityStates);
 
 
-        var groupFieldsCOMAC=ActivityFieldGroup.builder().name("COMAC").build();
+        var groupFieldsCOMAC = ActivityFieldGroup.builder().name("COMAC").build();
         var fields = new ArrayList<ActivityField>();
         fields.add(ActivityField.builder().fieldName("Nombre  des Artères").fieldType(FieldType.String).group(groupFieldsCOMAC).activity(cdc).build());
         fields.add(ActivityField.builder().fieldName("Nombre  des appuis").fieldType(FieldType.String).group(groupFieldsCOMAC).activity(cdc).build());
         fields.add(ActivityField.builder().fieldName("Nombre d’Appuis implanter").fieldType(FieldType.String).group(groupFieldsCOMAC).activity(cdc).build());
         fields.add(ActivityField.builder().fieldName("Nombre de CRIT").fieldType(FieldType.String).activity(cdc).group(groupFieldsCOMAC).build());
         fields.add(ActivityField.builder().fieldName("Nombre d’Appuis à remplacer").fieldType(FieldType.String).activity(cdc).group(groupFieldsCOMAC).build());
-        var groupFieldsCAPFT=ActivityFieldGroup.builder().name("CAPFT").build();
+        var groupFieldsCAPFT = ActivityFieldGroup.builder().name("CAPFT").build();
 
         fields.add(ActivityField.builder().fieldName("Nombre  des Artères").fieldType(FieldType.String).group(groupFieldsCAPFT).activity(cdc).build());
         fields.add(ActivityField.builder().fieldName("Nombre  des appuis").fieldType(FieldType.String).group(groupFieldsCAPFT).activity(cdc).build());
