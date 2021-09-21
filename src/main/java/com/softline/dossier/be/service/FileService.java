@@ -183,7 +183,10 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
                                 .message("create.file.task")
                                  .data(fileTask.getTask().getName())
                                .children(new ArrayList<>()).build();
-                        fileTask.getFileTaskSituations().forEach(fileTaskSituation -> {
+                        fileTask.getFileTaskSituations()
+                                .stream()
+                                .skip(1)
+                                .forEach(fileTaskSituation -> {
                             taskHistory.getChildren().add(FileHistoryDTO.builder().id(i.incrementAndGet())
                                     .who(fileTaskSituation.getAgent().getName())
                                     .date(fileTaskSituation.getCreatedDate())
