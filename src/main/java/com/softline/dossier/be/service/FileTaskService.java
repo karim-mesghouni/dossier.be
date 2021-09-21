@@ -72,7 +72,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
             fileTaskOrder = 0;
         }
         fileTaskOrder++;
-        var reporter = agentRepository.findByUsername(((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+        var reporter = (Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         var task = taskRepository.findById(input.getTask().getId()).orElseThrow();
         var fileActivity = fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();
