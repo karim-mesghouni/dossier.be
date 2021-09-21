@@ -69,4 +69,13 @@ public class FileTask extends BaseEntity{
     ReturnedCause returnedCause;
     @OneToMany(mappedBy = AttachFile_.FILE_TASK)
     List<AttachFile> attachFiles;
+
+
+    @Override
+    public String toString() {
+        return "FileTask{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                '}';
+    }
 }

@@ -33,4 +33,12 @@ public class Activity extends BaseEntity {
 
         @OneToMany(mappedBy = ActivityState_.ACTIVITY,cascade = CascadeType.ALL)
         List<ActivityState> states;
+
+        @Override
+        public String toString() {
+                return "Activity{" +
+                        "id=" + id +
+                        ", name='" + name + '\'' +
+                        '}';
+        }
 }

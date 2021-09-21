@@ -59,4 +59,13 @@ public class File extends BaseEntity {
     FileState currentFileState;
     @Transient()
     FileActivity currentFileActivity;
+
+
+    @Override
+    public String toString() {
+        return "File{" +
+                "id=" + id +
+                ", project='" + project + '\'' +
+                '}';
+    }
 }

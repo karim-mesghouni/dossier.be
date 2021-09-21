@@ -27,4 +27,12 @@ public class TaskState extends BaseEntity {
     Task task;
     @OneToMany(mappedBy = FileTask_.STATE)
     List<FileTask> fileTasks;
+
+    @Override
+    public String toString() {
+        return "TaskState{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

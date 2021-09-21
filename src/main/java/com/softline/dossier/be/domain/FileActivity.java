@@ -51,4 +51,12 @@ public class FileActivity extends  BaseEntity{
     @ManyToOne()
     @JoinColumn
     ActivityState state;
+
+    @Override
+    public String toString() {
+        return "FileActivity{" +
+                "id=" + id +
+                ", activity=" + activity +
+                '}';
+    }
 }

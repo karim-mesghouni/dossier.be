@@ -30,4 +30,12 @@ public class TaskSituation extends BaseEntity {
     Task task;
     @OneToMany(mappedBy = FileTaskSituation_.SITUATION)
     List<FileTaskSituation> fileTaskSituations;
+
+    @Override
+    public String toString() {
+        return "TaskSituation{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

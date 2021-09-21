@@ -30,4 +30,12 @@ public class FileTaskSituation extends  BaseEntity{
     @ManyToOne
     @JoinColumn()
     FileTask fileTask;
+
+    @Override
+    public String toString() {
+        return "FileTaskSituation{" +
+                "id=" + id +
+                ", situation=" + situation +
+                '}';
+    }
 }

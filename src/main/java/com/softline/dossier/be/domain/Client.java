@@ -49,4 +49,12 @@ public class Client extends BaseEntity{
                 .findFirst()
                 .orElseThrow();
     }
+
+    @Override
+    public String toString() {
+        return "Client{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

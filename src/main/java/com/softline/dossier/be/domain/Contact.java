@@ -57,6 +57,14 @@ public class Contact
     }
 
     @Override
+    public String toString() {
+        return "Contact{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
+
+    @Override
     public int hashCode()
     {
         return 590563367;

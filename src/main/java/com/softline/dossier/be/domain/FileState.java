@@ -32,5 +32,11 @@ public class FileState extends  BaseEntity{
     @JoinColumn
     File file;
 
-
+    @Override
+    public String toString() {
+        return "FileState{" +
+                "id=" + id +
+                ", type=" + type +
+                '}';
+    }
 }
