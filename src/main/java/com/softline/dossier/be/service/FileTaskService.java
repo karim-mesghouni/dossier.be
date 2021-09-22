@@ -15,6 +15,7 @@ import org.apache.catalina.core.ApplicationPart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -207,7 +208,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                     .fileActivity(fileActivity)
                     .content(description.getContent())
                     .fileTask(fileTask)
-                    .agent(agentRepository.findById(description.getAgent().getId()).orElseThrow())
+                    .agent((Agent)SecurityContextHolder.getContext().getAuthentication().getPrincipal())
                     .build()
             );
             fileTask.setDescription(descriptionNew);
