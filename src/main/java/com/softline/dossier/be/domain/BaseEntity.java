@@ -15,7 +15,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @EntityListeners(AuditingEntityListener.class)
@@ -30,16 +29,15 @@ import java.util.Date;
 @Data
 public class BaseEntity {
 
+    boolean deleted;
+    @CreatedBy
+    @ManyToOne()
+    @JoinColumn()
+    Agent agent;
     @Column(nullable = false, updatable = false)
     @CreatedDate
     private Date createdDate;
-
     @Column()
     @LastModifiedDate
     private Date modifiedDate;
-    boolean deleted;
-    @CreatedBy
-            @ManyToOne()
-            @JoinColumn()
-    Agent agent;
 }

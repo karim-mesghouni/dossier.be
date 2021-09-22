@@ -13,27 +13,35 @@ public class SecurityAccessContext {
         this.action = action;
         this.environment = environment;
     }
+
     public Object getSubject() {
         return subject;
     }
+
     public void setSubject(Object subject) {
         this.subject = subject;
     }
+
     public Object getResource() {
         return resource;
     }
+
     public void setResource(Object resource) {
         this.resource = resource;
     }
+
     public Object getAction() {
         return action;
     }
+
     public void setAction(Object action) {
         this.action = action;
     }
+
     public Object getEnvironment() {
         return environment;
     }
+
     public void setEnvironment(Object environment) {
         this.environment = environment;
     }
@@ -74,10 +82,7 @@ public class SecurityAccessContext {
         } else if (!resource.equals(other.resource))
             return false;
         if (subject == null) {
-            if (other.subject != null)
-                return false;
-        } else if (!subject.equals(other.subject))
-            return false;
-        return true;
+            return other.subject == null;
+        } else return subject.equals(other.subject);
     }
 }

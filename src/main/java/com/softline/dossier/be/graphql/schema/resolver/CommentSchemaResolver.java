@@ -26,31 +26,37 @@ public class CommentSchemaResolver extends SchemaResolverBase<Comment, CommentIn
     public Comment createComment(CommentInput input) throws IOException {
         return create(input);
     }
-    public Comment updateComment(CommentInput input){
+
+    public Comment updateComment(CommentInput input) {
         return update(input);
     }
-    public boolean deleteComment(Long id){
+
+    public boolean deleteComment(Long id) {
         return delete(id);
     }
-    public List<Comment> getAllComment(){
+
+    public List<Comment> getAllComment() {
         return getAll();
     }
-    public Comment getComment(Long id){
+
+    public Comment getComment(Long id) {
         return get(id);
     }
+
     public String uploadImage(Part part, DataFetchingEnvironment environment) throws IOException, NoSuchAlgorithmException {
-        return  service.saveFile(environment);
+        return service.saveFile(environment);
     }
 
-  public  List<Comment>  getAllCommentByFileId(Long fileId){
-      return  service.getAllCommentByFileId(fileId);
+    public List<Comment> getAllCommentByFileId(Long fileId) {
+        return service.getAllCommentByFileId(fileId);
 
-  }
-  public boolean     notifyMessage(NotifyMessageInput input){
-    return   service.notifyMessage(input);
-  }
-  public List<Message>  getMessages(Long agentId)
-  {
-      return  service.getMessages(agentId);
-  }
+    }
+
+    public boolean notifyMessage(NotifyMessageInput input) {
+        return service.notifyMessage(input);
+    }
+
+    public List<Message> getMessages(Long agentId) {
+        return service.getMessages(agentId);
+    }
 }

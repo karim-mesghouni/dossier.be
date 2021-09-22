@@ -13,11 +13,11 @@ import java.time.Instant;
 
 import static java.nio.charset.Charset.defaultCharset;
 
-public  class ImageHalper {
+public class ImageHalper {
 
     public static String getImageName(Long personId, ApplicationPart file) throws NoSuchAlgorithmException {
         long epoch = Instant.now(Clock.systemDefaultZone()).toEpochMilli();
-        return MessageFormat.format("{0}.{1}", hash(MessageFormat.format("{0}_{1}_{2}", personId,file.getSubmittedFileName(), epoch)), getType(file.getContentType()));
+        return MessageFormat.format("{0}.{1}", hash(MessageFormat.format("{0}_{1}_{2}", personId, file.getSubmittedFileName(), epoch)), getType(file.getContentType()));
     }
 
 
@@ -35,6 +35,7 @@ public  class ImageHalper {
     private static boolean isImage(MediaType mediaType) {
         return "image".equalsIgnoreCase(mediaType.getType());
     }
+
     private static String hash(String identifier) throws NoSuchAlgorithmException {
         byte[] digest = MessageDigest.getInstance("SHA1").digest(identifier.getBytes(defaultCharset()));
         String result = "";
@@ -43,11 +44,13 @@ public  class ImageHalper {
         }
         return result;
     }
+
     private static String getHexadecimal(byte digestByte) {
         return String.format("%02x", digestByte);
     }
+
     public static String getFileName(Long personId, ApplicationPart file) throws NoSuchAlgorithmException {
         long epoch = Instant.now(Clock.systemDefaultZone()).toEpochMilli();
-        return MessageFormat.format("{0}.{1}", hash(MessageFormat.format("{0}_{1}_{2}", personId,file.getSubmittedFileName(), epoch)),  FilenameUtils.getExtension(file.getSubmittedFileName()));
+        return MessageFormat.format("{0}.{1}", hash(MessageFormat.format("{0}_{1}_{2}", personId, file.getSubmittedFileName(), epoch)), FilenameUtils.getExtension(file.getSubmittedFileName()));
     }
 }

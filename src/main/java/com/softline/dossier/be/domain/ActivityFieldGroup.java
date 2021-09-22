@@ -11,14 +11,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@Entity@SQLDelete(sql = "UPDATE ActivityFieldGroup SET deleted=true WHERE id=?")
+@Entity
+@SQLDelete(sql = "UPDATE ActivityFieldGroup SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 
-public class ActivityFieldGroup extends  BaseEntity{
+public class ActivityFieldGroup extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;

@@ -1,9 +1,7 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
 import com.softline.dossier.be.domain.File;
-import com.softline.dossier.be.domain.FileState;
 import com.softline.dossier.be.domain.FileStateType;
-import com.softline.dossier.be.graphql.types.FileDTO;
 import com.softline.dossier.be.graphql.types.FileFilterInput;
 import com.softline.dossier.be.graphql.types.FileHistoryDTO;
 import com.softline.dossier.be.graphql.types.PageList;
@@ -27,35 +25,45 @@ public class FileSchemaResolver extends SchemaResolverBase<File, FileInput, File
     public File createFile(FileInput File) throws IOException {
         return create(File);
     }
-    public File updateFile(FileInput File){
+
+    public File updateFile(FileInput File) {
         return update(File);
     }
-    public boolean deleteFile(Long id){
+
+    public boolean deleteFile(Long id) {
         return delete(id);
     }
-    public List<File> getAllFile(){
+
+    public List<File> getAllFile() {
         return getAll();
     }
-    public File getFile(Long id){
+
+    public File getFile(Long id) {
         return get(id);
     }
-    public PageList<File> getAllFilePageFilter(FileFilterInput input){
-        return  service.getAllFilePageFilter(input);
+
+    public PageList<File> getAllFilePageFilter(FileFilterInput input) {
+        return service.getAllFilePageFilter(input);
     }
-    public PageList<File> getAllFileInTrashPageFilter(FileFilterInput input){
-        return  service.getAllFileInTrashPageFilter(input);
+
+    public PageList<File> getAllFileInTrashPageFilter(FileFilterInput input) {
+        return service.getAllFileInTrashPageFilter(input);
     }
-    public List<FileHistoryDTO> getFileHistory(Long id){
-            return  service.getFileHistory(id);
+
+    public List<FileHistoryDTO> getFileHistory(Long id) {
+        return service.getFileHistory(id);
     }
-    public  List<FileStateType> getAllFileStateType(){
-      return service.getAllFileStateType();
-  }
-    public  boolean sendFileToTrash(Long fileId ){
-        return  service.sendFileToTrash(fileId);
+
+    public List<FileStateType> getAllFileStateType() {
+        return service.getAllFileStateType();
     }
-    public  boolean recoverFileFromTrash(Long fileId ){
-        return  service.recoverFileFromTrash(fileId);
+
+    public boolean sendFileToTrash(Long fileId) {
+        return service.sendFileToTrash(fileId);
+    }
+
+    public boolean recoverFileFromTrash(Long fileId) {
+        return service.recoverFileFromTrash(fileId);
     }
 
 }

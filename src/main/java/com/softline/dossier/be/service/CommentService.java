@@ -16,7 +16,6 @@ import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import graphql.schema.DataFetchingEnvironment;
 import org.apache.catalina.core.ApplicationPart;
-import org.apache.tomcat.jni.Address;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
@@ -24,12 +23,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,23 +35,20 @@ import java.util.stream.Collectors;
 @Service
 public class CommentService extends IServiceBase<Comment, CommentInput, CommentRepository> {
     @Autowired
-    private ResourceLoader resourceLoader;
-
-    @Autowired
     AgentRepository agentRepository;
-
     @Autowired
     FileActivityRepository fileActivityRepository;
-
     @Autowired
     FileTaskRepository fileTaskRepository;
-
     @Autowired
     SseNotificationService sseNotificationService;
     @Autowired
     MessageRepository messageRepository;
     @Autowired
     EnvUtil envUtil;
+    @Autowired
+    private ResourceLoader resourceLoader;
+
     @Override
     public List<Comment> getAll() {
         return repository.findAll();
@@ -96,11 +90,11 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
 
     @Override
     public boolean delete(long id) {
-        var comment= repository.findById(id).orElseThrow();
-        if(comment.getFileTask()!=null){
-            if (comment.getType()==CommentType.Returned){
+        var comment = repository.findById(id).orElseThrow();
+        if (comment.getFileTask() != null) {
+            if (comment.getType() == CommentType.Returned) {
                 comment.getFileTask().setRetour(null);
-            }else if (comment.getType()==CommentType.Description){
+            } else if (comment.getType() == CommentType.Description) {
                 comment.getFileTask().setDescription(null);
             }
         }
@@ -121,9 +115,9 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         var savedFile = new java.io.File(new ClassPathResource("fileStorage").getFile(), fileName);
         Files.copy(file.getInputStream(), savedFile.toPath());
         //TODO add current ip adress use for get current url : ServletUriComponentsBuilder.fromCurrentContextPath()
-        String urlServer= envUtil.getServerUrlPrefi();
+        String urlServer = envUtil.getServerUrlPrefi();
 
-        return urlServer+"/images/" + fileName;
+        return urlServer + "/images/" + fileName;
     }
 
     public List<Comment> getAllCommentByFileId(Long fileId) {
@@ -137,15 +131,15 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                     Message.builder()
                             .readMessage(false)
                             .comment(Comment.builder().id(comment.getId())
-                            .fileActivity(FileActivity.builder().file(File.builder().id(comment.getFileActivity().getFile().getId())
-                                    .project(comment.getFileActivity().getFile().getProject())
-                                    .build())
-                            .activity(Activity.builder().id(comment.getFileActivity().getActivity().getId())
-                                    .name(comment.getFileActivity().getActivity().getName())
-                                    .build()).build())
-                            .fileTask(comment.getFileTask()!=null?FileTask.builder().id(comment.getFileTask().getId()).number(comment.getFileTask().getNumber())
-                                    .task(Task.builder().id(comment.getFileTask().getTask().getId()).name(comment.getFileTask().getTask().getName()).build()).build():null)
-                            .agent(Agent.builder().id(comment.getAgent().getId()).name(comment.getAgent().getName()).build()).build()).
+                                    .fileActivity(FileActivity.builder().file(File.builder().id(comment.getFileActivity().getFile().getId())
+                                                    .project(comment.getFileActivity().getFile().getProject())
+                                                    .build())
+                                            .activity(Activity.builder().id(comment.getFileActivity().getActivity().getId())
+                                                    .name(comment.getFileActivity().getActivity().getName())
+                                                    .build()).build())
+                                    .fileTask(comment.getFileTask() != null ? FileTask.builder().id(comment.getFileTask().getId()).number(comment.getFileTask().getNumber())
+                                            .task(Task.builder().id(comment.getFileTask().getTask().getId()).name(comment.getFileTask().getTask().getName()).build()).build() : null)
+                                    .agent(Agent.builder().id(comment.getAgent().getId()).name(comment.getAgent().getName()).build()).build()).
                             agent(Agent.builder().id(agentId).build()).build()
             ).collect(Collectors.toList());
             messageRepository.saveAll(messages);
@@ -161,7 +155,8 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         }
         return false;
     }
-    public List<Message> getMessages(Long agentId){
-        return  messageRepository.findAllByAgent_Id(agentId, Sort.by(Sort.Direction.DESC,Message_.CREATED_DATE));
+
+    public List<Message> getMessages(Long agentId) {
+        return messageRepository.findAllByAgent_Id(agentId, Sort.by(Sort.Direction.DESC, Message_.CREATED_DATE));
     }
 }

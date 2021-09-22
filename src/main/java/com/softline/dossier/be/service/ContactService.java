@@ -1,8 +1,6 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.domain.Client;
 import com.softline.dossier.be.domain.Contact;
-import com.softline.dossier.be.graphql.types.input.ClientInput;
 import com.softline.dossier.be.graphql.types.input.ContactInput;
 import com.softline.dossier.be.repository.ClientRepository;
 import com.softline.dossier.be.repository.ContactRepository;
@@ -13,17 +11,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
 @Transactional
 
 @Service
-public class ContactService extends IServiceBase<Contact, ContactInput, ContactRepository>
-{
+public class ContactService extends IServiceBase<Contact, ContactInput, ContactRepository> {
     @Autowired
     ClientRepository clientRepository;
 
     @Override
     public List<Contact> getAll() {
-        return  repository.findAll();
+        return repository.findAll();
     }
 
     @Override

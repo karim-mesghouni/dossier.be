@@ -1,29 +1,29 @@
 # Query
 extend type Query  {
-     allActivityFieldByActivityId(activityId: ID!):[ActivityField]
+    allActivityFieldByActivityId(activityId: ID!):[ActivityField]
 }
 
 
 
 type ActivityField {
-     id: ID
-     fieldName:String
-     fieldType: FieldType
-     activity:Activity
-     group: ActivityFieldGroup
-     activityBase: Activity
-     groupName: String
+    id: ID
+    fieldName:String
+    fieldType: FieldType
+    activity:Activity
+    group: ActivityFieldGroup
+    activityBase: Activity
+    groupName: String
 }
 input ActivityFieldInput {
-     id: ID
-     fieldName:String
-     fieldType: FieldTypeInput
-     activity:ActivityInput
-     groupName: String
+    id: ID
+    fieldName:String
+    fieldType: FieldTypeInput
+    activity:ActivityInput
+    groupName: String
 
 }
 
 type  ActivityFieldGroup{
-     id:ID
-     name:String
+    id:ID
+    name:String
 }

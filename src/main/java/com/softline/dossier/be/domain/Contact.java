@@ -21,12 +21,11 @@ import java.util.Objects;
 @SQLDelete(sql = "UPDATE Contact SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 //endregion
-public class Contact
-{
+public class Contact {
     @Id
     @GeneratedValue(
-            strategy= GenerationType.AUTO,
-            generator="native"
+            strategy = GenerationType.AUTO,
+            generator = "native"
     )
     @GenericGenerator(
             name = "native",
@@ -47,8 +46,7 @@ public class Contact
 
     //region auto-generated
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Contact contact = (Contact) o;
@@ -65,8 +63,7 @@ public class Contact
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return 590563367;
     }
     //endregion

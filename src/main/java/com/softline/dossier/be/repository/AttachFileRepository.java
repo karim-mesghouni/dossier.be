@@ -4,10 +4,10 @@ import com.softline.dossier.be.domain.AttachFile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.List;
 
 
 @Repository
-public interface AttachFileRepository extends JpaRepository<AttachFile,Long> {
+public interface AttachFileRepository extends JpaRepository<AttachFile, Long> {
     List<AttachFile> findAllByFileTask_Id(Long fileTaskId);
 }

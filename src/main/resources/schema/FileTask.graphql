@@ -1,10 +1,10 @@
 # Query
 extend type Query  {
-   allFileTaskByAssignedToId(assignedToId: ID!):[FileTask]
+    allFileTaskByAssignedToId(assignedToId: ID!):[FileTask]
     fileTask(id: ID! ):FileTask
- #   currentFilePhase(fileActivityId: ID! ):FileTask
-  #  currentFilePhaseState(fileAgentId: ID! ):FilePhaseState
-   # currentFilePhaseAgent(filePhaseId: ID! ):FilePhaseAgent
+    #   currentFilePhase(fileActivityId: ID! ):FileTask
+    #  currentFilePhaseState(fileAgentId: ID! ):FilePhaseState
+    # currentFilePhaseAgent(filePhaseId: ID! ):FilePhaseAgent
     allFileTaskByFileActivityId(fileActivityId: ID!):[FileTask]
     allFileTaskByFileActivityIdInTrash(fileActivityId: ID!):[FileTask]
     allReturnedCause:[ReturnedCause]
@@ -22,8 +22,8 @@ extend type  Mutation{
     changeDescription(input: CommentInput):DescriptionComment
     changeRetour(input: CommentInput):ReturnedComment
     changeDataField(input: ActivityDataFieldInput):Boolean
-   # changeAgent(agentId: ID!,phaseFileAgentId: ID! ):FilePhaseAgent
-   # changePhaseState(stateId: ID!,phaseFileAgentId: ID! ):FilePhaseState
+    # changeAgent(agentId: ID!,phaseFileAgentId: ID! ):FilePhaseAgent
+    # changePhaseState(stateId: ID!,phaseFileAgentId: ID! ):FilePhaseState
     updateFileTask(input: FileTaskInput!):FileTask
     changeState(fileTaskId:ID! ,taskStateId: ID!):TaskState
     changeReturnedCause(fileTaskId:ID!,returnedCauseId: ID! ): ReturnedCause

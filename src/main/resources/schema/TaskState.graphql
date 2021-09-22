@@ -1,9 +1,9 @@
 type TaskState{
 
- id:ID
- name:String
- task:Task
- fileTasks:[FileTask]
+    id:ID
+    name:String
+    task:Task
+    fileTasks:[FileTask]
 }
 input TaskStateInput{
 

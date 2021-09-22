@@ -2,7 +2,6 @@ package com.softline.dossier.be.service.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import com.softline.dossier.be.domain.File;
-import com.softline.dossier.be.domain.FileActivity;
 import com.softline.dossier.be.domain.FileState;
 import com.softline.dossier.be.repository.FileActivityRepository;
 import com.softline.dossier.be.repository.FileStateRepository;
@@ -19,9 +18,9 @@ public class FileResolver implements GraphQLResolver<File> {
     @Autowired
     FileActivityRepository fileActivityRepository;
 
-    public FileState getCurrentFileState(File file){
-        var res=  fileStateRepository.findFirstByCurrentIsTrueAndFile_Id(file.getId());
-        return  res;
+    public FileState getCurrentFileState(File file) {
+        var res = fileStateRepository.findFirstByCurrentIsTrueAndFile_Id(file.getId());
+        return res;
     }
 
 }

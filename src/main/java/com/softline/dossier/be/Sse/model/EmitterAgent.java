@@ -1,6 +1,5 @@
 package com.softline.dossier.be.Sse.model;
 
-import lombok.Builder;
 import lombok.Data;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -14,7 +13,7 @@ public class EmitterAgent {
 
     public EmitterAgent(Long agentId) {
         this.agentId = agentId;
-        emitterSessions=new ArrayList<>();
+        emitterSessions = new ArrayList<>();
     }
 
     private Long getNextSessionId() {
@@ -26,7 +25,8 @@ public class EmitterAgent {
         emitterSessions.add(EmitterItem.builder().sessionId(nextSessionId).emitter(emitter).build());
         return nextSessionId;
     }
-    public void removeEmitterSession(Long sessionId){
-        emitterSessions.removeIf(x->x.getSessionId()==sessionId);
+
+    public void removeEmitterSession(Long sessionId) {
+        emitterSessions.removeIf(x -> x.getSessionId() == sessionId);
     }
 }

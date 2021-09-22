@@ -1,13 +1,14 @@
 package com.softline.dossier.be.security.domain.Policy;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.expression.EvaluationException;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
 @Component()
 public class BasicPolicyEnforcement implements PolicyEnforcement {
     private static final Logger logger = LoggerFactory.getLogger(BasicPolicyEnforcement.class);
@@ -32,12 +33,12 @@ public class BasicPolicyEnforcement implements PolicyEnforcement {
 
     private List<PolicyRule> filterRules(List<PolicyRule> allRules, SecurityAccessContext cxt) {
         List<PolicyRule> matchedRules = new ArrayList<>();
-        for(PolicyRule rule : allRules) {
+        for (PolicyRule rule : allRules) {
             try {
-                if(rule.getTarget().getValue(cxt, Boolean.class)) {
+                if (rule.getTarget().getValue(cxt, Boolean.class)) {
                     matchedRules.add(rule);
                 }
-            } catch(EvaluationException ex) {
+            } catch (EvaluationException ex) {
                 logger.info("An error occurred while evaluating PolicyRule.", ex);
             }
         }
@@ -45,12 +46,12 @@ public class BasicPolicyEnforcement implements PolicyEnforcement {
     }
 
     private boolean checkRules(List<PolicyRule> matchedRules, SecurityAccessContext cxt) {
-        for(PolicyRule rule : matchedRules) {
+        for (PolicyRule rule : matchedRules) {
             try {
-                if(rule.getCondition().getValue(cxt, Boolean.class)) {
+                if (rule.getCondition().getValue(cxt, Boolean.class)) {
                     return true;
                 }
-            } catch(EvaluationException ex) {
+            } catch (EvaluationException ex) {
                 logger.info("An error occurred while evaluating PolicyRule.", ex);
             }
         }

@@ -33,7 +33,6 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
     }
 
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest req,
                                     HttpServletResponse res,

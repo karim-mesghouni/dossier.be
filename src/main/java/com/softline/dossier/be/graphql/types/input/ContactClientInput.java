@@ -5,13 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ContactClientInput
-{
+public class ContactClientInput {
     private long id;
 }

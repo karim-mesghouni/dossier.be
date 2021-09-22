@@ -1,11 +1,8 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.domain.Activity;
 import com.softline.dossier.be.domain.ActivityField;
 import com.softline.dossier.be.graphql.types.input.ActivityFieldInput;
-import com.softline.dossier.be.graphql.types.input.ActivityInput;
 import com.softline.dossier.be.repository.ActivityFieldRepository;
-import com.softline.dossier.be.repository.ActivityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -8,5 +8,6 @@ import java.io.IOException;
 public interface NotificationService {
 
     void sendNotification(Long agentId, EventDto event) throws IOException;
+
     void sendNotificationForAll(EventDto event) throws IOException;
 }

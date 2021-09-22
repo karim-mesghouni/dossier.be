@@ -1,4 +1,3 @@
-
 # Query
 extend type Query  {
     blocking(id: ID! ):Blocking
@@ -16,14 +15,14 @@ extend type  Mutation{
 }
 
 type  Blocking {
-     id: ID
-     state: FileTaskSituation
-     lockingAddress: BlockingLockingAddress
-     qualification:BlockingQualification
-     label: BlockingLabel
-     explication:String
-     block:Boolean
-     date:String
+    id: ID
+    state: FileTaskSituation
+    lockingAddress: BlockingLockingAddress
+    qualification:BlockingQualification
+    label: BlockingLabel
+    explication:String
+    block:Boolean
+    date:String
 }
 
 input  BlockingInput {

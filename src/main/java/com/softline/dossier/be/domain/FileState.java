@@ -8,8 +8,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import java.sql.Date;
-import java.util.List;
 
 @SuperBuilder
 @Data
@@ -18,19 +16,17 @@ import java.util.List;
 @Entity
 @SQLDelete(sql = "UPDATE FileState SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class FileState extends  BaseEntity{
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id ;
-
+public class FileState extends BaseEntity {
     boolean current;
-
     @ManyToOne
     @JoinColumn
     FileStateType type;
     @ManyToOne
     @JoinColumn
     File file;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
     @Override
     public String toString() {

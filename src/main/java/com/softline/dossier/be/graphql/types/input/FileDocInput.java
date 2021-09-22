@@ -9,13 +9,12 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
-public class FileDocInput  {
+public class FileDocInput {
 
-    private  long id;
-
-    private String  path;
     FileInput file;
     FileActivityInput fileActivity;
     AgentInput agent;
-String description;
+    String description;
+    private long id;
+    private String path;
 }

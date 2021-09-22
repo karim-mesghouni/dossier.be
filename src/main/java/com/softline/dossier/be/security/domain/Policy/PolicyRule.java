@@ -16,7 +16,7 @@ public class PolicyRule {
     /*
      * Boolean SpEL expression, if evaluated to true, then access granted.
      */
-    private Expression  condition;
+    private Expression condition;
 
     public PolicyRule() {
 
@@ -28,7 +28,7 @@ public class PolicyRule {
         this.description = description;
     }
 
-    public PolicyRule(Expression  target, Expression condition) {
+    public PolicyRule(Expression target, Expression condition) {
         super();
         this.target = target;
         this.condition = condition;

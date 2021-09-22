@@ -16,7 +16,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE Job SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class Job extends  BaseEntity{
+public class Job extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;

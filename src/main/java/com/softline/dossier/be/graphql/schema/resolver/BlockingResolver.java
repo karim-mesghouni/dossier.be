@@ -1,11 +1,11 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
-import com.softline.dossier.be.domain.*;
+import com.softline.dossier.be.domain.Blocking;
+import com.softline.dossier.be.domain.BlockingLabel;
+import com.softline.dossier.be.domain.BlockingLockingAddress;
+import com.softline.dossier.be.domain.BlockingQualification;
 import com.softline.dossier.be.graphql.types.input.BlockingInput;
-
-import com.softline.dossier.be.graphql.types.input.FileInput;
 import com.softline.dossier.be.repository.BlockingRepository;
-
 import com.softline.dossier.be.service.BlockingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,28 +22,36 @@ public class BlockingResolver extends SchemaResolverBase<Blocking, BlockingInput
     public Blocking createBlocking(BlockingInput blockingInput) throws IOException {
         return create(blockingInput);
     }
-    public Blocking updateBlocking(BlockingInput blockingInput){
+
+    public Blocking updateBlocking(BlockingInput blockingInput) {
         return update(blockingInput);
     }
-    public boolean deleteBlocking(Long id){
+
+    public boolean deleteBlocking(Long id) {
         return delete(id);
     }
-    public List<Blocking> getAllBlocking(){
+
+    public List<Blocking> getAllBlocking() {
         return getAll();
     }
-    public Blocking getBlocking(Long id){
+
+    public Blocking getBlocking(Long id) {
         return get(id);
     }
-    public List<BlockingQualification> getAllQualification(){
-       return service.getAllQualification();
+
+    public List<BlockingQualification> getAllQualification() {
+        return service.getAllQualification();
     }
-    public List<BlockingLabel> getAllLables(){
+
+    public List<BlockingLabel> getAllLables() {
         return service.getAllLables();
     }
-    public  List<BlockingLockingAddress> getAllLockingAddress(){
-        return  service.getAllLockingAddress();
+
+    public List<BlockingLockingAddress> getAllLockingAddress() {
+        return service.getAllLockingAddress();
     }
-    public  List<Blocking> getBlockingByFileTaskId(Long fileTaskId){
+
+    public List<Blocking> getBlockingByFileTaskId(Long fileTaskId) {
         return service.getBlockingByFileTaskId(fileTaskId);
     }
 

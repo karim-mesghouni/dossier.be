@@ -1,16 +1,11 @@
 package com.softline.dossier.be.graphql.types.input;
 
-import com.softline.dossier.be.domain.AttachFile;
-import com.softline.dossier.be.domain.DescriptionComment;
-import com.softline.dossier.be.domain.TaskState;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @SuperBuilder
@@ -31,7 +26,7 @@ public class FileTaskInput {
     AgentInput assignedTo;
     List<FileTaskSituationInput> fileTaskStates;
     TaskStateInput state;
-    FileTaskSituationInput  currentFileTaskSituation;
+    FileTaskSituationInput currentFileTaskSituation;
     String title;
     CommentInput description;
     CommentInput retour;

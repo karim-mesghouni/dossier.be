@@ -1,7 +1,7 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
-import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.graphql.types.input.AgentInput;
+import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import com.softline.dossier.be.service.AgentService;
 import lombok.RequiredArgsConstructor;
@@ -20,19 +20,24 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
     public Agent createAgent(AgentInput agentInput) throws IOException {
         return create(agentInput);
     }
-    public Agent updateAgent(AgentInput agentInput){
+
+    public Agent updateAgent(AgentInput agentInput) {
         return update(agentInput);
     }
-    public boolean deleteAgent(Long id){
+
+    public boolean deleteAgent(Long id) {
         return delete(id);
     }
-    public List<Agent> getAllAgent(){
+
+    public List<Agent> getAllAgent() {
         return getAll();
     }
-    public Agent getAgent(Long id){
+
+    public Agent getAgent(Long id) {
         return get(id);
     }
-    public Agent getCurrentAgent(){
+
+    public Agent getCurrentAgent() {
         return service.getCurrentAgent();
     }
 }

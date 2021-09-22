@@ -8,7 +8,8 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.List;
+
 @SuperBuilder
 @Entity
 @NoArgsConstructor
@@ -16,7 +17,7 @@ import java.util.*;
 @Data
 @SQLDelete(sql = "UPDATE ActivityState SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class ActivityState extends  BaseEntity{
+public class ActivityState extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -29,7 +30,7 @@ public class ActivityState extends  BaseEntity{
     @JoinColumn
     Activity activity;
 
-    @OneToMany(cascade = CascadeType.ALL ,mappedBy =FileActivity_.STATE ,orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = FileActivity_.STATE, orphanRemoval = true)
     List<FileActivity> fileActivities;
 }
 

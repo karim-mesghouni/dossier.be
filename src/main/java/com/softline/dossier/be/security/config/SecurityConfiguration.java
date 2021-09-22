@@ -33,6 +33,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(agentDetailsService).passwordEncoder(getPasswordEncoder());
     }
+
     @Bean
     public PasswordEncoder getPasswordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -52,7 +53,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
                 // this disables session creation on Spring Security
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
-
 
 
     @Bean

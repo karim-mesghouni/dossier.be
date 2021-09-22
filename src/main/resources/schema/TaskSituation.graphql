@@ -1,20 +1,20 @@
 extend type Query  {
-     allTaskSituations(taskId: ID!):[TaskSituation]
+    allTaskSituations(taskId: ID!):[TaskSituation]
 }
 
 type TaskSituation {
-     id:ID
-     name:String
-     initial:Boolean
-     Final:Boolean
-     task:Task
-     fileTaskSituations:[FileTaskSituation]
+    id:ID
+    name:String
+    initial:Boolean
+    Final:Boolean
+    task:Task
+    fileTaskSituations:[FileTaskSituation]
 }
 input TaskSituationInput {
-     id:ID
-     name:String
-     initial:Boolean
-     Final:Boolean
-     task:TaskInput
-     fileTaskSituations:[FileTaskSituationInput]
+    id:ID
+    name:String
+    initial:Boolean
+    Final:Boolean
+    task:TaskInput
+    fileTaskSituations:[FileTaskSituationInput]
 }

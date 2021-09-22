@@ -11,21 +11,16 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FileActivityInput  {
-
-    private long id ;
+public class FileActivityInput {
 
     boolean current;
-
-
-
     FileInput file;
-
     ActivityInput activity;
     List<ActivityDataFieldInput> dataFields;
-  //  List<RepriseInput> reprises;
+    //  List<RepriseInput> reprises;
     List<FileTaskInput> fileTasks;
     ActivityStateInput state;
     int fileActivityOrder;
+    private long id;
 
 }

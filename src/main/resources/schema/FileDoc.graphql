@@ -1,7 +1,7 @@
 # Query
 extend type Query  {
-fileDoc(id:ID):FileDoc
-     allByFileActivityIdOrFileId(fileActivityId:ID,fileId: ID):[FileDoc]
+    fileDoc(id:ID):FileDoc
+    allByFileActivityIdOrFileId(fileActivityId:ID,fileId: ID):[FileDoc]
 }
 
 
@@ -11,27 +11,27 @@ fileDoc(id:ID):FileDoc
 #mutation
 
 extend type  Mutation{
-     createFileDoc(input: FileDocIput):FileDoc
-     updateFileDoc(input: FileDocIput):FileDoc
-     deleteFileDoc(id: ID!):Boolean
+    createFileDoc(input: FileDocIput):FileDoc
+    updateFileDoc(input: FileDocIput):FileDoc
+    deleteFileDoc(id: ID!):Boolean
 }
 
 type FileDoc {
-     id: ID
-     path:String
-     file:File
-     description:String
-     agent:Agent
-     fileActivity:FileActivity
+    id: ID
+    path:String
+    file:File
+    description:String
+    agent:Agent
+    fileActivity:FileActivity
 
 }
 input FileDocIput {
-     id: ID
-     path:String
-     file:FileInput
-     description:String
-     agent:AgentInput
-     fileActivity:FileActivityInput
+    id: ID
+    path:String
+    file:FileInput
+    description:String
+    agent:AgentInput
+    fileActivity:FileActivityInput
 
 
 }

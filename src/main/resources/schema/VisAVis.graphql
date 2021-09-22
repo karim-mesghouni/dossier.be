@@ -1,16 +1,16 @@
 type VisAVis {
-     id:ID
-     name:String
-     email:String
-     phone:String
-     client:Client
-     lockingAddress:BlockingLockingAddress
+    id:ID
+    name:String
+    email:String
+    phone:String
+    client:Client
+    lockingAddress:BlockingLockingAddress
 }
 input VisAVisInput {
-     id:ID
-     name:String
-     email:String
-     phone:String
-     client:ClientInput
-     lockingAddress:BlockingLockingAddressInput
+    id:ID
+    name:String
+    email:String
+    phone:String
+    client:ClientInput
+    lockingAddress:BlockingLockingAddressInput
 }

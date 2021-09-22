@@ -14,7 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Transactional
@@ -34,16 +35,17 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     ActivityStateRepository activityStateRepository;
     @Autowired
     SseNotificationService sseNotificationService;
+
     @Override
     public List<File> getAll() {
-        return (List<File>) repository.findAll();
+        return repository.findAll();
     }
 
     @Override
     public File create(FileInput input) throws IOException {
-        File reprise=null;
-        if(input.getReprise()!=null&&input.getReprise().getId()!=null){
-            reprise =getRepository().findById(input.getReprise().getId()).orElseThrow();
+        File reprise = null;
+        if (input.getReprise() != null && input.getReprise().getId() != null) {
+            reprise = getRepository().findById(input.getReprise().getId()).orElseThrow();
         }
 
         var file = File.builder()
@@ -79,7 +81,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
             fileActivity.setDataFields(dataFields.collect(Collectors.toList()));
         }*/
         file.setBaseActivity(activity);
-       // file.getFileActivities().add(fileActivity);
+        // file.getFileActivities().add(fileActivity);
         if (input.getCurrentFileState() != null && input.getCurrentFileState().getType() != null && input.getCurrentFileState().getType().getId() != null) {
 
             file.getFileStates().add(FileState.builder()
@@ -106,12 +108,12 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
 
     @Override
     public File update(FileInput input) {
-        File reprise=null;
-        if(input.getReprise()!=null&&input.getReprise().getId()!=null){
-            reprise =getRepository().findById(input.getReprise().getId()).orElseThrow();
+        File reprise = null;
+        if (input.getReprise() != null && input.getReprise().getId() != null) {
+            reprise = getRepository().findById(input.getReprise().getId()).orElseThrow();
         }
         var fileExist = repository.findById(input.getId()).orElseThrow();
-        var baseActivity= activityRepository.findById(input.getBaseActivity().getId()).orElseThrow();
+        var baseActivity = activityRepository.findById(input.getBaseActivity().getId()).orElseThrow();
         fileExist.setClient(clientRepository.findById(input.getClient().getId()).orElseThrow());
         fileExist.setAttributionDate(input.getAttributionDate());
         fileExist.setBaseActivity(baseActivity);
@@ -144,7 +146,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
 
     @Override
     public File getById(long id) {
-        return (File) repository.findById(id).orElseThrow();
+        return repository.findById(id).orElseThrow();
     }
 
     public PageList<File> getAllFilePageFilter(FileFilterInput input) {
@@ -154,47 +156,47 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     }
 
     public List<FileHistoryDTO> getFileHistory(long id) {
-       Comparator<FileHistoryDTO> dateComparator = new Comparator<FileHistoryDTO>() {
+        Comparator<FileHistoryDTO> dateComparator = new Comparator<FileHistoryDTO>() {
             @Override
             public int compare(FileHistoryDTO o1, FileHistoryDTO o2) {
                 return o1.getDate().compareTo(o2.getDate());
             }
         };
-        AtomicInteger i= new AtomicInteger();
-        var history=new ArrayList<FileHistoryDTO>();
-         var file=   repository.findById(id).orElseThrow();
+        AtomicInteger i = new AtomicInteger();
+        var history = new ArrayList<FileHistoryDTO>();
+        var file = repository.findById(id).orElseThrow();
         history.add(FileHistoryDTO.builder().id(i.incrementAndGet())
                 .who(file.getAgent().getName())
                 .date(file.getCreatedDate())
                 .message("create.file").data(file.getProject()).build());
 
-        file.getFileActivities().forEach(x->
+        file.getFileActivities().forEach(x ->
                 {
-                    var fileActivity=FileHistoryDTO.builder().id(i.incrementAndGet())
+                    var fileActivity = FileHistoryDTO.builder().id(i.incrementAndGet())
                             .who(x.getAgent().getName())
                             .date(x.getCreatedDate())
                             .message("create.file.activity")
                             .data(x.getActivity().getName())
                             .children(new ArrayList<>()).build();
                     x.getFileTasks().forEach(fileTask -> {
-                       var taskHistory=FileHistoryDTO.builder().id(i.incrementAndGet())
+                        var taskHistory = FileHistoryDTO.builder().id(i.incrementAndGet())
                                 .who(fileTask.getAgent().getName())
                                 .date(fileTask.getCreatedDate())
                                 .message("create.file.task")
-                                 .data(fileTask.getTask().getName())
-                               .children(new ArrayList<>()).build();
+                                .data(fileTask.getTask().getName())
+                                .children(new ArrayList<>()).build();
                         fileTask.getFileTaskSituations()
                                 .stream()
                                 .skip(1)
                                 .forEach(fileTaskSituation -> {
-                            taskHistory.getChildren().add(FileHistoryDTO.builder().id(i.incrementAndGet())
-                                    .who(fileTaskSituation.getAgent().getName())
-                                    .date(fileTaskSituation.getCreatedDate())
-                                    .message("change.File.task.situation")
-                                    .data(fileTaskSituation.getSituation().getName())
-                                    .children(new ArrayList<>()).build());
+                                    taskHistory.getChildren().add(FileHistoryDTO.builder().id(i.incrementAndGet())
+                                            .who(fileTaskSituation.getAgent().getName())
+                                            .date(fileTaskSituation.getCreatedDate())
+                                            .message("change.File.task.situation")
+                                            .data(fileTaskSituation.getSituation().getName())
+                                            .children(new ArrayList<>()).build());
 
-                        });
+                                });
                         fileActivity.getChildren().add(taskHistory);
                     });
                     history.add(fileActivity);
@@ -202,18 +204,18 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         );
 
 
-        file.getFileStates().forEach(x->
-        {
-            var state=FileHistoryDTO.builder().id(i.incrementAndGet())
-                    .who(x.getAgent().getName())
-                    .date(x.getCreatedDate())
-                    .message("change.file.state")
-                    .data(x.getType().getState()).build();
-            history.add(state);
-         }
+        file.getFileStates().forEach(x ->
+                {
+                    var state = FileHistoryDTO.builder().id(i.incrementAndGet())
+                            .who(x.getAgent().getName())
+                            .date(x.getCreatedDate())
+                            .message("change.file.state")
+                            .data(x.getType().getState()).build();
+                    history.add(state);
+                }
         );
         history.sort(dateComparator);
-        return  history;
+        return history;
 
     }
 
@@ -223,37 +225,35 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
 
     public PageList<File> getAllFileInTrashPageFilter(FileFilterInput input) {
 
-        var allFile=new ArrayList<File>();
+        var allFile = new ArrayList<File>();
         var fileOnly = getRepository().getInTrashByFilter(input);
-        var fileWithTask= getRepository().getInTrashByFilterWithTask(input);
-        var fileWithActivity= getRepository().getInTrashByFilterWithActivity(input);
-        if(fileWithTask.getValue1().size() ==0&&fileOnly.getValue1().size()==0&&fileWithActivity.getValue1().size()>0){
-            return    new PageList<>(fileWithActivity.getValue1(), fileWithActivity.getValue0());
+        var fileWithTask = getRepository().getInTrashByFilterWithTask(input);
+        var fileWithActivity = getRepository().getInTrashByFilterWithActivity(input);
+        if (fileWithTask.getValue1().size() == 0 && fileOnly.getValue1().size() == 0 && fileWithActivity.getValue1().size() > 0) {
+            return new PageList<>(fileWithActivity.getValue1(), fileWithActivity.getValue0());
         }
-        if(fileWithTask.getValue1().size() >0&&fileOnly.getValue1().size()==0&&fileWithActivity.getValue1().size()==0){
-            return    new PageList<>(fileWithTask.getValue1(), fileWithTask.getValue0());
+        if (fileWithTask.getValue1().size() > 0 && fileOnly.getValue1().size() == 0 && fileWithActivity.getValue1().size() == 0) {
+            return new PageList<>(fileWithTask.getValue1(), fileWithTask.getValue0());
         }
-        if(fileWithTask.getValue1().size() ==0&&fileOnly.getValue1().size()>0&&fileWithActivity.getValue1().size()==0){
-            return    new PageList<>(fileOnly.getValue1(), fileOnly.getValue0());
+        if (fileWithTask.getValue1().size() == 0 && fileOnly.getValue1().size() > 0 && fileWithActivity.getValue1().size() == 0) {
+            return new PageList<>(fileOnly.getValue1(), fileOnly.getValue0());
         }
-        if(fileWithTask.getValue1().size() ==0&&fileOnly.getValue1().size()==0&&fileWithActivity.getValue1().size()==0){
-            return    new PageList<>(new ArrayList<>(), 0);
+        if (fileWithTask.getValue1().size() == 0 && fileOnly.getValue1().size() == 0 && fileWithActivity.getValue1().size() == 0) {
+            return new PageList<>(new ArrayList<>(), 0);
         }
-        if(fileWithTask.getValue1().size() >0&&fileOnly.getValue1().size()>0&&fileWithActivity.getValue1().size()==0){
-            fileOnly.getValue1().stream().filter(x->fileWithTask.getValue1().stream().filter(f->f.getId()==x.getId()).count()==0).forEach(x->allFile.add(x));
-            fileWithTask.getValue1().forEach(x->allFile.add(x));
-        }else
-        if(fileWithTask.getValue1().size() ==0&&fileOnly.getValue1().size()>0&&fileWithActivity.getValue1().size()>0){
-            fileOnly.getValue1().stream().filter(x->fileWithActivity.getValue1().stream().filter(f->f.getId()==x.getId()).count()==0).forEach(x->allFile.add(x));
-            fileWithActivity.getValue1().forEach(x->allFile.add(x));
-        }else
-        if(fileWithTask.getValue1().size() >0&&fileOnly.getValue1().size()>0&&fileWithActivity.getValue1().size()>0){
-            fileOnly.getValue1().stream().filter(x->fileWithActivity.getValue1().stream().filter(f->f.getId()==x.getId()).count()==0
-            &&fileWithTask.getValue1().stream().filter(f->f.getId()==x.getId()).count()==0).forEach(x->allFile.add(x));
-            fileWithActivity.getValue1().forEach(x->allFile.add(x));
-            fileWithTask.getValue1().forEach(x->allFile.add(x));
+        if (fileWithTask.getValue1().size() > 0 && fileOnly.getValue1().size() > 0 && fileWithActivity.getValue1().size() == 0) {
+            fileOnly.getValue1().stream().filter(x -> fileWithTask.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0).forEach(x -> allFile.add(x));
+            fileWithTask.getValue1().forEach(x -> allFile.add(x));
+        } else if (fileWithTask.getValue1().size() == 0 && fileOnly.getValue1().size() > 0 && fileWithActivity.getValue1().size() > 0) {
+            fileOnly.getValue1().stream().filter(x -> fileWithActivity.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0).forEach(x -> allFile.add(x));
+            fileWithActivity.getValue1().forEach(x -> allFile.add(x));
+        } else if (fileWithTask.getValue1().size() > 0 && fileOnly.getValue1().size() > 0 && fileWithActivity.getValue1().size() > 0) {
+            fileOnly.getValue1().stream().filter(x -> fileWithActivity.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0
+                    && fileWithTask.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0).forEach(x -> allFile.add(x));
+            fileWithActivity.getValue1().forEach(x -> allFile.add(x));
+            fileWithTask.getValue1().forEach(x -> allFile.add(x));
         }
-        return    new PageList<>(allFile, allFile.size());
+        return new PageList<>(allFile, allFile.size());
 
     }
 

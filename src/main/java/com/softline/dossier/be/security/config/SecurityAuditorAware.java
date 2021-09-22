@@ -1,12 +1,13 @@
 package com.softline.dossier.be.security.config;
 
 import com.softline.dossier.be.security.domain.Agent;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import  java.util.*;
+
+import java.util.Optional;
+
 @Component
 public class SecurityAuditorAware implements AuditorAware<Agent> {
 

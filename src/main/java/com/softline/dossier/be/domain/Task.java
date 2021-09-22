@@ -14,7 +14,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity@SQLDelete(sql = "UPDATE Task SET deleted=true WHERE id=?")
+@Entity
+@SQLDelete(sql = "UPDATE Task SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 
 public class Task extends BaseEntity {
@@ -28,11 +29,11 @@ public class Task extends BaseEntity {
     @JoinColumn
     Activity activity;
 
-    @OneToMany(mappedBy = Job_.TASK,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = Job_.TASK, cascade = CascadeType.ALL)
     List<Job> jobs;
-    @OneToMany(mappedBy = TaskState_.TASK,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = TaskState_.TASK, cascade = CascadeType.ALL)
     List<TaskSituation> situations;
-    @OneToMany(mappedBy = TaskState_.TASK,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = TaskState_.TASK, cascade = CascadeType.ALL)
     List<TaskState> states;
     @OneToMany(mappedBy = FileTask_.TASK)
     List<FileTask> fileTasks;

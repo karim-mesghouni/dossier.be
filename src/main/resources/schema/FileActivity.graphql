@@ -1,77 +1,77 @@
 # Query
 extend type Query  {
-     allFileActivity:[FileActivity]
-     fileActivity(id: ID! ):FileActivity
-     allFileActivityByFileId(fileId: ID!):[FileActivity]
-     allFileActivityByFileIdInTrash(fileId: ID!):[FileActivity]
+    allFileActivity:[FileActivity]
+    fileActivity(id: ID! ):FileActivity
+    allFileActivityByFileId(fileId: ID!):[FileActivity]
+    allFileActivityByFileIdInTrash(fileId: ID!):[FileActivity]
 }
 
 #mutation
 extend type  Mutation{
-     createFileActivity(FileActivity: FileActivityInput! ):FileActivity
-     updateFileActivity(FileActivity: FileActivityInput! ):FileActivity
-     deleteFileActivity(id: Int!):Boolean
-     changeActivityState(activityStateId: ID!, fileActivityId: ID!):ActivityState
-     sendFileActivityToTrash(fileActivityId: ID!): Boolean
-     recoverFileActivityFromTrash(fileActivityId: ID!): Boolean
-     fileActivityOrderDown(fileActivityId: ID!): Boolean
-     fileActivityOrderUp(fileActivityId: ID!): Boolean
+    createFileActivity(FileActivity: FileActivityInput! ):FileActivity
+    updateFileActivity(FileActivity: FileActivityInput! ):FileActivity
+    deleteFileActivity(id: Int!):Boolean
+    changeActivityState(activityStateId: ID!, fileActivityId: ID!):ActivityState
+    sendFileActivityToTrash(fileActivityId: ID!): Boolean
+    recoverFileActivityFromTrash(fileActivityId: ID!): Boolean
+    fileActivityOrderDown(fileActivityId: ID!): Boolean
+    fileActivityOrderUp(fileActivityId: ID!): Boolean
 
 }
 
 type FileActivity {
-     id :ID
-     current: Boolean
-     file: File
-     activity:Activity
-     dataFields:[ActivityDataField]
-     reprises:[Reprise]
-     fileTasks:[FileTask]
-     state:ActivityState
-     inTrash:Boolean
-     fileActivityOrder:Int
+    id :ID
+    current: Boolean
+    file: File
+    activity:Activity
+    dataFields:[ActivityDataField]
+    reprises:[Reprise]
+    fileTasks:[FileTask]
+    state:ActivityState
+    inTrash:Boolean
+    fileActivityOrder:Int
 
 }
 input FileActivityInput  {
-     id :ID
-     current: Boolean
-     file: FileInput
-     activity:ActivityInput
-     dataFields:[ActivityDataFieldInput]
-     #repises:[RepriseInput]
-     fileTasks:[FileTaskInput]
-     state:ActivityStateInput
-     fileActivityOrder:Int
+    id :ID
+    current: Boolean
+    file: FileInput
+    activity:ActivityInput
+    dataFields:[ActivityDataFieldInput]
+    #repises:[RepriseInput]
+    fileTasks:[FileTaskInput]
+    state:ActivityStateInput
+    fileActivityOrder:Int
 
 
 }
 type FileState  {
-     id :ID
-     current: Boolean
-     type:FileStateType
-     file: File
+    id :ID
+    current: Boolean
+    type:FileStateType
+    file: File
 }
 input FileStateInput  {
-     id :ID
-     current: Boolean
-     type:FileStateTypeInput
-     file: FileInput
+    id :ID
+    current: Boolean
+    type:FileStateTypeInput
+    file: FileInput
 }
 
 type ActivityState{
-     id: ID
-     name:String
-     initial:Boolean
-     Final:Boolean
-     activity:Activity
-     fileActivities:[FileActivity]
+    id: ID
+    name:String
+    initial:Boolean
+    Final:Boolean
+    activity:Activity
+    fileActivities:[FileActivity]
 }
 
 input ActivityStateInput{
-     id: ID
-     name:String
-     initial:Boolean
-     Final:Boolean
-     activity:ActivityInput
-     fileActivities:[FileActivityInput]
+    id: ID
+    name:String
+    initial:Boolean
+    Final:Boolean
+    activity:ActivityInput
+    fileActivities:[FileActivityInput]
 }

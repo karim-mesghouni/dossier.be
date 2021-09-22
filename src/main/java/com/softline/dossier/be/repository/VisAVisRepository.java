@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface VisAVisRepository   extends JpaRepository<VisAVis,Long> {
+public interface VisAVisRepository extends JpaRepository<VisAVis, Long> {
 }

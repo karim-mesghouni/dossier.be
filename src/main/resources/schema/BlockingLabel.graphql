@@ -1,4 +1,3 @@
-
 type BlockingLabel  {
     id: ID
     blocking:[Blocking]

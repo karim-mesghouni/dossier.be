@@ -1,8 +1,8 @@
 type Job {
     id:ID
-     name:String
+    name:String
     description:String
-     task:Task
+    task:Task
 }
 input JobInput {
     id:ID

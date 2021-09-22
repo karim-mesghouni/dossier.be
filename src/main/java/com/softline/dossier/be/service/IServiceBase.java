@@ -1,9 +1,5 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.domain.ActivityField;
-import com.softline.dossier.be.graphql.types.FileDTO;
-import com.softline.dossier.be.graphql.types.FileFilterInput;
-import com.softline.dossier.be.graphql.types.PageList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 

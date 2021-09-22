@@ -19,10 +19,10 @@ import java.time.LocalDateTime;
 @Where(clause = "deleted = false")
 
 public class Blocking extends BaseEntity {
+    boolean block;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @OneToOne
     @JoinColumn
     private FileTaskSituation state;
@@ -36,7 +36,5 @@ public class Blocking extends BaseEntity {
     @JoinColumn
     private BlockingLabel label;
     private String explication;
-    boolean block;
-
     private LocalDateTime date;
 }

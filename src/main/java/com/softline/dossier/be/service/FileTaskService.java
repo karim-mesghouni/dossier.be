@@ -15,7 +15,6 @@ import org.apache.catalina.core.ApplicationPart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,11 +53,12 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     @Autowired
     ReturnedCauseRepository returnedCauseRepository;
     @Autowired
-    private ResourceLoader resourceLoader;
-    @Autowired
     AttachFileRepository attachFileRepository;
     @Autowired
     EnvUtil envUtil;
+    @Autowired
+    private ResourceLoader resourceLoader;
+
     @Override
     public List<FileTask> getAll() {
 
@@ -208,7 +208,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                     .fileActivity(fileActivity)
                     .content(description.getContent())
                     .fileTask(fileTask)
-                    .agent((Agent)SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                    .agent((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
                     .build()
             );
             fileTask.setDescription(descriptionNew);
@@ -274,8 +274,8 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public FileTask createChildFileTask(FileTaskInput input) {
-        var reporter=   agentRepository.findByUsername(((Agent)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
-        var parent=getRepository().findById(input.getParent().getId()).orElseThrow();
+        var reporter = agentRepository.findByUsername(((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+        var parent = getRepository().findById(input.getParent().getId()).orElseThrow();
         var task = taskRepository.findById(input.getTask().getId()).orElseThrow();
         var fileActivity = fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();
         var count = getRepository().countFileTaskByFileActivity_File_Id(fileActivity.getFile().getId());
@@ -295,19 +295,19 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .current(true)
                 .build();
         fileTask.getFileTaskSituations().add(fileTaskSituation);
-         getRepository().save(fileTask);
-    return   getRepository().findById(fileTask.getId()).orElseThrow();
+        getRepository().save(fileTask);
+        return getRepository().findById(fileTask.getId()).orElseThrow();
     }
 
     public FileTask changeParent(Long fileTaskId, Long parentId) {
-        var fileTask=getRepository().findById(fileTaskId).orElseThrow();
-     if(parentId!=null) {
-         var parent = getRepository().findById(parentId).orElseThrow();
-         fileTask.setParent(parent);
-     }else
-         fileTask.setParent(null);
+        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        if (parentId != null) {
+            var parent = getRepository().findById(parentId).orElseThrow();
+            fileTask.setParent(parent);
+        } else
+            fileTask.setParent(null);
 
-        return  fileTask;
+        return fileTask;
     }
 
     public List<FileTask> getAllFileTaskByFileActivityIdInTrash(Long fileActivityId) {
@@ -315,29 +315,30 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public boolean recoverFileTaskFromTrash(Long fileTaskId) {
-        var fileTask =getRepository().getOne(fileTaskId);
+        var fileTask = getRepository().getOne(fileTaskId);
         fileTask.setInTrash(false);
-        return  true;
-    }
-    public boolean sendFileTaskToTrash(Long fileTaskId) {
-        var fileTask =getRepository().getOne(fileTaskId);
-        fileTask.setInTrash(true);
-        return  true;
+        return true;
     }
 
-    public List<AttachFile> saveAttached(Long fileTaskId,DataFetchingEnvironment environment) throws NoSuchAlgorithmException, IOException {
+    public boolean sendFileTaskToTrash(Long fileTaskId) {
+        var fileTask = getRepository().getOne(fileTaskId);
+        fileTask.setInTrash(true);
+        return true;
+    }
+
+    public List<AttachFile> saveAttached(Long fileTaskId, DataFetchingEnvironment environment) throws NoSuchAlgorithmException, IOException {
         var files = (ArrayList<ApplicationPart>) environment.getArgument("attached");
-        var filesAttached=new ArrayList<AttachFile>();
-        var fileTask= getRepository().findById(fileTaskId).orElseThrow();
-        for (var file:files){
+        var filesAttached = new ArrayList<AttachFile>();
+        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        for (var file : files) {
             var fileName = ImageHalper.getFileName(20L, file);
-           if (!new ClassPathResource("fileStorage2").getFile().exists()){
-               new ClassPathResource("fileStorage2").getFile().createNewFile();
-           }
+            if (!new ClassPathResource("fileStorage2").getFile().exists()) {
+                new ClassPathResource("fileStorage2").getFile().createNewFile();
+            }
             var savedFile = new java.io.File(new ClassPathResource("fileStorage2").getFile(), fileName);
             Files.copy(file.getInputStream(), savedFile.toPath());
-            String urlServer= envUtil.getServerUrlPrefi();
-            filesAttached.add(AttachFile.builder().url(urlServer+"/attached/" + fileName).path(savedFile.toPath().toString())
+            String urlServer = envUtil.getServerUrlPrefi();
+            filesAttached.add(AttachFile.builder().url(urlServer + "/attached/" + fileName).path(savedFile.toPath().toString())
                     .name(file.getSubmittedFileName()).fileTask(fileTask).build());
             attachFileRepository.saveAll(filesAttached);
         }
@@ -379,16 +380,17 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         }
         return false;
     }
+
     public boolean fileTaskOrderDown(Long fileTaskId) {
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         var sourceOrder = fileTask.getFileTaskOrder();
-        var maxOrder=  getRepository().getMaxOrder();
+        var maxOrder = getRepository().getMaxOrder();
 
         if (sourceOrder == maxOrder) {
             return false;
         }
         int targetOrder = sourceOrder;
-        while (targetOrder <=maxOrder) {
+        while (targetOrder <= maxOrder) {
             targetOrder = targetOrder + 1;
             var previousFiles = getRepository().getAllByFileTaskOrder(targetOrder);
             if (!previousFiles.isEmpty()) {

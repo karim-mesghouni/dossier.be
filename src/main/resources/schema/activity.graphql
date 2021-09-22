@@ -1,35 +1,34 @@
-
 # Query
 extend type Query  {
-        allActivity:[Activity]
-        activity(id: ID! ):Activity
+    allActivity:[Activity]
+    activity(id: ID! ):Activity
 }
 
 #mutation
 extend type  Mutation{
-        createActivity(Activity: ActivityInput! ):Activity
-        updateActivity(Activity: ActivityInput! ):Activity
-        deleteActivity(id: ID!): Boolean
+    createActivity(Activity: ActivityInput! ):Activity
+    updateActivity(Activity: ActivityInput! ):Activity
+    deleteActivity(id: ID!): Boolean
 }
 
 type   Activity {
-        id: ID
-        name:String
-        description:String
-        fields:[ActivityField]
-        fileActivities:[FileActivity]
-        tasks: [Task]
-        states:[ActivityState]
+    id: ID
+    name:String
+    description:String
+    fields:[ActivityField]
+    fileActivities:[FileActivity]
+    tasks: [Task]
+    states:[ActivityState]
 
 }
 
 input   ActivityInput {
-        id: ID
-        name:String
-        description:String
-        fields:[ActivityFieldInput]
-        fileActivities:[FileActivityInput]
-        tasks: [TaskInput]
-        states:[ActivityStateInput]
+    id: ID
+    name:String
+    description:String
+    fields:[ActivityFieldInput]
+    fileActivities:[FileActivityInput]
+    tasks: [TaskInput]
+    states:[ActivityStateInput]
 
 }

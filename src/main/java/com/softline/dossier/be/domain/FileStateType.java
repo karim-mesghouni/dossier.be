@@ -1,7 +1,6 @@
 package com.softline.dossier.be.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -21,18 +20,18 @@ import javax.persistence.Id;
 @SQLDelete(sql = "UPDATE FileStateType SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 public class FileStateType extends BaseEntity {
-   @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
-   private  long id;
-   String state;
-   boolean initial;
-   boolean Final;
+    String state;
+    boolean initial;
+    boolean Final;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-   @Override
-   public String toString() {
-      return "FileStateType{" +
-              "id=" + id +
-              ", state='" + state + '\'' +
-              '}';
-   }
+    @Override
+    public String toString() {
+        return "FileStateType{" +
+                "id=" + id +
+                ", state='" + state + '\'' +
+                '}';
+    }
 }

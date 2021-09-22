@@ -3,7 +3,7 @@ package com.softline.dossier.be.security.domain;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.List;
 
 @Entity
 @Setter
@@ -19,7 +19,7 @@ public class Role {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "role_privilege",
             joinColumns = @JoinColumn(

@@ -18,7 +18,7 @@ public class ActivityService extends IServiceBase<Activity, ActivityInput, Activ
 
     @Override
     public List<Activity> getAll() {
-        return (List<Activity>) repository.findAll();
+        return repository.findAll();
     }
 
     @Override
@@ -39,6 +39,6 @@ public class ActivityService extends IServiceBase<Activity, ActivityInput, Activ
 
     @Override
     public Activity getById(long id) {
-        return (Activity) repository.findById(id).orElseThrow();
+        return repository.findById(id).orElseThrow();
     }
 }

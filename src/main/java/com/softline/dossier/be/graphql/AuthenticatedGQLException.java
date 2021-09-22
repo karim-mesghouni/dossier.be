@@ -6,15 +6,17 @@ import graphql.GraphQLError;
 import graphql.language.SourceLocation;
 import org.springframework.security.core.AuthenticationException;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 public class AuthenticatedGQLException extends AuthenticationException implements GraphQLError {
 
 
-    public AuthenticatedGQLException(String messge){
+    public AuthenticatedGQLException(String messge) {
         super(messge);
     }
+
     @Override
     public List<SourceLocation> getLocations() {
         return null;
@@ -28,8 +30,8 @@ public class AuthenticatedGQLException extends AuthenticationException implement
 
     @Override
     public Map<String, Object> getExtensions() {
-        var extensions= new HashMap();
-        extensions.put("code",401);
-        return  extensions;
+        var extensions = new HashMap();
+        extensions.put("code", 401);
+        return extensions;
     }
 }

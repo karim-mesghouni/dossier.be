@@ -10,10 +10,14 @@ public interface EmitterRepository {
 
     Long addEmitter(Long agentId);
 
-    void remove(Long agentId,Long sessionId);
-    void remove(Long agentId,SseEmitter emitter);
+    void remove(Long agentId, Long sessionId);
+
+    void remove(Long agentId, SseEmitter emitter);
+
     Stream<Stream<SseEmitter>> getAll();
-    Optional<SseEmitter>  get(Long agentId,Long sessionId);
-    Optional<List<SseEmitter>>  get(Long agentId);
+
+    Optional<SseEmitter> get(Long agentId, Long sessionId);
+
+    Optional<List<SseEmitter>> get(Long agentId);
 
 }

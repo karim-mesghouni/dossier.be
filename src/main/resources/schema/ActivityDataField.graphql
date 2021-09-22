@@ -1,31 +1,30 @@
-
 type ActivityDataField {
-     id:ID
-     fieldName:String
-     fieldType: FieldType
-     data: String
-     fileActivity: FileActivity
-     groupName: String
+    id:ID
+    fieldName:String
+    fieldType: FieldType
+    data: String
+    fileActivity: FileActivity
+    groupName: String
 
 }
 enum FieldType
 {
-     String,
-     Number,
-     Date,
+    String,
+    Number,
+    Date,
 }
 enum FieldTypeInput
 {
-     String,
-     Number,
-     Date,
+    String,
+    Number,
+    Date,
 }
 
 input ActivityDataFieldInput {
-     groupName: String
-     id:ID
-     fieldName:String
-     fieldType: FieldTypeInput
-     data: String
-     fileActivity: FileActivityInput
+    groupName: String
+    id:ID
+    fieldName:String
+    fieldType: FieldTypeInput
+    data: String
+    fileActivity: FileActivityInput
 }

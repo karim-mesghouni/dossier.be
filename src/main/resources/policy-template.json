@@ -15,7 +15,6 @@
     "name": "PM view his project's issues",
     "description": "PM can view the issues of his project only.",
     "target": "subject.role.name() == 'PM' && action == 'ISSUES_LIST'",
-
     "condition": "subject.project.id == resource.id"
   },
   {

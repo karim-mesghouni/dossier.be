@@ -15,7 +15,7 @@ public class CommuneInput {
 
     private String name;
 
-    private  String postalCode;
+    private String postalCode;
 
-    private  String INSEECode;
+    private String INSEECode;
 }

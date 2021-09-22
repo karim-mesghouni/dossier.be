@@ -9,7 +9,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
 
 @SuperBuilder
 @AllArgsConstructor
@@ -40,12 +40,11 @@ public class File extends BaseEntity {
     @OneToMany(mappedBy = FileDoc_.FILE)
     List<FileDoc> fileDocs;
 
-    @OneToMany(cascade = CascadeType.ALL ,mappedBy = FileState_.FILE, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = FileState_.FILE, fetch = FetchType.LAZY)
     List<FileState> fileStates;
 
 
-
-    @OneToMany(cascade = CascadeType.ALL,mappedBy = FileActivity_.FILE, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = FileActivity_.FILE, fetch = FetchType.LAZY)
     List<FileActivity> fileActivities;
     @OneToOne()
     @JoinColumn()

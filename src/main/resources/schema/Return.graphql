@@ -1,8 +1,8 @@
 type Return{
     id:ID
-     number:Int
-     cause:String
-     fileTask:FileTask
+    number:Int
+    cause:String
+    fileTask:FileTask
 }
 input ReturnIpnut{
     id:ID

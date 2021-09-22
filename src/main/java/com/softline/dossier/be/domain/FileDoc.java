@@ -17,21 +17,19 @@ import javax.persistence.*;
 @Entity
 @SQLDelete(sql = "UPDATE file_doc  SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class FileDoc extends  BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  long id;
-
-    private String  path;
+public class FileDoc extends BaseEntity {
     @ManyToOne
     @JoinColumn
     File file;
     @ManyToOne
     @JoinColumn
-    FileActivity  fileActivity;
+    FileActivity fileActivity;
     @ManyToOne
     @JoinColumn
     Agent agent;
-
     String description;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+    private String path;
 }

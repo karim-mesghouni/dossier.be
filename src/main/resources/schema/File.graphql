@@ -1,105 +1,105 @@
 # Query
 extend type Query  {
-     allFile:[File]
-     file(id: ID! ):File
-     allFilePageFilter(filter: FileFilterInput!):PageList
-     allFileInTrashPageFilter(filter: FileFilterInput!):PageList
-     fileHistory(id: ID!):[HistoryDTO]
-     allFileStateType:[FileStateType]
+    allFile:[File]
+    file(id: ID! ):File
+    allFilePageFilter(filter: FileFilterInput!):PageList
+    allFileInTrashPageFilter(filter: FileFilterInput!):PageList
+    fileHistory(id: ID!):[HistoryDTO]
+    allFileStateType:[FileStateType]
 }
 
 #mutation
 extend type  Mutation{
-     createFile(input: FileInput! ):File
-     updateFile(input: FileInput! ):File
-     deleteFile(id: Int!): Boolean
-     sendFileToTrash(fileId: ID!): Boolean
-     recoverFileFromTrash(fileId: ID!): Boolean
+    createFile(input: FileInput! ):File
+    updateFile(input: FileInput! ):File
+    deleteFile(id: Int!): Boolean
+    sendFileToTrash(fileId: ID!): Boolean
+    recoverFileFromTrash(fileId: ID!): Boolean
 
 }
 
 type File  {
-     id: ID
-     project: String
-     attributionDate:String
-     returnDeadline:String
-     provisionalDeliveryDate:String
-     deliveryDate:String
-     client:Client
-     commune:Commune
-     fileDocs:[FileDoc]
-     fileStates:[FileState]
-     fileActivities:[FileActivity]
-     currentFileState:FileState
-     currentFileActivity:FileActivity
-     baseActivity: Activity
-     reprise: File
-     fileReprise: Boolean
-     inTrash:Boolean
+    id: ID
+    project: String
+    attributionDate:String
+    returnDeadline:String
+    provisionalDeliveryDate:String
+    deliveryDate:String
+    client:Client
+    commune:Commune
+    fileDocs:[FileDoc]
+    fileStates:[FileState]
+    fileActivities:[FileActivity]
+    currentFileState:FileState
+    currentFileActivity:FileActivity
+    baseActivity: Activity
+    reprise: File
+    fileReprise: Boolean
+    inTrash:Boolean
 }
 input FileInput  {
-     id: ID
-     project: String
-     attributionDate:String
-     returnDeadline:String
-     provisionalDeliveryDate:String
-     deliveryDate:String
-     client:ClientInput
-     commune:CommuneInput
-     fileDocs:[FileDocIput]
-     fileStates: [FileStateInput]
-     fileActivities:[FileActivityInput]
-     currentFileState:FileStateInput
-     currentFileActivity:FileActivityInput
-     baseActivity: ActivityInput
-     reprise: FileInput
-     fileReprise: Boolean
-     inTrash:Boolean
+    id: ID
+    project: String
+    attributionDate:String
+    returnDeadline:String
+    provisionalDeliveryDate:String
+    deliveryDate:String
+    client:ClientInput
+    commune:CommuneInput
+    fileDocs:[FileDocIput]
+    fileStates: [FileStateInput]
+    fileActivities:[FileActivityInput]
+    currentFileState:FileStateInput
+    currentFileActivity:FileActivityInput
+    baseActivity: ActivityInput
+    reprise: FileInput
+    fileReprise: Boolean
+    inTrash:Boolean
 
 }
 input FileFilterInput{
-     pageNumber:Int
-     pageSize:Int
-     project: String
-     clientId: ID
-     activityId: ID
-     stateId: ID
-     attributionDateFrom: String
-     attributionDateTo: String
-     returnDeadlineFrom: String
-     returnDeadlineTo: String
-     provisionalDeliveryDateFrom: String
-     provisionalDeliveryDateTo: String
-     deliveryDateFrom: String
-     deliveryDateTo: String
-     fileType: FileType
+    pageNumber:Int
+    pageSize:Int
+    project: String
+    clientId: ID
+    activityId: ID
+    stateId: ID
+    attributionDateFrom: String
+    attributionDateTo: String
+    returnDeadlineFrom: String
+    returnDeadlineTo: String
+    provisionalDeliveryDateFrom: String
+    provisionalDeliveryDateTo: String
+    deliveryDateFrom: String
+    deliveryDateTo: String
+    fileType: FileType
 }
 enum  FileType{
-     Attribution
-     Reprise
+    Attribution
+    Reprise
 }
 type PageList{
-     page: [File]
-     Count: Int
+    page: [File]
+    Count: Int
 }
 
 type FileDTO{
-     idFile: Int
-     project:String
-     attributionDate:String
-     returnDeadline:String
-     provisionalDeliveryDate:String
-     deliveryDate:String
-     cem:String
-     activityName:String
-     fileActivityId:Int
-     fileStateId:Int
+    idFile: Int
+    project:String
+    attributionDate:String
+    returnDeadline:String
+    provisionalDeliveryDate:String
+    deliveryDate:String
+    cem:String
+    activityName:String
+    fileActivityId:Int
+    fileStateId:Int
 }
 type HistoryDTO{
-     id: Int
-     who: String
-     date: String
-     data: String
-     message:String
-     children:[HistoryDTO]
+    id: Int
+    who: String
+    date: String
+    data: String
+    message:String
+    children:[HistoryDTO]
 }

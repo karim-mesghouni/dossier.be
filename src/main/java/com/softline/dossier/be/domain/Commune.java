@@ -1,7 +1,6 @@
 package com.softline.dossier.be.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -20,7 +19,7 @@ import javax.persistence.Id;
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE Commune SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class Commune extends  BaseEntity {
+public class Commune extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +27,7 @@ public class Commune extends  BaseEntity {
 
     private String name;
 
-    private  String postalCode;
+    private String postalCode;
 
-    private  String INSEECode;
+    private String INSEECode;
 }

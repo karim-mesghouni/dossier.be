@@ -12,19 +12,19 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ActivityInput  {
+public class ActivityInput {
 
-        Long id;
+    Long id;
 
 
-        String name;
-        String description;
+    String name;
+    String description;
 
-        List<ActivityFieldInput> fields;
+    List<ActivityFieldInput> fields;
 
-        List<FileActivityInput> fileActivities;
+    List<FileActivityInput> fileActivities;
 
-        List<TaskInput> tasks;
-     List<ActivityStateInput>   states;
+    List<TaskInput> tasks;
+    List<ActivityStateInput> states;
 
 }

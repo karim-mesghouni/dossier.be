@@ -8,8 +8,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.io.File;
-
 @Configuration
 @EnableWebMvc
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -23,7 +21,7 @@ public class MvcConfig implements WebMvcConfigurer {
                 .addResourceLocations(new ClassPathResource("fileStorage").getFile().toURI().toString());
         registry
                 .addResourceHandler("/attached/**")
-              .addResourceLocations(        new ClassPathResource("fileStorage2").getFile().toURI().toString());
+                .addResourceLocations(new ClassPathResource("fileStorage2").getFile().toURI().toString());
 //                .addResourceLocations(new File("C:\\Users\\PC\\Documents\\fileStorage2").toURI().toString());
 
     }

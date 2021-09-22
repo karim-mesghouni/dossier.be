@@ -23,8 +23,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Component
-public class DbInitializer implements ApplicationRunner
-{
+public class DbInitializer implements ApplicationRunner {
 
     @Autowired
     ActivityRepository activityRepository;
@@ -75,11 +74,9 @@ public class DbInitializer implements ApplicationRunner
 
     @Transactional
 
-    public void run(ApplicationArguments args) throws Exception
-    {
+    public void run(ApplicationArguments args) throws Exception {
         passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        if (activityRepository.count() == 0)
-        {
+        if (activityRepository.count() == 0) {
 
             createZapaActivity();
             createFIActivity();
@@ -87,8 +84,7 @@ public class DbInitializer implements ApplicationRunner
             createPiquetageActivity();
             createCDCActivity();
         }
-        if (clientRepository.count() == 0)
-        {
+        if (clientRepository.count() == 0) {
             contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("RH"))));
             contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("AXIANS"))));
             contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("AXIANS IDF"))));
@@ -104,12 +100,10 @@ public class DbInitializer implements ApplicationRunner
             contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("SCOPELEC"))));
             contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("SPIE"))));
         }
-        if (communeRepository.count() == 0)
-        {
+        if (communeRepository.count() == 0) {
             createCommunes();
         }
-        if (fileStateTypeRepository.count() == 0)
-        {
+        if (fileStateTypeRepository.count() == 0) {
             fileStateTypeRepository.save(FileStateType.builder().state("En cours").build());
             fileStateTypeRepository.save(FileStateType.builder().state("Terminé").Final(true).build());
             fileStateTypeRepository.save(FileStateType.builder().state("Livré").build());
@@ -136,8 +130,7 @@ public class DbInitializer implements ApplicationRunner
 //                Privilege.builder().name(d+"HISTORY").build()));
 //        role.setPrivileges(privs);
 //        roleRepository.save(role);
-        if (agentRepository.count() == 0)
-        {
+        if (agentRepository.count() == 0) {
             final Role ADMIN_ROLE;
 
             List<Privilege> allPrivileges = List.of(
@@ -183,8 +176,7 @@ public class DbInitializer implements ApplicationRunner
             );
             ADMIN_ROLE = roleRepository.save(Role.builder().name("ROLE_ADMIN").privileges(allPrivileges).build());
             // admin user
-            for (var admin : List.of("elhabib", "othman", "boubaker"))
-            {
+            for (var admin : List.of("elhabib", "othman", "boubaker")) {
                 agentRepository.save(Agent.builder()
                         .name(admin)
                         .email(admin + "@gmail.com")
@@ -208,7 +200,7 @@ public class DbInitializer implements ApplicationRunner
             });
         }
         if (blockingLabelRepository.count() == 0) {
-            for(var name : List.of("AUTRE: BLOCAGE INTERNE",
+            for (var name : List.of("AUTRE: BLOCAGE INTERNE",
                     "AUTRE BLOCAGE : GESTOT",
                     "IPON.SST : BLOCAGE IPON",
                     "CRIT: IMPLANTATION APPUIS",
@@ -224,7 +216,7 @@ public class DbInitializer implements ApplicationRunner
             }
         }
         if (blockingQualificationRepository.count() == 0) {
-            for(var name : List.of("CMS",
+            for (var name : List.of("CMS",
                     "PIT",
                     "FLUX",
                     "NEGO",
@@ -252,7 +244,7 @@ public class DbInitializer implements ApplicationRunner
             }
         }
         if (blockingLockingAddressRepository.count() == 0) {
-            for(var name : List.of("NEGO",
+            for (var name : List.of("NEGO",
                     "INTERNE",
                     "CMS+NEGO",
                     "SUPPORT BE",
@@ -268,26 +260,22 @@ public class DbInitializer implements ApplicationRunner
         }
     }
 
-    private Client fakeClient(String name)
-    {
+    private Client fakeClient(String name) {
         return Client.builder()
                 .name(name)
                 .address(faker.address().fullAddress())
                 .build();
     }
 
-    private List<Contact> fakeContacts(int count)
-    {
+    private List<Contact> fakeContacts(int count) {
         List<Contact> contacts = new ArrayList<>();
-        for (int i = 0; i < count; i++)
-        {
+        for (int i = 0; i < count; i++) {
             contacts.add(fakeContact());
         }
         return contacts;
     }
 
-    private Contact fakeContact()
-    {
+    private Contact fakeContact() {
         return Contact.builder()
                 .name(faker.name().fullName())
                 .email(faker.internet().emailAddress())
@@ -295,18 +283,15 @@ public class DbInitializer implements ApplicationRunner
                 .build();
     }
 
-    private List<Contact> fakeContacts(int count, Client c)
-    {
+    private List<Contact> fakeContacts(int count, Client c) {
         List<Contact> contacts = new ArrayList<>();
-        for (int i = 0; i < count; i++)
-        {
+        for (int i = 0; i < count; i++) {
             contacts.add(fakeContact(c));
         }
         return contacts;
     }
 
-    private Contact fakeContact(Client c)
-    {
+    private Contact fakeContact(Client c) {
         return Contact.builder()
                 .name(faker.name().fullName())
                 .email(faker.internet().emailAddress())
@@ -315,8 +300,7 @@ public class DbInitializer implements ApplicationRunner
                 .build();
     }
 
-    private void createCommunes()
-    {
+    private void createCommunes() {
         communeRepository.save(Commune.builder().name("BOURG EN BRESSE").INSEECode("01053").postalCode("1000").build());
         communeRepository.save(Commune.builder().name("SAINT DENIS LES BOURG").INSEECode("01344").postalCode("1000").build());
         communeRepository.save(Commune.builder().name("BROU").INSEECode("01914").postalCode("1000").build());
@@ -327,8 +311,7 @@ public class DbInitializer implements ApplicationRunner
         communeRepository.save(Commune.builder().name("GUEREINS").INSEECode("01183").postalCode("1090").build());
     }
 
-    private void createZapaActivity()
-    {
+    private void createZapaActivity() {
         zapa = Activity.builder().name("ZAPA").description("ZAPA Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());
@@ -343,7 +326,7 @@ public class DbInitializer implements ApplicationRunner
         taskSituationsControle.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
-        var taskSituationsPreparatrionLivraison= new ArrayList<TaskSituation>();
+        var taskSituationsPreparatrionLivraison = new ArrayList<TaskSituation>();
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Fait").Final(true).build());
@@ -381,8 +364,7 @@ public class DbInitializer implements ApplicationRunner
         activityRepository.save(zapa);
     }
 
-    private void createFIActivity()
-    {
+    private void createFIActivity() {
         fi = Activity.builder().name("FI").description("FI Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());
@@ -396,7 +378,7 @@ public class DbInitializer implements ApplicationRunner
         taskSituationsControle.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
-        var taskSituationsPreparatrionLivraison= new ArrayList<TaskSituation>();
+        var taskSituationsPreparatrionLivraison = new ArrayList<TaskSituation>();
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Fait").Final(true).build());
@@ -435,8 +417,7 @@ public class DbInitializer implements ApplicationRunner
         activityRepository.save(fi);
     }
 
-    private void createIPONActivity()
-    {
+    private void createIPONActivity() {
         ipon = Activity.builder().name("IPON").description("IPON Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());
@@ -450,7 +431,7 @@ public class DbInitializer implements ApplicationRunner
         taskSituationsControle.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
-        var taskSituationsPreparatrionLivraison= new ArrayList<TaskSituation>();
+        var taskSituationsPreparatrionLivraison = new ArrayList<TaskSituation>();
 
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());
@@ -483,8 +464,7 @@ public class DbInitializer implements ApplicationRunner
         activityRepository.save(ipon);
     }
 
-    private void createPiquetageActivity()
-    {
+    private void createPiquetageActivity() {
         piquetage = Activity.builder().name("Piquetage").description("Piquetage Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());
@@ -540,8 +520,7 @@ public class DbInitializer implements ApplicationRunner
         activityRepository.save(piquetage);
     }
 
-    private void createCDCActivity()
-    {
+    private void createCDCActivity() {
         cdc = Activity.builder().name("CDC").description("CDC Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtdueComac = new ArrayList<TaskSituation>();
         taskSituationsEtdueComac.add(TaskSituation.builder().name("A faire").initial(true).build());
@@ -556,7 +535,7 @@ public class DbInitializer implements ApplicationRunner
         taskSituationsControle.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
-        var taskSituationsPreparatrionLivraison= new ArrayList<TaskSituation>();
+        var taskSituationsPreparatrionLivraison = new ArrayList<TaskSituation>();
 
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());

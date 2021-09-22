@@ -10,10 +10,8 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
-import java.nio.file.attribute.FileTime;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 
 @SuperBuilder
 @Entity
@@ -22,12 +20,12 @@ import java.util.*;
 @Data
 @SQLDelete(sql = "UPDATE FileTask SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false ")
-public class FileTask extends BaseEntity{
+public class FileTask extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     boolean current;
-    @Type(type="text")
+    @Type(type = "text")
     String title;
     Long number;
     @OneToOne
@@ -51,7 +49,7 @@ public class FileTask extends BaseEntity{
     Agent reporter;
     @OneToOne
     Agent assignedTo;
-    @OneToMany(mappedBy = FileTaskSituation_.FILE_TASK,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = FileTaskSituation_.FILE_TASK, cascade = CascadeType.ALL)
     List<FileTaskSituation> fileTaskSituations;
     @ManyToOne
     @JoinColumn

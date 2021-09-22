@@ -6,7 +6,6 @@ import com.softline.dossier.be.graphql.types.input.FileActivityInput;
 import com.softline.dossier.be.repository.FileActivityRepository;
 import com.softline.dossier.be.service.FileActivityService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
@@ -17,43 +16,54 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 
-public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity,FileActivityInput, FileActivityRepository, FileActivityService> {
+public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity, FileActivityInput, FileActivityRepository, FileActivityService> {
 
 
     public FileActivity createFileActivity(FileActivityInput FileActivity) throws IOException {
         return create(FileActivity);
     }
-    public FileActivity updateFileActivity(FileActivityInput FileActivity){
+
+    public FileActivity updateFileActivity(FileActivityInput FileActivity) {
         return update(FileActivity);
     }
-    public boolean deleteFileActivity(Long id){
+
+    public boolean deleteFileActivity(Long id) {
         return delete(id);
     }
-    protected List<FileActivity> getAllFileActivity(){
+
+    protected List<FileActivity> getAllFileActivity() {
         return getAll();
     }
-    protected FileActivity getFileActivity(Long id){
+
+    protected FileActivity getFileActivity(Long id) {
         return get(id);
     }
-    public List<FileActivity>  getAllFileActivityByFileId(Long fileId){
-        return  service.getAllFileActivityByFileId(fileId);
-    }public List<FileActivity>  getAllFileActivityByFileIdInTrash(Long fileId){
-        return  service.getAllFileActivityByFileIdInTrash(fileId);
-    }
-    public ActivityState changeActivityState(Long  activityStateId, Long fileActivityId){
-        return  service.changeActivityState(activityStateId,fileActivityId);
+
+    public List<FileActivity> getAllFileActivityByFileId(Long fileId) {
+        return service.getAllFileActivityByFileId(fileId);
     }
 
-    public  boolean recoverFileActivityFromTrash(Long fileActivityId ){
-        return  service.recoverFileActivityFromTrash(fileActivityId);
+    public List<FileActivity> getAllFileActivityByFileIdInTrash(Long fileId) {
+        return service.getAllFileActivityByFileIdInTrash(fileId);
     }
-    public  boolean sendFileActivityToTrash(Long fileActivityId ){
-        return  service.sendFileActivityToTrash(fileActivityId);
+
+    public ActivityState changeActivityState(Long activityStateId, Long fileActivityId) {
+        return service.changeActivityState(activityStateId, fileActivityId);
     }
-    public  boolean fileActivityOrderUp(Long fileActivityId){
-        return  service.fileActivityOrderUp(fileActivityId);
+
+    public boolean recoverFileActivityFromTrash(Long fileActivityId) {
+        return service.recoverFileActivityFromTrash(fileActivityId);
     }
-    public  boolean fileActivityOrderDown(Long fileActivityId){
-        return  service.fileActivityOrderDown(fileActivityId);
+
+    public boolean sendFileActivityToTrash(Long fileActivityId) {
+        return service.sendFileActivityToTrash(fileActivityId);
+    }
+
+    public boolean fileActivityOrderUp(Long fileActivityId) {
+        return service.fileActivityOrderUp(fileActivityId);
+    }
+
+    public boolean fileActivityOrderDown(Long fileActivityId) {
+        return service.fileActivityOrderDown(fileActivityId);
     }
 }

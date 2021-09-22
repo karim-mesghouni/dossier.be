@@ -26,27 +26,22 @@ public class Agent extends BaseEntity {
 
     @OneToMany(mappedBy = Comment_.AGENT)
     List<Comment> comments;
-
-    @Column(nullable = false, unique = true)
-    private String username;
-
-    @Column( nullable = false)
-    private String password;
-
-    @Column(name = "email")
-    private String email;
-
-    @Column(name = "enabled")
-    private boolean enabled;
-    @Column(name = "token_expired")
-    private boolean tokenExpired;
-
     @OneToMany(mappedBy = "agent")
     List<Notification> notifications;
     @Transient()
     List<String> authorities;
     @Transient()
     List<CaslRawRule> caslRules;
+    @Column(nullable = false, unique = true)
+    private String username;
+    @Column(nullable = false)
+    private String password;
+    @Column(name = "email")
+    private String email;
+    @Column(name = "enabled")
+    private boolean enabled;
+    @Column(name = "token_expired")
+    private boolean tokenExpired;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_role",

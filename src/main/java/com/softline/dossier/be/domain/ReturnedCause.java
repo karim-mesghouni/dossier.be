@@ -17,11 +17,11 @@ import java.util.List;
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE ReturnedCause SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class ReturnedCause extends  BaseEntity{
+public class ReturnedCause extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    String  name;
+    String name;
     @OneToMany(mappedBy = FileTask_.RETURNED_CAUSE)
     List<FileTask> fileTasks;
 }

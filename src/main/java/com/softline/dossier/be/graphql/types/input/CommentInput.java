@@ -1,6 +1,5 @@
 package com.softline.dossier.be.graphql.types.input;
 
-import com.softline.dossier.be.domain.FileTask;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +12,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommentInput  {
+public class CommentInput {
 
 
     Long id;
@@ -23,6 +22,6 @@ public class CommentInput  {
     FileActivityInput fileActivity;
     AgentInput agent;
 
-    Date   createdDate;
+    Date createdDate;
     FileTaskInput fileTask;
 }
