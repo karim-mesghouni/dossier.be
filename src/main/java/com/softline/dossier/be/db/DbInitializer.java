@@ -207,6 +207,65 @@ public class DbInitializer implements ApplicationRunner
                 );
             });
         }
+        if (blockingLabelRepository.count() == 0) {
+            for(var name : List.of("AUTRE: BLOCAGE INTERNE",
+                    "AUTRE BLOCAGE : GESTOT",
+                    "IPON.SST : BLOCAGE IPON",
+                    "CRIT: IMPLANTATION APPUIS",
+                    "AUTRE: BLOCAGE PARTENAIRE",
+                    "GFI.SST : BLOCAGE GEOFIBRE",
+                    "NEGO: VERIF NBRE EL, IDF FIS",
+                    "NUM POT DOC : DEMANDE DE N° APPUI",
+                    "CAP FT : ETUDE FT À FAIRE OU ENCOURS",
+                    "ENEDIS : ETUDE ENEDIS À FAIRE OU ENCOURS",
+                    "DDE DESAT: DÉSATURATION OU DE MODIF.DE ZONE",
+                    "BLOC.CMS : CRÉATION, MODIFICATION,SUPPRESSION CMS")) {
+                blockingLabelRepository.save(BlockingLabel.builder().name(name).build());
+            }
+        }
+        if (blockingQualificationRepository.count() == 0) {
+            for(var name : List.of("CMS",
+                    "PIT",
+                    "FLUX",
+                    "NEGO",
+                    "AUTRE",
+                    "CAP FT",
+                    "CONNEXION",
+                    "PIQUETAGE",
+                    "PIT + CMS",
+                    "PIT + NEGO",
+                    "EN ATT CPCP",
+                    "DESATURATION",
+                    "CMS+MODIF ZE",
+                    "EN ATT ORANGE",
+                    "NEGO+MODIF ZE",
+                    "NUMERO D'APPUI",
+                    "PIT + MODIF ZE",
+                    "MODIFICATION ZE",
+                    "DESATURATION + CMS",
+                    "CONNEXION +MODIF ZE",
+                    "SOUS DIMENSIONNEMENT",
+                    "SYNDIC NON IDENTIFIE",
+                    "MODIFICATION NBRE EL",
+                    "CMS+ SYNDIC NON IDENTIFIE")) {
+                blockingQualificationRepository.save(BlockingQualification.builder().name(name).build());
+            }
+        }
+        if (blockingLockingAddressRepository.count() == 0) {
+            for(var name : List.of("NEGO",
+                    "INTERNE",
+                    "CMS+NEGO",
+                    "SUPPORT BE",
+                    "CMS+PILOTAGE",
+                    "NEGO+PILOTAGE",
+                    "SUPPORT BE+CMS",
+                    "SUPPORT BE+NEGO",
+                    "SUPPORT BE+PILOTAGE",
+                    "PILOTAGE PARTENAIRE",
+                    "PILOTAGE PARTENAIRES: SAMY")) {
+                blockingLockingAddressRepository.save(BlockingLockingAddress.builder().address(name).build());
+            }
+        }
     }
 
     private Client fakeClient(String name)
@@ -242,21 +301,6 @@ public class DbInitializer implements ApplicationRunner
         for (int i = 0; i < count; i++)
         {
             contacts.add(fakeContact(c));
-        }
-        if (blockingLabelRepository.count() == 0) {
-            for (int i = 0; i < 5; i++) {
-                blockingLabelRepository.save(BlockingLabel.builder().name("label " + i).build());
-            }
-        }
-        if (blockingQualificationRepository.count() == 0) {
-            for (int i = 0; i < 5; i++) {
-                blockingQualificationRepository.save(BlockingQualification.builder().name("Qualification " + i).build());
-            }
-        }
-        if (blockingLockingAddressRepository.count() == 0) {
-            for (int i = 0; i < 5; i++) {
-                blockingLockingAddressRepository.save(BlockingLockingAddress.builder().address("Locking Address " + i).build());
-            }
         }
         return contacts;
     }
