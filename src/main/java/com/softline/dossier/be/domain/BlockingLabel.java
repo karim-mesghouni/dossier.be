@@ -17,7 +17,7 @@ public class BlockingLabel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    @OneToMany(mappedBy=Blocking_.LABEL)
+    @OneToMany(mappedBy = Blocking_.LABEL)
     List<Blocking> blocking;
     String name;
 
