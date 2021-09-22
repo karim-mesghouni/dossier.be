@@ -27,6 +27,7 @@ public class Client extends BaseEntity {
     List<VisAVis> visAVis;
     @Cascade(CascadeType.ALL)
     @OneToMany(mappedBy = "client")
+    @Builder.Default
     List<Contact> contacts = new ArrayList<>();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
