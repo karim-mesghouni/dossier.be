@@ -1,7 +1,6 @@
 package com.softline.dossier.be.security.domain.Policy.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.springframework.expression.Expression;
