@@ -2,6 +2,7 @@ package com.softline.dossier.be.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @SuperBuilder
 @Data
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -41,7 +43,7 @@ public class FileActivity extends BaseEntity {
     File file;
     @OneToMany(mappedBy = Comment_.FILE_ACTIVITY)
     List<Comment> comments;
-    boolean inTrash = false;
+    boolean inTrash;
     @Column(columnDefinition = "int default 1")
     int fileActivityOrder;
 

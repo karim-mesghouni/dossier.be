@@ -3,6 +3,7 @@ package com.softline.dossier.be.domain;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
@@ -13,6 +14,7 @@ import javax.persistence.*;
 @SuperBuilder
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE Message SET deleted=true WHERE id=?")
@@ -21,7 +23,7 @@ public class Message extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    boolean readMessage = false;
+    boolean readMessage;
     @ManyToOne
     @JoinColumn
     Comment comment;

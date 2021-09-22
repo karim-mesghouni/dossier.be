@@ -3,6 +3,7 @@ package com.softline.dossier.be.domain;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
@@ -13,6 +14,7 @@ import javax.persistence.*;
 @SuperBuilder
 @AllArgsConstructor
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Entity
 @SQLDelete(sql = "UPDATE file_doc  SET deleted=true WHERE id=?")

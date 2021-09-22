@@ -2,6 +2,7 @@ package com.softline.dossier.be.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@EqualsAndHashCode(callSuper = true)
 @SQLDelete(sql = "UPDATE Blocking SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 

@@ -1,8 +1,6 @@
 package com.softline.dossier.be.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -15,6 +13,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @Entity
 @AllArgsConstructor

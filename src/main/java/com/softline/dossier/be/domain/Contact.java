@@ -13,9 +13,7 @@ import java.util.Objects;
 //region annotations
 @SuperBuilder
 @Entity
-@Getter
-@Setter
-@ToString
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE Contact SET deleted=true WHERE id=?")
@@ -35,24 +33,14 @@ public class Contact {
     private String name;
     private String phone;
     private String email;
-    private boolean deleted = Boolean.FALSE;
+    private boolean deleted;
 
 
     //region relations
     @ManyToOne
-    @JoinColumn(name = "client_id")
+    @JoinColumn
     private Client client;
     //endregion
-
-    //region auto-generated
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Contact contact = (Contact) o;
-
-        return Objects.equals(id, contact.id);
-    }
 
     @Override
     public String toString() {
@@ -61,10 +49,4 @@ public class Contact {
                 ", name='" + name + '\'' +
                 '}';
     }
-
-    @Override
-    public int hashCode() {
-        return 590563367;
-    }
-    //endregion
 }

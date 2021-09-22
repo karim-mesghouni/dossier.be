@@ -3,6 +3,7 @@ package com.softline.dossier.be.domain;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
@@ -18,6 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@EqualsAndHashCode(callSuper = true)
 @SQLDelete(sql = "UPDATE FileTask SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false ")
 public class FileTask extends BaseEntity {
@@ -60,7 +62,7 @@ public class FileTask extends BaseEntity {
     @JoinColumn
     FileTask parent;
     boolean returned;
-    boolean inTrash = false;
+    boolean inTrash;
     int fileTaskOrder;
     @ManyToOne
     @JoinColumn

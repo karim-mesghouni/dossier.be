@@ -2,6 +2,7 @@ package com.softline.dossier.be.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
@@ -15,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE File SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
@@ -53,7 +55,7 @@ public class File extends BaseEntity {
     @JoinColumn
     File reprise;
     boolean fileReprise;
-    boolean inTrash = false;
+    boolean inTrash;
     @Transient()
     FileState currentFileState;
     @Transient()

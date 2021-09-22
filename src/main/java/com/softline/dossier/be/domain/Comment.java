@@ -4,6 +4,7 @@ import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
@@ -16,6 +17,7 @@ import java.util.List;
 @Entity
 @SuperBuilder
 @Data
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @DiscriminatorColumn(name = Comment_.TYPE,
