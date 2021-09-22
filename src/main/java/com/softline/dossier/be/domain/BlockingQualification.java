@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class BlockingQualification  {
+public class BlockingQualification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
