@@ -1,11 +1,13 @@
 package com.softline.dossier.be.graphql.types.input;
 
+import com.softline.dossier.be.security.domain.casl.CaslRawRule;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.Column;
+import java.util.List;
 
 @SuperBuilder
 @NoArgsConstructor
@@ -18,4 +20,5 @@ public class AgentInput  {
      String username;
 
      String password;
+     List<CaslRawRule> caslRules;
 }

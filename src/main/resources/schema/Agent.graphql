@@ -11,14 +11,11 @@ type Agent {
      caslRules: [RawRule]
 }
 
-type RawRule {
-     action: String!
-     subject: String
-}
 input AgentInput{
      id:ID
      name:String
      username: String
      password: String
+     caslRules: [RawRuleInput]
 }
 
