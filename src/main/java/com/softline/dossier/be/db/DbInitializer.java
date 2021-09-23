@@ -74,7 +74,7 @@ public class DbInitializer implements ApplicationRunner {
 
     @Transactional
 
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         if (activityRepository.count() == 0) {
 

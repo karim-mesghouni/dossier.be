@@ -15,7 +15,7 @@ public class SseNotificationService implements NotificationService {
     @Autowired
     EmitterRepository emitterRepository;
 
-    public void sendNotification(Long agentId, EventDto event) throws IOException {
+    public void sendNotification(Long agentId, EventDto event) {
         if (event == null) {
             return;
         }
@@ -23,7 +23,7 @@ public class SseNotificationService implements NotificationService {
     }
 
     @Override
-    public void sendNotificationForAll(EventDto event) throws IOException {
+    public void sendNotificationForAll(EventDto event) {
         emitterRepository.getAll().forEach(x -> {
 
                     x.forEach(emitter -> {

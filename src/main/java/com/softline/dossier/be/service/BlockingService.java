@@ -30,7 +30,7 @@ public class BlockingService extends IServiceBase<Blocking, BlockingInput, Block
     }
 
     @Override
-    public Blocking create(BlockingInput blockingInput) throws IOException {
+    public Blocking create(BlockingInput blockingInput) {
         var currentFileTask = fileTaskRepository.findById(blockingInput.getState().getFileTask().getId()).orElseThrow();
 
         var situation = taskSituationRepository.findAllByTask_IdAndBlockIsTrue(currentFileTask.getTask().getId());

@@ -144,11 +144,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
             ).collect(Collectors.toList());
             messageRepository.saveAll(messages);
             messages.forEach(x -> {
-                try {
-                    sseNotificationService.sendNotification(x.getAgent().getId(), EventDto.builder().type("message").body(x).build());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                sseNotificationService.sendNotification(x.getAgent().getId(), EventDto.builder().type("message").body(x).build());
 
             });
             return true;
