@@ -85,20 +85,20 @@ public class DbInitializer implements ApplicationRunner {
             createCDCActivity();
         }
         if (clientRepository.count() == 0) {
-            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("RH"))));
-            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("AXIANS"))));
-            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("AXIANS IDF"))));
-            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("COVAGE"))));
-            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("CPCP ROGNAC"))));
-            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("CPCP SUD"))));
-            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("FREE"))));
-            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("NET DESIGNER"))));
-            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("NET GEO"))));
-            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("OPT"))));
-            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("OPTTICOM"))));
-            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("S30"))));
-            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("SCOPELEC"))));
-            contactRepository.saveAll(fakeContacts(2, clientRepository.save(fakeClient("SPIE"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("RH"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("AXIANS"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("AXIANS IDF"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("COVAGE"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("CPCP ROGNAC"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("CPCP SUD"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("FREE"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("NET DESIGNER"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("NET GEO"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("OPT"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("OPTTICOM"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("S30"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("SCOPELEC"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("SPIE"))));
         }
         if (communeRepository.count() == 0) {
             createCommunes();
@@ -283,9 +283,9 @@ public class DbInitializer implements ApplicationRunner {
                 .build();
     }
 
-    private List<Contact> fakeContacts(int count, Client c) {
+    private List<Contact> fakeContacts(Client c) {
         List<Contact> contacts = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < 2; i++) {
             contacts.add(fakeContact(c));
         }
         return contacts;
