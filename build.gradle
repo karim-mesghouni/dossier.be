@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.4.2'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id 'war'
 }
 
 group = 'com.softline'
@@ -31,7 +32,7 @@ dependencies {
 	implementation 'org.hibernate:hibernate-jpamodelgen:5.4.25.Final'
     implementation("com.graphql-java-kickstart:graphql-spring-boot-starter:5.10.0")
 	implementation("com.graphql-java-kickstart:playground-spring-boot-starter:5.10.0")
-	compileOnly 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'mysql:mysql-connector-java'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
@@ -40,6 +41,9 @@ dependencies {
 	annotationProcessor 'org.hibernate:hibernate-jpamodelgen'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
 }
 
 test {
