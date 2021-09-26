@@ -2,16 +2,14 @@ package com.softline.dossier.be.domain;
 
 import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.security.domain.Agent;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -49,5 +47,6 @@ public class Comment extends BaseEntity implements IComment {
     List<Message> messages;
 
     @OneToMany(mappedBy = "comment", orphanRemoval = true, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
-    List<CommentAttachment> attachments;
+    @Builder.Default
+    List<CommentAttachment> attachments = new ArrayList<>();
 }

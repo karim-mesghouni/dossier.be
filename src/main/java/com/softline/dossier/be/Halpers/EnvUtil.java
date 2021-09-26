@@ -1,5 +1,6 @@
 package com.softline.dossier.be.Halpers;
 
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -12,11 +13,21 @@ import java.util.Objects;
 
 @Component
 public class EnvUtil {
+    private static EnvUtil instance;
     @Autowired
     Environment environment;
-
     private String port;
     private String hostname;
+
+    public EnvUtil()
+    {
+        if(instance == null)
+            instance = this;
+    }
+
+    public static EnvUtil getInstance() {
+        return instance;
+    }
 
     /**
      * Get port.
@@ -48,7 +59,8 @@ public class EnvUtil {
         return hostname;
     }
 
-    public String getServerUrlPrefi() throws UnknownHostException {
+    @SneakyThrows
+    public String getServerUrlPrefi() {
         return "http://" + getHostname() + ":" + getPort();
     }
 

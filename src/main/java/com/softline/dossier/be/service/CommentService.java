@@ -1,5 +1,6 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.Halpers.EnvUtil;
 import com.softline.dossier.be.Halpers.FileSystem;
 import com.softline.dossier.be.Sse.model.EventDto;
 import com.softline.dossier.be.Sse.service.SseNotificationService;
@@ -33,7 +34,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -130,7 +130,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     }
 
     private Pair<String, List<String>> parseImageLinks(String json) {
-        String pattern = "(?<=src\":\").*(?=\")";
+        String pattern = "(?<=src\":\").*?(?=\")";
         List<String> imageNames = new ArrayList<>();
         String newJson = replace(Pattern.compile(pattern), src -> {
             if (src.startsWith("data:image/")) {
@@ -138,7 +138,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                 String base64 = search("(?<=;base64,).*", src);
                 String name = saveImage(base64, extension);
                 imageNames.add(name);
-                return "/attachments/" + name;
+                return EnvUtil.getInstance().getServerUrlPrefi() + "/attachments/" + name;
             } else if (src.startsWith("http")) {
                 try {
                     URL url = new URL(src);
@@ -154,8 +154,11 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                         return src;
                     }
                     String name = FileSystem.randomMD5() + "." + extension;
+                    is.close();
+                    is = url.openStream();
                     Files.copy(is, fileSystem.getAttachmentsPath().resolve(name));
-                    return "/attachments/" + name;
+                    imageNames.add(name);
+                    return EnvUtil.getInstance().getServerUrlPrefi() + "/attachments/" + name;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -211,7 +214,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
 //                .contentType(file.getContentType())
 //                .fileTask(fileTask)
 //                .build())
-        return "/attachments/" + storageName;
+        return EnvUtil.getInstance().getServerUrlPrefi() + "/attachments/" + storageName;
     }
 
     public List<Comment> getAllCommentByFileId(Long fileId) {

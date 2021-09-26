@@ -1,10 +1,7 @@
 package com.softline.dossier.be.domain;
 
 import com.softline.dossier.be.security.domain.Agent;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
@@ -12,6 +9,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,7 +68,8 @@ public class FileTask extends BaseEntity {
     ReturnedCause returnedCause;
 
     @OneToMany(mappedBy = "fileTask", orphanRemoval = true, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
-    private List<FileTaskAttachment> attachments;
+    @Builder.Default
+    private List<FileTaskAttachment> attachments = new ArrayList<>();
 
     public List<Attachment> getAttachments() {
         if (attachments == null) {
