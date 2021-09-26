@@ -6,7 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 
 @SuperBuilder
 @AllArgsConstructor
@@ -14,14 +15,7 @@ import javax.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Entity
-public class AttachFile extends BaseEntity {
-    @ManyToOne()
-    @JoinColumn()
-    FileTask fileTask;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    private String path;
-    private String name;
-    private String url;
+public class CommentAttachment extends Attachment {
+    @ManyToOne
+    private Comment comment;
 }

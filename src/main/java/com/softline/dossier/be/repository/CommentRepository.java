@@ -11,4 +11,6 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     List<Comment> findAllByFileActivity_File_Id(Long fileId);
+
+    Comment findWithAttachmentsById(Long id);
 }

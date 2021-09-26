@@ -1,7 +1,7 @@
 package com.softline.dossier.be.service;
 
 import com.softline.dossier.be.Halpers.EnvUtil;
-import com.softline.dossier.be.Halpers.ImageHalper;
+import com.softline.dossier.be.Halpers.FileSystem;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
@@ -12,8 +12,8 @@ import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import graphql.schema.DataFetchingEnvironment;
 import org.apache.catalina.core.ApplicationPart;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -21,11 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -53,11 +53,15 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     @Autowired
     ReturnedCauseRepository returnedCauseRepository;
     @Autowired
-    AttachFileRepository attachFileRepository;
+    FileTaskAttachmentRepository fileTaskAttachmentRepository;
     @Autowired
     EnvUtil envUtil;
     @Autowired
+    FileSystem fileSystem;
+    @Autowired
     private ResourceLoader resourceLoader;
+    @Autowired
+    private FileTaskRepository fileTaskRepository;
 
     @Override
     public List<FileTask> getAll() {
@@ -88,7 +92,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .fileTaskOrder(fileTaskOrder)
                 .build();
         var fileTaskSituation = FileTaskSituation.builder()
-                .situation(task.getSituations().stream().filter(x -> x.isInitial()).findFirst().orElseThrow())
+                .situation(task.getSituations().stream().filter(TaskSituation::isInitial).findFirst().orElseThrow())
                 .fileTask(fileTask)
                 .current(true)
 
@@ -160,12 +164,11 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         } else if (!situation.isFinal() && !situation.isInitial()) {
             fileTask.setStartDate(LocalDateTime.now());
         }
-        var fileSituation = fileTaskSituationRepository.save(FileTaskSituation.builder()
+
+        return fileTaskSituationRepository.save(FileTaskSituation.builder()
                 .situation(situation)
                 .current(true)
                 .fileTask(fileTask).build());
-
-        return fileSituation;
     }
 
     public List<FileTask> getAllFileTaskByFileActivityId(Long fileActivityId) {
@@ -290,7 +293,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .fileTaskSituations(new ArrayList<>())
                 .build();
         var fileTaskSituation = FileTaskSituation.builder()
-                .situation(task.getSituations().stream().filter(x -> x.isInitial()).findFirst().orElseThrow())
+                .situation(task.getSituations().stream().filter(TaskSituation::isInitial).findFirst().orElseThrow())
                 .fileTask(fileTask)
                 .current(true)
                 .build();
@@ -326,35 +329,32 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return true;
     }
 
-    public List<AttachFile> saveAttached(Long fileTaskId, DataFetchingEnvironment environment) throws NoSuchAlgorithmException, IOException {
+    public List<Attachment> saveAttached(Long fileTaskId, DataFetchingEnvironment environment) throws IOException {
         var files = (ArrayList<ApplicationPart>) environment.getArgument("attached");
-        var filesAttached = new ArrayList<AttachFile>();
+        var filesAttached = new ArrayList<FileTaskAttachment>();
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         for (var file : files) {
-            var fileName = ImageHalper.getFileName(20L, file);
-            if (!new ClassPathResource("fileStorage2").getFile().exists()) {
-                new ClassPathResource("fileStorage2").getFile().createNewFile();
-            }
-            var savedFile = new java.io.File(new ClassPathResource("fileStorage2").getFile(), fileName);
-            Files.copy(file.getInputStream(), savedFile.toPath());
+            var storageName = FileSystem.randomMD5() + "." + FilenameUtils.getExtension(file.getSubmittedFileName());
+            var savedFile = fileSystem.getAttachmentsPath().resolve(storageName);
+            Files.copy(file.getInputStream(), savedFile);
             String urlServer = envUtil.getServerUrlPrefi();
-            filesAttached.add(AttachFile.builder().url(urlServer + "/attached/" + fileName).path(savedFile.toPath().toString())
-                    .name(file.getSubmittedFileName()).fileTask(fileTask).build());
-            attachFileRepository.saveAll(filesAttached);
+            filesAttached.add(FileTaskAttachment.builder()
+                    .storageName(storageName)
+                    .realName(file.getSubmittedFileName())
+                    .contentType(file.getContentType())
+                    .fileTask(fileTask)
+                    .build());
+            fileTaskAttachmentRepository.saveAll(filesAttached);
         }
 
-        return filesAttached;
-    }
-
-    public List<AttachFile> getAttachedFileByTaskFileId(Long idFileTAsk) {
-        return attachFileRepository.findAllByFileTask_Id(idFileTAsk);
+        return filesAttached.stream().map(e -> (Attachment) e).collect(Collectors.toList());
     }
 
     public boolean deleteAttached(Long attachedId) {
-        var attached = attachFileRepository.findById(attachedId).orElseThrow();
+        var attached = fileTaskAttachmentRepository.findById(attachedId).orElseThrow();
         try {
-            Files.deleteIfExists(Path.of(attached.getPath()));
-            attachFileRepository.delete(attached);
+            Files.deleteIfExists(fileSystem.getAttachmentsPath().resolve(attached.getStorageName()));
+            fileTaskAttachmentRepository.delete(attached);
             return true;
         } catch (Exception e) {
             return false;

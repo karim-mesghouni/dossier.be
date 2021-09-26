@@ -9,10 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AttachFileInput {
-
-    public String name;
-    FileTaskInput fileTask;
-    private long id;
-    private String path;
+public class AttachmentInput {
+    private String name;
 }

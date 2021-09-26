@@ -33,6 +33,5 @@ public class FileTaskInput {
     ReturnedCauseInput returnedCause;
     boolean returned;
     FileTaskInput parent;
-    List<AttachFileInput> attachFiles;
-
+    List<AttachmentInput> attachments;
 }

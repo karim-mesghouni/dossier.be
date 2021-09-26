@@ -1,7 +1,6 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.Halpers.EnvUtil;
-import com.softline.dossier.be.Halpers.ImageHalper;
+import com.softline.dossier.be.Halpers.FileSystem;
 import com.softline.dossier.be.Sse.model.EventDto;
 import com.softline.dossier.be.Sse.service.SseNotificationService;
 import com.softline.dossier.be.domain.*;
@@ -15,39 +14,78 @@ import com.softline.dossier.be.repository.MessageRepository;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import graphql.schema.DataFetchingEnvironment;
+import kotlin.Pair;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.catalina.core.ApplicationPart;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.ResourceLoader;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
 @Transactional
 @Service
+@RequiredArgsConstructor
 public class CommentService extends IServiceBase<Comment, CommentInput, CommentRepository> {
-    @Autowired
-    AgentRepository agentRepository;
-    @Autowired
-    FileActivityRepository fileActivityRepository;
-    @Autowired
-    FileTaskRepository fileTaskRepository;
-    @Autowired
-    SseNotificationService sseNotificationService;
-    @Autowired
-    MessageRepository messageRepository;
-    @Autowired
-    EnvUtil envUtil;
-    @Autowired
-    private ResourceLoader resourceLoader;
+    private final AgentRepository agentRepository;
+    private final FileActivityRepository fileActivityRepository;
+    private final FileTaskRepository fileTaskRepository;
+    private final SseNotificationService sseNotificationService;
+    private final MessageRepository messageRepository;
+    private final FileSystem fileSystem;
+
+    private static void resolveCommentAttachments(Comment comment, Pair<String, List<String>> changes) {
+        var attachments = comment.getAttachments();
+        for (var image : changes.getSecond()) {
+            attachments.add(CommentAttachment.builder()
+                    .comment(comment)
+                    .contentType(URLConnection.guessContentTypeFromName(image))
+                    .realName("comment image")
+                    .storageName(image)
+                    .build());
+        }
+        comment.setAttachments(attachments);
+        comment.setContent(changes.getFirst());
+    }
+
+    private static String search(String pattern, String haystack) {
+        Matcher m = Pattern.compile(pattern).matcher(haystack);
+        if (m.find()) {
+            return m.toMatchResult().group();
+        }
+        return "";
+    }
+
+    private static String replace(Pattern pattern, Function<String, String> callback, CharSequence subject) {
+        Matcher m = pattern.matcher(subject);
+        StringBuilder sb = new StringBuilder();
+        while (m.find()) {
+            m.appendReplacement(sb, callback.apply(m.toMatchResult().group()));
+        }
+        m.appendTail(sb);
+        return sb.toString();
+    }
 
     @Override
     public List<Comment> getAll() {
@@ -73,19 +111,75 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
             comment.setFileTask(fileTask);
         }
         comment.setType(CommentType.Comment);
-        getRepository().save(
-                comment
-        );
+        Pair<String, List<String>> changes = parseImageLinks(input.getContent());
+        resolveCommentAttachments(comment, changes);
+        getRepository().save(comment);
         var currentAgent = agentRepository.findByUsername(((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
         sseNotificationService.sendNotificationForAll(EventDto.builder().type("comment").body(comment).build());
         return comment;
     }
 
     @Override
+    @SneakyThrows
     public Comment update(CommentInput input) {
-        var comment = repository.findById(input.getId()).orElseThrow();
-        comment.setContent(input.getContent());
+        Pair<String, List<String>> changes = parseImageLinks(input.getContent());
+        var comment = repository.findWithAttachmentsById(input.getId());
+        resolveCommentAttachments(comment, changes);
+        repository.save(comment);
         return comment;
+    }
+
+    private Pair<String, List<String>> parseImageLinks(String json) {
+        String pattern = "(?<=src\":\").*(?=\")";
+        List<String> imageNames = new ArrayList<>();
+        String newJson = replace(Pattern.compile(pattern), src -> {
+            if (src.startsWith("data:image/")) {
+                String extension = search("(?<=data:image/).*(?=;base64,)", src);
+                String base64 = search("(?<=;base64,).*", src);
+                String name = saveImage(base64, extension);
+                imageNames.add(name);
+                return "/attachments/" + name;
+            } else if (src.startsWith("http")) {
+                try {
+                    URL url = new URL(src);
+                    var is = url.openStream();
+                    String extension = null;
+                    ImageInputStream iis = ImageIO.createImageInputStream(is);
+                    Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
+                    if (readers.hasNext()) {
+                        ImageReader reader = readers.next();
+                        extension = reader.getFormatName().toLowerCase(Locale.ROOT);
+                    }
+                    if (extension == null || extension.isEmpty()) {
+                        return src;
+                    }
+                    String name = FileSystem.randomMD5() + "." + extension;
+                    Files.copy(is, fileSystem.getAttachmentsPath().resolve(name));
+                    return "/attachments/" + name;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return src;
+        }, json);
+        return new Pair<>(newJson, imageNames);
+    }
+
+    /**
+     * @return saved image storage name
+     */
+    public String saveImage(String base64, String extension) {
+        try {
+            byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(base64);
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
+            String name = FileSystem.randomMD5() + "." + extension;
+            var outputFile = fileSystem.getAttachmentsPath().resolve(name).toFile();
+            ImageIO.write(image, extension, outputFile);
+            return name;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -107,17 +201,17 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         return repository.findById(id).orElseThrow();
     }
 
-    public String saveFile(DataFetchingEnvironment environment) throws IOException, NoSuchAlgorithmException {
+    public String saveFile(DataFetchingEnvironment environment) throws IOException {
         var file = (ApplicationPart) environment.getArgument("image");
-
-        var fileName = ImageHalper.getImageName(20L, file);
-
-        var savedFile = new java.io.File(new ClassPathResource("fileStorage").getFile(), fileName);
-        Files.copy(file.getInputStream(), savedFile.toPath());
-        //TODO add current ip adress use for get current url : ServletUriComponentsBuilder.fromCurrentContextPath()
-        String urlServer = envUtil.getServerUrlPrefi();
-
-        return urlServer + "/images/" + fileName;
+        var storageName = FileSystem.randomMD5() + "." + FilenameUtils.getExtension(file.getSubmittedFileName());
+        Files.copy(file.getInputStream(), fileSystem.getAttachmentsPath().resolve(storageName));
+//        attachFileRepository.save(AttachFile.builder()
+//                .storageName(storageName)
+//                .realName(file.getSubmittedFileName())
+//                .contentType(file.getContentType())
+//                .fileTask(fileTask)
+//                .build())
+        return "/attachments/" + storageName;
     }
 
     public List<Comment> getAllCommentByFileId(Long fileId) {
@@ -143,10 +237,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                             agent(Agent.builder().id(agentId).build()).build()
             ).collect(Collectors.toList());
             messageRepository.saveAll(messages);
-            messages.forEach(x -> {
-                sseNotificationService.sendNotification(x.getAgent().getId(), EventDto.builder().type("message").body(x).build());
-
-            });
+            messages.forEach(x -> sseNotificationService.sendNotification(x.getAgent().getId(), EventDto.builder().type("message").body(x).build()));
             return true;
         }
         return false;

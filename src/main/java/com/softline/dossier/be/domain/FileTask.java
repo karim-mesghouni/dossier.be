@@ -13,6 +13,7 @@ import org.hibernate.annotations.Where;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SuperBuilder
 @Entity
@@ -67,9 +68,16 @@ public class FileTask extends BaseEntity {
     @ManyToOne
     @JoinColumn
     ReturnedCause returnedCause;
-    @OneToMany(mappedBy = AttachFile_.FILE_TASK)
-    List<AttachFile> attachFiles;
 
+    @OneToMany(mappedBy = "fileTask", orphanRemoval = true, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    private List<FileTaskAttachment> attachments;
+
+    public List<Attachment> getAttachments() {
+        if (attachments == null) {
+            return null;
+        }
+        return attachments.stream().map(e -> (Attachment) e).collect(Collectors.toList());
+    }
 
     @Override
     public String toString() {

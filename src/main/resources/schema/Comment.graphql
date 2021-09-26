@@ -20,6 +20,7 @@ input CommentInput {
     agent: AgentInput
     createdDate:String
     fileTask:FileTaskInput
+    attachments: [AttachmentInput]
 }
 type  DescriptionComment implements IComment{
     id:ID

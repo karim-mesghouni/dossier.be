@@ -134,16 +134,12 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
         return service.sendFileTaskToTrash(fileTaskId);
     }
 
-    public List<AttachFile> uploadAttached(List<Part> part, Long fileTaskId, DataFetchingEnvironment environment) throws IOException, NoSuchAlgorithmException {
+    public List<Attachment> uploadAttached(List<Part> part, Long fileTaskId, DataFetchingEnvironment environment) throws IOException, NoSuchAlgorithmException {
         return service.saveAttached(fileTaskId, environment);
     }
 
-    public List<AttachFile> getAttachedFileByTaskFileId(Long idFileTAsk) {
-        return service.getAttachedFileByTaskFileId(idFileTAsk);
-    }
-
-    public boolean deleteAttached(Long attachedId) {
-        return service.deleteAttached(attachedId);
+    public List<Attachment> getAttachedFile(Long idFileTAsk) {
+        return null;
     }
 
     public boolean fileTaskOrderUp(Long fileTaskId) {

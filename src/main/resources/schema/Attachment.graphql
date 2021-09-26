@@ -1,0 +1,18 @@
+extend type Mutation {
+    deleteFileTaskAttachment(attachmentId: ID!):Boolean
+    deleteCommentAttachment(attachmentId: ID!):Boolean
+}
+
+extend type Query {
+    getAllForFileTask(fileTaskId: ID): [Attachment]
+}
+
+type Attachment {
+    id: ID
+    storageName:String
+    realName:String
+    url: String
+}
+input AttachmentInput {
+    name:String
+}

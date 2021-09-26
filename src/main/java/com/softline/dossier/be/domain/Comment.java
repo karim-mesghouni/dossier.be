@@ -48,4 +48,6 @@ public class Comment extends BaseEntity implements IComment {
     @OneToMany(mappedBy = "comment", orphanRemoval = true)
     List<Message> messages;
 
+    @OneToMany(mappedBy = "comment", orphanRemoval = true, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    List<CommentAttachment> attachments;
 }
