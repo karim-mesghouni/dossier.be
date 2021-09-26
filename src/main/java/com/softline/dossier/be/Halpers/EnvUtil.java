@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 @Component
 public class EnvUtil {
@@ -47,5 +50,9 @@ public class EnvUtil {
 
     public String getServerUrlPrefi() throws UnknownHostException {
         return "http://" + getHostname() + ":" + getPort();
+    }
+
+    public Path getStoragePath() {
+        return Paths.get(Objects.requireNonNull(environment.getProperty("filesystem.storage.absolute-path")));
     }
 }
