@@ -4,7 +4,7 @@ package com.softline.dossier.be.security.config;
 import com.softline.dossier.be.security.filters.AuthenticationFilter;
 import com.softline.dossier.be.security.filters.AuthorizationFilter;
 import com.softline.dossier.be.security.service.AgentDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -22,12 +22,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableWebSecurity
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
-
-
-    @Autowired
-    private AgentDetailsService agentDetailsService;
-
+    private final AgentDetailsService agentDetailsService;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -44,8 +41,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
         http.cors().and().csrf().disable().authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/user/save").permitAll()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
-                .antMatchers("/images/").permitAll()
-                .antMatchers("/attached/").permitAll()
+                .antMatchers("/attachments/").permitAll()
                 .anyRequest().permitAll()
                 .and()
                 .addFilter(new AuthenticationFilter(authenticationManager()))
