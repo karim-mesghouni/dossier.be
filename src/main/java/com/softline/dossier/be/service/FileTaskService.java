@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -329,17 +330,19 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public List<Attachment> saveAttached(Long fileTaskId, DataFetchingEnvironment environment) throws IOException {
-        var files = (ArrayList<ApplicationPart>) environment.getArgument("attached");
+        ArrayList<ApplicationPart> files = environment.getArgument("attachments");
         var filesAttached = new ArrayList<FileTaskAttachment>();
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
-        for (var file : files) {
-            var storageName = FileSystem.randomMD5() + "." + FilenameUtils.getExtension(file.getSubmittedFileName());
-            var savedFile = fileSystem.getAttachmentsPath().resolve(storageName);
-            Files.copy(file.getInputStream(), savedFile);
-            String urlServer = envUtil.getServerUrlPrefi();
+        for (ApplicationPart file : files) {
+            String originalName = file.getSubmittedFileName();
+            String storageName = FileSystem.randomMD5() + "." + FilenameUtils.getExtension(originalName);
+            Path newPath = fileSystem.getAttachmentsPath().resolve(storageName);
+            Files.copy(file.getInputStream(), newPath);
+            // remove the temp file
+            file.delete();
             filesAttached.add(FileTaskAttachment.builder()
                     .storageName(storageName)
-                    .realName(file.getSubmittedFileName())
+                    .realName(originalName)
                     .contentType(file.getContentType())
                     .fileTask(fileTask)
                     .build());

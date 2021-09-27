@@ -134,7 +134,7 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
         return service.sendFileTaskToTrash(fileTaskId);
     }
 
-    public List<Attachment> uploadAttached(List<Part> part, Long fileTaskId, DataFetchingEnvironment environment) throws IOException, NoSuchAlgorithmException {
+    public List<Attachment> uploadAttachments(List<Part> part, Long fileTaskId, DataFetchingEnvironment environment) throws IOException, NoSuchAlgorithmException {
         return service.saveAttached(fileTaskId, environment);
     }
 
