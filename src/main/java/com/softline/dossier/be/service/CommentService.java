@@ -139,7 +139,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                 String name = saveImage(base64, extension);
                 imageNames.add(name);
                 return EnvUtil.getInstance().getServerUrlPrefi() + "/attachments/" + name;
-            } else if (src.startsWith("http")) {
+            } else if (src.startsWith("http") && !src.startsWith(EnvUtil.getInstance().getServerUrlPrefi())) {
                 try {
                     URL url = new URL(src);
                     var is = url.openStream();
