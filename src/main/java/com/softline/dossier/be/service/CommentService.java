@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -130,6 +131,9 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     }
 
     private Pair<String, List<String>> parseImageLinks(String json) {
+        // NOTE: this regex is better but java has a limitation for repetition inside lookbehinds
+        // REGEX: (?<=\{\"type\"\s*:\s*\"image\"\s*,.*\"src\"\s*:\s*\").*?(?=".*?\})
+        // this one works only if the given json is linted (no empty spaces between keys and values)
         String pattern = "(?<=src\":\").*?(?=\")";
         List<String> imageNames = new ArrayList<>();
         String newJson = replace(Pattern.compile(pattern), src -> {
@@ -171,7 +175,8 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     /**
      * @return saved image storage name
      */
-    public String saveImage(String base64, String extension) {
+    @Nullable
+    private String saveImage(String base64, String extension) {
         try {
             byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(base64);
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
