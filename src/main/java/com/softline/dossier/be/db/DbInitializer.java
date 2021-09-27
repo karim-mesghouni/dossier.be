@@ -110,7 +110,6 @@ public class DbInitializer implements ApplicationRunner {
             fileStateTypeRepository.save(FileStateType.builder().state("À LIVRER").build());
             fileStateTypeRepository.save(FileStateType.builder().state("RETIRÉ").build());
             fileStateTypeRepository.save(FileStateType.builder().state("STANDBY").build());
-            fileStateTypeRepository.save(FileStateType.builder().state("PREFIBRÉ").build());
             fileStateTypeRepository.save(FileStateType.builder().state("À RETIRER").build());
             fileStateTypeRepository.save(FileStateType.builder().state("STANDBY CLIENT").build());
             fileStateTypeRepository.save(FileStateType.builder().state("MANQUANT").build());
@@ -343,7 +342,6 @@ public class DbInitializer implements ApplicationRunner {
 
         var activityStates = new ArrayList();
         activityStates.add(ActivityState.builder().activity(zapa).name("En cours").initial(true).build());
-        activityStates.add(ActivityState.builder().activity(zapa).name("PREFIBRÉ").build());
         activityStates.add(ActivityState.builder().activity(zapa).name("Annulé").Final(true).build());
         activityStates.add(ActivityState.builder().activity(zapa).name("Retiré").Final(true).build());
         activityStates.add(ActivityState.builder().activity(zapa).name("Terminé").Final(true).build());
@@ -397,7 +395,6 @@ public class DbInitializer implements ApplicationRunner {
 
         var activityStates = new ArrayList();
         activityStates.add(ActivityState.builder().activity(fi).name("En cours").initial(true).build());
-        activityStates.add(ActivityState.builder().activity(fi).name("PREFIBRÉ").build());
         activityStates.add(ActivityState.builder().activity(fi).name("Annulé").Final(true).build());
         activityStates.add(ActivityState.builder().activity(fi).name("Retiré").Final(true).build());
         activityStates.add(ActivityState.builder().activity(fi).name("Terminé").Final(true).build());
@@ -443,7 +440,6 @@ public class DbInitializer implements ApplicationRunner {
 
         var activityStates = new ArrayList();
         activityStates.add(ActivityState.builder().activity(ipon).name("En cours").initial(true).build());
-        activityStates.add(ActivityState.builder().activity(ipon).name("PREFIBRÉ").build());
         activityStates.add(ActivityState.builder().activity(ipon).name("Annulé").Final(true).build());
         activityStates.add(ActivityState.builder().activity(ipon).name("Retiré").Final(true).build());
         activityStates.add(ActivityState.builder().activity(ipon).name("Terminé").Final(true).build());
@@ -496,7 +492,6 @@ public class DbInitializer implements ApplicationRunner {
 
         var activityStates = new ArrayList();
         activityStates.add(ActivityState.builder().activity(piquetage).name("En cours").initial(true).build());
-        activityStates.add(ActivityState.builder().activity(piquetage).name("PREFIBRÉ").build());
         activityStates.add(ActivityState.builder().activity(piquetage).name("Terminé").Final(true).build());
         activityStates.add(ActivityState.builder().activity(piquetage).name("PRISE DE RDV PIQUETAGE").build());
         activityStates.add(ActivityState.builder().activity(piquetage).name("PIQUETÉ NON REÇU").build());
@@ -558,7 +553,6 @@ public class DbInitializer implements ApplicationRunner {
 
         var activityStates = new ArrayList();
         activityStates.add(ActivityState.builder().activity(cdc).name("En cours").initial(true).build());
-        activityStates.add(ActivityState.builder().activity(cdc).name("PREFIBRÉ").build());
         activityStates.add(ActivityState.builder().activity(cdc).name("Terminé").Final(false).build());
         activityStates.add(ActivityState.builder().activity(cdc).name("Annulé").Final(true).build());
         activityStates.add(ActivityState.builder().activity(cdc).name("Retiré").Final(true).build());
