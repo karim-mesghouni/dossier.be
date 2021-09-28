@@ -25,4 +25,5 @@ public class BlockingInput {
     BlockingLabelInput label;
     LocalDateTime date;
     private String explication;
+    private LocalDateTime dateUnBlocked;
 }

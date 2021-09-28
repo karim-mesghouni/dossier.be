@@ -1,5 +1,6 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.graphql.types.input.BlockingInput;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,7 +22,6 @@ import java.time.LocalDateTime;
 @Where(clause = "deleted = false")
 
 public class Blocking extends BaseEntity {
-    boolean block;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -39,4 +39,13 @@ public class Blocking extends BaseEntity {
     private BlockingLabel label;
     private String explication;
     private LocalDateTime date;
+    private LocalDateTime dateUnBlocked;
+
+    // can be used to determine if the block is active
+    // used by graphql
+    public boolean getBlock()
+    {
+        return this.dateUnBlocked == null;
+    }
+
 }

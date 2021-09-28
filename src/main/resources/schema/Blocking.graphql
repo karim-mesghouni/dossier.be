@@ -8,13 +8,13 @@ extend type Query  {
 }
 
 #mutation
-extend type  Mutation{
+extend type Mutation{
     createBlocking(input: BlockingInput! ):Blocking
     updateBlocking(input: BlockingInput! ):Blocking
     deleteBlocking(id: ID!): Boolean
 }
 
-type  Blocking {
+type Blocking {
     id: ID
     state: FileTaskSituation
     lockingAddress: BlockingLockingAddress
@@ -23,9 +23,10 @@ type  Blocking {
     explication:String
     block:Boolean
     date:String
+    dateUnBlocked:String
 }
 
-input  BlockingInput {
+input BlockingInput {
     id: ID
     state: FileTaskSituationInput
     lockingAddress: BlockingLockingAddressInput
@@ -34,4 +35,5 @@ input  BlockingInput {
     explication:String
     block:Boolean
     date:String
+    dateUnBlocked:String
 }
