@@ -3,26 +3,21 @@ package com.softline.dossier.be.service;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.graphql.types.input.BlockingInput;
 import com.softline.dossier.be.repository.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class BlockingService extends IServiceBase<Blocking, BlockingInput, BlockingRepository> {
-    @Autowired
-    BlockingLockingAddressRepository blockingLockingAddressRepository;
-    @Autowired
-    BlockingLabelRepository blockingLabelRepository;
-    @Autowired
-    BlockingQualificationRepository blockingQualificationRepository;
-    @Autowired
-    FileTaskSituationRepository fileTaskSituationRepository;
-    @Autowired
-    FileTaskRepository fileTaskRepository;
-    @Autowired
-    TaskSituationRepository taskSituationRepository;
-
+    private final BlockingLockingAddressRepository blockingLockingAddressRepository;
+    private final BlockingLabelRepository blockingLabelRepository;
+    private final BlockingQualificationRepository blockingQualificationRepository;
+    private final FileTaskSituationRepository fileTaskSituationRepository;
+    private final FileTaskRepository fileTaskRepository;
+    private final TaskSituationRepository taskSituationRepository;
     @Override
     public List<Blocking> getAll() {
         return repository.findAll();
