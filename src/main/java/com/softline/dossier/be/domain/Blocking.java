@@ -48,4 +48,17 @@ public class Blocking extends BaseEntity {
         return this.dateUnBlocked == null;
     }
 
+    public static Blocking buildFromInput(BlockingInput input, FileTaskSituation state)
+    {
+        return Blocking.builder()
+                .id(input.getId())
+                .label(BlockingLabel.builder().id(input.getLabel().getId()).build())
+                .lockingAddress(BlockingLockingAddress.builder().id(input.getLockingAddress().getId()).build())
+                .qualification(BlockingQualification.builder().id(input.getQualification().getId()).build())
+                .explication(input.getExplication())
+                .dateUnBlocked(input.getDateUnBlocked())
+                .state(state)
+                .date(input.getDate())
+                .build();
+    }
 }

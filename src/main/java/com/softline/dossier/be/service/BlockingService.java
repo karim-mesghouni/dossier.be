@@ -27,23 +27,16 @@ public class BlockingService extends IServiceBase<Blocking, BlockingInput, Block
     public Blocking create(BlockingInput blockingInput) {
         var currentFileTask = fileTaskRepository.findById(blockingInput.getState().getFileTask().getId()).orElseThrow();
 
-        var situation = taskSituationRepository.findAllByTask_IdAndBlockIsTrue(currentFileTask.getTask().getId());
-        var oldSituation = fileTaskSituationRepository.findFirstByFileTaskAndCurrentIsTrue(currentFileTask);
+        FileTaskSituation oldSituation = fileTaskSituationRepository.findFirstByFileTaskAndCurrentIsTrue(currentFileTask);
+        TaskSituation blockState = taskSituationRepository.findAllByTask_IdAndBlockIsTrue(currentFileTask.getTask().getId());
 
         var fileSituation = fileTaskSituationRepository.save(FileTaskSituation.builder()
                 .fileTask(FileTask.builder().id(blockingInput.getState().getFileTask().getId()).build())
-                .situation(situation)
+                .situation(blockState)
                 .current(true)
                 .build());
         oldSituation.setCurrent(false);
-        return repository.save(Blocking.builder()
-                .label(BlockingLabel.builder().id(blockingInput.getLabel().getId()).build())
-                .lockingAddress(BlockingLockingAddress.builder().id(blockingInput.getLockingAddress().getId()).build())
-                .qualification(BlockingQualification.builder().id(blockingInput.getQualification().getId()).build())
-                .explication(blockingInput.getExplication())
-                .state(fileSituation)
-                .date(blockingInput.getDate())
-                .build());
+        return repository.save(Blocking.buildFromInput(blockingInput, fileSituation));
     }
 
     @Override

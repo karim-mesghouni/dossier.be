@@ -55,8 +55,6 @@ public class FileTask extends BaseEntity {
     @ManyToOne
     @JoinColumn
     TaskState state;
-    @Transient()
-    FileTaskSituation currentFileTaskSituation;
     @OneToOne
     @JoinColumn
     FileTask parent;
@@ -84,5 +82,11 @@ public class FileTask extends BaseEntity {
                 "id=" + id +
                 ", title='" + title + '\'' +
                 '}';
+    }
+
+    @NonNull
+    public FileTaskSituation getCurrentState()
+    {
+        return getFileTaskSituations().stream().filter(FileTaskSituation::isCurrent).findFirst().get();
     }
 }
