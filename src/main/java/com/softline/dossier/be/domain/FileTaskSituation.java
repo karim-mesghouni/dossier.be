@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
 
@@ -38,5 +39,14 @@ public class FileTaskSituation extends BaseEntity {
                 "id=" + id +
                 ", situation=" + situation +
                 '}';
+    }
+
+    // for cloning without id
+    public FileTaskSituation(@NotNull FileTaskSituation mirror) {
+        id = 0;// get rid of ide warning
+        setSituation(mirror.getSituation());
+        setCurrent(mirror.isCurrent());
+        setBlocking(mirror.getBlocking());
+        setFileTask(mirror.getFileTask());
     }
 }

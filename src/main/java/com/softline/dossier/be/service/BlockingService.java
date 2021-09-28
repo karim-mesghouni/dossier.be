@@ -38,10 +38,32 @@ public class BlockingService extends IServiceBase<Blocking, BlockingInput, Block
         oldSituation.setCurrent(false);
         return repository.save(Blocking.buildFromInput(blockingInput, fileSituation));
     }
-
     @Override
     public Blocking update(BlockingInput blockingInput) {
-        return null;
+        Blocking blocking = repository.getOne(blockingInput.getId());
+        boolean wasBlocked = blocking.getBlock();
+        blocking = repository.save(Blocking.buildFromInput(blockingInput, blocking.getState()));
+        FileTask fileTask = blocking.getState().getFileTask();
+        FileTaskSituation oldState = fileTask.getFileTaskSituations().stream().filter(e -> !e.getSituation().isBlock()).min((a, b) -> (int) (a.getId() - b.getId())).get();
+        FileTaskSituation currentState = fileTask.getCurrentState();
+        if(wasBlocked && !blocking.getBlock())
+        {
+            currentState.setCurrent(false);
+            fileTaskSituationRepository.save(currentState);
+            fileTaskSituationRepository.save(FileTaskSituation.builder().blocking(oldState.getBlocking()).fileTask(oldState.getFileTask()).current(true).situation(oldState.getSituation()).build());
+        }else if(!wasBlocked && blocking.getBlock()){
+            FileTaskSituation oldSituation = fileTaskSituationRepository.findFirstByFileTaskAndCurrentIsTrue(fileTask);
+            TaskSituation blockState = taskSituationRepository.findAllByTask_IdAndBlockIsTrue(fileTask.getTask().getId());
+            var fileSituation = fileTaskSituationRepository.save(FileTaskSituation.builder()
+                    .fileTask(FileTask.builder().id(fileTask.getId()).build())
+                    .situation(blockState)
+                    .current(true)
+                    .build());
+            blocking.setState(fileSituation);
+            oldSituation.setCurrent(false);
+            return repository.save(blocking);
+        }
+        return blocking;
     }
 
     @Override
