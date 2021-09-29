@@ -17,16 +17,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.io.IOException;
 import java.nio.file.Files;
 
+/**
+ * This controller is responsible for serving attachments in the storage
+ */
 @Controller
 @RequiredArgsConstructor
-public class StorageController {
+public class StorageController
+    {
     private final FileSystem fileSystem;
     private final FileTaskAttachmentRepository fileTaskAttachmentRepository;
     private final CommentAttachmentRepository commentAttachmentRepository;
 
     @GetMapping("/attachments/{storageName}")
-    @SneakyThrows
-    public ResponseEntity<InputStreamResource> getAttachmentByStorageName(@PathVariable String storageName) throws IOException {
+    public ResponseEntity<InputStreamResource> getAttachmentByStorageName(@PathVariable String storageName) throws IOException
+        {
         Attachment attachment;
         attachment = fileTaskAttachmentRepository.findByStorageName(storageName);
         if (attachment == null) {
@@ -44,6 +48,5 @@ public class StorageController {
                 .headers(headers)
                 .contentType(MediaType.parseMediaType(attachment.getContentType()))
                 .body(new InputStreamResource(Files.newInputStream(fileSystem.getAttachmentsPath().resolve(attachment.getStorageName()))));
+        }
     }
-
-}
