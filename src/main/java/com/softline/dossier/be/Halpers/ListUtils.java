@@ -19,7 +19,7 @@ public class ListUtils {
      */
     @NotNull
     @SneakyThrows
-    public static <R> Collection<R> createCount(int count, Callable<R> builder) {
+    public static <R> List<R> createCount(int count, Callable<R> builder) {
         List<R> items = new ArrayList<>();
         while (count-- > 0) {
             items.add(builder.call());
