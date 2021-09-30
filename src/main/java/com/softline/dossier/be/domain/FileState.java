@@ -24,7 +24,6 @@ public class FileState extends BaseEntity {
     @JoinColumn
     FileStateType type;
     @ManyToOne
-    @JoinColumn
     File file;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

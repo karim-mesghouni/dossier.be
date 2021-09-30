@@ -35,11 +35,10 @@ public class FileActivity extends BaseEntity {
     @OneToMany(mappedBy = Reprise_.FILE_ACTIVITY)
     List<Reprise> reprises;
 
-    @OneToMany(mappedBy = FileTask_.FILE_ACTIVITY)
+    @OneToMany(mappedBy = FileTask_.FILE_ACTIVITY, cascade = CascadeType.ALL)
     List<FileTask> fileTasks;
 
     @ManyToOne
-    @JoinColumn
     File file;
     @OneToMany(mappedBy = Comment_.FILE_ACTIVITY)
     List<Comment> comments;

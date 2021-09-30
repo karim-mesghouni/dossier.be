@@ -39,7 +39,7 @@ public class File extends BaseEntity {
     @OneToOne
     Commune commune;
 
-    @OneToMany(mappedBy = FileDoc_.FILE)
+    @OneToMany(mappedBy = FileDoc_.FILE, cascade = CascadeType.ALL)
     List<FileDoc> fileDocs;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = FileState_.FILE, fetch = FetchType.LAZY)
