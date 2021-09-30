@@ -150,9 +150,14 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     }
 
     public PageList<File> getAllFilePageFilter(FileFilterInput input) {
-        var result = getRepository().getByFilter(input);
-        return new PageList<>(result.getValue1(), result.getValue0());
-
+        if(input.getPageSize() <= 0){ // return everything
+            var result = getRepository().findAll();
+            return new PageList<>(result, result.size());
+        }else
+        {
+            var result = getRepository().getByFilter(input);
+            return new PageList<>(result.getValue1(), result.getValue0());
+        }
     }
 
     public List<FileHistoryDTO> getFileHistory(long id) {
