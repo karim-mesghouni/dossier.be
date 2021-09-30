@@ -40,13 +40,4 @@ public class FileTaskSituation extends BaseEntity {
                 ", situation=" + situation +
                 '}';
     }
-
-    // for cloning without id
-    public FileTaskSituation(@NotNull FileTaskSituation mirror) {
-        id = 0;// get rid of ide warning
-        setSituation(mirror.getSituation());
-        setCurrent(mirror.isCurrent());
-        setBlocking(mirror.getBlocking());
-        setFileTask(mirror.getFileTask());
-    }
 }
