@@ -2,11 +2,13 @@ package com.softline.dossier.be.domain;
 
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @SuperBuilder
@@ -24,7 +26,8 @@ public class Activity extends BaseEntity {
     String description;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = ActivityField_.ACTIVITY)
-    List<ActivityField> fields;
+    @Builder.Default
+    List<ActivityField> fields = new ArrayList<>();
 
     @OneToMany(mappedBy = FileActivity_.ACTIVITY)
     List<FileActivity> fileActivities;

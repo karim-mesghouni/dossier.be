@@ -10,7 +10,9 @@ import com.softline.dossier.be.security.domain.Privilege;
 import com.softline.dossier.be.security.domain.Role;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import com.softline.dossier.be.security.repository.RoleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -18,73 +20,58 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Component
-public class DbInitializer implements ApplicationRunner {
+@RequiredArgsConstructor
+public class DbInitializer implements ApplicationRunner
+{
+    private final ActivityRepository activityRepository;
+    private final FileStateTypeRepository fileStateTypeRepository;
+    private final BlockingLockingAddressRepository blockingLockingAddressRepository;
+    private final BlockingQualificationRepository blockingQualificationRepository;
+    private final BlockingLabelRepository blockingLabelRepository;
+    private final ClientRepository clientRepository;
+    private final CommuneRepository communeRepository;
+    private final AgentRepository agentRepository;
+    private final ReturnedCauseRepository returnedCauseRepository;
+    private final ActivityStateRepository activityStateRepository;
+    private final ContactRepository contactRepository;
+    private final RoleRepository roleRepository;
+    private final FileRepository fileRepository;
+    private final FileTaskRepository fileTaskRepository;
+    private final FileStateRepository fileStateRepository;
+    private final TaskRepository taskRepository;
+    private final TaskStateRepository taskStateRepository;
 
-    @Autowired
-    ActivityRepository activityRepository;
-
-    @Autowired
-    FileStateTypeRepository fileStateTypeRepository;
-
-    @Autowired
-    BlockingLockingAddressRepository blockingLockingAddressRepository;
-
-    @Autowired
-    BlockingQualificationRepository blockingQualificationRepository;
-
-    @Autowired
-    BlockingLabelRepository blockingLabelRepository;
-
-    @Autowired
-    ClientRepository clientRepository;
-
-    @Autowired
-    CommuneRepository communeRepository;
-
-    @Autowired
-    AgentRepository agentRepository;
-
-    @Autowired
-    ReturnedCauseRepository returnedCauseRepository;
-
-    @Autowired
-    ActivityStateRepository activityStateRepository;
-
-    @Autowired
-    ContactRepository contactRepository;
-
-    @Autowired
-    RoleRepository roleRepository;
-
-
-    Faker faker = new Faker(new Locale("fr"));
+    private final Faker faker; // used to generate fake(mock) date
 
     Activity zapa;
     Activity fi;
     Activity ipon;
     Activity piquetage;
     Activity cdc;
-
     PasswordEncoder passwordEncoder;
 
     @Transactional
-
-    public void run(ApplicationArguments args) {
+    public void run(ApplicationArguments args)
+    {
         passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        if (activityRepository.count() == 0) {
-
+        if (activityRepository.count() == 0)
+        {
             createZapaActivity();
             createFIActivity();
             createIPONActivity();
             createPiquetageActivity();
             createCDCActivity();
         }
-        if (clientRepository.count() == 0) {
+        if (clientRepository.count() == 0)
+        {
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("RH"))));
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("AXIANS"))));
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("AXIANS IDF"))));
@@ -100,10 +87,12 @@ public class DbInitializer implements ApplicationRunner {
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("SCOPELEC"))));
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("SPIE"))));
         }
-        if (communeRepository.count() == 0) {
+        if (communeRepository.count() == 0)
+        {
             createCommunes();
         }
-        if (fileStateTypeRepository.count() == 0) {
+        if (fileStateTypeRepository.count() == 0)
+        {
             fileStateTypeRepository.save(FileStateType.builder().state("En cours").build());
             fileStateTypeRepository.save(FileStateType.builder().state("Terminé").Final(true).build());
             fileStateTypeRepository.save(FileStateType.builder().state("Livré").build());
@@ -118,7 +107,6 @@ public class DbInitializer implements ApplicationRunner {
             fileStateTypeRepository.save(FileStateType.builder().state("REPRISE EN COURS D'ETUDE").build());
             fileStateTypeRepository.save(FileStateType.builder().state("KIZÉO NON ATTRIBUÉ").build());
             fileStateTypeRepository.save(FileStateType.builder().state("ANNULÉ").Final(true).build());
-
         }
         String c = "CREATE_", r = "READ_", u = "UPDATE_", d = "DELETE_";
 //        var role = roleRepository.findOne(Example.of(Role.builder().name("ROLE_ADMIN").build())).get();
@@ -129,45 +117,38 @@ public class DbInitializer implements ApplicationRunner {
 //                Privilege.builder().name(d+"HISTORY").build()));
 //        role.setPrivileges(privs);
 //        roleRepository.save(role);
-        if (agentRepository.count() == 0) {
+        if (agentRepository.count() == 0)
+        {
             final Role ADMIN_ROLE;
-
             List<Privilege> allPrivileges = List.of(
                     Privilege.builder().name(c + "FILE").build(),
                     Privilege.builder().name(r + "FILE").build(),
                     Privilege.builder().name(u + "FILE").build(),
                     Privilege.builder().name(d + "FILE").build(),
-
                     Privilege.builder().name(c + "TASK").build(),
                     Privilege.builder().name(r + "TASK").build(),
                     Privilege.builder().name(u + "TASK").build(),
                     Privilege.builder().name(d + "TASK").build(),
-
                     Privilege.builder().name(c + "CLIENT").build(),
                     Privilege.builder().name(r + "CLIENT").build(),
                     Privilege.builder().name(u + "CLIENT").build(),
                     Privilege.builder().name(d + "CLIENT").build(),
-
                     Privilege.builder().name(c + "CONTACT").build(),
                     Privilege.builder().name(r + "CONTACT").build(),
                     Privilege.builder().name(u + "CONTACT").build(),
                     Privilege.builder().name(d + "CONTACT").build(),
-
                     Privilege.builder().name(c + "ACTIVITY").build(),
                     Privilege.builder().name(r + "ACTIVITY").build(),
                     Privilege.builder().name(u + "ACTIVITY").build(),
                     Privilege.builder().name(d + "ACTIVITY").build(),
-
                     Privilege.builder().name(c + "HISTORY").build(),
                     Privilege.builder().name(r + "HISTORY").build(),
                     Privilege.builder().name(u + "HISTORY").build(),
                     Privilege.builder().name(d + "HISTORY").build(),
-
                     Privilege.builder().name(c + "ROLE").build(),
                     Privilege.builder().name(r + "ROLE").build(),
                     Privilege.builder().name(u + "ROLE").build(),
                     Privilege.builder().name(d + "ROLE").build(),
-
                     Privilege.builder().name(c + "Trash").build(),
                     Privilege.builder().name(r + "Trash").build(),
                     Privilege.builder().name(u + "Trash").build(),
@@ -175,7 +156,8 @@ public class DbInitializer implements ApplicationRunner {
             );
             ADMIN_ROLE = roleRepository.save(Role.builder().name("ROLE_ADMIN").privileges(allPrivileges).build());
             // admin user
-            for (var admin : List.of("elhabib", "othman", "boubaker")) {
+            for (var admin : List.of("elhabib", "othman", "boubaker"))
+            {
                 agentRepository.save(Agent.builder()
                         .name(admin)
                         .email(admin + "@gmail.com")
@@ -198,7 +180,8 @@ public class DbInitializer implements ApplicationRunner {
                 );
             });
         }
-        if (blockingLabelRepository.count() == 0) {
+        if (blockingLabelRepository.count() == 0)
+        {
             for (var name : List.of("AUTRE: BLOCAGE INTERNE",
                     "AUTRE BLOCAGE : GESTOT",
                     "IPON.SST : BLOCAGE IPON",
@@ -210,11 +193,13 @@ public class DbInitializer implements ApplicationRunner {
                     "CAP FT : ETUDE FT À FAIRE OU ENCOURS",
                     "ENEDIS : ETUDE ENEDIS À FAIRE OU ENCOURS",
                     "DDE DESAT: DÉSATURATION OU DE MODIF.DE ZONE",
-                    "BLOC.CMS : CRÉATION, MODIFICATION,SUPPRESSION CMS")) {
+                    "BLOC.CMS : CRÉATION, MODIFICATION,SUPPRESSION CMS"))
+            {
                 blockingLabelRepository.save(BlockingLabel.builder().name(name).build());
             }
         }
-        if (blockingQualificationRepository.count() == 0) {
+        if (blockingQualificationRepository.count() == 0)
+        {
             for (var name : List.of("CMS",
                     "PIT",
                     "FLUX",
@@ -238,11 +223,13 @@ public class DbInitializer implements ApplicationRunner {
                     "SOUS DIMENSIONNEMENT",
                     "SYNDIC NON IDENTIFIE",
                     "MODIFICATION NBRE EL",
-                    "CMS+ SYNDIC NON IDENTIFIE")) {
+                    "CMS+ SYNDIC NON IDENTIFIE"))
+            {
                 blockingQualificationRepository.save(BlockingQualification.builder().name(name).build());
             }
         }
-        if (blockingLockingAddressRepository.count() == 0) {
+        if (blockingLockingAddressRepository.count() == 0)
+        {
             for (var name : List.of("NEGO",
                     "INTERNE",
                     "CMS+NEGO",
@@ -253,28 +240,211 @@ public class DbInitializer implements ApplicationRunner {
                     "SUPPORT BE+NEGO",
                     "SUPPORT BE+PILOTAGE",
                     "PILOTAGE PARTENAIRE",
-                    "PILOTAGE PARTENAIRES: SAMY")) {
+                    "PILOTAGE PARTENAIRES: SAMY"))
+            {
                 blockingLockingAddressRepository.save(BlockingLockingAddress.builder().address(name).build());
+            }
+        }
+
+        if (fileRepository.count() == 0)
+        {
+
+            List<Client> clientList = clientRepository.findAll();
+            List<Commune> cities = communeRepository.findAll();
+            var agents = agentRepository.findAll();
+            List<FileStateType> fileStateTypes = fileStateTypeRepository.findAll();
+            var activities = activityRepository.findAll();
+            var tasks = taskRepository.findAll();
+            var taskStateList = taskStateRepository.findAll();
+            var now = LocalDate.now();
+            var files = new ArrayList<File>();
+            var activityStates = activityStateRepository.findAll();
+            var blockingLabels = blockingLabelRepository.findAll();
+            var blockingQualifications = blockingQualificationRepository.findAll();
+            var blockingLocks = blockingLockingAddressRepository.findAll();
+            for (int i = 0; i < 30; i++)
+            {
+                var file = File.builder()
+                        .client(getOne(clientList))
+                        .agent(getOne(agents))
+                        .commune(getOne(cities))
+                        .createdDate(toDate(now))
+                        .attributionDate(toLocalDate(faker.date().between(toDate(now), toDate(now.plusDays(20)))))
+                        .returnDeadline(toLocalDate(faker.date().between(toDate(now.plusDays(21)), toDate(now.plusDays(40)))))
+                        .provisionalDeliveryDate(toLocalDate(faker.date().between(toDate(now.plusDays(21)), toDate(now.plusDays(40)))))
+                        .deliveryDate(toLocalDate(faker.date().between(toDate(now.plusDays(21)), toDate(now.plusDays(40)))))
+                        .project(faker.app().name())
+                        .build();
+                var baseActivity = getOne(activities);
+                var order = 0;
+                var fileStates = new ArrayList<FileState>(Collections.singletonList(FileState.builder()
+                        .file(file)
+                        .agent(getOne(agents))
+                        .type(fileStateTypeRepository.findFirstByInitialIsTrue())
+                        .build()));
+                fileStates.addAll(ListUtils.createCount(faker.number().numberBetween(0, 12),
+                        () -> FileState.builder().file(file).agent(getOne(agents)).type(getOne(fileStateTypes)).build()));
+                getOne(fileStates).setCurrent(true);
+                file.setFileStates(fileStates);
+                file.setFileDocs(new ArrayList<>(ListUtils.createCount(faker.number().numberBetween(0, 4),
+                        () -> FileDoc.builder().file(file).path(faker.file().fileName()).description(faker.file().fileName()).agent(getOne(agents)).build())));
+                List<FileActivity> fileActivities = new ArrayList<>(List.of(FileActivity.builder()
+                        .activity(baseActivity)
+                        .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(baseActivity.getId()))
+                        .current(true)
+                        .agent(getOne(agents))
+                        .file(file)
+                        .fileActivityOrder(order).build()));
+
+                fileActivities.addAll(ListUtils.createCount(faker.number().numberBetween(0, 4), () ->
+                                FileActivity.builder()
+                                        .activity(getOne(activities))
+                                        .state(getOne(activityStates))
+                                        .agent(getOne(agents))
+                                        .current(false)
+                                        .file(file)
+                                        .fileActivityOrder(order)
+                                        .build()
+                        )
+                );
+                fileActivities.forEach(activity ->
+                {
+                    activity.setFileTasks(new ArrayList<>(ListUtils.createCount(faker.number().numberBetween(0, 6), () ->
+                    {
+                        var createdDate = faker.date().between(toDate(now), toDate(now.plusDays(20)));
+                        var created = toLocalDate(createdDate);
+                        FileTask task = FileTask.builder()
+                                .fileActivity(activity)
+                                .agent(getOne(agents))
+                                .assignedTo(getOne(agents))
+                                .reporter(getOne(agents))
+                                .task(getOne(tasks))
+                                .state(getOne(taskStateList))
+                                .createdDate(toDate(created))
+                                .dueDate(toLocalDate(futureDaysFrom(createdDate, 2, 4)).atStartOfDay())
+                                .endDate(toLocalDate(futureDaysFrom(createdDate, 5, 15)).atStartOfDay())
+                                .title(faker.job().title())
+                                .build();
+                        var situations = task.getTask().getSituations();
+                        var blocks = new ArrayList<FileTaskSituation>();
+                        AtomicReference<Date> blockDate = new AtomicReference<>(futureDaysFrom(task.getCreatedDate(), 0, 15));
+                        AtomicReference<Date> stateDate = new AtomicReference<>(futureDaysFrom(task.getCreatedDate(), 0, 15));
+                        List<FileTaskSituation> thisTaskSituations = ListUtils.createCount(faker.number().numberBetween(1, 6), () ->
+                        {
+                            var situation = getOne(situations);
+                            var fileTaskSituation = FileTaskSituation.builder()
+                                    .situation(situation)
+                                    .agent(getOne(agents))
+                                    .fileTask(task)
+                                    .createdDate(stateDate.get())
+                                    .build();
+                            if (situation.isBlock())
+                            {
+                                var block = Blocking
+                                        .builder()
+                                        .state(fileTaskSituation)
+                                        .label(getOne(blockingLabels))
+                                        .agent(getOne(agents))
+                                        .lockingAddress(getOne(blockingLocks))
+                                        .qualification(getOne(blockingQualifications))
+                                        .createdDate(blockDate.get())
+                                        .explication(faker.lebowski().quote())
+                                        .build();
+                                fileTaskSituation.setBlocking(block);
+                                if (blocks.size() > 0)
+                                {
+                                    blocks.stream().reduce((first, second) -> second).get().getBlocking().setDateUnBlocked(toLocalDate(blockDate.get()).atStartOfDay());
+                                }
+                                blocks.add(fileTaskSituation);
+                                blockDate.set(futureDaysFrom(task.getCreatedDate(), 0, 15));
+                            }
+                            stateDate.set(futureDaysFrom(stateDate.get(), 0, 15));
+                            return fileTaskSituation;
+                        });
+                        thisTaskSituations.stream().reduce((__, last) -> last).get().setCurrent(true);
+                        task.setFileTaskSituations(thisTaskSituations);
+                        return task;
+                    })));
+                    fakeDataFields(activity).getDataFields().forEach(field -> field.setAgent(getOne(agents)));
+                });
+                file.setBaseActivity(baseActivity);
+                file.setFileActivities(fileActivities);
+                if (faker.number().numberBetween(1, 10) == 1 && files.size() > 0) // 1 of 10 chance
+                {
+                    var toReprise = getOne(files);
+                    file.setReprise(toReprise);
+                    file.setFileReprise(true);
+                }
+                files.add(fileRepository.save(file));
             }
         }
     }
 
-    private Client fakeClient(String name) {
+    private Date futureDaysFrom(Date date, int min, int max)
+    {
+        return faker.date().between(toDate(toLocalDate(date).plusDays(min)), toDate(toLocalDate(date).plusDays(max)));
+    }
+
+    private FileActivity fakeDataFields(FileActivity activity)
+    {
+        List<ActivityDataField> fields = new ArrayList<>();
+        activity.getActivity().getFields().forEach(field ->
+        {
+            Object data;
+            switch (field.getFieldType())
+            {
+                case Date:
+                    data = faker.date().future(10, TimeUnit.DAYS);
+                    break;
+                case Number:
+                    data = faker.number().numberBetween(1, 10);
+                    break;
+                case String:
+                    data = faker.book().author();
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + field.getFieldType());
+            }
+            fields.add(ActivityDataField.builder()
+                    .fieldName(field.getFieldName())
+                    .fieldType(field.getFieldType())
+                    .data(data.toString())
+                    .fileActivity(activity)
+                    .build());
+        });
+        activity.setDataFields(fields);
+        return activity;
+    }
+
+    private Date toDate(LocalDate date)
+    {
+        return Date.from(date.atStartOfDay(ZoneId.systemDefault())
+                .toInstant());
+    }
+
+    private LocalDate toLocalDate(Date date)
+    {
+        return date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+    }
+
+
+    private <E> E getOne(List<E> items)
+    {
+        return items.get(faker.number().numberBetween(0, items.size()));
+    }
+
+    private Client fakeClient(String name)
+    {
         return Client.builder()
                 .name(name)
                 .address(faker.address().fullAddress())
                 .build();
     }
 
-    private List<Contact> fakeContacts(int count) {
-        List<Contact> contacts = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            contacts.add(fakeContact());
-        }
-        return contacts;
-    }
-
-    private Contact fakeContact() {
+    private Contact fakeContact()
+    {
         return Contact.builder()
                 .name(faker.name().fullName())
                 .email(faker.internet().emailAddress())
@@ -282,15 +452,18 @@ public class DbInitializer implements ApplicationRunner {
                 .build();
     }
 
-    private List<Contact> fakeContacts(Client c) {
+    private List<Contact> fakeContacts(Client c)
+    {
         List<Contact> contacts = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++)
+        {
             contacts.add(fakeContact(c));
         }
         return contacts;
     }
 
-    private Contact fakeContact(Client c) {
+    private Contact fakeContact(Client c)
+    {
         return Contact.builder()
                 .name(faker.name().fullName())
                 .email(faker.internet().emailAddress())
@@ -299,7 +472,8 @@ public class DbInitializer implements ApplicationRunner {
                 .build();
     }
 
-    private void createCommunes() {
+    private void createCommunes()
+    {
         communeRepository.save(Commune.builder().name("BOURG EN BRESSE").INSEECode("01053").postalCode("1000").build());
         communeRepository.save(Commune.builder().name("SAINT DENIS LES BOURG").INSEECode("01344").postalCode("1000").build());
         communeRepository.save(Commune.builder().name("BROU").INSEECode("01914").postalCode("1000").build());
@@ -310,7 +484,8 @@ public class DbInitializer implements ApplicationRunner {
         communeRepository.save(Commune.builder().name("GUEREINS").INSEECode("01183").postalCode("1090").build());
     }
 
-    private void createZapaActivity() {
+    private void createZapaActivity()
+    {
         zapa = Activity.builder().name("ZAPA").description("ZAPA Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());
@@ -318,7 +493,6 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsEtude.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsEtude.add(TaskSituation.builder().name("Annulé").Final(true).build());
         taskSituationsEtude.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
-
         var taskSituationsControle = new ArrayList<TaskSituation>();
         taskSituationsControle.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("En cours").build());
@@ -339,30 +513,28 @@ public class DbInitializer implements ApplicationRunner {
         var etdue = Task.builder().name("Etude").situations(taskSituationsEtude).activity(zapa).build();
         var controle = Task.builder().name("Controle").situations(taskSituationsControle).activity(zapa).states(states).build();
         etdue.getSituations().forEach(x -> x.setTask(etdue));
-
         var activityStates = new ArrayList();
         activityStates.add(ActivityState.builder().activity(zapa).name("En cours").initial(true).build());
         activityStates.add(ActivityState.builder().activity(zapa).name("Annulé").Final(true).build());
         activityStates.add(ActivityState.builder().activity(zapa).name("Retiré").Final(true).build());
         activityStates.add(ActivityState.builder().activity(zapa).name("Terminé").Final(true).build());
         zapa.setStates(activityStates);
-
-
         controle.getSituations().forEach(x -> x.setTask(controle));
         controle.getStates().forEach(x -> x.setTask(controle));
         zapa.getTasks().add(etdue);
         zapa.getTasks().add(controle);
         zapa.getTasks().add(PreparatrionLivraison);
         var fields = new ArrayList<ActivityField>();
-        fields.add(ActivityField.builder().fieldName("CEM").fieldType(FieldType.String).activity(zapa).build());
-        fields.add(ActivityField.builder().fieldName("NBre EL BE").fieldType(FieldType.String).activity(zapa).build());
-        fields.add(ActivityField.builder().fieldName("NBRE EL Client").fieldType(FieldType.String).activity(zapa).build());
-        fields.add(ActivityField.builder().fieldName("NBRE FOA").fieldType(FieldType.String).activity(zapa).build());
+        fields.add(ActivityField.builder().fieldName("CEM").fieldType(FieldType.Number).activity(zapa).build());
+        fields.add(ActivityField.builder().fieldName("NBre EL BE").fieldType(FieldType.Number).activity(zapa).build());
+        fields.add(ActivityField.builder().fieldName("NBRE EL Client").fieldType(FieldType.Number).activity(zapa).build());
+        fields.add(ActivityField.builder().fieldName("NBRE FOA").fieldType(FieldType.Number).activity(zapa).build());
         zapa.setFields(fields);
         activityRepository.save(zapa);
     }
 
-    private void createFIActivity() {
+    private void createFIActivity()
+    {
         fi = Activity.builder().name("FI").description("FI Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());
@@ -392,29 +564,27 @@ public class DbInitializer implements ApplicationRunner {
         etdue.getSituations().forEach(x -> x.setTask(etdue));
         controle.getSituations().forEach(x -> x.setTask(controle));
         controle.getStates().forEach(x -> x.setTask(controle));
-
         var activityStates = new ArrayList();
         activityStates.add(ActivityState.builder().activity(fi).name("En cours").initial(true).build());
         activityStates.add(ActivityState.builder().activity(fi).name("Annulé").Final(true).build());
         activityStates.add(ActivityState.builder().activity(fi).name("Retiré").Final(true).build());
         activityStates.add(ActivityState.builder().activity(fi).name("Terminé").Final(true).build());
         fi.setStates(activityStates);
-
-
         fi.getTasks().add(etdue);
         fi.getTasks().add(controle);
         fi.getTasks().add(PreparatrionLivraison);
         var fields = new ArrayList<ActivityField>();
-        fields.add(ActivityField.builder().fieldName("CEM").fieldType(FieldType.String).activity(fi).build());
-        fields.add(ActivityField.builder().fieldName("IMB").fieldType(FieldType.String).activity(fi).build());
-        fields.add(ActivityField.builder().fieldName("FIS").fieldType(FieldType.String).activity(fi).build());
-        fields.add(ActivityField.builder().fieldName("EL BE DL").fieldType(FieldType.String).activity(fi).build());
-        fields.add(ActivityField.builder().fieldName("EL IMB / FIS").fieldType(FieldType.String).activity(fi).build());
+        fields.add(ActivityField.builder().fieldName("CEM").fieldType(FieldType.Number).activity(fi).build());
+        fields.add(ActivityField.builder().fieldName("IMB").fieldType(FieldType.Number).activity(fi).build());
+        fields.add(ActivityField.builder().fieldName("FIS").fieldType(FieldType.Number).activity(fi).build());
+        fields.add(ActivityField.builder().fieldName("EL BE DL").fieldType(FieldType.Number).activity(fi).build());
+        fields.add(ActivityField.builder().fieldName("EL IMB / FIS").fieldType(FieldType.Number).activity(fi).build());
         fi.setFields(fields);
         activityRepository.save(fi);
     }
 
-    private void createIPONActivity() {
+    private void createIPONActivity()
+    {
         ipon = Activity.builder().name("IPON").description("IPON Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());
@@ -429,7 +599,6 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsControle.add(TaskSituation.builder().name("Annulé").Final(true).build());
         taskSituationsControle.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var taskSituationsPreparatrionLivraison = new ArrayList<TaskSituation>();
-
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("En cours").build());
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Fait").Final(true).build());
@@ -437,15 +606,12 @@ public class DbInitializer implements ApplicationRunner {
         taskSituationsPreparatrionLivraison.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var PreparatrionLivraison = Task.builder().name("Préparatrion de livraison").situations(taskSituationsPreparatrionLivraison).activity(ipon).build();
         PreparatrionLivraison.getSituations().forEach(x -> x.setTask(PreparatrionLivraison));
-
         var activityStates = new ArrayList();
         activityStates.add(ActivityState.builder().activity(ipon).name("En cours").initial(true).build());
         activityStates.add(ActivityState.builder().activity(ipon).name("Annulé").Final(true).build());
         activityStates.add(ActivityState.builder().activity(ipon).name("Retiré").Final(true).build());
         activityStates.add(ActivityState.builder().activity(ipon).name("Terminé").Final(true).build());
         ipon.setStates(activityStates);
-
-
         var states = new ArrayList();
         states.add(TaskState.builder().name("Valide").build());
         states.add(TaskState.builder().name("Non valide").build());
@@ -460,7 +626,8 @@ public class DbInitializer implements ApplicationRunner {
         activityRepository.save(ipon);
     }
 
-    private void createPiquetageActivity() {
+    private void createPiquetageActivity()
+    {
         piquetage = Activity.builder().name("Piquetage").description("Piquetage Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtude = new ArrayList<TaskSituation>();
         taskSituationsEtude.add(TaskSituation.builder().name("A faire").initial(true).build());
@@ -489,7 +656,6 @@ public class DbInitializer implements ApplicationRunner {
         verificationStates.add(TaskState.builder().name("Valide").build());
         verificationStates.add(TaskState.builder().name("Non Valide").build());
         var verification = Task.builder().name("VÉRIFICATION DE RETOUR ").situations(taskSituationsverification).activity(piquetage).states(verificationStates).build();
-
         var activityStates = new ArrayList();
         activityStates.add(ActivityState.builder().activity(piquetage).name("En cours").initial(true).build());
         activityStates.add(ActivityState.builder().activity(piquetage).name("Terminé").Final(true).build());
@@ -498,7 +664,6 @@ public class DbInitializer implements ApplicationRunner {
         activityStates.add(ActivityState.builder().activity(piquetage).name("Annulé").Final(true).build());
         activityStates.add(ActivityState.builder().activity(piquetage).name("Retiré").Final(true).build());
         piquetage.setStates(activityStates);
-
         preparation.getSituations().forEach(x -> x.setTask(preparation));
         control.getSituations().forEach(x -> x.setTask(control));
         verification.getSituations().forEach(x -> x.setTask(verification));
@@ -510,19 +675,19 @@ public class DbInitializer implements ApplicationRunner {
         fields.add(ActivityField.builder().fieldName("Poteaux FT").fieldType(FieldType.String).activity(piquetage).activityBase(zapa).build());
         fields.add(ActivityField.builder().fieldName("Poteaux ERDF").fieldType(FieldType.String).activity(piquetage).activityBase(zapa).build());
         fields.add(ActivityField.builder().fieldName("NBRE APPUI PIQUETÉS").fieldType(FieldType.String).activity(piquetage).activityBase(zapa).build());
-        fields.add(ActivityField.builder().fieldName("IMB***").fieldType(FieldType.String).activity(piquetage).activityBase(fi).build());
+        fields.add(ActivityField.builder().fieldName("IMB***").fieldType(FieldType.Number).activity(piquetage).activityBase(fi).build());
         piquetage.setFields(fields);
         activityRepository.save(piquetage);
     }
 
-    private void createCDCActivity() {
+    private void createCDCActivity()
+    {
         cdc = Activity.builder().name("CDC").description("CDC Description").tasks(new ArrayList<>()).build();
         var taskSituationsEtdueComac = new ArrayList<TaskSituation>();
         taskSituationsEtdueComac.add(TaskSituation.builder().name("A faire").initial(true).build());
         taskSituationsEtdueComac.add(TaskSituation.builder().name("En cours").build());
         taskSituationsEtdueComac.add(TaskSituation.builder().name("Fait").Final(true).build());
         taskSituationsEtdueComac.add(TaskSituation.builder().name("Annulé").Final(true).build());
-
         taskSituationsEtdueComac.add(TaskSituation.builder().name("Block").block(true).Final(true).build());
         var taskSituationsControle = new ArrayList<TaskSituation>();
         taskSituationsControle.add(TaskSituation.builder().name("A faire").initial(true).build());
@@ -561,17 +726,16 @@ public class DbInitializer implements ApplicationRunner {
 
         var groupFieldsCOMAC = ActivityFieldGroup.builder().name("COMAC").build();
         var fields = new ArrayList<ActivityField>();
-        fields.add(ActivityField.builder().fieldName("Nombre  des Artères").fieldType(FieldType.String).group(groupFieldsCOMAC).activity(cdc).build());
-        fields.add(ActivityField.builder().fieldName("Nombre  des appuis").fieldType(FieldType.String).group(groupFieldsCOMAC).activity(cdc).build());
-        fields.add(ActivityField.builder().fieldName("Nombre d’Appuis implanter").fieldType(FieldType.String).group(groupFieldsCOMAC).activity(cdc).build());
-        fields.add(ActivityField.builder().fieldName("Nombre de CRIT").fieldType(FieldType.String).activity(cdc).group(groupFieldsCOMAC).build());
-        fields.add(ActivityField.builder().fieldName("Nombre d’Appuis à remplacer").fieldType(FieldType.String).activity(cdc).group(groupFieldsCOMAC).build());
+        fields.add(ActivityField.builder().fieldName("Nombre  des Artères").fieldType(FieldType.Number).group(groupFieldsCOMAC).activity(cdc).build());
+        fields.add(ActivityField.builder().fieldName("Nombre  des appuis").fieldType(FieldType.Number).group(groupFieldsCOMAC).activity(cdc).build());
+        fields.add(ActivityField.builder().fieldName("Nombre d’Appuis implanter").fieldType(FieldType.Number).group(groupFieldsCOMAC).activity(cdc).build());
+        fields.add(ActivityField.builder().fieldName("Nombre de CRIT").fieldType(FieldType.Number).activity(cdc).group(groupFieldsCOMAC).build());
+        fields.add(ActivityField.builder().fieldName("Nombre d’Appuis à remplacer").fieldType(FieldType.Number).activity(cdc).group(groupFieldsCOMAC).build());
         var groupFieldsCAPFT = ActivityFieldGroup.builder().name("CAPFT").build();
-
-        fields.add(ActivityField.builder().fieldName("Nombre  des Artères").fieldType(FieldType.String).group(groupFieldsCAPFT).activity(cdc).build());
-        fields.add(ActivityField.builder().fieldName("Nombre  des appuis").fieldType(FieldType.String).group(groupFieldsCAPFT).activity(cdc).build());
-        fields.add(ActivityField.builder().fieldName("Nombre d’Appuis implanter").fieldType(FieldType.String).group(groupFieldsCAPFT).activity(cdc).build());
-        fields.add(ActivityField.builder().fieldName("Nombre de CRIT").fieldType(FieldType.String).activity(cdc).group(groupFieldsCAPFT).build());
+        fields.add(ActivityField.builder().fieldName("Nombre  des Artères").fieldType(FieldType.Number).group(groupFieldsCAPFT).activity(cdc).build());
+        fields.add(ActivityField.builder().fieldName("Nombre  des appuis").fieldType(FieldType.Number).group(groupFieldsCAPFT).activity(cdc).build());
+        fields.add(ActivityField.builder().fieldName("Nombre d’Appuis implanter").fieldType(FieldType.Number).group(groupFieldsCAPFT).activity(cdc).build());
+        fields.add(ActivityField.builder().fieldName("Nombre de CRIT").fieldType(FieldType.Number).activity(cdc).group(groupFieldsCAPFT).build());
         cdc.setFields(fields);
         activityRepository.save(cdc);
     }
