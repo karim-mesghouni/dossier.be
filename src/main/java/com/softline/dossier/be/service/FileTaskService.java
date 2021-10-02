@@ -323,6 +323,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         } else {
             fileTask.setParent(null);
         }
+        repository.save(fileTask);
         return fileTask;
     }
 
