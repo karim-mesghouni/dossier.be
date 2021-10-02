@@ -61,6 +61,7 @@ type FileTask{
     inTrash:Boolean
     parent: FileTask
     attachments: [Attachment]
+    currentState: FileTaskSituation
 }
 input FileTaskInput {
     id:ID
