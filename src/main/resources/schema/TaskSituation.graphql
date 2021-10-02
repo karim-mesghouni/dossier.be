@@ -7,6 +7,7 @@ type TaskSituation {
     name:String
     initial:Boolean
     Final:Boolean
+    block: Boolean
     task:Task
     fileTaskSituations:[FileTaskSituation]
 }
