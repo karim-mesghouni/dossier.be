@@ -43,7 +43,6 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
         Client client = repository.getOne(input.getId());
         client.setAddress(input.getAddress());
         client.setName(input.getName());
-        var clientContacts = client.getContacts();
         for (var contactInput : input.getContacts()) {
             var result = contactRepository.findById(contactInput.getId());
             if (result.isEmpty()) {
