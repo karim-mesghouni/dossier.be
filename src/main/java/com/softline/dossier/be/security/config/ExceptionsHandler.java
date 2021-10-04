@@ -28,6 +28,11 @@ public class ExceptionsHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public GraphQLError exceptionHandler(EntityNotFoundException e) {
-        return new ThrowableGraphQLError(e, "Entity not found");
+        return new ThrowableGraphQLError(e, "Entité introuvable");
+    }
+
+    @ExceptionHandler(Throwable.class)
+    public GraphQLError exceptionHandler(Throwable e) {
+        return new ThrowableGraphQLError(e, "server error");
     }
 }
