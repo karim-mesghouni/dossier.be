@@ -5,6 +5,7 @@ import com.softline.dossier.be.domain.Contact;
 import com.softline.dossier.be.graphql.types.input.ClientInput;
 import com.softline.dossier.be.repository.ClientRepository;
 import com.softline.dossier.be.repository.ContactRepository;
+import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,13 +58,13 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
         return repository.save(client);
     }
 
-    @SneakyThrows
     @Override
     @PreAuthorize("hasPermission(null, 'DELETE_CLIENT')")
-    public boolean delete(long id) {
+    public boolean delete(long id) throws ClientReadableException
+    {
         Client client = repository.findWithFilesById(id);
-        if (client.getFiles().size() > 0) {
-            throw new Exception("client has open files");
+        if (client.getFiles().stream().anyMatch(f -> !f.isDeleted() && !f.isInTrash())) {
+            throw new ClientReadableException("ce client a des fichiers ouverts, veuillez d'abord les supprimer");
         }
         repository.deleteById(id);
         return true;
