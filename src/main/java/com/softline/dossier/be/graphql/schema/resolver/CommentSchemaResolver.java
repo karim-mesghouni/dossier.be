@@ -6,6 +6,7 @@ import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.NotifyMessageInput;
 import com.softline.dossier.be.repository.CommentRepository;
 import com.softline.dossier.be.service.CommentService;
+import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,15 +24,18 @@ import java.util.List;
 public class CommentSchemaResolver extends SchemaResolverBase<Comment, CommentInput, CommentRepository, CommentService> {
 
 
-    public Comment createComment(CommentInput input) throws IOException {
+    public Comment createComment(CommentInput input) throws IOException, ClientReadableException
+    {
         return create(input);
     }
 
-    public Comment updateComment(CommentInput input) {
+    public Comment updateComment(CommentInput input) throws ClientReadableException
+    {
         return update(input);
     }
 
-    public boolean deleteComment(Long id) {
+    public boolean deleteComment(Long id) throws ClientReadableException
+    {
         return delete(id);
     }
 

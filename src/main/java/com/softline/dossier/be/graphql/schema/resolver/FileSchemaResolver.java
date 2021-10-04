@@ -8,6 +8,7 @@ import com.softline.dossier.be.graphql.types.PageList;
 import com.softline.dossier.be.graphql.types.input.FileInput;
 import com.softline.dossier.be.repository.FileRepository;
 import com.softline.dossier.be.service.FileService;
+import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -22,15 +23,18 @@ import java.util.List;
 public class FileSchemaResolver extends SchemaResolverBase<File, FileInput, FileRepository, FileService> {
 
 
-    public File createFile(FileInput File) throws IOException {
+    public File createFile(FileInput File) throws IOException, ClientReadableException
+    {
         return create(File);
     }
 
-    public File updateFile(FileInput File) {
+    public File updateFile(FileInput File) throws ClientReadableException
+    {
         return update(File);
     }
 
-    public boolean deleteFile(Long id) {
+    public boolean deleteFile(Long id) throws ClientReadableException
+    {
         return delete(id);
     }
 

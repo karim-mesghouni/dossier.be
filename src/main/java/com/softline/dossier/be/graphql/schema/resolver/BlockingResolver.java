@@ -7,6 +7,7 @@ import com.softline.dossier.be.domain.BlockingQualification;
 import com.softline.dossier.be.graphql.types.input.BlockingInput;
 import com.softline.dossier.be.repository.BlockingRepository;
 import com.softline.dossier.be.service.BlockingService;
+import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -19,15 +20,18 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class BlockingResolver extends SchemaResolverBase<Blocking, BlockingInput, BlockingRepository, BlockingService> {
-    public Blocking createBlocking(BlockingInput blockingInput) throws IOException {
+    public Blocking createBlocking(BlockingInput blockingInput) throws IOException, ClientReadableException
+    {
         return create(blockingInput);
     }
 
-    public Blocking updateBlocking(BlockingInput blockingInput) {
+    public Blocking updateBlocking(BlockingInput blockingInput) throws ClientReadableException
+    {
         return update(blockingInput);
     }
 
-    public boolean deleteBlocking(Long id) {
+    public boolean deleteBlocking(Long id) throws ClientReadableException
+    {
         return delete(id);
     }
 

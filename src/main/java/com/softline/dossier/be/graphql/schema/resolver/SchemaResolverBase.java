@@ -3,6 +3,7 @@ package com.softline.dossier.be.graphql.schema.resolver;
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import com.softline.dossier.be.service.IServiceBase;
+import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -14,15 +15,16 @@ public abstract class SchemaResolverBase<IEntity, IEntityInput, IRepository exte
     @Autowired
     protected IService service;
 
-    protected IEntity create(IEntityInput entityInput) throws IOException {
+    protected IEntity create(IEntityInput entityInput) throws IOException, ClientReadableException {
         return service.create(entityInput);
     }
 
-    protected IEntity update(IEntityInput entityInput) {
+    protected IEntity update(IEntityInput entityInput) throws ClientReadableException
+    {
         return service.update(entityInput);
     }
 
-    protected boolean delete(Long id) {
+    protected boolean delete(Long id) throws ClientReadableException {
         return service.delete(id);
     }
 

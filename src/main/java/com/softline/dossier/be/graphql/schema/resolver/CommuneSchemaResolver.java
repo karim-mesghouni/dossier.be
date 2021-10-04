@@ -4,6 +4,7 @@ import com.softline.dossier.be.domain.Commune;
 import com.softline.dossier.be.graphql.types.input.CommuneInput;
 import com.softline.dossier.be.repository.CommuneRepository;
 import com.softline.dossier.be.service.CommuneService;
+import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -18,15 +19,18 @@ import java.util.List;
 public class CommuneSchemaResolver extends SchemaResolverBase<Commune, CommuneInput, CommuneRepository, CommuneService> {
 
 
-    public Commune createCommune(CommuneInput communeInput) throws IOException {
+    public Commune createCommune(CommuneInput communeInput) throws IOException, ClientReadableException
+    {
         return create(communeInput);
     }
 
-    public Commune updateCommune(CommuneInput communeInput) {
+    public Commune updateCommune(CommuneInput communeInput) throws ClientReadableException
+    {
         return update(communeInput);
     }
 
-    public boolean deleteCommune(Long id) {
+    public boolean deleteCommune(Long id) throws ClientReadableException
+    {
         return delete(id);
     }
 

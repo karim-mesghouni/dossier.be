@@ -26,15 +26,18 @@ import java.util.List;
 public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTaskInput, FileTaskRepository, FileTaskService> {
 
 
-    public FileTask createFileTask(FileTaskInput fileTask) throws IOException {
+    public FileTask createFileTask(FileTaskInput fileTask) throws IOException, ClientReadableException
+    {
         return create(fileTask);
     }
 
-    public FileTask updateFileTask(FileTaskInput fileTask) {
+    public FileTask updateFileTask(FileTaskInput fileTask) throws ClientReadableException
+    {
         return update(fileTask);
     }
 
-    public boolean deleteFileTask(Long id) {
+    public boolean deleteFileTask(Long id) throws ClientReadableException
+    {
         return delete(id);
     }
 

@@ -4,6 +4,7 @@ import com.softline.dossier.be.domain.ActivityField;
 import com.softline.dossier.be.graphql.types.input.ActivityFieldInput;
 import com.softline.dossier.be.repository.ActivityFieldRepository;
 import com.softline.dossier.be.service.ActivityFieldService;
+import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -18,15 +19,18 @@ import java.util.List;
 public class ActivityFieldSchemaResolver extends SchemaResolverBase<ActivityField, ActivityFieldInput, ActivityFieldRepository, ActivityFieldService> {
 
 
-    public ActivityField createActivityFieldI(ActivityFieldInput activityFieldInput) throws IOException {
+    public ActivityField createActivityFieldI(ActivityFieldInput activityFieldInput) throws IOException, ClientReadableException
+    {
         return create(activityFieldInput);
     }
 
-    public ActivityField updateActivityField(ActivityFieldInput activityFieldInput) {
+    public ActivityField updateActivityField(ActivityFieldInput activityFieldInput) throws ClientReadableException
+    {
         return update(activityFieldInput);
     }
 
-    public boolean deleteActivityField(Long id) {
+    public boolean deleteActivityField(Long id) throws ClientReadableException
+    {
         return delete(id);
     }
 

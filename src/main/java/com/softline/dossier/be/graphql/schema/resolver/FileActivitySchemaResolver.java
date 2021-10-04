@@ -5,6 +5,7 @@ import com.softline.dossier.be.domain.FileActivity;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
 import com.softline.dossier.be.repository.FileActivityRepository;
 import com.softline.dossier.be.service.FileActivityService;
+import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -19,15 +20,18 @@ import java.util.List;
 public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity, FileActivityInput, FileActivityRepository, FileActivityService> {
 
 
-    public FileActivity createFileActivity(FileActivityInput FileActivity) throws IOException {
+    public FileActivity createFileActivity(FileActivityInput FileActivity) throws IOException, ClientReadableException
+    {
         return create(FileActivity);
     }
 
-    public FileActivity updateFileActivity(FileActivityInput FileActivity) {
+    public FileActivity updateFileActivity(FileActivityInput FileActivity) throws ClientReadableException
+    {
         return update(FileActivity);
     }
 
-    public boolean deleteFileActivity(Long id) {
+    public boolean deleteFileActivity(Long id) throws ClientReadableException
+    {
         return delete(id);
     }
 
