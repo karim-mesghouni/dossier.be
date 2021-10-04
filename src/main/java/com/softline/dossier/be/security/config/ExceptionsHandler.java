@@ -23,7 +23,7 @@ public class ExceptionsHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public GraphQLError exceptionHandler(AccessDeniedException e) {
-        return new ThrowableGraphQLError(e, "Privilege error");
+        return new ThrowableGraphQLError(e, "Erreur de privilège");
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
