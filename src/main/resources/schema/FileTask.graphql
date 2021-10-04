@@ -1,6 +1,8 @@
 # Query
 extend type Query  {
+    get(id: ID!): FileTask
     allFileTaskByAssignedToId(assignedToId: ID!):[FileTask]
+    all: [FileTask]
     fileTask(id: ID! ):FileTask
     #   currentFilePhase(fileActivityId: ID! ):FileTask
     #  currentFilePhaseState(fileAgentId: ID! ):FilePhaseState

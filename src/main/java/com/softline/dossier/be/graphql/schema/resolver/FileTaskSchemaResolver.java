@@ -7,6 +7,7 @@ import com.softline.dossier.be.graphql.types.input.FileTaskInput;
 import com.softline.dossier.be.repository.FileTaskRepository;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.service.FileTaskService;
+import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -148,5 +149,12 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
 
     public boolean fileTaskOrderDown(Long fileTaskId) {
         return service.fileTaskOrderDown(fileTaskId);
+    }
+
+    public FileTask get(long id){
+        return super.get(id);
+    }
+    public List<FileTask> getAll(){
+        return super.getAll();
     }
 }
