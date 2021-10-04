@@ -16,7 +16,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@SQLDelete(sql = "UPDATE FileState SET deleted=true WHERE id=?")
+@SQLDelete(sql = "UPDATE file_state SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 public class FileState extends BaseEntity {
     boolean current;

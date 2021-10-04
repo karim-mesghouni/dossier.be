@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@SQLDelete(sql = "UPDATE TaskSituation SET deleted=true WHERE id=?")
+@SQLDelete(sql = "UPDATE task_situation SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 public class TaskSituation extends BaseEntity {
     @Id

@@ -17,7 +17,7 @@ import javax.persistence.Id;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@SQLDelete(sql = "UPDATE FileStateType SET deleted=true WHERE id=?")
+@SQLDelete(sql = "UPDATE file_state_type SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 public class FileStateType extends BaseEntity {
     String state;

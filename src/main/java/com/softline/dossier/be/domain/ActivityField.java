@@ -16,7 +16,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@SQLDelete(sql = "UPDATE ActivityField SET deleted=true WHERE id=?")
+@SQLDelete(sql = "UPDATE activity_field SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 public class ActivityField extends BaseEntity {
     @Id

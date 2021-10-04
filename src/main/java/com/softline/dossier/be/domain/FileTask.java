@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = true)
-@SQLDelete(sql = "UPDATE FileTask SET deleted=true WHERE id=?")
+@SQLDelete(sql = "UPDATE file_task SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false ")
 public class FileTask extends BaseEntity {
     @Id

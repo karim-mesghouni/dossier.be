@@ -17,7 +17,7 @@ import javax.persistence.Id;
 @AllArgsConstructor
 @SuperBuilder
 @Entity
-@SQLDelete(sql = "UPDATE ActivityFieldGroup SET deleted=true WHERE id=?")
+@SQLDelete(sql = "UPDATE activity_field_group SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 
 public class ActivityFieldGroup extends BaseEntity {

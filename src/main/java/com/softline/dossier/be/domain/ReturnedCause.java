@@ -15,7 +15,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SQLDelete(sql = "UPDATE ReturnedCause SET deleted=true WHERE id=?")
+@SQLDelete(sql = "UPDATE returned_cause SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 public class ReturnedCause extends BaseEntity {
     @Id

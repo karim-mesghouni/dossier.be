@@ -51,8 +51,6 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     @Override
     public List<FileTask> getAll()
     {
-
-
         return repository.findAll();
     }
 
@@ -425,5 +423,14 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
             }
         }
         return false;
+    }
+
+    protected boolean delete(Long id)
+    {
+        if (!repository.existsById(id)) {
+            return true;
+        }
+        repository.deleteById(id);
+        return true;
     }
 }

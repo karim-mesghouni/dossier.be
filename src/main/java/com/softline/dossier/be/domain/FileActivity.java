@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@SQLDelete(sql = "UPDATE FileActivity SET deleted=true WHERE id=?")
+@SQLDelete(sql = "UPDATE file_activity SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false ")
 public class FileActivity extends BaseEntity {
     @Id

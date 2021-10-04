@@ -14,7 +14,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@SQLDelete(sql = "UPDATE VisAVis SET deleted=true WHERE id=?")
+@SQLDelete(sql = "UPDATE visavis SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 public class VisAVis {
     @Id

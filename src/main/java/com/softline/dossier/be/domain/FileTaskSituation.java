@@ -17,7 +17,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = true)
-@SQLDelete(sql = "UPDATE FileTaskSituation SET deleted=true WHERE id=?")
+@SQLDelete(sql = "UPDATE file_task_situation SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 public class FileTaskSituation extends BaseEntity {
     @Id
