@@ -59,7 +59,8 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
 
     }
 
-    public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) {
+    public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) throws ClientReadableException
+    {
         return service.changeFileTaskSituation(situationId, fileTaskId);
 
     }

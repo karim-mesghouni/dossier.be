@@ -10,12 +10,11 @@ import com.softline.dossier.be.graphql.types.input.FileTaskInput;
 import com.softline.dossier.be.repository.*;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.repository.AgentRepository;
+import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -145,10 +144,13 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return reporter;
     }
 
-    public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId)
+    public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) throws ClientReadableException
     {
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         var situation = taskSituationRepository.findById(situationId).orElseThrow();
+        if (fileTask.getCurrentState().getSituation().isBlock()) {
+            throw new ClientReadableException("vous ne pouvez pas modifier le statut d'une tâche bloquée, veuillez débloquer la tâche et réessayer.");
+        }
         var oldSituation = fileTaskSituationRepository.findFirstByFileTaskAndCurrentIsTrue(fileTask);
         if (oldSituation != null) {
             if (oldSituation.getSituation().getId() == situationId) {
