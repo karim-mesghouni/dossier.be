@@ -197,8 +197,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     public boolean changeTitle(String title, Long fileTaskId)
     {
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
-        fileTask.setTitle(title);
+        getRepository().getOne(fileTaskId).setTitle(title);
         return true;
     }
 
@@ -431,6 +430,11 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
             return true;
         }
         repository.deleteById(id);
+        return true;
+    }
+
+    public boolean updateTitle(String title, long fileTaskId){
+        repository.getOne(fileTaskId).setTitle(title);
         return true;
     }
 }
