@@ -676,7 +676,7 @@ public class DbInitializer implements ApplicationRunner
         var fields = new ArrayList<ActivityField>();
         fields.add(ActivityField.builder().fieldName("Poteaux FT").fieldType(FieldType.String).activity(piquetage).activityBase(zapa).build());
         fields.add(ActivityField.builder().fieldName("Poteaux ERDF").fieldType(FieldType.String).activity(piquetage).activityBase(zapa).build());
-        fields.add(ActivityField.builder().fieldName("NBRE APPUI PIQUETÉS").fieldType(FieldType.String).activity(piquetage).activityBase(zapa).build());
+        fields.add(ActivityField.builder().fieldName("NBRE APPUI PIQUETÉS").fieldType(FieldType.Number).activity(piquetage).activityBase(zapa).build());
         fields.add(ActivityField.builder().fieldName("IMB***").fieldType(FieldType.Number).activity(piquetage).activityBase(fi).build());
         piquetage.setFields(fields);
         activityRepository.save(piquetage);
