@@ -45,7 +45,7 @@ public class SseNotificationService implements NotificationService {
                 e.send(SseEmitter.event()
                         .id(RandomStringUtils.randomAlphanumeric(12))
                         .name(event.getName())
-                        .data(event.getPayloadJson(), MediaType.APPLICATION_JSON));
+                        .data(event.getPayloadJson()));
             } catch (Exception Exception) {
                 e.complete();
             }
