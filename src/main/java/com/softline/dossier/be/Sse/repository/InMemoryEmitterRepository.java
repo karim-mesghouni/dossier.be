@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,8 +18,8 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Slf4j
 public class InMemoryEmitterRepository implements EmitterRepository {
-
-    private final List<EmitterAgent> emitters = new ArrayList<>();
+    // TODO: are emitters being removed from this list if they disconnect?
+    private final List<EmitterAgent> emitters = Collections.synchronizedList(new ArrayList<>());
 
     @Override
     public Long addEmitter(Long agentId) {

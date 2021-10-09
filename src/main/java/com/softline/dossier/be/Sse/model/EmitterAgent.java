@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -13,7 +14,7 @@ public class EmitterAgent {
 
     public EmitterAgent(Long agentId) {
         this.agentId = agentId;
-        emitterSessions = new ArrayList<>();
+        emitterSessions = Collections.synchronizedList(new ArrayList<>());
     }
 
     private Long getNextSessionId() {

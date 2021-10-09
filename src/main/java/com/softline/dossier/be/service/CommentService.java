@@ -2,7 +2,7 @@ package com.softline.dossier.be.service;
 
 import com.softline.dossier.be.Halpers.EnvUtil;
 import com.softline.dossier.be.Halpers.FileSystem;
-import com.softline.dossier.be.Sse.model.EventDto;
+import com.softline.dossier.be.Sse.model.Event;
 import com.softline.dossier.be.Sse.service.SseNotificationService;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
@@ -116,7 +116,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         resolveCommentAttachments(comment, changes);
         getRepository().save(comment);
         var currentAgent = agentRepository.findByUsername(((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
-        sseNotificationService.sendNotificationForAll(EventDto.builder().type("comment").body(comment).build());
+        sseNotificationService.sendNotificationForAll(new Event("comment", comment));
         return comment;
     }
 
@@ -245,7 +245,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                             agent(Agent.builder().id(agentId).build()).build()
             ).collect(Collectors.toList());
             messageRepository.saveAll(messages);
-            messages.forEach(x -> sseNotificationService.sendNotification(x.getAgent().getId(), EventDto.builder().type("message").body(x).build()));
+            messages.forEach(x -> sseNotificationService.sendNotification(x.getAgent().getId(), Event.builder().name("message").payload(x).build()));
             return true;
         }
         return false;

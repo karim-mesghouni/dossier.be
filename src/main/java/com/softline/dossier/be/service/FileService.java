@@ -1,6 +1,6 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.Sse.model.EventDto;
+import com.softline.dossier.be.Sse.model.Event;
 import com.softline.dossier.be.Sse.service.SseNotificationService;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.graphql.types.FileFilterInput;
@@ -101,9 +101,9 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
             );
         }
 
-        sseNotificationService.sendNotificationForAll(EventDto.builder().type("changedInBackend").body(1).build());
-
-        return repository.save(file);
+        repository.save(file);
+        sseNotificationService.sendNotificationForAll(new Event("fileAdded", file.getId()));
+        return file;
     }
 
     @Override
@@ -146,6 +146,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
 
     @Override
     public File getById(long id) {
+        repository.flush();
         return repository.findById(id).orElseThrow();
     }
 

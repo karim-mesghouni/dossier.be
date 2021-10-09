@@ -1,11 +1,11 @@
 package com.softline.dossier.be.Sse.service;
 
 
-import com.softline.dossier.be.Sse.model.EventDto;
+import com.softline.dossier.be.Sse.model.Event;
 
 public interface NotificationService {
 
-    void sendNotification(Long agentId, EventDto event);
+    void sendNotification(Long agentId, Event event);
 
-    void sendNotificationForAll(EventDto event);
+    void sendNotificationForAll(Event event);
 }
