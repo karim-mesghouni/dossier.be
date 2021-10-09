@@ -44,7 +44,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     @Override
     public File create(FileInput input) throws IOException {
         File reprise = null;
-        if (input.getReprise() != null && input.getReprise().getId() != null) {
+        if (input.isFileReprise()) {
             reprise = getRepository().findById(input.getReprise().getId()).orElseThrow();
         }
 
@@ -109,7 +109,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     @Override
     public File update(FileInput input) {
         File reprise = null;
-        if (input.getReprise() != null && input.getReprise().getId() != null) {
+        if (input.isFileReprise()) {
             reprise = getRepository().findById(input.getReprise().getId()).orElseThrow();
         }
         var fileExist = repository.findById(input.getId()).orElseThrow();
