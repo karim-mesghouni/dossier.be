@@ -30,6 +30,7 @@ type FileActivity {
     state:ActivityState
     inTrash:Boolean
     fileActivityOrder:Int
+    createdDate: String
 
 }
 input FileActivityInput  {
