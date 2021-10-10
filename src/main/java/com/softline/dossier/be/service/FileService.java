@@ -268,6 +268,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     public boolean sendFileToTrash(Long fileId) {
         var file = getRepository().findById(fileId).orElseThrow();
         file.setInTrash(true);
+        sseNotificationService.sendNotificationForAll(new Event("fileTrashed", file.getId()));
         return true;
     }
 
