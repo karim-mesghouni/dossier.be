@@ -19,10 +19,10 @@ public interface FileRepository extends JpaRepository<File, Long>, FileRepositor
 
     Optional<File> findById(Long aLong);
 
-    @Query("select f from File f where f.order > :order")
+    @Query("select f from File f where f.order > :order order by f.order")
     List<File> findAllByOrderAfter(long order);
 
-    @Query("select f from File f where f.order < :order")
+    @Query("select f from File f where f.order < :order order by f.order")
     List<File> findAllByOrderBefore(long order);
 
     //    @Query("select f from File f where f.order > least(:a, :b) and f.order < greater(:a, :b)")
