@@ -24,7 +24,8 @@ public class File extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-
+    @Column(name = "`order`")
+    long order;
     String project;
     LocalDate attributionDate;
     LocalDate returnDeadline;
@@ -62,8 +63,19 @@ public class File extends BaseEntity {
     FileActivity currentFileActivity;
 
 
+    public void incrementOrder()
+    {
+        this.setOrder(this.getOrder() + 1);
+    }
+
+    public void decrementOrder()
+    {
+        this.setOrder(this.getOrder() - 1);
+    }
+
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "File{" +
                 "id=" + id +
                 ", project='" + project + '\'' +

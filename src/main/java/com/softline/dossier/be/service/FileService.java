@@ -273,5 +273,43 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         return true;
     }
 
-
+    /**
+     * change the order of a file,
+     * will be called when the user changes the order of a file in the FilesView
+     * in the case when fileBeforeId is not existent the file will be moved to be the first item in the list
+     * @param fileId the file(id) that we want to change its order
+     * @param fileBeforeId the file(id) which should be before the new position of the file, may be non-existent
+     * @return boolean
+     */
+    public boolean changeOrder(Long fileId, Long fileBeforeId)
+    {
+        if(repository.count() < 2){
+            return true;// this should not happen
+        }
+        var file = repository.getOne(fileId);
+        var res = repository.findById(fileBeforeId);
+        // TODO: convert this logic into Mutating queries in JPA
+        if (res.isPresent()) {
+            var fileBefore = res.get();
+            var levelsChange = repository.countAllByOrderBetween(file.getOrder(), fileBefore.getOrder());
+            if (file.getOrder() < fileBefore.getOrder()) {// file is moving down the list
+                repository.findAllByOrderAfter(file.getOrder())
+                        .stream()
+                        .limit(levelsChange + 1)
+                        .forEach(File::decrementOrder);
+                file.setOrder(fileBefore.getOrder() + 1);
+            } else {// file is moving up the list
+                var allAfter = repository.findAllByOrderAfter(fileBefore.getOrder());
+                allAfter.stream()
+                        .limit(levelsChange)
+                        .forEach(File::incrementOrder);
+                file.setOrder(repository.findAllByOrderAfter(fileBefore.getOrder()).stream().findFirst().get().getOrder()-1);
+            }
+        } else {// file should be the first item in the list
+            var allBefore = repository.findAllByOrderBefore(file.getOrder());
+            file.setOrder(allBefore.stream().findFirst().get().getOrder());
+            allBefore.forEach(File::incrementOrder);
+        }
+        return true;
+    }
 }

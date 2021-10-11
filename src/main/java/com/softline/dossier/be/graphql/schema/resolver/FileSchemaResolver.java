@@ -69,5 +69,8 @@ public class FileSchemaResolver extends SchemaResolverBase<File, FileInput, File
     public boolean recoverFileFromTrash(Long fileId) {
         return service.recoverFileFromTrash(fileId);
     }
+    public boolean changeOrder(Long fileId, Long fileBeforeId) {
+        return service.changeOrder(fileId, fileBeforeId);
+    }
 
 }

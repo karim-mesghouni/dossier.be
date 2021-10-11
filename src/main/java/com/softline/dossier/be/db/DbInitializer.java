@@ -266,6 +266,7 @@ public class DbInitializer implements ApplicationRunner
             {
                 var file = File.builder()
                         .client(getOne(clientList))
+                        .order(files.size()+1)
                         .agent(getOne(agents))
                         .commune(getOne(cities))
                         .createdDate(toDate(now))
