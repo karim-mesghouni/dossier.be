@@ -147,8 +147,10 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     @Override
     public boolean delete(long id)
     {
-        repository.deleteById(id);
-        return true;
+        // TODO: fix this issue
+        // files should not be removed (only trashed for now)
+        // we need their order when changing the order of other files
+        return false;
     }
 
     @Override
