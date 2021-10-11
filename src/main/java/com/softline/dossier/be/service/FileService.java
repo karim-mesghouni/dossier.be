@@ -64,27 +64,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
                 .client(Client.builder().id(input.getClient().getId()).build())
                 .commune(Commune.builder().id(input.getCommune().getId()).build()).build();
         var activity = activityRepository.findById(input.getBaseActivity().getId()).orElseThrow();
-     /*   var fileActivity = FileActivity.builder()
-                .file(file)
-                .current(true)
-                .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(activity.getId()))
-                .activity(activity)
-                .build();*/
-
-      /*  if (activity.getFields() != null && !activity.getFields().isEmpty()) {
-            var dataFields = activity.getFields().stream()
-                    .map(x -> ActivityDataField.builder()
-                            .data("")
-                            .fieldName(x.getFieldName())
-                            .groupName(x.getGroup() != null ? x.getGroup().getName() : null)
-                            .fieldType(FieldType.valueOf(x.getFieldType().toString()))
-                            .fileActivity(fileActivity)
-                            .build()
-                    );
-            fileActivity.setDataFields(dataFields.collect(Collectors.toList()));
-        }*/
         file.setBaseActivity(activity);
-        // file.getFileActivities().add(fileActivity);
         if (input.getCurrentFileState() != null && input.getCurrentFileState().getType() != null && input.getCurrentFileState().getType().getId() != null) {
 
             file.getFileStates().add(FileState.builder()
