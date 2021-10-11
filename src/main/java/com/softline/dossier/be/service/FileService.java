@@ -84,6 +84,13 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
             );
         }
 
+        if(repository.count() > 0) {
+            var firstOrder = repository.findAll().stream().findFirst().get().getOrder();
+            repository.findAll().forEach(File::incrementOrder);
+            file.setOrder(firstOrder);
+        }else{
+            file.setOrder(1);
+        }
         repository.save(file);
         sseNotificationService.sendNotificationForAll(new Event("fileAdded", file.getId()));
         return file;
