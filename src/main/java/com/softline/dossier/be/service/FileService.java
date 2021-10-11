@@ -308,6 +308,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
         // TODO: convert this logic into Mutating queries in JPA
         if (res.isPresent()) {
             var fileBefore = res.get();
+            // how many files will be updated (increment or decrement their order)
             var levelsChange = repository.countAllByOrderBetween(file.getOrder(), fileBefore.getOrder());
             if (file.getOrder() < fileBefore.getOrder()) {// file is moving down the list
                 repository.findAllByOrderAfter(file.getOrder())
@@ -324,7 +325,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
             }
         } else {// file should be the first item in the list
             var allBefore = repository.findAllByOrderBefore(file.getOrder());
-            file.setOrder(allBefore.stream().findFirst().get().getOrder());
+            file.setOrder(allBefore.stream().findFirst().get().getOrder());// gets the order of the old first file
             allBefore.forEach(File::incrementOrder);
         }
         return true;
