@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class InMemoryEmitterRepository implements EmitterRepository {
     // TODO: are emitters being removed from this list if they disconnect?
-    private final List<EmitterAgent> emitters = Collections.synchronizedList(new ArrayList<>());
+    private static final List<EmitterAgent> emitters = Collections.synchronizedList(new ArrayList<>());
 
     @Override
     public Long addEmitter(Long agentId) {
