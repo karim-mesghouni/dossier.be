@@ -287,7 +287,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
      * @param fileBeforeId the file(id) which should be before the new position of the file, may be non-existent
      * @return boolean
      */
-    public boolean changeOrder(Long fileId, Long fileBeforeId)
+    public synchronized boolean changeOrder(Long fileId, Long fileBeforeId)
     {
         if (repository.count() < 2) {
             return true;// this should not happen
