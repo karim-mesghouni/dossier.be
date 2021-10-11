@@ -163,13 +163,8 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         }
     }
 
-    public List<FileHistoryDTO> getFileHistory(long id) {
-        Comparator<FileHistoryDTO> dateComparator = new Comparator<FileHistoryDTO>() {
-            @Override
-            public int compare(FileHistoryDTO o1, FileHistoryDTO o2) {
-                return o1.getDate().compareTo(o2.getDate());
-            }
-        };
+    public List<FileHistoryDTO> getFileHistory(long id)
+    {
         AtomicInteger i = new AtomicInteger();
         var history = new ArrayList<FileHistoryDTO>();
         var file = repository.findById(id).orElseThrow();
@@ -222,7 +217,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
                     history.add(state);
                 }
         );
-        history.sort(dateComparator);
+        history.sort(Comparator.comparing(FileHistoryDTO::getDate));
         return history;
 
     }
