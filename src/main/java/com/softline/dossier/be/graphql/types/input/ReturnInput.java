@@ -9,7 +9,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class ReturnInput {
+public class ReturnInput
+{
 
     long id;
     int number;

@@ -11,7 +11,8 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClientInput {
+public class ClientInput
+{
 
     List<FileInput> files;
     List<VisAVisInput> visAVis;

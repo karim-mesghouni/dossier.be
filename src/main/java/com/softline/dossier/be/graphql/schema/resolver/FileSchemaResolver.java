@@ -20,7 +20,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 
-public class FileSchemaResolver extends SchemaResolverBase<File, FileInput, FileRepository, FileService> {
+public class FileSchemaResolver extends SchemaResolverBase<File, FileInput, FileRepository, FileService>
+{
 
 
     public File createFile(FileInput File) throws IOException, ClientReadableException
@@ -38,38 +39,48 @@ public class FileSchemaResolver extends SchemaResolverBase<File, FileInput, File
         return delete(id);
     }
 
-    public List<File> getAllFile() {
+    public List<File> getAllFile()
+    {
         return getAll();
     }
 
-    public File getFile(Long id) {
+    public File getFile(Long id)
+    {
         return get(id);
     }
 
-    public PageList<File> getAllFilePageFilter(FileFilterInput input) {
+    public PageList<File> getAllFilePageFilter(FileFilterInput input)
+    {
         return service.getAllFilePageFilter(input);
     }
 
-    public PageList<File> getAllFileInTrashPageFilter(FileFilterInput input) {
+    public PageList<File> getAllFileInTrashPageFilter(FileFilterInput input)
+    {
         return service.getAllFileInTrashPageFilter(input);
     }
 
-    public List<FileHistoryDTO> getFileHistory(Long id) {
+    public List<FileHistoryDTO> getFileHistory(Long id)
+    {
         return service.getFileHistory(id);
     }
 
-    public List<FileStateType> getAllFileStateType() {
+    public List<FileStateType> getAllFileStateType()
+    {
         return service.getAllFileStateType();
     }
 
-    public boolean sendFileToTrash(Long fileId) {
+    public boolean sendFileToTrash(Long fileId)
+    {
         return service.sendFileToTrash(fileId);
     }
 
-    public boolean recoverFileFromTrash(Long fileId) {
+    public boolean recoverFileFromTrash(Long fileId)
+    {
         return service.recoverFileFromTrash(fileId);
     }
-    public boolean changeOrder(Long fileId, Long fileBeforeId) {
+
+    public boolean changeOrder(Long fileId, Long fileBeforeId)
+    {
         return service.changeOrder(fileId, fileBeforeId);
     }
 

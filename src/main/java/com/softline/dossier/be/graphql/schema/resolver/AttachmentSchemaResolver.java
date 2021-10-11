@@ -17,25 +17,29 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class AttachmentSchemaResolver implements GraphQLMutationResolver, GraphQLQueryResolver {
+public class AttachmentSchemaResolver implements GraphQLMutationResolver, GraphQLQueryResolver
+{
     private final FileTaskAttachmentRepository fileTaskAttachmentRepository;
     private final CommentAttachmentRepository commentAttachmentRepository;
     private final FileSystem fileSystem;
     private final EntityManager entityManager;
 
-    public List<Attachment> getAllForFileTask(Long fileTaskId) {
+    public List<Attachment> getAllForFileTask(Long fileTaskId)
+    {
         return fileTaskAttachmentRepository.getAllForFileTask(fileTaskId)
                 .stream().map(e -> (Attachment) e)
                 .collect(Collectors.toList());
     }
 
-    public List<Attachment> getAllForComment(Long commentId) {
+    public List<Attachment> getAllForComment(Long commentId)
+    {
         return commentAttachmentRepository.getAllForComment(commentId)
                 .stream().map(e -> (Attachment) e)
                 .collect(Collectors.toList());
     }
 
-    public Boolean deleteFileTaskAttachment(Long attachmentId) {
+    public Boolean deleteFileTaskAttachment(Long attachmentId)
+    {
         var res = fileTaskAttachmentRepository.findById(attachmentId);
         if (res.isEmpty()) {
             return false;
@@ -56,7 +60,8 @@ public class AttachmentSchemaResolver implements GraphQLMutationResolver, GraphQ
         }
     }
 
-    public Boolean deleteCommentAttachment(Long attachmentId) {
+    public Boolean deleteCommentAttachment(Long attachmentId)
+    {
         if (!commentAttachmentRepository.existsById(attachmentId)) {
             return false;
         }

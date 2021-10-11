@@ -21,7 +21,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 
-public class CommentSchemaResolver extends SchemaResolverBase<Comment, CommentInput, CommentRepository, CommentService> {
+public class CommentSchemaResolver extends SchemaResolverBase<Comment, CommentInput, CommentRepository, CommentService>
+{
 
 
     public Comment createComment(CommentInput input) throws IOException, ClientReadableException
@@ -39,28 +40,34 @@ public class CommentSchemaResolver extends SchemaResolverBase<Comment, CommentIn
         return delete(id);
     }
 
-    public List<Comment> getAllComment() {
+    public List<Comment> getAllComment()
+    {
         return getAll();
     }
 
-    public Comment getComment(Long id) {
+    public Comment getComment(Long id)
+    {
         return get(id);
     }
 
-    public String uploadImage(Part part, DataFetchingEnvironment environment) throws IOException, NoSuchAlgorithmException {
+    public String uploadImage(Part part, DataFetchingEnvironment environment) throws IOException, NoSuchAlgorithmException
+    {
         return service.saveFile(environment);
     }
 
-    public List<Comment> getAllCommentByFileId(Long fileId) {
+    public List<Comment> getAllCommentByFileId(Long fileId)
+    {
         return service.getAllCommentByFileId(fileId);
 
     }
 
-    public boolean notifyMessage(NotifyMessageInput input) {
+    public boolean notifyMessage(NotifyMessageInput input)
+    {
         return service.notifyMessage(input);
     }
 
-    public List<Message> getMessages(Long agentId) {
+    public List<Message> getMessages(Long agentId)
+    {
         return service.getMessages(agentId);
     }
 }

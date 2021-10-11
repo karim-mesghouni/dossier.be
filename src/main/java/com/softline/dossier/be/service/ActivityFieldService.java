@@ -13,36 +13,43 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 
-public class ActivityFieldService extends IServiceBase<ActivityField, ActivityFieldInput, ActivityFieldRepository> {
+public class ActivityFieldService extends IServiceBase<ActivityField, ActivityFieldInput, ActivityFieldRepository>
+{
 
 
     @Override
-    public List<ActivityField> getAll() {
+    public List<ActivityField> getAll()
+    {
         return repository.findAll();
     }
 
     @Override
-    public ActivityField create(ActivityFieldInput entityInput) {
+    public ActivityField create(ActivityFieldInput entityInput)
+    {
         return null;
     }
 
     @Override
-    public ActivityField update(ActivityFieldInput entityInput) {
+    public ActivityField update(ActivityFieldInput entityInput)
+    {
         return null;
     }
 
     @Override
-    public boolean delete(long id) {
+    public boolean delete(long id)
+    {
         repository.deleteById(id);
         return true;
     }
 
     @Override
-    public ActivityField getById(long id) {
+    public ActivityField getById(long id)
+    {
         return repository.findById(id).orElseThrow();
     }
 
-    public List<ActivityField> getAllActivityFieldByActivityId(Long activityId) {
+    public List<ActivityField> getAllActivityFieldByActivityId(Long activityId)
+    {
         return getRepository().getActivityFieldByActivity_Id(activityId);
     }
 

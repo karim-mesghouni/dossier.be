@@ -6,7 +6,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Data
 @Builder
-public class EmitterItem {
+public class EmitterItem
+{
     SseEmitter emitter;
     Long sessionId;
 }

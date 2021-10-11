@@ -15,7 +15,8 @@ import javax.persistence.ManyToOne;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Entity
-public class CommentAttachment extends Attachment {
+public class CommentAttachment extends Attachment
+{
     @ManyToOne
     private Comment comment;
 }

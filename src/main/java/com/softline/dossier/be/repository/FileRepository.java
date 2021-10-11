@@ -11,9 +11,10 @@ import java.util.Optional;
 
 
 @Repository
-public interface FileRepository extends JpaRepository<File, Long>, FileRepositoryCustom {
+public interface FileRepository extends JpaRepository<File, Long>, FileRepositoryCustom
+{
 
-    @Query("select  f from  File f where f.inTrash=false ")
+    @Query("select f from File f where f.inTrash = false order by f.order")
     List<File> findAll();
 
     Optional<File> findById(Long aLong);
@@ -24,7 +25,7 @@ public interface FileRepository extends JpaRepository<File, Long>, FileRepositor
     @Query("select f from File f where f.order < :order")
     List<File> findAllByOrderBefore(long order);
 
-//    @Query("select f from File f where f.order > least(:a, :b) and f.order < greater(:a, :b)")
+    //    @Query("select f from File f where f.order > least(:a, :b) and f.order < greater(:a, :b)")
     @Query("select count(f) from File f where (:a < :b and f.order > :a and f.order < :b) or (:a >= :b and f.order > :b and f.order < :a)")
     int countAllByOrderBetween(long a, long b);
 }

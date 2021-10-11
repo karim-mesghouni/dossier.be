@@ -16,7 +16,8 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class Activity extends BaseEntity {
+public class Activity extends BaseEntity
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -39,7 +40,8 @@ public class Activity extends BaseEntity {
     List<ActivityState> states;
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "Activity{" +
                 "id=" + id +
                 ", name='" + name + '\'' +

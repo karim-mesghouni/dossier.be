@@ -11,7 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class BlockingLabelInput {
+public class BlockingLabelInput
+{
 
     long id;
 

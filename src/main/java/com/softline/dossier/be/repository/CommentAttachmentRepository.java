@@ -8,7 +8,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CommentAttachmentRepository extends JpaRepository<CommentAttachment, Long> {
+public interface CommentAttachmentRepository extends JpaRepository<CommentAttachment, Long>
+{
     @Query("SELECT att from CommentAttachment att where att.comment.id = :commentId")
     List<CommentAttachment> getAllForComment(Long commentId);
 

@@ -8,12 +8,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 @Data
-public class CustomAgentDetails implements UserDetails {
+public class CustomAgentDetails implements UserDetails
+{
 
     private final Agent agent;
     Collection<GrantedAuthority> grantedAuthorities;
 
-    public CustomAgentDetails(Agent agent, Collection<GrantedAuthority> grantedAuthorities) {
+    public CustomAgentDetails(Agent agent, Collection<GrantedAuthority> grantedAuthorities)
+    {
 
         this.grantedAuthorities = grantedAuthorities;
         this.agent = agent;
@@ -21,37 +23,44 @@ public class CustomAgentDetails implements UserDetails {
 
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Collection<? extends GrantedAuthority> getAuthorities()
+    {
         return grantedAuthorities;
     }
 
     @Override
-    public String getPassword() {
+    public String getPassword()
+    {
         return agent.getPassword();
     }
 
     @Override
-    public String getUsername() {
+    public String getUsername()
+    {
         return agent.getUsername();
     }
 
     @Override
-    public boolean isAccountNonExpired() {
+    public boolean isAccountNonExpired()
+    {
         return true;
     }
 
     @Override
-    public boolean isAccountNonLocked() {
+    public boolean isAccountNonLocked()
+    {
         return true;
     }
 
     @Override
-    public boolean isCredentialsNonExpired() {
+    public boolean isCredentialsNonExpired()
+    {
         return true;
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled()
+    {
         return agent.isEnabled();
     }
 }

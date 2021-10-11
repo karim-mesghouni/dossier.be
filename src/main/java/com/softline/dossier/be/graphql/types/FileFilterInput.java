@@ -5,7 +5,8 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class FileFilterInput {
+public class FileFilterInput
+{
     int pageNumber;
     int pageSize;
     String project;

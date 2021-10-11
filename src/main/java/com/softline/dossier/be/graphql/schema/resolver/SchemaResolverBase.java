@@ -10,12 +10,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.io.IOException;
 import java.util.List;
 
-public abstract class SchemaResolverBase<IEntity, IEntityInput, IRepository extends JpaRepository<IEntity, Long>, IService extends IServiceBase<IEntity, IEntityInput, IRepository>> implements GraphQLMutationResolver, GraphQLQueryResolver {
+public abstract class SchemaResolverBase<IEntity, IEntityInput, IRepository extends JpaRepository<IEntity, Long>, IService extends IServiceBase<IEntity, IEntityInput, IRepository>> implements GraphQLMutationResolver, GraphQLQueryResolver
+{
 
     @Autowired
     protected IService service;
 
-    protected IEntity create(IEntityInput entityInput) throws IOException, ClientReadableException {
+    protected IEntity create(IEntityInput entityInput) throws IOException, ClientReadableException
+    {
         return service.create(entityInput);
     }
 
@@ -24,19 +26,23 @@ public abstract class SchemaResolverBase<IEntity, IEntityInput, IRepository exte
         return service.update(entityInput);
     }
 
-    protected boolean delete(Long id) throws ClientReadableException {
+    protected boolean delete(Long id) throws ClientReadableException
+    {
         return service.delete(id);
     }
 
-    protected List<IEntity> getAll() {
+    protected List<IEntity> getAll()
+    {
         return service.getAll();
     }
 
-    protected IEntity get(Long id) {
+    protected IEntity get(Long id)
+    {
         return service.getById(id);
     }
 
-    public IService getService() {
+    public IService getService()
+    {
         return service;
     }
 }

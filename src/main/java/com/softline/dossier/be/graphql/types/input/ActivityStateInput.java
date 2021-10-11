@@ -12,7 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class ActivityStateInput {
+public class ActivityStateInput
+{
     long id;
     String name;
 

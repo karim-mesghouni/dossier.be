@@ -8,7 +8,8 @@ import java.util.List;
 
 @Repository
 
-public interface ActivityFieldRepository extends JpaRepository<ActivityField, Long> {
+public interface ActivityFieldRepository extends JpaRepository<ActivityField, Long>
+{
 
 
     List<ActivityField> getActivityFieldByActivity_Id(long activityId);

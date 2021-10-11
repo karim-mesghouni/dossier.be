@@ -20,7 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class JsonFilePolicyDefinition implements PolicyDefinition {
+public class JsonFilePolicyDefinition implements PolicyDefinition
+{
     private static final Logger logger = LoggerFactory.getLogger(JsonFilePolicyDefinition.class);
 
     private static final String DEFAULT_POLICY_FILE_NAME = "/default-policy.json";
@@ -31,7 +32,8 @@ public class JsonFilePolicyDefinition implements PolicyDefinition {
     private List<PolicyRule> rules;
 
     @PostConstruct
-    private void init() {
+    private void init()
+    {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Expression.class, new SpelDeserializer());
@@ -40,7 +42,8 @@ public class JsonFilePolicyDefinition implements PolicyDefinition {
             PolicyRule[] rulesArray = null;
             logger.debug("[init] Checking policy file at: {}", policyFilePath);
             if (policyFilePath != null && !policyFilePath.isEmpty()
-                    && Files.exists(Paths.get(policyFilePath))) {
+                    && Files.exists(Paths.get(policyFilePath)))
+            {
                 logger.info("[init] Loading policy from custom file: {}", policyFilePath);
                 rulesArray = mapper.readValue(new File(policyFilePath), PolicyRule[].class);
             } else {
@@ -57,7 +60,8 @@ public class JsonFilePolicyDefinition implements PolicyDefinition {
     }
 
     @Override
-    public List<PolicyRule> getAllPolicyRules() {
+    public List<PolicyRule> getAllPolicyRules()
+    {
         return rules;
     }
 

@@ -20,7 +20,8 @@ import java.util.List;
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE File SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class File extends BaseEntity {
+public class File extends BaseEntity
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;

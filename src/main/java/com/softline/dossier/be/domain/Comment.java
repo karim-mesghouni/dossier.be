@@ -23,7 +23,8 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @SQLDelete(sql = "UPDATE Comment SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class Comment extends BaseEntity implements IComment {
+public class Comment extends BaseEntity implements IComment
+{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

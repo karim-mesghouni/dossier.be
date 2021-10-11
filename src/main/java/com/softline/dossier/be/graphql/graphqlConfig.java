@@ -12,17 +12,20 @@ import javax.persistence.EntityNotFoundException;
 
 @Component
 
-public class graphqlConfig {
+public class graphqlConfig
+{
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @ExceptionHandler(AccessDeniedException.class)
-    public GraphQLError exceptionHandler(AccessDeniedException e) {
+    public GraphQLError exceptionHandler(AccessDeniedException e)
+    {
         return new ThrowableGraphQLError(e, "Unauthorized request");
     }
 
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public GraphQLError exceptionHandler(EntityNotFoundException e) {
+    public GraphQLError exceptionHandler(EntityNotFoundException e)
+    {
         return new ThrowableGraphQLError(e, "Entity not found");
     }
 

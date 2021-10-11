@@ -17,7 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 
-public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity, FileActivityInput, FileActivityRepository, FileActivityService> {
+public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity, FileActivityInput, FileActivityRepository, FileActivityService>
+{
 
 
     public FileActivity createFileActivity(FileActivityInput FileActivity) throws IOException, ClientReadableException
@@ -35,39 +36,48 @@ public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity,
         return delete(id);
     }
 
-    protected List<FileActivity> getAllFileActivity() {
+    protected List<FileActivity> getAllFileActivity()
+    {
         return getAll();
     }
 
-    protected FileActivity getFileActivity(Long id) {
+    protected FileActivity getFileActivity(Long id)
+    {
         return get(id);
     }
 
-    public List<FileActivity> getAllFileActivityByFileId(Long fileId) {
+    public List<FileActivity> getAllFileActivityByFileId(Long fileId)
+    {
         return service.getAllFileActivityByFileId(fileId);
     }
 
-    public List<FileActivity> getAllFileActivityByFileIdInTrash(Long fileId) {
+    public List<FileActivity> getAllFileActivityByFileIdInTrash(Long fileId)
+    {
         return service.getAllFileActivityByFileIdInTrash(fileId);
     }
 
-    public ActivityState changeActivityState(Long activityStateId, Long fileActivityId) {
+    public ActivityState changeActivityState(Long activityStateId, Long fileActivityId)
+    {
         return service.changeActivityState(activityStateId, fileActivityId);
     }
 
-    public boolean recoverFileActivityFromTrash(Long fileActivityId) {
+    public boolean recoverFileActivityFromTrash(Long fileActivityId)
+    {
         return service.recoverFileActivityFromTrash(fileActivityId);
     }
 
-    public boolean sendFileActivityToTrash(Long fileActivityId) {
+    public boolean sendFileActivityToTrash(Long fileActivityId)
+    {
         return service.sendFileActivityToTrash(fileActivityId);
     }
 
-    public boolean fileActivityOrderUp(Long fileActivityId) {
+    public boolean fileActivityOrderUp(Long fileActivityId)
+    {
         return service.fileActivityOrderUp(fileActivityId);
     }
 
-    public boolean fileActivityOrderDown(Long fileActivityId) {
+    public boolean fileActivityOrderDown(Long fileActivityId)
+    {
         return service.fileActivityOrderDown(fileActivityId);
     }
 }

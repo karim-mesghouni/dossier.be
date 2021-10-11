@@ -4,11 +4,11 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class ListUtils {
+public class ListUtils
+{
     /**
      * calls the builder {count} times and returns the returned results of the builder as a collection
      *
@@ -19,7 +19,8 @@ public class ListUtils {
      */
     @NotNull
     @SneakyThrows
-    public static <R> List<R> createCount(int count, Callable<R> builder) {
+    public static <R> List<R> createCount(int count, Callable<R> builder)
+    {
         List<R> items = new ArrayList<>();
         while (count-- > 0) {
             items.add(builder.call());

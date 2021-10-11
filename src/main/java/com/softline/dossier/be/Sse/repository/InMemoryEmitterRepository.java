@@ -17,20 +17,23 @@ import java.util.stream.Stream;
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-public class InMemoryEmitterRepository implements EmitterRepository {
+public class InMemoryEmitterRepository implements EmitterRepository
+{
     // TODO: are emitters being removed from this list if they disconnect?
     private static final List<EmitterAgent> emitters = Collections.synchronizedList(new ArrayList<>());
 
     @Override
-    public Long addEmitter(Long agentId) {
+    public Long addEmitter(Long agentId)
+    {
 
         var ifexistsEmitter = emitters.stream().filter(x -> x.getAgentId() == agentId).findFirst();
         EmitterAgent existsEmitter = null;
         if (!ifexistsEmitter.isPresent()) {
             existsEmitter = new EmitterAgent(agentId);
             emitters.add(existsEmitter);
-        } else
+        } else {
             existsEmitter = ifexistsEmitter.get();
+        }
 
         EmitterService.Utf8SseEmitter emitter = new EmitterService.Utf8SseEmitter(1000 * 60 * 60 * 24 * 7);
         var sessionId = existsEmitter.addEmitterSession(emitter);
@@ -44,7 +47,8 @@ public class InMemoryEmitterRepository implements EmitterRepository {
                     emitters.stream().filter(x -> x.getAgentId() == agentId).findFirst().ifPresent(x -> x.removeEmitterSession(sessionId));
                 }
         );
-        emitter.onError(e -> {
+        emitter.onError(e ->
+        {
             log.error("Create SseEmitter exception", e);
             emitters.stream().filter(x -> x.getAgentId() == agentId).findFirst().ifPresent(x -> x.removeEmitterSession(sessionId));
         });
@@ -52,25 +56,30 @@ public class InMemoryEmitterRepository implements EmitterRepository {
     }
 
     @Override
-    public void remove(Long agentId, Long sessionId) {
+    public void remove(Long agentId, Long sessionId)
+    {
         var existsEmitter = get(agentId, sessionId);
         existsEmitter.ifPresent(x -> x.complete());
     }
 
     @Override
-    public void remove(Long agentId, SseEmitter emitter) {
-        emitters.stream().filter(x -> x.getAgentId() == agentId).findFirst().ifPresent(x -> {
+    public void remove(Long agentId, SseEmitter emitter)
+    {
+        emitters.stream().filter(x -> x.getAgentId() == agentId).findFirst().ifPresent(x ->
+        {
             x.getEmitterSessions().removeIf(ei -> ei.getEmitter().equals(emitter));
         });
     }
 
     @Override
-    public Stream<Stream<SseEmitter>> getAll() {
+    public Stream<Stream<SseEmitter>> getAll()
+    {
         return emitters.stream().map(x -> x.getEmitterSessions().stream().map(s -> s.getEmitter()));
     }
 
     @Override
-    public Optional<SseEmitter> get(Long agentId, Long sessionId) {
+    public Optional<SseEmitter> get(Long agentId, Long sessionId)
+    {
         var existsEmitter = emitters.stream().filter(x -> x.getAgentId().equals(agentId)).findFirst();
         if (existsEmitter.isPresent()) {
             return existsEmitter.get().getEmitterSessions().stream().filter(x -> x.getSessionId().equals(sessionId)).findFirst().map(x -> x.getEmitter());
@@ -79,7 +88,8 @@ public class InMemoryEmitterRepository implements EmitterRepository {
     }
 
     @Override
-    public Optional<List<SseEmitter>> get(Long agentId) {
+    public Optional<List<SseEmitter>> get(Long agentId)
+    {
         var existsEmitter = emitters.stream().filter(x -> x.getAgentId().equals(agentId)).findFirst();
 
         if (existsEmitter.isPresent()) {

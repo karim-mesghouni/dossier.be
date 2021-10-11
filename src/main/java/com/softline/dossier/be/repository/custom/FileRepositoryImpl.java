@@ -16,12 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Transactional
-public class FileRepositoryImpl implements FileRepositoryCustom {
+public class FileRepositoryImpl implements FileRepositoryCustom
+{
     @PersistenceContext
     EntityManager entityManager;
 
     @Override
-    public Pair<Long, List<File>> getByFilter(FileFilterInput input) {
+    public Pair<Long, List<File>> getByFilter(FileFilterInput input)
+    {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<File> cq = cb.createQuery(File.class);
         var fileRoot = cq.from(File.class);
@@ -99,7 +101,8 @@ public class FileRepositoryImpl implements FileRepositoryCustom {
     }
 
     @Override
-    public Pair<Long, List<File>> getInTrashByFilter(FileFilterInput input) {
+    public Pair<Long, List<File>> getInTrashByFilter(FileFilterInput input)
+    {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<File> cq = cb.createQuery(File.class);
         var fileRoot = cq.from(File.class);
@@ -178,7 +181,8 @@ public class FileRepositoryImpl implements FileRepositoryCustom {
     }
 
     @Override
-    public Pair<Long, List<File>> getInTrashByFilterWithActivity(FileFilterInput input) {
+    public Pair<Long, List<File>> getInTrashByFilterWithActivity(FileFilterInput input)
+    {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<File> cq = cb.createQuery(File.class);
         var fileRoot = cq.from(File.class);
@@ -257,7 +261,8 @@ public class FileRepositoryImpl implements FileRepositoryCustom {
     }
 
     @Override
-    public Pair<Long, List<File>> getInTrashByFilterWithTask(FileFilterInput input) {
+    public Pair<Long, List<File>> getInTrashByFilterWithTask(FileFilterInput input)
+    {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<File> cq = cb.createQuery(File.class);
         var fileRoot = cq.from(File.class);

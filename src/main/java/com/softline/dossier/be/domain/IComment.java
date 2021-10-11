@@ -1,4 +1,5 @@
 package com.softline.dossier.be.domain;
 
-public interface IComment {
+public interface IComment
+{
 }

@@ -16,7 +16,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 
-public class ActivitySchemaResolver extends SchemaResolverBase<Activity, ActivityInput, ActivityRepository, ActivityService> {
+public class ActivitySchemaResolver extends SchemaResolverBase<Activity, ActivityInput, ActivityRepository, ActivityService>
+{
 
     public Activity createActivity(ActivityInput Activity) throws IOException, ClientReadableException
     {
@@ -33,11 +34,13 @@ public class ActivitySchemaResolver extends SchemaResolverBase<Activity, Activit
         return delete(id);
     }
 
-    protected List<Activity> getAllActivity() {
+    protected List<Activity> getAllActivity()
+    {
         return getAll();
     }
 
-    protected Activity getActivity(Long id) {
+    protected Activity getActivity(Long id)
+    {
         return get(id);
     }
 }

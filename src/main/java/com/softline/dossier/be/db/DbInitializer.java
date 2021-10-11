@@ -10,9 +10,7 @@ import com.softline.dossier.be.security.domain.Privilege;
 import com.softline.dossier.be.security.domain.Role;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import com.softline.dossier.be.security.repository.RoleRepository;
-
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -22,7 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -62,16 +63,14 @@ public class DbInitializer implements ApplicationRunner
     public void run(ApplicationArguments args)
     {
         passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        if (activityRepository.count() == 0)
-        {
+        if (activityRepository.count() == 0) {
             createZapaActivity();
             createFIActivity();
             createIPONActivity();
             createPiquetageActivity();
             createCDCActivity();
         }
-        if (clientRepository.count() == 0)
-        {
+        if (clientRepository.count() == 0) {
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("RH"))));
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("AXIANS"))));
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("AXIANS IDF"))));
@@ -87,12 +86,10 @@ public class DbInitializer implements ApplicationRunner
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("SCOPELEC"))));
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("SPIE"))));
         }
-        if (communeRepository.count() == 0)
-        {
+        if (communeRepository.count() == 0) {
             createCommunes();
         }
-        if (fileStateTypeRepository.count() == 0)
-        {
+        if (fileStateTypeRepository.count() == 0) {
             fileStateTypeRepository.save(FileStateType.builder().state("En cours").build());
             fileStateTypeRepository.save(FileStateType.builder().state("Terminé").Final(true).build());
             fileStateTypeRepository.save(FileStateType.builder().state("Livré").build());
@@ -117,8 +114,7 @@ public class DbInitializer implements ApplicationRunner
 //                Privilege.builder().name(d+"HISTORY").build()));
 //        role.setPrivileges(privs);
 //        roleRepository.save(role);
-        if (agentRepository.count() == 0)
-        {
+        if (agentRepository.count() == 0) {
             final Role ADMIN_ROLE;
             List<Privilege> allPrivileges = List.of(
                     Privilege.builder().name(c + "FILE").build(),
@@ -156,8 +152,7 @@ public class DbInitializer implements ApplicationRunner
             );
             ADMIN_ROLE = roleRepository.save(Role.builder().name("ROLE_ADMIN").privileges(allPrivileges).build());
             // admin user
-            for (var admin : List.of("elhabib", "othman", "boubaker"))
-            {
+            for (var admin : List.of("elhabib", "othman", "boubaker")) {
                 agentRepository.save(Agent.builder()
                         .name(admin)
                         .email(admin + "@gmail.com")
@@ -180,8 +175,7 @@ public class DbInitializer implements ApplicationRunner
                 );
             });
         }
-        if (blockingLabelRepository.count() == 0)
-        {
+        if (blockingLabelRepository.count() == 0) {
             for (var name : List.of("AUTRE: BLOCAGE INTERNE",
                     "AUTRE BLOCAGE : GESTOT",
                     "IPON.SST : BLOCAGE IPON",
@@ -193,13 +187,11 @@ public class DbInitializer implements ApplicationRunner
                     "CAP FT : ETUDE FT À FAIRE OU ENCOURS",
                     "ENEDIS : ETUDE ENEDIS À FAIRE OU ENCOURS",
                     "DDE DESAT: DÉSATURATION OU DE MODIF.DE ZONE",
-                    "BLOC.CMS : CRÉATION, MODIFICATION,SUPPRESSION CMS"))
-            {
+                    "BLOC.CMS : CRÉATION, MODIFICATION,SUPPRESSION CMS")) {
                 blockingLabelRepository.save(BlockingLabel.builder().name(name).build());
             }
         }
-        if (blockingQualificationRepository.count() == 0)
-        {
+        if (blockingQualificationRepository.count() == 0) {
             for (var name : List.of("CMS",
                     "PIT",
                     "FLUX",
@@ -223,13 +215,11 @@ public class DbInitializer implements ApplicationRunner
                     "SOUS DIMENSIONNEMENT",
                     "SYNDIC NON IDENTIFIE",
                     "MODIFICATION NBRE EL",
-                    "CMS+ SYNDIC NON IDENTIFIE"))
-            {
+                    "CMS+ SYNDIC NON IDENTIFIE")) {
                 blockingQualificationRepository.save(BlockingQualification.builder().name(name).build());
             }
         }
-        if (blockingLockingAddressRepository.count() == 0)
-        {
+        if (blockingLockingAddressRepository.count() == 0) {
             for (var name : List.of("NEGO",
                     "INTERNE",
                     "CMS+NEGO",
@@ -240,14 +230,12 @@ public class DbInitializer implements ApplicationRunner
                     "SUPPORT BE+NEGO",
                     "SUPPORT BE+PILOTAGE",
                     "PILOTAGE PARTENAIRE",
-                    "PILOTAGE PARTENAIRES: SAMY"))
-            {
+                    "PILOTAGE PARTENAIRES: SAMY")) {
                 blockingLockingAddressRepository.save(BlockingLockingAddress.builder().address(name).build());
             }
         }
 
-        if (fileRepository.count() == 0)
-        {
+        if (fileRepository.count() == 0) {
 
             List<Client> clientList = clientRepository.findAll();
             List<Commune> cities = communeRepository.findAll();
@@ -262,11 +250,10 @@ public class DbInitializer implements ApplicationRunner
             var blockingLabels = blockingLabelRepository.findAll();
             var blockingQualifications = blockingQualificationRepository.findAll();
             var blockingLocks = blockingLockingAddressRepository.findAll();
-            for (int i = 0; i < 30; i++)
-            {
+            for (int i = 0; i < 30; i++) {
                 var file = File.builder()
                         .client(getOne(clientList))
-                        .order(files.size()+1)
+                        .order(files.size() + 1)
                         .agent(getOne(agents))
                         .commune(getOne(cities))
                         .createdDate(toDate(now))
@@ -341,8 +328,7 @@ public class DbInitializer implements ApplicationRunner
                                     .fileTask(task)
                                     .createdDate(stateDate.get())
                                     .build();
-                            if (situation.isBlock())
-                            {
+                            if (situation.isBlock()) {
                                 var block = Blocking
                                         .builder()
                                         .state(fileTaskSituation)
@@ -354,8 +340,7 @@ public class DbInitializer implements ApplicationRunner
                                         .explication(faker.lebowski().quote())
                                         .build();
                                 fileTaskSituation.setBlocking(block);
-                                if (blocks.size() > 0)
-                                {
+                                if (blocks.size() > 0) {
                                     blocks.stream().reduce((first, second) -> second).get().getBlocking().setDateUnBlocked(toLocalDate(blockDate.get()).atStartOfDay());
                                 }
                                 blocks.add(fileTaskSituation);
@@ -394,8 +379,7 @@ public class DbInitializer implements ApplicationRunner
         activity.getActivity().getFields().forEach(field ->
         {
             Object data;
-            switch (field.getFieldType())
-            {
+            switch (field.getFieldType()) {
                 case Date:
                     data = faker.date().future(10, TimeUnit.DAYS);
                     break;
@@ -458,8 +442,7 @@ public class DbInitializer implements ApplicationRunner
     private List<Contact> fakeContacts(Client c)
     {
         List<Contact> contacts = new ArrayList<>();
-        for (int i = 0; i < 2; i++)
-        {
+        for (int i = 0; i < 2; i++) {
             contacts.add(fakeContact(c));
         }
         return contacts;

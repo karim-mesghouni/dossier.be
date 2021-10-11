@@ -9,7 +9,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class VisAVisInput {
+public class VisAVisInput
+{
 
     long id;
     String name;

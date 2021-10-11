@@ -13,32 +13,38 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 
-public class ActivityService extends IServiceBase<Activity, ActivityInput, ActivityRepository> {
+public class ActivityService extends IServiceBase<Activity, ActivityInput, ActivityRepository>
+{
 
 
     @Override
-    public List<Activity> getAll() {
+    public List<Activity> getAll()
+    {
         return repository.findAll();
     }
 
     @Override
-    public Activity create(ActivityInput entityInput) {
+    public Activity create(ActivityInput entityInput)
+    {
         return null;
     }
 
     @Override
-    public Activity update(ActivityInput entityInput) {
+    public Activity update(ActivityInput entityInput)
+    {
         return null;
     }
 
     @Override
-    public boolean delete(long id) {
+    public boolean delete(long id)
+    {
         repository.deleteById(id);
         return true;
     }
 
     @Override
-    public Activity getById(long id) {
+    public Activity getById(long id)
+    {
         return repository.findById(id).orElseThrow();
     }
 }

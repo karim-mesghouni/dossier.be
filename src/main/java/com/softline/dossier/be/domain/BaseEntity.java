@@ -27,7 +27,8 @@ import java.util.Date;
         @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 })
 @Data
-public class BaseEntity {
+public class BaseEntity
+{
 
     boolean deleted;
     @CreatedBy

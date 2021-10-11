@@ -16,7 +16,8 @@ import javax.persistence.*;
 @Data
 @SQLDelete(sql = "UPDATE visavis SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class VisAVis {
+public class VisAVis
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;

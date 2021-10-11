@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 
-public interface ReturnedCommentRepository extends JpaRepository<ReturnedComment, Long> {
+public interface ReturnedCommentRepository extends JpaRepository<ReturnedComment, Long>
+{
 }

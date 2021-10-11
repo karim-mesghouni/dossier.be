@@ -7,7 +7,8 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class PageList<T> {
+public class PageList<T>
+{
     List<T> page;
     long Count;
 }

@@ -21,7 +21,8 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @SQLDelete(sql = "UPDATE file_task SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false ")
-public class FileTask extends BaseEntity {
+public class FileTask extends BaseEntity
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -69,7 +70,8 @@ public class FileTask extends BaseEntity {
     @Builder.Default
     private List<FileTaskAttachment> attachments = new ArrayList<>();
 
-    public List<Attachment> getAttachments() {
+    public List<Attachment> getAttachments()
+    {
         if (attachments == null) {
             return null;
         }
@@ -77,7 +79,8 @@ public class FileTask extends BaseEntity {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "FileTask{" +
                 "id=" + id +
                 ", title='" + title + '\'' +

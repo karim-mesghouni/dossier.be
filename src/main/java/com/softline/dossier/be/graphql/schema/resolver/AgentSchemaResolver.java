@@ -15,7 +15,8 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
-public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, AgentRepository, AgentService> {
+public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, AgentRepository, AgentService>
+{
 
 
     public Agent createAgent(AgentInput agentInput) throws IOException, ClientReadableException
@@ -33,15 +34,18 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
         return delete(id);
     }
 
-    public List<Agent> getAllAgent() {
+    public List<Agent> getAllAgent()
+    {
         return getAll();
     }
 
-    public Agent getAgent(Long id) {
+    public Agent getAgent(Long id)
+    {
         return get(id);
     }
 
-    public Agent getCurrentAgent() {
+    public Agent getCurrentAgent()
+    {
         return service.getCurrentAgent();
     }
 }

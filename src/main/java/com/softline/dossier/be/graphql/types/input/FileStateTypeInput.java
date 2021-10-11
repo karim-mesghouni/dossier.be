@@ -9,7 +9,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class FileStateTypeInput {
+public class FileStateTypeInput
+{
 
     String state;
     private Long id;

@@ -25,17 +25,20 @@ import java.util.stream.Collectors;
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.softline.dossier.be.security.filters.constants.SecurityConstants.*;
 
-public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter
+{
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationFilter(AuthenticationManager authenticationManager) {
+    public AuthenticationFilter(AuthenticationManager authenticationManager)
+    {
         this.authenticationManager = authenticationManager;
 
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req,
-                                                HttpServletResponse res) throws AuthenticationException {
+                                                HttpServletResponse res) throws AuthenticationException
+    {
         try {
             Agent agent = new ObjectMapper()
                     .readValue(req.getInputStream(), Agent.class);
@@ -56,13 +59,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest req,
                                             HttpServletResponse res,
                                             FilterChain chain,
-                                            Authentication auth) {
+                                            Authentication auth)
+    {
         String token = createToken(auth.getName(), auth);
         res.setHeader("Access-Control-Expose-Headers", HEADER_STRING);
         res.addHeader(HEADER_STRING, token);
     }
 
-    private String createToken(String name, Authentication auth) {
+    private String createToken(String name, Authentication auth)
+    {
         // get all privileges of agent passing throw its roles
         Agent agent = ((CustomAgentDetails) auth.getPrincipal()).getAgent();
         List<String> authorities = agent.getRoles()

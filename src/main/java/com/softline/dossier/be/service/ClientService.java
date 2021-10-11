@@ -6,7 +6,6 @@ import com.softline.dossier.be.graphql.types.input.ClientInput;
 import com.softline.dossier.be.repository.ClientRepository;
 import com.softline.dossier.be.repository.ContactRepository;
 import com.softline.dossier.be.service.exceptions.ClientReadableException;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -18,18 +17,21 @@ import java.util.List;
 @Transactional
 
 @Service
-public class ClientService extends IServiceBase<Client, ClientInput, ClientRepository> {
+public class ClientService extends IServiceBase<Client, ClientInput, ClientRepository>
+{
     @Autowired
     ContactRepository contactRepository;
 
     @Override
-    public List<Client> getAll() {
+    public List<Client> getAll()
+    {
         return repository.findAll();
     }
 
     @Override
     @PreAuthorize("hasPermission(null, 'CREATE_CLIENT')")
-    public Client create(ClientInput input) {
+    public Client create(ClientInput input)
+    {
         Client client = Client.builder().name(input.getName()).address(input.getAddress()).build();
         List<Contact> contacts = new ArrayList<>();
         for (var contact : input.getContacts()) {
@@ -40,7 +42,8 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
     }
 
     @Override
-    public Client update(ClientInput input) {
+    public Client update(ClientInput input)
+    {
         Client client = repository.getOne(input.getId());
         client.setAddress(input.getAddress());
         client.setName(input.getName());
@@ -71,12 +74,14 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
     }
 
     @Override
-    public Client getById(long id) {
+    public Client getById(long id)
+    {
         return null;
     }
 
     @PreAuthorize("hasPermission(null, 'READ_CLIENT')")
-    public List<Client> getClientsTable(String search) {
+    public List<Client> getClientsTable(String search)
+    {
         return repository.findAllWithContactsByNameContaining(search);
     }
 }

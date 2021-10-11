@@ -11,7 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class BlockingLockingAddressInput {
+public class BlockingLockingAddressInput
+{
 
     long id;
 

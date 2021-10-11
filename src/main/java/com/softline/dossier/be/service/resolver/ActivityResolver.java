@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ActivityResolver implements GraphQLResolver<Activity> {
+public class ActivityResolver implements GraphQLResolver<Activity>
+{
     @Autowired
     ActivityFieldRepository activityFieldRepository;
 

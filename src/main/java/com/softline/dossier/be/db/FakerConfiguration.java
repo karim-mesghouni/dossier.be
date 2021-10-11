@@ -12,7 +12,8 @@ public class FakerConfiguration
 {
 
     @Bean
-    public Faker faker() {
+    public Faker faker()
+    {
         return new Faker(new Locale("fr"), new Random(0));// fixed seed for persistent results
     }
 }

@@ -17,7 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE returned_cause SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class ReturnedCause extends BaseEntity {
+public class ReturnedCause extends BaseEntity
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;

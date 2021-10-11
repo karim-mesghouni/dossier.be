@@ -11,29 +11,35 @@ import java.util.List;
 @Transactional
 
 @Service
-public class CommuneService extends IServiceBase<Commune, CommuneInput, CommuneRepository> {
+public class CommuneService extends IServiceBase<Commune, CommuneInput, CommuneRepository>
+{
     @Override
-    public List<Commune> getAll() {
+    public List<Commune> getAll()
+    {
         return repository.findAll();
     }
 
     @Override
-    public Commune create(CommuneInput communeInput) {
+    public Commune create(CommuneInput communeInput)
+    {
         return null;
     }
 
     @Override
-    public Commune update(CommuneInput communeInput) {
+    public Commune update(CommuneInput communeInput)
+    {
         return null;
     }
 
     @Override
-    public boolean delete(long id) {
+    public boolean delete(long id)
+    {
         return false;
     }
 
     @Override
-    public Commune getById(long id) {
+    public Commune getById(long id)
+    {
         return null;
     }
 }

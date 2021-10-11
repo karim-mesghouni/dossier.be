@@ -14,39 +14,47 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class EmitterService {
+public class EmitterService
+{
 
     @Autowired
     EmitterRepository repository;
 
 
-    public Long createEmitter(Long agentId) {
+    public Long createEmitter(Long agentId)
+    {
 
         return repository.addEmitter(agentId);
 
     }
 
-    public Optional<SseEmitter> getEmitter(Long agentId, Long sessionId) {
+    public Optional<SseEmitter> getEmitter(Long agentId, Long sessionId)
+    {
         return repository.get(agentId, sessionId);
     }
 
-    public void close(Long agentId, Long sessionId) {
+    public void close(Long agentId, Long sessionId)
+    {
         repository.remove(agentId, sessionId);
     }
 
-    public static final class Utf8SseEmitter extends SseEmitter {
+    public static final class Utf8SseEmitter extends SseEmitter
+    {
 
         private static final MediaType UTF8_TEXT_STREAM = new MediaType("text", "event-stream", StandardCharsets.UTF_8);
 
-        public Utf8SseEmitter() {
+        public Utf8SseEmitter()
+        {
         }
 
-        public Utf8SseEmitter(long maxValue) {
+        public Utf8SseEmitter(long maxValue)
+        {
             super(maxValue);
         }
 
         @Override
-        protected void extendResponse(ServerHttpResponse outputMessage) {
+        protected void extendResponse(ServerHttpResponse outputMessage)
+        {
             HttpHeaders headers = outputMessage.getHeaders();
             if (headers.getContentType() == null) {
                 headers.setContentType(UTF8_TEXT_STREAM);

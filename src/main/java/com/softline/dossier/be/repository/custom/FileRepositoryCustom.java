@@ -6,7 +6,8 @@ import org.javatuples.Pair;
 
 import java.util.List;
 
-public interface FileRepositoryCustom {
+public interface FileRepositoryCustom
+{
 
     Pair<Long, List<File>> getByFilter(FileFilterInput input);
 

@@ -16,7 +16,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 
-public class CommuneSchemaResolver extends SchemaResolverBase<Commune, CommuneInput, CommuneRepository, CommuneService> {
+public class CommuneSchemaResolver extends SchemaResolverBase<Commune, CommuneInput, CommuneRepository, CommuneService>
+{
 
 
     public Commune createCommune(CommuneInput communeInput) throws IOException, ClientReadableException
@@ -34,11 +35,13 @@ public class CommuneSchemaResolver extends SchemaResolverBase<Commune, CommuneIn
         return delete(id);
     }
 
-    protected List<Commune> getAllCommune() {
+    protected List<Commune> getAllCommune()
+    {
         return getAll();
     }
 
-    protected Commune getCommune(Long id) {
+    protected Commune getCommune(Long id)
+    {
         return get(id);
     }
 

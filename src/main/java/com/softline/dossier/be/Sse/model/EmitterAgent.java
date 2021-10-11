@@ -8,26 +8,31 @@ import java.util.Collections;
 import java.util.List;
 
 @Data
-public class EmitterAgent {
+public class EmitterAgent
+{
     List<EmitterItem> emitterSessions;
     Long agentId;
 
-    public EmitterAgent(Long agentId) {
+    public EmitterAgent(Long agentId)
+    {
         this.agentId = agentId;
         emitterSessions = Collections.synchronizedList(new ArrayList<>());
     }
 
-    private Long getNextSessionId() {
+    private Long getNextSessionId()
+    {
         return emitterSessions.stream().count() + 1;
     }
 
-    public Long addEmitterSession(SseEmitter emitter) {
+    public Long addEmitterSession(SseEmitter emitter)
+    {
         var nextSessionId = getNextSessionId();
         emitterSessions.add(EmitterItem.builder().sessionId(nextSessionId).emitter(emitter).build());
         return nextSessionId;
     }
 
-    public void removeEmitterSession(Long sessionId) {
+    public void removeEmitterSession(Long sessionId)
+    {
         emitterSessions.removeIf(x -> x.getSessionId() == sessionId);
     }
 }

@@ -11,7 +11,8 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class FileInput {
+public class FileInput
+{
 
     String project;
     LocalDate attributionDate;

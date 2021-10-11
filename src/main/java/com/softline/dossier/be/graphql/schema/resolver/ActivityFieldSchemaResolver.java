@@ -16,7 +16,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 
-public class ActivityFieldSchemaResolver extends SchemaResolverBase<ActivityField, ActivityFieldInput, ActivityFieldRepository, ActivityFieldService> {
+public class ActivityFieldSchemaResolver extends SchemaResolverBase<ActivityField, ActivityFieldInput, ActivityFieldRepository, ActivityFieldService>
+{
 
 
     public ActivityField createActivityFieldI(ActivityFieldInput activityFieldInput) throws IOException, ClientReadableException
@@ -34,15 +35,18 @@ public class ActivityFieldSchemaResolver extends SchemaResolverBase<ActivityFiel
         return delete(id);
     }
 
-    protected List<ActivityField> getAllActivityField() {
+    protected List<ActivityField> getAllActivityField()
+    {
         return getAll();
     }
 
-    protected ActivityField getActivityField(Long id) {
+    protected ActivityField getActivityField(Long id)
+    {
         return get(id);
     }
 
-    public List<ActivityField> getAllActivityFieldByActivityId(Long activityId) {
+    public List<ActivityField> getAllActivityFieldByActivityId(Long activityId)
+    {
         return getService().getAllActivityFieldByActivityId(activityId);
     }
 }

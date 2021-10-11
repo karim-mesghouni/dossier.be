@@ -19,7 +19,8 @@ import javax.persistence.*;
 @SQLDelete(sql = "UPDATE Contact SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 //endregion
-public class Contact {
+public class Contact
+{
     @Id
     @GeneratedValue(
             strategy = GenerationType.AUTO,
@@ -43,7 +44,8 @@ public class Contact {
     //endregion
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "Contact{" +
                 "id=" + id +
                 ", name='" + name + '\'' +

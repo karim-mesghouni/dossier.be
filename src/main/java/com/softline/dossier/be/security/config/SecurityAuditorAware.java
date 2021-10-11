@@ -9,10 +9,12 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
-public class SecurityAuditorAware implements AuditorAware<Agent> {
+public class SecurityAuditorAware implements AuditorAware<Agent>
+{
 
     @Override
-    public Optional<Agent> getCurrentAuditor() {
+    public Optional<Agent> getCurrentAuditor()
+    {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

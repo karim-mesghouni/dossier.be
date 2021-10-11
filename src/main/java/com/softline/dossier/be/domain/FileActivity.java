@@ -19,7 +19,8 @@ import java.util.List;
 @Entity
 @SQLDelete(sql = "UPDATE file_activity SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false ")
-public class FileActivity extends BaseEntity {
+public class FileActivity extends BaseEntity
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -51,7 +52,8 @@ public class FileActivity extends BaseEntity {
     ActivityState state;
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "FileActivity{" +
                 "id=" + id +
                 ", activity=" + activity +

@@ -17,7 +17,8 @@ import java.util.List;
 @Data
 @SQLDelete(sql = "UPDATE task_situation SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class TaskSituation extends BaseEntity {
+public class TaskSituation extends BaseEntity
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -32,7 +33,8 @@ public class TaskSituation extends BaseEntity {
     List<FileTaskSituation> fileTaskSituations;
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "TaskSituation{" +
                 "id=" + id +
                 ", name='" + name + '\'' +

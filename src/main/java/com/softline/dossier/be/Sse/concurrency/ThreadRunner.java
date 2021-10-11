@@ -13,9 +13,10 @@ import org.springframework.core.task.TaskExecutor;
 public class ThreadRunner
 {
     @Autowired
-    private TaskExecutor taskExecutor;
-    @Autowired
     SseNotificationService notifier;
+    @Autowired
+    private TaskExecutor taskExecutor;
+
     @Bean
     public CommandLineRunner schedulingRunner(TaskExecutor executor)
     {

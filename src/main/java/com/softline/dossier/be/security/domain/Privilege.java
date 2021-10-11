@@ -11,7 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Privilege {
+public class Privilege
+{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

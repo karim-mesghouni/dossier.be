@@ -15,35 +15,42 @@ import java.util.stream.Collectors;
 
 @Transactional
 @Service
-public class AgentService extends IServiceBase<Agent, AgentInput, AgentRepository> {
+public class AgentService extends IServiceBase<Agent, AgentInput, AgentRepository>
+{
 
     @Override
-    public List<Agent> getAll() {
+    public List<Agent> getAll()
+    {
         return repository.findAll();
     }
 
     @Override
-    public Agent create(AgentInput input) {
+    public Agent create(AgentInput input)
+    {
         return null;
     }
 
     @Override
-    public Agent update(AgentInput input) {
+    public Agent update(AgentInput input)
+    {
         return null;
     }
 
     @Override
-    public boolean delete(long id) {
+    public boolean delete(long id)
+    {
         repository.deleteById(id);
         return true;
     }
 
     @Override
-    public Agent getById(long id) {
+    public Agent getById(long id)
+    {
         return repository.findById(id).orElseThrow();
     }
 
-    public Agent getCurrentAgent() {
+    public Agent getCurrentAgent()
+    {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var agent = (Agent) authentication.getPrincipal();
         if (agent != null) {
@@ -52,7 +59,8 @@ public class AgentService extends IServiceBase<Agent, AgentInput, AgentRepositor
             List<CaslRawRule> rules = authentication.getAuthorities()
                     .stream()
                     .filter(e -> !e.getAuthority().startsWith("ROLE_"))
-                    .map(authority -> {
+                    .map(authority ->
+                            {
                                 var parts = authority.getAuthority().split("_");
                                 return new CaslRawRule(parts[0].toLowerCase(), StringUtils.capitalize(parts[1].toLowerCase()));
                             }

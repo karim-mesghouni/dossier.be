@@ -16,7 +16,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 
-public class FileDocSchemaResolver extends SchemaResolverBase<FileDoc, FileDocInput, FileDocRepository, FileDocService> {
+public class FileDocSchemaResolver extends SchemaResolverBase<FileDoc, FileDocInput, FileDocRepository, FileDocService>
+{
 
 
     public FileDoc createFileDoc(FileDocInput input) throws IOException, ClientReadableException
@@ -34,15 +35,18 @@ public class FileDocSchemaResolver extends SchemaResolverBase<FileDoc, FileDocIn
         return delete(id);
     }
 
-    public List<FileDoc> getAllFileDoc() {
+    public List<FileDoc> getAllFileDoc()
+    {
         return getAll();
     }
 
-    public FileDoc getFileDoc(Long id) {
+    public FileDoc getFileDoc(Long id)
+    {
         return get(id);
     }
 
-    public List<FileDoc> getAllByFileActivityIdOrFileId(Long fileActivityId, Long fileId) throws Exception {
+    public List<FileDoc> getAllByFileActivityIdOrFileId(Long fileActivityId, Long fileId) throws Exception
+    {
         return service.getAllByFileActivityIdOrFileId(fileActivityId, fileId);
     }
 }

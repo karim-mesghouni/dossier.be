@@ -15,7 +15,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 
-public class ContactSchemaResolver extends SchemaResolverBase<Contact, ContactInput, ContactRepository, ContactService> {
+public class ContactSchemaResolver extends SchemaResolverBase<Contact, ContactInput, ContactRepository, ContactService>
+{
     public Contact createContact(ContactInput clientInput) throws IOException, ClientReadableException
     {
         return create(clientInput);

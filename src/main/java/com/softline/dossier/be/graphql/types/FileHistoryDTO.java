@@ -8,7 +8,8 @@ import java.util.List;
 
 @Data
 @SuperBuilder
-public class FileHistoryDTO {
+public class FileHistoryDTO
+{
     long id;
     String who;
     Date date;

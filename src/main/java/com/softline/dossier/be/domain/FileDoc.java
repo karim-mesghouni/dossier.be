@@ -19,7 +19,8 @@ import javax.persistence.*;
 @Entity
 @SQLDelete(sql = "UPDATE file_doc  SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class FileDoc extends BaseEntity {
+public class FileDoc extends BaseEntity
+{
     @ManyToOne
     @JoinColumn
     File file;

@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 
-public interface BlockingQualificationRepository extends JpaRepository<BlockingQualification, Long> {
+public interface BlockingQualificationRepository extends JpaRepository<BlockingQualification, Long>
+{
 }

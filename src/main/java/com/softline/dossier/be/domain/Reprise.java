@@ -18,7 +18,8 @@ import javax.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @SQLDelete(sql = "UPDATE Reprise SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class Reprise extends BaseEntity {
+public class Reprise extends BaseEntity
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;

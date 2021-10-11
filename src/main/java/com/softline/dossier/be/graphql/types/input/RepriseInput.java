@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class RepriseInput {
+public class RepriseInput
+{
 
     long id;
     int number;

@@ -5,7 +5,6 @@ import com.softline.dossier.be.domain.Attachment;
 import com.softline.dossier.be.repository.CommentAttachmentRepository;
 import com.softline.dossier.be.repository.FileTaskAttachmentRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -23,14 +22,14 @@ import java.nio.file.Files;
 @Controller
 @RequiredArgsConstructor
 public class StorageController
-    {
+{
     private final FileSystem fileSystem;
     private final FileTaskAttachmentRepository fileTaskAttachmentRepository;
     private final CommentAttachmentRepository commentAttachmentRepository;
 
     @GetMapping("/attachments/{storageName}")
     public ResponseEntity<InputStreamResource> getAttachmentByStorageName(@PathVariable String storageName) throws IOException
-        {
+    {
         Attachment attachment;
         attachment = fileTaskAttachmentRepository.findByStorageName(storageName);
         if (attachment == null) {
@@ -48,5 +47,5 @@ public class StorageController
                 .headers(headers)
                 .contentType(MediaType.parseMediaType(attachment.getContentType()))
                 .body(new InputStreamResource(Files.newInputStream(fileSystem.getAttachmentsPath().resolve(attachment.getStorageName()))));
-        }
     }
+}

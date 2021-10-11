@@ -9,11 +9,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ContextAwarePolicyEnforcement {
+public class ContextAwarePolicyEnforcement
+{
     @Autowired
     protected PolicyEnforcement policy;
 
-    public void checkPermission(Object resource, String permission) throws AccessDeniedException {
+    public void checkPermission(Object resource, String permission) throws AccessDeniedException
+    {
         //Getting the subject
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
@@ -21,7 +23,8 @@ public class ContextAwarePolicyEnforcement {
         Map<String, Object> environment = new HashMap<>();
         environment.put("time", new Date());
 
-        if (!policy.check(auth.getPrincipal(), resource, permission, environment))
+        if (!policy.check(auth.getPrincipal(), resource, permission, environment)) {
             throw new AccessDeniedException("Access is denied");
+        }
     }
 }

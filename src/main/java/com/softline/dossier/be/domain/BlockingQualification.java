@@ -13,7 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class BlockingQualification {
+public class BlockingQualification
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -22,7 +23,8 @@ public class BlockingQualification {
     String name;
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "BlockingQualification{" +
                 "name='" + name + '\'' +
                 '}';

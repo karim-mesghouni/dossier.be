@@ -10,29 +10,34 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import javax.persistence.EntityNotFoundException;
 
 @Component
-public class ExceptionsHandler {
+public class ExceptionsHandler
+{
 
     /**
      * this exception contains a written message by us,
      * we will send it to the client to give a feedback message.
      */
     @ExceptionHandler(ClientReadableException.class)
-    public GraphQLError exceptionHandler(ClientReadableException e) {
+    public GraphQLError exceptionHandler(ClientReadableException e)
+    {
         return new ThrowableGraphQLError(e, e.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public GraphQLError exceptionHandler(AccessDeniedException e) {
+    public GraphQLError exceptionHandler(AccessDeniedException e)
+    {
         return new ThrowableGraphQLError(e, "Erreur de privilège");
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public GraphQLError exceptionHandler(EntityNotFoundException e) {
+    public GraphQLError exceptionHandler(EntityNotFoundException e)
+    {
         return new ThrowableGraphQLError(e, "Entité introuvable");
     }
 
     @ExceptionHandler(Throwable.class)
-    public GraphQLError exceptionHandler(Throwable e) {
+    public GraphQLError exceptionHandler(Throwable e)
+    {
         return new ThrowableGraphQLError(e, "server error");
     }
 }

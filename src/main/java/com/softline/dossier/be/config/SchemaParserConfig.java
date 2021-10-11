@@ -7,10 +7,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 
-public class SchemaParserConfig {
+public class SchemaParserConfig
+{
 
     @Bean
-    public SchemaParserDictionary schemaParserDictionary() {
+    public SchemaParserDictionary schemaParserDictionary()
+    {
         return new SchemaParserDictionary()
                 .add(FileDTO.class);
     }

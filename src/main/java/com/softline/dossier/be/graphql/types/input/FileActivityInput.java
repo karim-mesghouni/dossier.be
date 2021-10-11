@@ -11,7 +11,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FileActivityInput {
+public class FileActivityInput
+{
 
     boolean current;
     FileInput file;

@@ -18,24 +18,29 @@ import javax.servlet.Filter;
 @EnableJpaRepositories
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
 
-public class Application {
+public class Application
+{
 
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         SpringApplication.run(Application.class, args);
     }
 
     @Bean
-    public Filter OpenFilter() {
+    public Filter OpenFilter()
+    {
         return new OpenEntityManagerInViewFilter();
     }
 
     @Bean
-    public GraphQLScalarType uploadScalar() {
+    public GraphQLScalarType uploadScalar()
+    {
         return ApolloScalars.Upload;
     }
 
     @Bean
-    public AuditorAware<Agent> auditorAware() {
+    public AuditorAware<Agent> auditorAware()
+    {
         return new SecurityAuditorAware();
     }
 }

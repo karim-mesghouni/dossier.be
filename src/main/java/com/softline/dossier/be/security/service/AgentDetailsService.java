@@ -15,13 +15,15 @@ import java.util.Collection;
 import java.util.List;
 
 @Service
-public class AgentDetailsService implements UserDetailsService {
+public class AgentDetailsService implements UserDetailsService
+{
     @Autowired
     private AgentRepository agentRepository;
     private Collection<GrantedAuthority> grantedAuthorities;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
+    {
         var agent = agentRepository.findByUsername(username);
         if (agent == null) {
             throw new UsernameNotFoundException(username);
@@ -30,10 +32,12 @@ public class AgentDetailsService implements UserDetailsService {
 
         grantedAuthorities = new ArrayList<>();
         if (agent.getRoles() instanceof List) {
-            agent.getRoles().forEach(role -> {
+            agent.getRoles().forEach(role ->
+            {
                 grantedAuthorities.add(new SimpleGrantedAuthority(role.getName()));
                 if (role.getPrivileges() != null) {
-                    role.getPrivileges().forEach(privilege -> {
+                    role.getPrivileges().forEach(privilege ->
+                    {
                         grantedAuthorities.add(new SimpleGrantedAuthority(privilege.getName()));
                     });
                 }

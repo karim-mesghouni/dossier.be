@@ -9,7 +9,8 @@ import lombok.experimental.SuperBuilder;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReturnedCauseInput {
+public class ReturnedCauseInput
+{
 
     long id;
     String name;

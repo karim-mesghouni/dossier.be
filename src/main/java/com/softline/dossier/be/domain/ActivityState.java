@@ -17,7 +17,8 @@ import java.util.List;
 @Data
 @SQLDelete(sql = "UPDATE activity_state SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class ActivityState extends BaseEntity {
+public class ActivityState extends BaseEntity
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;

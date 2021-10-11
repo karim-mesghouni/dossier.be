@@ -9,7 +9,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class NotifyMessageInput {
+public class NotifyMessageInput
+{
     Long idComment;
     List<Long> agentIds;
 }

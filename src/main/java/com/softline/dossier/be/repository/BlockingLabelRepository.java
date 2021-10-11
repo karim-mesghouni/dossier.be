@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 
-public interface BlockingLabelRepository extends JpaRepository<BlockingLabel, Long> {
+public interface BlockingLabelRepository extends JpaRepository<BlockingLabel, Long>
+{
 }

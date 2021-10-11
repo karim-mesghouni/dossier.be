@@ -8,7 +8,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FileActivityRepository extends JpaRepository<FileActivity, Long> {
+public interface FileActivityRepository extends JpaRepository<FileActivity, Long>
+{
     @Query("select  fa from  FileActivity fa where fa.file.id=?1 and fa.inTrash=false order by fa.fileActivityOrder ")
     List<FileActivity> findAllByFile_Id(Long fileId);
 

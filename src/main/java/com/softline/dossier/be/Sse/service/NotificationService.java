@@ -3,7 +3,8 @@ package com.softline.dossier.be.Sse.service;
 
 import com.softline.dossier.be.Sse.model.Event;
 
-public interface NotificationService {
+public interface NotificationService
+{
 
     void sendNotification(Long agentId, Event event);
 

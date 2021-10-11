@@ -13,12 +13,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class AbacPermissionEvaluator implements PermissionEvaluator {
+public class AbacPermissionEvaluator implements PermissionEvaluator
+{
     @Autowired
     PolicyEnforcement policy;
 
     @Override
-    public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+    public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission)
+    {
         //Getting subject
         Object user = authentication.getPrincipal();
         //Getting environment
@@ -29,7 +31,8 @@ public class AbacPermissionEvaluator implements PermissionEvaluator {
     }
 
     @Override
-    public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+    public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission)
+    {
         return false;
     }
 }

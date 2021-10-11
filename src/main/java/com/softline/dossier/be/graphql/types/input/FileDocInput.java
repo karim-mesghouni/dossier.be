@@ -9,7 +9,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
-public class FileDocInput {
+public class FileDocInput
+{
 
     FileInput file;
     FileActivityInput fileActivity;

@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface FileTaskRepository extends JpaRepository<FileTask, Long> {
+public interface FileTaskRepository extends JpaRepository<FileTask, Long>
+{
 
     @Query("select  ft from  FileTask ft where ft.fileActivity.id=?1 and ft.inTrash=false order by ft.fileTaskOrder")
     List<FileTask> findAllByFileActivity_Id(Long fileActivityId);

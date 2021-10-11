@@ -11,7 +11,8 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FileDTO {
+public class FileDTO
+{
     Long idFile;
 
     String project;

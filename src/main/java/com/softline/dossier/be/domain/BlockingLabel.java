@@ -13,7 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class BlockingLabel {
+public class BlockingLabel
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -22,7 +23,8 @@ public class BlockingLabel {
     String name;
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "BlockingLabel{" +
                 "name='" + name + '\'' +
                 '}';

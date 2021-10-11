@@ -9,7 +9,8 @@ import lombok.experimental.SuperBuilder;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommuneInput {
+public class CommuneInput
+{
 
     private long id;
 

@@ -8,9 +8,11 @@ import org.springframework.boot.jackson.JsonComponent;
 import javax.servlet.http.Part;
 
 @JsonComponent
-public class PartDeserializer extends JsonDeserializer<Part> {
+public class PartDeserializer extends JsonDeserializer<Part>
+{
     @Override
-    public Part deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+    public Part deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
+    {
         return null;
     }
 }

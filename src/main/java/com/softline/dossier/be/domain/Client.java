@@ -20,7 +20,8 @@ import java.util.function.Predicate;
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE Client SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class Client extends BaseEntity {
+public class Client extends BaseEntity
+{
     @OneToMany(mappedBy = File_.CLIENT)
     List<File> files;
     @OneToMany(mappedBy = VisAVis_.CLIENT)
@@ -35,11 +36,13 @@ public class Client extends BaseEntity {
     private String name;
     private String address;
 
-    public void addContact(Contact c) {
+    public void addContact(Contact c)
+    {
         this.contacts.add(c);
     }
 
-    public Contact findInContacts(Predicate<Contact> search) {
+    public Contact findInContacts(Predicate<Contact> search)
+    {
         return this.contacts.stream()
                 .filter(search)
                 .findFirst()
@@ -47,7 +50,8 @@ public class Client extends BaseEntity {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "Client{" +
                 "id=" + id +
                 ", name='" + name + '\'' +

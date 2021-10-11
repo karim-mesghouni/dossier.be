@@ -4,16 +4,17 @@ import com.softline.dossier.be.Sse.model.Event;
 import com.softline.dossier.be.Sse.repository.EmitterRepository;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
-public class SseNotificationService implements NotificationService {
+public class SseNotificationService implements NotificationService
+{
     @Autowired
     EmitterRepository emitterRepository;
 
-    public void sendNotification(Long agentId, Event event) {
+    public void sendNotification(Long agentId, Event event)
+    {
         if (event == null) {
             return;
         }
@@ -21,9 +22,12 @@ public class SseNotificationService implements NotificationService {
     }
 
     @Override
-    public void sendNotificationForAll(Event event) {
-        emitterRepository.getAll().forEach(x -> {
-                    x.forEach(emitter -> {
+    public void sendNotificationForAll(Event event)
+    {
+        emitterRepository.getAll().forEach(x ->
+                {
+                    x.forEach(emitter ->
+                            {
                                 try {
                                     emitter.send(SseEmitter.event()
                                             .id(RandomStringUtils.randomAlphanumeric(12))
@@ -38,8 +42,10 @@ public class SseNotificationService implements NotificationService {
         );
     }
 
-    private void doSendNotification(Long agentId, Event event) {
-        emitterRepository.get(agentId).ifPresent(x -> x.forEach(e -> {
+    private void doSendNotification(Long agentId, Event event)
+    {
+        emitterRepository.get(agentId).ifPresent(x -> x.forEach(e ->
+        {
 
             try {
                 e.send(SseEmitter.event()

@@ -11,14 +11,16 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class FileResolver implements GraphQLResolver<File> {
+public class FileResolver implements GraphQLResolver<File>
+{
 
     @Autowired
     FileStateRepository fileStateRepository;
     @Autowired
     FileActivityRepository fileActivityRepository;
 
-    public FileState getCurrentFileState(File file) {
+    public FileState getCurrentFileState(File file)
+    {
         var res = fileStateRepository.findFirstByCurrentIsTrueAndFile_Id(file.getId());
         return res;
     }

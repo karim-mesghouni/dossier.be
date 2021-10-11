@@ -9,10 +9,12 @@ import java.util.Optional;
 
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
-public class JpaAuditingConfiguration {
+public class JpaAuditingConfiguration
+{
 
     @Bean
-    public AuditorAware<String> auditorProvider() {
+    public AuditorAware<String> auditorProvider()
+    {
         return () -> Optional.ofNullable("chathuranga");
     }
 }

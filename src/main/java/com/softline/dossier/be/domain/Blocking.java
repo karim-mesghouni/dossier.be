@@ -21,7 +21,8 @@ import java.time.LocalDateTime;
 @SQLDelete(sql = "UPDATE Blocking SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 
-public class Blocking extends BaseEntity {
+public class Blocking extends BaseEntity
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -41,13 +42,6 @@ public class Blocking extends BaseEntity {
     private LocalDateTime date;
     private LocalDateTime dateUnBlocked;
 
-    // can be used to determine if the block is active
-    // used by graphql
-    public boolean getBlock()
-    {
-        return this.dateUnBlocked == null;
-    }
-
     public static Blocking buildFromInput(BlockingInput input, FileTaskSituation state)
     {
         return Blocking.builder()
@@ -60,5 +54,12 @@ public class Blocking extends BaseEntity {
                 .state(state)
                 .date(input.getDate())
                 .build();
+    }
+
+    // can be used to determine if the block is active
+    // used by graphql
+    public boolean getBlock()
+    {
+        return this.dateUnBlocked == null;
     }
 }

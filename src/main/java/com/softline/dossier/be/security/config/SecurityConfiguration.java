@@ -23,21 +23,25 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter implements WebMvcConfigurer
+{
     private final AgentDetailsService agentDetailsService;
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception
+    {
         auth.userDetailsService(agentDetailsService).passwordEncoder(getPasswordEncoder());
     }
 
     @Bean
-    public PasswordEncoder getPasswordEncoder() {
+    public PasswordEncoder getPasswordEncoder()
+    {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    protected void configure(HttpSecurity http) throws Exception
+    {
         http.cors().and().csrf().disable().authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/user/save").permitAll()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
@@ -52,7 +56,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
 
 
     @Bean
-    public CorsFilter corsFilter() {
+    public CorsFilter corsFilter()
+    {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin("*");

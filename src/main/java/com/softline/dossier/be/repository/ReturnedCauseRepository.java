@@ -5,5 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ReturnedCauseRepository extends JpaRepository<ReturnedCause, Long> {
+public interface ReturnedCauseRepository extends JpaRepository<ReturnedCause, Long>
+{
 }

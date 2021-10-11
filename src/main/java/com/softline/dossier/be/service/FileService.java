@@ -20,7 +20,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Transactional
 @Service
-public class FileService extends IServiceBase<File, FileInput, FileRepository> {
+public class FileService extends IServiceBase<File, FileInput, FileRepository>
+{
     @Autowired
     ActivityRepository activityRepository;
     @Autowired
@@ -37,12 +38,14 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     SseNotificationService sseNotificationService;
 
     @Override
-    public List<File> getAll() {
+    public List<File> getAll()
+    {
         return repository.findAll();
     }
 
     @Override
-    public File create(FileInput input) throws IOException {
+    public File create(FileInput input) throws IOException
+    {
         File reprise = null;
         if (input.isFileReprise()) {
             reprise = getRepository().findById(input.getReprise().getId()).orElseThrow();
@@ -107,7 +110,8 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     }
 
     @Override
-    public File update(FileInput input) {
+    public File update(FileInput input)
+    {
         File reprise = null;
         if (input.isFileReprise()) {
             reprise = getRepository().findById(input.getReprise().getId()).orElseThrow();
@@ -141,23 +145,25 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     }
 
     @Override
-    public boolean delete(long id) {
+    public boolean delete(long id)
+    {
         repository.deleteById(id);
         return true;
     }
 
     @Override
-    public File getById(long id) {
+    public File getById(long id)
+    {
         repository.flush();
         return repository.findById(id).orElseThrow();
     }
 
-    public PageList<File> getAllFilePageFilter(FileFilterInput input) {
-        if(input.getPageSize() <= 0){ // return everything
+    public PageList<File> getAllFilePageFilter(FileFilterInput input)
+    {
+        if (input.getPageSize() <= 0) { // return everything
             var result = getRepository().findAll();
             return new PageList<>(result, result.size());
-        }else
-        {
+        } else {
             var result = getRepository().getByFilter(input);
             return new PageList<>(result.getValue1(), result.getValue0());
         }
@@ -181,7 +187,8 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
                             .message("create.file.activity")
                             .data(x.getActivity().getName())
                             .children(new ArrayList<>()).build();
-                    x.getFileTasks().forEach(fileTask -> {
+                    x.getFileTasks().forEach(fileTask ->
+                    {
                         var taskHistory = FileHistoryDTO.builder().id(i.incrementAndGet())
                                 .who(fileTask.getAgent().getName())
                                 .date(fileTask.getCreatedDate())
@@ -191,7 +198,8 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
                         fileTask.getFileTaskSituations()
                                 .stream()
                                 .skip(1)
-                                .forEach(fileTaskSituation -> {
+                                .forEach(fileTaskSituation ->
+                                {
                                     taskHistory.getChildren().add(FileHistoryDTO.builder().id(i.incrementAndGet())
                                             .who(fileTaskSituation.getAgent().getName())
                                             .date(fileTaskSituation.getCreatedDate())
@@ -222,11 +230,13 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
 
     }
 
-    public List<FileStateType> getAllFileStateType() {
+    public List<FileStateType> getAllFileStateType()
+    {
         return fileStateTypeRepository.findAll();
     }
 
-    public PageList<File> getAllFileInTrashPageFilter(FileFilterInput input) {
+    public PageList<File> getAllFileInTrashPageFilter(FileFilterInput input)
+    {
 
         var allFile = new ArrayList<File>();
         var fileOnly = getRepository().getInTrashByFilter(input);
@@ -247,27 +257,33 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         if (fileWithTask.getValue1().size() > 0 && fileOnly.getValue1().size() > 0 && fileWithActivity.getValue1().size() == 0) {
             fileOnly.getValue1().stream().filter(x -> fileWithTask.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0).forEach(x -> allFile.add(x));
             fileWithTask.getValue1().forEach(x -> allFile.add(x));
-        } else if (fileWithTask.getValue1().size() == 0 && fileOnly.getValue1().size() > 0 && fileWithActivity.getValue1().size() > 0) {
-            fileOnly.getValue1().stream().filter(x -> fileWithActivity.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0).forEach(x -> allFile.add(x));
-            fileWithActivity.getValue1().forEach(x -> allFile.add(x));
-        } else if (fileWithTask.getValue1().size() > 0 && fileOnly.getValue1().size() > 0 && fileWithActivity.getValue1().size() > 0) {
-            fileOnly.getValue1().stream().filter(x -> fileWithActivity.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0
-                    && fileWithTask.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0).forEach(x -> allFile.add(x));
-            fileWithActivity.getValue1().forEach(x -> allFile.add(x));
-            fileWithTask.getValue1().forEach(x -> allFile.add(x));
+        } else {
+            if (fileWithTask.getValue1().size() == 0 && fileOnly.getValue1().size() > 0 && fileWithActivity.getValue1().size() > 0) {
+                fileOnly.getValue1().stream().filter(x -> fileWithActivity.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0).forEach(x -> allFile.add(x));
+                fileWithActivity.getValue1().forEach(x -> allFile.add(x));
+            } else {
+                if (fileWithTask.getValue1().size() > 0 && fileOnly.getValue1().size() > 0 && fileWithActivity.getValue1().size() > 0) {
+                    fileOnly.getValue1().stream().filter(x -> fileWithActivity.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0
+                            && fileWithTask.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0).forEach(x -> allFile.add(x));
+                    fileWithActivity.getValue1().forEach(x -> allFile.add(x));
+                    fileWithTask.getValue1().forEach(x -> allFile.add(x));
+                }
+            }
         }
         return new PageList<>(allFile, allFile.size());
 
     }
 
-    public boolean sendFileToTrash(Long fileId) {
+    public boolean sendFileToTrash(Long fileId)
+    {
         var file = getRepository().findById(fileId).orElseThrow();
         file.setInTrash(true);
         sseNotificationService.sendNotificationForAll(new Event("fileTrashed", file.getId()));
         return true;
     }
 
-    public boolean recoverFileFromTrash(Long fileId) {
+    public boolean recoverFileFromTrash(Long fileId)
+    {
         var file = getRepository().getOne(fileId);
         file.setInTrash(false);
         return true;
@@ -277,13 +293,14 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
      * change the order of a file,
      * will be called when the user changes the order of a file in the FilesView
      * in the case when fileBeforeId is not existent the file will be moved to be the first item in the list
-     * @param fileId the file(id) that we want to change its order
+     *
+     * @param fileId       the file(id) that we want to change its order
      * @param fileBeforeId the file(id) which should be before the new position of the file, may be non-existent
      * @return boolean
      */
     public boolean changeOrder(Long fileId, Long fileBeforeId)
     {
-        if(repository.count() < 2){
+        if (repository.count() < 2) {
             return true;// this should not happen
         }
         var file = repository.getOne(fileId);
@@ -303,7 +320,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
                 allAfter.stream()
                         .limit(levelsChange)
                         .forEach(File::incrementOrder);
-                file.setOrder(repository.findAllByOrderAfter(fileBefore.getOrder()).stream().findFirst().get().getOrder()-1);
+                file.setOrder(repository.findAllByOrderAfter(fileBefore.getOrder()).stream().findFirst().get().getOrder() - 1);
             }
         } else {// file should be the first item in the list
             var allBefore = repository.findAllByOrderBefore(file.getOrder());

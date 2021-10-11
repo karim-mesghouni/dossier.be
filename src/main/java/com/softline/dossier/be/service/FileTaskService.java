@@ -433,7 +433,8 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return true;
     }
 
-    public boolean updateTitle(String title, long fileTaskId){
+    public boolean updateTitle(String title, long fileTaskId)
+    {
         repository.getOne(fileTaskId).setTitle(title);
         return true;
     }

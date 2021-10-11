@@ -12,7 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class AgentInput {
+public class AgentInput
+{
 
     Long id;
     String name;

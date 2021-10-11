@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface BlockingRepository extends JpaRepository<Blocking, Long> {
+public interface BlockingRepository extends JpaRepository<Blocking, Long>
+{
     List<Blocking> findAllByState_FileTask_Id(Long fileTaskId);
 }

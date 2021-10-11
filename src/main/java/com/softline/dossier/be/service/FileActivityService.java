@@ -16,17 +16,20 @@ import java.util.stream.Collectors;
 @Transactional
 
 @Service
-public class FileActivityService extends IServiceBase<FileActivity, FileActivityInput, FileActivityRepository> {
+public class FileActivityService extends IServiceBase<FileActivity, FileActivityInput, FileActivityRepository>
+{
     @Autowired
     ActivityStateRepository activityStateRepository;
 
     @Override
-    public List<FileActivity> getAll() {
+    public List<FileActivity> getAll()
+    {
         return repository.findAll();
     }
 
     @Override
-    public FileActivity create(FileActivityInput entityInput) {
+    public FileActivity create(FileActivityInput entityInput)
+    {
         var fileActivityOrder = getRepository().getMaxOrder();
         if (fileActivityOrder == null) {
             fileActivityOrder = 0;
@@ -56,60 +59,71 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     }
 
     @Override
-    public FileActivity update(FileActivityInput entityInput) {
+    public FileActivity update(FileActivityInput entityInput)
+    {
         return null;
     }
 
     @Override
-    public boolean delete(long id) {
+    public boolean delete(long id)
+    {
         repository.deleteById(id);
         return true;
     }
 
     @Override
-    public FileActivity getById(long id) {
+    public FileActivity getById(long id)
+    {
         return repository.findById(id).orElseThrow();
     }
 
-    public List<FileActivity> getAllFileActivityByFileId(Long fileId) {
+    public List<FileActivity> getAllFileActivityByFileId(Long fileId)
+    {
         return getRepository().findAllByFile_Id(fileId);
     }
 
-    public ActivityState changeActivityState(Long activityStateId, Long fileActivityId) {
+    public ActivityState changeActivityState(Long activityStateId, Long fileActivityId)
+    {
         var activityState = activityStateRepository.findById(activityStateId).orElseThrow();
         var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
         fileActivity.setState(activityState);
         return activityState;
     }
 
-    public List<FileActivity> getAllFileActivityByFileIdInTrash(Long fileId) {
+    public List<FileActivity> getAllFileActivityByFileIdInTrash(Long fileId)
+    {
         var fileActivityInTrash = getRepository().findAllByFile_Id_In_Trash(fileId);
         var fileActivityInTrashWithTask = getRepository().findAllByFile_Id_In_TrashWithTask(fileId);
         if (fileActivityInTrash.size() == 0) {
             return fileActivityInTrashWithTask;
-        } else if (fileActivityInTrashWithTask.size() == 0) {
-            return fileActivityInTrash;
         } else {
-            var allFileActivity = new ArrayList<FileActivity>();
-            fileActivityInTrash.stream().filter(x -> fileActivityInTrashWithTask.stream().filter(f -> f.getId() == x.getId()).count() == 0).forEach(x -> allFileActivity.add(x));
-            fileActivityInTrashWithTask.forEach(x -> allFileActivity.add(x));
-            return allFileActivity;
+            if (fileActivityInTrashWithTask.size() == 0) {
+                return fileActivityInTrash;
+            } else {
+                var allFileActivity = new ArrayList<FileActivity>();
+                fileActivityInTrash.stream().filter(x -> fileActivityInTrashWithTask.stream().filter(f -> f.getId() == x.getId()).count() == 0).forEach(x -> allFileActivity.add(x));
+                fileActivityInTrashWithTask.forEach(x -> allFileActivity.add(x));
+                return allFileActivity;
+            }
         }
     }
 
-    public boolean sendFileActivityToTrash(Long fileActivityId) {
+    public boolean sendFileActivityToTrash(Long fileActivityId)
+    {
         var fileActivity = getRepository().getOne(fileActivityId);
         fileActivity.setInTrash(true);
         return true;
     }
 
-    public boolean recoverFileActivityFromTrash(Long fileActivityId) {
+    public boolean recoverFileActivityFromTrash(Long fileActivityId)
+    {
         var fileActivity = getRepository().getOne(fileActivityId);
         fileActivity.setInTrash(false);
         return true;
     }
 
-    public boolean fileActivityOrderUp(Long fileActivityId) {
+    public boolean fileActivityOrderUp(Long fileActivityId)
+    {
         var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
         var sourceOrder = fileActivity.getFileActivityOrder();
         if (sourceOrder <= 1) {
@@ -128,7 +142,8 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
         return false;
     }
 
-    public boolean fileActivityOrderDown(Long fileActivityId) {
+    public boolean fileActivityOrderDown(Long fileActivityId)
+    {
         var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
         var sourceOrder = fileActivity.getFileActivityOrder();
         var maxOrder = getRepository().getMaxOrder();

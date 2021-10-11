@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AttachmentInput {
+public class AttachmentInput
+{
     private String name;
 }
