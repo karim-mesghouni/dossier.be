@@ -20,10 +20,11 @@ public class ThreadRunner
     @Bean
     public CommandLineRunner schedulingRunner(TaskExecutor executor)
     {
+        // See issue #3 (backend)
         return args ->
         {
-            executor.execute(new PingerThread(notifier));
-            log.warn("###### Startup ok");
+//            executor.execute(new PingerThread(notifier));
+//            log.warn("###### Startup ok");
         };
     }
 }
