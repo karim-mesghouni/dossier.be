@@ -19,6 +19,9 @@ public interface FileRepository extends JpaRepository<File, Long>, FileRepositor
     @Query("select f from File f where f.inTrash = false order by f.order")
     List<File> findAll();
 
+    @Query("select f from File f order by f.order")
+    List<File> findAllWithTrashed();
+
     Optional<File> findById(Long aLong);
 
     @Query("select f from File f where f.order > :order order by f.order")
