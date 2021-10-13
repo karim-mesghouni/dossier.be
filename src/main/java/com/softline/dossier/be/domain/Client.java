@@ -2,12 +2,11 @@ package com.softline.dossier.be.domain;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.*;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -20,6 +19,8 @@ import java.util.function.Predicate;
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE Client SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
+@DynamicUpdate// only generate sql statement for changed columns
+@SelectBeforeUpdate// only detached entities will be selected
 public class Client extends BaseEntity
 {
     @OneToMany(mappedBy = File_.CLIENT)

@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
 
 //region annotations
 @SuperBuilder
@@ -18,6 +17,8 @@ import javax.persistence.*;
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE Contact SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
+@DynamicUpdate// only generate sql statement for changed columns
+@SelectBeforeUpdate// only detached entities will be selected
 //endregion
 public class Contact
 {

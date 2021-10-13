@@ -4,11 +4,11 @@ import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +23,8 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @SQLDelete(sql = "UPDATE Comment SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
+@DynamicUpdate// only generate sql statement for changed columns
+@SelectBeforeUpdate// only detached entities will be selected
 public class Comment extends BaseEntity implements IComment
 {
 

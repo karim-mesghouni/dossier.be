@@ -3,11 +3,11 @@ package com.softline.dossier.be.domain;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @SQLDelete(sql = "UPDATE file_task SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false ")
+@DynamicUpdate// only generate sql statement for changed columns
+@SelectBeforeUpdate// only detached entities will be selected
 public class FileTask extends BaseEntity
 {
     @Id

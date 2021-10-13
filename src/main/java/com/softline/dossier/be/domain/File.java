@@ -5,7 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SelectBeforeUpdate;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -20,6 +22,8 @@ import java.util.List;
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE File SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
+@DynamicUpdate// only generate sql statement for changed columns
+@SelectBeforeUpdate// only detached entities will be selected
 public class File extends BaseEntity
 {
     @Id
