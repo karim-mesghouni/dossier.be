@@ -36,6 +36,7 @@ type File  {
     reprise: File
     fileReprise: Boolean
     inTrash:Boolean
+    order: Int
 }
 input FileInput  {
     id: ID
