@@ -3,6 +3,7 @@ package com.softline.dossier.be.service;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.FieldType;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
+import com.softline.dossier.be.repository.ActivityRepository;
 import com.softline.dossier.be.repository.ActivityStateRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
 {
     @Autowired
     ActivityStateRepository activityStateRepository;
+    @Autowired
+    private ActivityRepository activityRepository;
 
     @Override
     public List<FileActivity> getAll()
@@ -35,8 +38,9 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
             fileActivityOrder = 0;
         }
         fileActivityOrder++;
+        var activity = activityRepository.getOne(entityInput.getActivity().getId());
         var fileActivity = FileActivity.builder()
-                .activity(Activity.builder().id(entityInput.getActivity().getId()).build())
+                .activity(activity)
                 .file(File.builder().id(entityInput.getFile().getId()).build())
                 .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(entityInput.getActivity().getId()))
                 .current(true)
@@ -50,12 +54,12 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
                             .fieldName(x.getFieldName())
                             .fieldType(FieldType.valueOf(x.getFieldType().toString()))
                             .fileActivity(fileActivity)
-
                             .build()
                     );
             fileActivity.setDataFields(dataFields.collect(Collectors.toList()));
         }
-        return repository.save(fileActivity);
+        repository.save(fileActivity);
+        return repository.getOne(fileActivity.getId());
     }
 
     @Override
