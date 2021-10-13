@@ -84,12 +84,12 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
             );
         }
 
-        if(repository.count() > 0) {
+        if (repository.count() > 0) {
             // it should be 1
             // but let's get it from the repository just to be sure
             file.setOrder(repository.minOrder());
             repository.incrementAllOrder();
-        }else{
+        } else {
             file.setOrder(1);
         }
         repository.save(file);

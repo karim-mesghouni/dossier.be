@@ -1,6 +1,9 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.domain.*;
+import com.softline.dossier.be.domain.ActivityDataField;
+import com.softline.dossier.be.domain.ActivityState;
+import com.softline.dossier.be.domain.File;
+import com.softline.dossier.be.domain.FileActivity;
 import com.softline.dossier.be.domain.enums.FieldType;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
 import com.softline.dossier.be.repository.ActivityRepository;

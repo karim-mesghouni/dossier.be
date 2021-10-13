@@ -6,9 +6,9 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.*;
 
-import javax.persistence.*;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
