@@ -276,6 +276,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     {
         var file = getRepository().getOne(fileId);
         file.setInTrash(false);
+        sseNotificationService.sendNotificationForAll(new Event("fileRecovered", file.getId()));
         return true;
     }
 
