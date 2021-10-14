@@ -82,6 +82,6 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
     @PreAuthorize("hasPermission(null, 'READ_CLIENT')")
     public List<Client> getClientsTable(String search)
     {
-        return repository.findAllWithContactsByNameContaining(search);
+        return repository.getClientsTable(search);
     }
 }
