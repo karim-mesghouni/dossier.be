@@ -79,7 +79,7 @@ public class FileSchemaResolver extends SchemaResolverBase<File, FileInput, File
         return service.recoverFileFromTrash(fileId);
     }
 
-    public boolean changeOrder(Long fileId, Long fileBeforeId)
+    public boolean changeFileOrder(Long fileId, Long fileBeforeId)
     {
         return service.changeOrder(fileId, fileBeforeId);
     }

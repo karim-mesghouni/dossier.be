@@ -47,7 +47,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
                 .file(File.builder().id(entityInput.getFile().getId()).build())
                 .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(entityInput.getActivity().getId()))
                 .current(true)
-                .fileActivityOrder(fileActivityOrder)
+                .order(fileActivityOrder)
                 .build();
         if (entityInput.getDataFields() != null && !entityInput.getDataFields().isEmpty()) {
             var dataFields = entityInput.getDataFields().stream()
@@ -132,17 +132,17 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     public boolean fileActivityOrderUp(Long fileActivityId)
     {
         var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
-        var sourceOrder = fileActivity.getFileActivityOrder();
+        var sourceOrder = fileActivity.getOrder();
         if (sourceOrder <= 1) {
             return false;
         }
-        int targetOrder = sourceOrder;
+        long targetOrder = sourceOrder;
         while (targetOrder > 0) {
             targetOrder = targetOrder - 1;
-            var previousFiles = getRepository().getFileByFileActivityOrder(targetOrder);
+            var previousFiles = getRepository().getFileByOrder(targetOrder);
             if (!previousFiles.isEmpty()) {
-                previousFiles.forEach(fileActivity1 -> fileActivity1.setFileActivityOrder(fileActivity1.getFileActivityOrder() + 1));
-                fileActivity.setFileActivityOrder(targetOrder);
+                previousFiles.forEach(fileActivity1 -> fileActivity1.setOrder(fileActivity1.getOrder() + 1));
+                fileActivity.setOrder(targetOrder);
                 return true;
             }
         }
@@ -152,22 +152,65 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     public boolean fileActivityOrderDown(Long fileActivityId)
     {
         var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
-        var sourceOrder = fileActivity.getFileActivityOrder();
+        var sourceOrder = fileActivity.getOrder();
         var maxOrder = getRepository().getMaxOrder();
 
         if (sourceOrder == maxOrder) {
             return false;
         }
-        int targetOrder = sourceOrder;
+        var targetOrder = sourceOrder;
         while (targetOrder <= maxOrder) {
             targetOrder = targetOrder + 1;
-            var previousFiles = getRepository().getFileByFileActivityOrder(targetOrder);
+            var previousFiles = getRepository().getFileByOrder(targetOrder);
             if (!previousFiles.isEmpty()) {
-                previousFiles.forEach(fileActivity1 -> fileActivity1.setFileActivityOrder(fileActivity1.getFileActivityOrder() - 1));
-                fileActivity.setFileActivityOrder(targetOrder);
+                previousFiles.forEach(fileActivity1 -> fileActivity1.setOrder(fileActivity1.getOrder() - 1));
+                fileActivity.setOrder(targetOrder);
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * change the order of a fileActivity,
+     * will be called when the user changes the order of a fileActivity in the FilesView
+     * in the case when fileActivityBeforeId is not existent the fileActivity will be moved to be the first item in the list
+     *
+     * @param fileActivityId       the fileActivity(id) that we want to change its order
+     * @param fileActivityBeforeId the fileActivity(id) which should be before the new position of the fileActivity, may be non-existent
+     * @return boolean
+     */
+    public synchronized boolean changeOrder(long fileActivityId, long fileActivityBeforeId)
+    {
+        if (repository.count() < 2) {
+            return true;// this should not happen
+        }
+        var fileActivity = repository.getOne(fileActivityId);
+        var fileId = fileActivity.getFile().getId();
+        var res = repository.findById(fileActivityBeforeId);
+        // TODO: convert this logic into Mutating queries in JPA
+        if (res.isPresent()) {
+            var fileActivityBefore = res.get();
+            // how many fileActivitys will be updated (increment or decrement their order)
+            var levelsChange = repository.countAllByOrderBetween(fileActivity.getOrder(), fileActivityBefore.getOrder(), fileId);
+            if (fileActivity.getOrder() < fileActivityBefore.getOrder()) {// fileActivity is moving down the list
+                repository.findAllByOrderAfter(fileActivity.getOrder(), fileId)
+                        .stream()
+                        .limit(levelsChange + 1)
+                        .forEach(FileActivity::decrementOrder);
+                fileActivity.setOrder(fileActivityBefore.getOrder() + 1);
+            } else {// fileActivity is moving up the list
+                var allAfter = repository.findAllByOrderAfter(fileActivityBefore.getOrder(), fileId);
+                allAfter.stream()
+                        .limit(levelsChange)
+                        .forEach(FileActivity::incrementOrder);
+                fileActivity.setOrder(repository.findAllByOrderAfter(fileActivityBefore.getOrder(), fileId).stream().findFirst().get().getOrder() - 1);
+            }
+        } else {// fileActivity should be the first item in the list
+            var allBefore = repository.findAllByOrderBefore(fileActivity.getOrder(), fileId);
+            fileActivity.setOrder(allBefore.stream().findFirst().get().getOrder());// gets the order of the old first file
+            allBefore.forEach(FileActivity::incrementOrder);
+        }
+        return true;
     }
 }

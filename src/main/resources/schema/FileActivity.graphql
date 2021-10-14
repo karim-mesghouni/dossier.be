@@ -16,7 +16,7 @@ extend type  Mutation{
     recoverFileActivityFromTrash(fileActivityId: ID!): Boolean
     fileActivityOrderDown(fileActivityId: ID!): Boolean
     fileActivityOrderUp(fileActivityId: ID!): Boolean
-
+    changeFileActivityOrder(fileActivityId: ID!, fileActivityBeforeId: ID!): Boolean
 }
 
 type FileActivity {
@@ -29,7 +29,7 @@ type FileActivity {
     fileTasks:[FileTask]
     state:ActivityState
     inTrash:Boolean
-    fileActivityOrder:Int
+    order:Int
     createdDate: String
 
 }
@@ -42,7 +42,7 @@ input FileActivityInput  {
     #repises:[RepriseInput]
     fileTasks:[FileTaskInput]
     state:ActivityStateInput
-    fileActivityOrder:Int
+    order:Int
 
 
 }

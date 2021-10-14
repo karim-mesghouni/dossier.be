@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -115,7 +116,7 @@ public class DbInitializer implements ApplicationRunner
 //        role.setPrivileges(privs);
 //        roleRepository.save(role);
         if (agentRepository.count() == 0) {
-            final Role ADMIN_ROLE;
+            final Role MANAGER_ROLE;
             List<Privilege> allPrivileges = List.of(
                     Privilege.builder().name(c + "FILE").build(),
                     Privilege.builder().name(r + "FILE").build(),
@@ -150,7 +151,7 @@ public class DbInitializer implements ApplicationRunner
                     Privilege.builder().name(u + "Trash").build(),
                     Privilege.builder().name(d + "Trash").build()
             );
-            ADMIN_ROLE = roleRepository.save(Role.builder().name("ROLE_ADMIN").privileges(allPrivileges).build());
+            MANAGER_ROLE = roleRepository.save(Role.builder().name("ROLE_MANAGER").privileges(allPrivileges).build());
             // admin user
             for (var admin : List.of("elhabib", "othman", "boubaker")) {
                 agentRepository.save(Agent.builder()
@@ -159,7 +160,7 @@ public class DbInitializer implements ApplicationRunner
                         .username(admin)
                         .password(passwordEncoder.encode("000"))
                         .enabled(true)
-                        .roles(List.of(ADMIN_ROLE))
+                        .roles(List.of(MANAGER_ROLE))
                         .build()
                 );
             }
@@ -276,13 +277,14 @@ public class DbInitializer implements ApplicationRunner
                 file.setFileStates(fileStates);
                 file.setFileDocs(new ArrayList<>(ListUtils.createCount(faker.number().numberBetween(0, 4),
                         () -> FileDoc.builder().file(file).path(faker.file().fileName()).description(faker.file().fileName()).agent(getOne(agents)).build())));
+                AtomicInteger activityOrder = new AtomicInteger();
                 List<FileActivity> fileActivities = new ArrayList<>(List.of(FileActivity.builder()
                         .activity(baseActivity)
                         .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(baseActivity.getId()))
                         .current(true)
                         .agent(getOne(agents))
                         .file(file)
-                        .fileActivityOrder(order).build()));
+                        .order(activityOrder.getAndIncrement()).build()));
 
                 fileActivities.addAll(ListUtils.createCount(faker.number().numberBetween(0, 4), () ->
                                 FileActivity.builder()
@@ -291,7 +293,7 @@ public class DbInitializer implements ApplicationRunner
                                         .agent(getOne(agents))
                                         .current(false)
                                         .file(file)
-                                        .fileActivityOrder(order)
+                                        .order(activityOrder.getAndIncrement())
                                         .build()
                         )
                 );

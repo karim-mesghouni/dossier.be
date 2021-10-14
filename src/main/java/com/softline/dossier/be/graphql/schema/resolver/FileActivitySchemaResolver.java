@@ -80,4 +80,8 @@ public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity,
     {
         return service.fileActivityOrderDown(fileActivityId);
     }
+
+    public boolean changeFileActivityOrder(long fileActivityId, long fileActivityBeforeId){
+        return service.changeOrder(fileActivityId, fileActivityBeforeId);
+    }
 }

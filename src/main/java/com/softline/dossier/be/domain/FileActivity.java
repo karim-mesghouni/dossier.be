@@ -48,12 +48,23 @@ public class FileActivity extends BaseEntity
     @OneToMany(mappedBy = Comment_.FILE_ACTIVITY)
     List<Comment> comments;
     boolean inTrash;
-    @Column(columnDefinition = "int default 1")
-    int fileActivityOrder;
+    @Column(name = "`order`")
+    long order;
 
     @ManyToOne()
     @JoinColumn
     ActivityState state;
+
+
+    public void incrementOrder()
+    {
+        this.setOrder(this.getOrder() + 1);
+    }
+
+    public void decrementOrder()
+    {
+        this.setOrder(this.getOrder() - 1);
+    }
 
     @Override
     public String toString()

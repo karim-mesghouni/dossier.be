@@ -21,7 +21,7 @@ public class FileActivityInput
     //  List<RepriseInput> reprises;
     List<FileTaskInput> fileTasks;
     ActivityStateInput state;
-    int fileActivityOrder;
+    int order;
     private long id;
 
 }
