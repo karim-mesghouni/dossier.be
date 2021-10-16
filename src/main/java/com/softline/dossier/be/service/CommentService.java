@@ -244,6 +244,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         return getRepository().findAllByFileActivity_File_Id(fileId);
     }
 
+    // TODO: optimize
     public boolean notifyMessage(NotifyMessageInput input)
     {
         if (input.getAgentIds() != null) {
