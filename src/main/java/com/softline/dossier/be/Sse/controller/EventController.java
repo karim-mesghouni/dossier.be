@@ -48,7 +48,7 @@ public class EventController
         // create new sse emitter with timeout of 1 hour
         // this will delete his linked channel emitter
         // and force the client to reconnect again
-        SseEmitter emitter = tap(new SseEmitter(60*60L),
+        SseEmitter emitter = tap(new SseEmitter(1000 * 60 * 60L),
                 em -> em.onCompletion(() ->
                 {
                     // will be called if the client closed the connection (browser tap closed)
