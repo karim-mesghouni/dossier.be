@@ -31,7 +31,8 @@ public class FileTask extends BaseEntity
     boolean current;
     @Type(type = "text")
     String title;
-    Long number;
+    @Column(name = "`order`")
+    long order;
     @OneToOne
     @JoinColumn
     DescriptionComment description;
@@ -93,5 +94,15 @@ public class FileTask extends BaseEntity
     public FileTaskSituation getCurrentState()
     {
         return getFileTaskSituations().stream().filter(FileTaskSituation::isCurrent).findFirst().get();
+    }
+
+    public void incrementOrder()
+    {
+        this.setOrder(this.getOrder() + 1);
+    }
+
+    public void decrementOrder()
+    {
+        this.setOrder(this.getOrder() - 1);
     }
 }

@@ -71,7 +71,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .fileActivity(fileActivity)
                 .task(task)
                 .toStartDate(LocalDateTime.now())
-                .number((count + 1))
+                .order((count + 1))
                 .fileTaskSituations(new ArrayList<>())
                 .reporter(reporter)
                 .fileTaskOrder(fileTaskOrder)
@@ -297,7 +297,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .fileActivity(fileActivity)
                 .task(task)
                 .toStartDate(LocalDateTime.now())
-                .number((count + 1))
+                .order((count + 1))
                 .parent(parent)
                 .reporter(reporter)
                 .returned(true)
@@ -436,6 +436,49 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     public boolean updateTitle(String title, long fileTaskId)
     {
         repository.getOne(fileTaskId).setTitle(title);
+        return true;
+    }
+
+    /**
+     * change the order of a fileTask,
+     * will be called when the user changes the order of a fileTask in the FilesView
+     * in the case when fileTaskBeforeId is not existent the fileTask will be moved to be the first item in the list
+     *
+     * @param fileTaskId       the fileTask(id) that we want to change its order
+     * @param fileTaskBeforeId the fileTask(id) which should be before the new position of the fileTask, may be non-existent
+     * @return boolean
+     */
+    public synchronized boolean changeOrder(long fileTaskId, long fileTaskBeforeId)
+    {
+        if (repository.count() < 2) {
+            return true;// this should not happen
+        }
+        var fileTask = repository.getOne(fileTaskId);
+        var fileActivityId = fileTask.getFileActivity().getId();
+        var res = repository.findById(fileTaskBeforeId);
+        // TODO: convert this logic into Mutating queries in JPA
+        if (res.isPresent()) {
+            var fileTaskBefore = res.get();
+            // how many fileTasks will be updated (increment or decrement their order)
+            var levelsChange = repository.countAllByOrderBetween(fileTask.getOrder(), fileTaskBefore.getOrder(), fileActivityId);
+            if (fileTask.getOrder() < fileTaskBefore.getOrder()) {// fileTask is moving down the list
+                repository.findAllByOrderAfter(fileTask.getOrder(), fileActivityId)
+                        .stream()
+                        .limit(levelsChange + 1)
+                        .forEach(FileTask::decrementOrder);
+                fileTask.setOrder(fileTaskBefore.getOrder() + 1);
+            } else {// fileTask is moving up the list
+                var allAfter = repository.findAllByOrderAfter(fileTaskBefore.getOrder(), fileActivityId);
+                allAfter.stream()
+                        .limit(levelsChange)
+                        .forEach(FileTask::incrementOrder);
+                fileTask.setOrder(repository.findAllByOrderAfter(fileTaskBefore.getOrder(), fileActivityId).stream().findFirst().get().getOrder() - 1);
+            }
+        } else {// fileTask should be the first item in the list
+            var allBefore = repository.findAllByOrderBefore(fileTask.getOrder(), fileActivityId);
+            fileTask.setOrder(allBefore.stream().findFirst().get().getOrder());// gets the order of the old first file
+            allBefore.forEach(FileTask::incrementOrder);
+        }
         return true;
     }
 }

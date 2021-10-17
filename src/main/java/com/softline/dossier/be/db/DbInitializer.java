@@ -299,7 +299,7 @@ public class DbInitializer implements ApplicationRunner
                 );
                 fileActivities.forEach(activity ->
                 {
-                    AtomicLong number = new AtomicLong(1);
+                    AtomicLong fileTaskOrder = new AtomicLong(1);
                     activity.setFileTasks(new ArrayList<>(ListUtils.createCount(faker.number().numberBetween(0, 6), () ->
                     {
                         var createdDate = faker.date().between(toDate(now), toDate(now.plusDays(20)));
@@ -307,7 +307,7 @@ public class DbInitializer implements ApplicationRunner
                         FileTask task = FileTask.builder()
                                 .fileActivity(activity)
                                 .agent(getOne(agents))
-                                .number(number.getAndIncrement())
+                                .order(fileTaskOrder.getAndIncrement())
                                 .assignedTo(getOne(agents))
                                 .reporter(getOne(agents))
                                 .task(getOne(tasks))

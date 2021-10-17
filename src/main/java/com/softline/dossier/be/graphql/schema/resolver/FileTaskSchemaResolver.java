@@ -191,4 +191,10 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
     {
         return super.getAll();
     }
+
+    public boolean changeFileTaskOrder(long fileTaskId, long fileTaskBeforeId)
+    {
+        return service.changeOrder(fileTaskId, fileTaskBeforeId);
+    }
+
 }

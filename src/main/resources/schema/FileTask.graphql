@@ -37,7 +37,7 @@ extend type  Mutation{
     fileTaskOrderUp(fileTaskId: ID!): Boolean
     fileTaskOrderDown(fileTaskId: ID!): Boolean
     deleteFileTask(id: ID!): Boolean
-
+    changeFileTaskOrder(fileTaskId: ID!, fileTaskBeforeId: ID!): Boolean
 }
 
 
@@ -47,7 +47,7 @@ type FileTask{
     fileActivity:FileActivity
     task:Task
     toStartDate: String
-    number:Int
+    order:Int
     dueDate: String
     startDate:String
     endDate:String
