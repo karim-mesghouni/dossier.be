@@ -1,5 +1,6 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.Sse.controller.EventController;
 import com.softline.dossier.be.Sse.model.Event;
 import com.softline.dossier.be.Sse.service.SseNotificationService;
 import com.softline.dossier.be.domain.*;
@@ -93,7 +94,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
             file.setOrder(1);
         }
         repository.save(file);
-        sseNotificationService.sendNotificationForAll(new Event("fileAdded", file.getId()));
+        EventController.sendForAllChannels(new Event("fileAdded", file.getId()));
         return file;
     }
 
@@ -128,7 +129,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
             }
         }
         repository.save(file);
-        sseNotificationService.sendNotificationForAll(new Event("fileUpdated", file.getId()));
+        EventController.sendForAllChannels(new Event("fileUpdated", file.getId()));
         return file;
     }
 
@@ -268,7 +269,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     {
         var file = getRepository().findById(fileId).orElseThrow();
         file.setInTrash(true);
-        sseNotificationService.sendNotificationForAll(new Event("fileTrashed", file.getId()));
+        EventController.sendForAllChannels(new Event("fileTrashed", file.getId()));
         return true;
     }
 
@@ -276,7 +277,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     {
         var file = getRepository().getOne(fileId);
         file.setInTrash(false);
-        sseNotificationService.sendNotificationForAll(new Event("fileRecovered", file.getId()));
+        EventController.sendForAllChannels(new Event("fileRecovered", file.getId()));
         return true;
     }
 

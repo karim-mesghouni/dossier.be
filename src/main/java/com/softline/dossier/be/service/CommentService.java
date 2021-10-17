@@ -2,6 +2,7 @@ package com.softline.dossier.be.service;
 
 import com.softline.dossier.be.Halpers.EnvUtil;
 import com.softline.dossier.be.Halpers.FileSystem;
+import com.softline.dossier.be.Sse.controller.EventController;
 import com.softline.dossier.be.Sse.model.Event;
 import com.softline.dossier.be.Sse.service.SseNotificationService;
 import com.softline.dossier.be.domain.*;
@@ -122,7 +123,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         resolveCommentAttachments(comment, changes);
         getRepository().save(comment);
         var currentAgent = agentRepository.findByUsername(((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
-        sseNotificationService.sendNotificationForAll(new Event("comment", comment));
+        EventController.sendForAllChannels(new Event("comment", comment));
         return comment;
     }
 
@@ -259,13 +260,14 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                                             .activity(Activity.builder().id(comment.getFileActivity().getActivity().getId())
                                                     .name(comment.getFileActivity().getActivity().getName())
                                                     .build()).build())
-                                    .fileTask(comment.getFileTask() != null ? FileTask.builder().id(comment.getFileTask().getId()).number(comment.getFileTask().getNumber())
+                                    .fileTask(comment.getFileTask() != null ? FileTask.builder().id(comment.getFileTask().getId()).order(comment.getFileTask().getOrder())
                                             .task(Task.builder().id(comment.getFileTask().getTask().getId()).name(comment.getFileTask().getTask().getName()).build()).build() : null)
                                     .agent(Agent.builder().id(comment.getAgent().getId()).name(comment.getAgent().getName()).build()).build()).
                             agent(Agent.builder().id(agentId).build()).build()
             ).collect(Collectors.toList());
             messageRepository.saveAll(messages);
-            messages.forEach(x -> sseNotificationService.sendNotification(x.getAgent().getId(), Event.builder().name("message").payload(x).build()));
+
+            messages.forEach(x -> EventController.sendForUser(x.getAgent().getId(), Event.builder().name("message").payload(x).build()));
             return true;
         }
         return false;

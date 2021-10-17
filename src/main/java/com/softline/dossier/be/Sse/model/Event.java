@@ -26,4 +26,9 @@ public class Event implements Serializable
     {
         return new ObjectMapper().writeValueAsString(this.getPayload());
     }
+
+    public String toString()
+    {
+        return "name: " + name + ", payload: " + payload.toString();
+    }
 }
