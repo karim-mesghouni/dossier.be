@@ -1,4 +1,4 @@
-package com.softline.dossier.be.Sse.model;
+package com.softline.dossier.be.SSE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

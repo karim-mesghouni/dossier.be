@@ -1,7 +1,5 @@
-package com.softline.dossier.be.Sse.controller;
+package com.softline.dossier.be.SSE;
 
-import com.softline.dossier.be.Sse.Channel;
-import com.softline.dossier.be.Sse.model.Event;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;

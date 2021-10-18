@@ -1,4 +1,4 @@
-package com.softline.dossier.be.Sse;
+package com.softline.dossier.be.SSE;
 
 import lombok.AllArgsConstructor;
 

@@ -1,8 +1,7 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.Sse.controller.EventController;
-import com.softline.dossier.be.Sse.model.Event;
-import com.softline.dossier.be.Sse.service.SseNotificationService;
+import com.softline.dossier.be.SSE.EventController;
+import com.softline.dossier.be.SSE.Event;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.graphql.types.FileFilterInput;
 import com.softline.dossier.be.graphql.types.FileHistoryDTO;
@@ -10,6 +9,9 @@ import com.softline.dossier.be.graphql.types.PageList;
 import com.softline.dossier.be.graphql.types.input.FileInput;
 import com.softline.dossier.be.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +37,6 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     CommuneRepository communeRepository;
     @Autowired
     ActivityStateRepository activityStateRepository;
-    @Autowired
-    SseNotificationService sseNotificationService;
 
     @Override
     public List<File> getAll()

@@ -2,9 +2,8 @@ package com.softline.dossier.be.service;
 
 import com.softline.dossier.be.Halpers.EnvUtil;
 import com.softline.dossier.be.Halpers.FileSystem;
-import com.softline.dossier.be.Sse.controller.EventController;
-import com.softline.dossier.be.Sse.model.Event;
-import com.softline.dossier.be.Sse.service.SseNotificationService;
+import com.softline.dossier.be.SSE.EventController;
+import com.softline.dossier.be.SSE.Event;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
@@ -54,7 +53,6 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     private final AgentRepository agentRepository;
     private final FileActivityRepository fileActivityRepository;
     private final FileTaskRepository fileTaskRepository;
-    private final SseNotificationService sseNotificationService;
     private final MessageRepository messageRepository;
     private final FileSystem fileSystem;
 
