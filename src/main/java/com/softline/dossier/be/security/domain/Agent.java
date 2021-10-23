@@ -1,10 +1,6 @@
 package com.softline.dossier.be.security.domain;
 
-import com.softline.dossier.be.domain.BaseEntity;
-import com.softline.dossier.be.domain.Comment;
-import com.softline.dossier.be.domain.Comment_;
-import com.softline.dossier.be.domain.Notification;
-import com.softline.dossier.be.security.domain.casl.CaslRawRule;
+import com.softline.dossier.be.domain.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,10 +25,7 @@ public class Agent extends BaseEntity
     List<Comment> comments;
     @OneToMany(mappedBy = "agent")
     List<Notification> notifications;
-    @Transient()
-    List<String> authorities;
-    @Transient()
-    List<CaslRawRule> caslRules;
+
     @Column(nullable = false, unique = true)
     private String username;
     @Column(nullable = false)
@@ -40,12 +33,13 @@ public class Agent extends BaseEntity
     private String email;
     private boolean enabled;
     private boolean tokenExpired;
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "user_role",
-            joinColumns = @JoinColumn(
-                    name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(
-                    name = "role_id", referencedColumnName = "id"))
-    private List<Role> roles;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Role role;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Job job;
+
+    @ManyToOne
+    private Activity activity;
 }

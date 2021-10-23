@@ -71,16 +71,6 @@ public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity,
         return service.sendFileActivityToTrash(fileActivityId);
     }
 
-    public boolean fileActivityOrderUp(Long fileActivityId)
-    {
-        return service.fileActivityOrderUp(fileActivityId);
-    }
-
-    public boolean fileActivityOrderDown(Long fileActivityId)
-    {
-        return service.fileActivityOrderDown(fileActivityId);
-    }
-
     public boolean changeFileActivityOrder(long fileActivityId, long fileActivityBeforeId){
         return service.changeOrder(fileActivityId, fileActivityBeforeId);
     }

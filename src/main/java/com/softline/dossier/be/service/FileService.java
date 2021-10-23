@@ -1,7 +1,7 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.SSE.Event;
+import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.graphql.types.FileFilterInput;
 import com.softline.dossier.be.graphql.types.FileHistoryDTO;
@@ -39,12 +39,14 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     ActivityStateRepository activityStateRepository;
 
     @Override
+    @PostFilter("hasPermission(filterObject, 'READ_FILE')")
     public List<File> getAll()
     {
         return repository.findAll();
     }
 
     @Override
+    @PreAuthorize("hasPermission(#input, 'CREATE_FILE')")
     public File create(FileInput input) throws IOException
     {
         File reprise = null;
@@ -99,6 +101,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     }
 
     @Override
+    @PreAuthorize("hasPermission(null, 'UPDATE_FILE')")
     public File update(FileInput input)
     {
         File reprise = null;
@@ -134,6 +137,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     }
 
     @Override
+    @PreAuthorize("hasPermission(fileRepository.getOne(#id), 'DELETE_FILE')")
     public boolean delete(long id)
     {
         // TODO: fix this issue
@@ -143,17 +147,19 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     }
 
     @Override
+    @PostAuthorize("hasPermission(returnObject, 'READ_FILE')")
     public File getById(long id)
     {
         repository.flush();
         return repository.findById(id).orElseThrow();
     }
 
+    @PostAuthorize("hasPermission(returnObject, 'READ_FILE')")
     public PageList<File> getAllFilePageFilter(FileFilterInput input)
     {
         if (input.getPageSize() <= 0) { // return everything
-            var result = getRepository().findAll();
-            return new PageList<>(result, result.size());
+            var result = this.getAll();
+            return new PageList(result, result.size());
         } else {
             var result = getRepository().getByFilter(input);
             return new PageList<>(result.getValue1(), result.getValue0());

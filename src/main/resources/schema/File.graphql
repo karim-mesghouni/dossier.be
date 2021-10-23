@@ -56,7 +56,7 @@ input FileInput  {
     reprise: FileInput
     fileReprise: Boolean
     inTrash:Boolean
-
+    order: Int
 }
 input FileFilterInput{
     pageNumber:Int

@@ -1,12 +1,10 @@
 package com.softline.dossier.be.graphql.types.input;
 
-import com.softline.dossier.be.security.domain.casl.CaslRawRule;
+import com.softline.dossier.be.security.domain.RoleInput;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.util.List;
 
 @SuperBuilder
 @NoArgsConstructor
@@ -14,11 +12,12 @@ import java.util.List;
 @Data
 public class AgentInput
 {
-
     Long id;
     String name;
     String username;
-
     String password;
-    List<CaslRawRule> caslRules;
+
+    JobInput job;
+    ActivityInput activity;
+    RoleInput role;
 }

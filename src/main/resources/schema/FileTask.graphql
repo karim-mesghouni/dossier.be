@@ -30,12 +30,10 @@ extend type  Mutation{
     changeReturnedCause(fileTaskId:ID!,returnedCauseId: ID! ): ReturnedCause
     changeReturned(fileTaskId:ID! ,returned: Boolean!):Boolean
     createChildFileTask(input: FileTaskInput!):FileTask
-    changeParent(fileTaskId:ID!,parentId:ID):FileTask
+    changeParent(fileTaskId:ID!,parentId:ID):Boolean
     sendFileTaskToTrash(fileTaskId: ID!): Boolean
     recoverFileTaskFromTrash(fileTaskId: ID!): Boolean
     uploadAttachments(attachments: [Upload]!,fileTaskId:ID!):[Attachment]
-    fileTaskOrderUp(fileTaskId: ID!): Boolean
-    fileTaskOrderDown(fileTaskId: ID!): Boolean
     deleteFileTask(id: ID!): Boolean
     changeFileTaskOrder(fileTaskId: ID!, fileTaskBeforeId: ID!): Boolean
 }
@@ -70,7 +68,6 @@ input FileTaskInput {
     id:ID
     current:Boolean
     fileActivity:FileActivityInput
-    task:TaskInput
     toStartDate: String
     dueDate: String
     startDate:String
@@ -87,4 +84,6 @@ input FileTaskInput {
     returned:Boolean
     parent: FileTaskInput
     attachments: [AttachmentInput]
+    task:TaskInput
+    order:Int
 }

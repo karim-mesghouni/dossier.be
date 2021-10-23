@@ -1,16 +1,15 @@
-package com.softline.dossier.be.graphql.types.input;
+package com.softline.dossier.be.security.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class JobInput
+@NoArgsConstructor
+public class RoleInput
 {
     long id;
     String name;
+    String displayName;
 }

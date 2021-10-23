@@ -1,12 +1,9 @@
 type Job {
     id:ID
     name:String
-    description:String
-    task:Task
+    agents: [Agent]
 }
 input JobInput {
     id:ID
     name:String
-    description:String
-    task:TaskInput
 }

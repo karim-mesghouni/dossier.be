@@ -1,0 +1,10 @@
+type Role {
+    id: ID!
+    name: String!
+    displayName: String!
+}
+input RoleInput {
+    id: ID!
+    name: String
+    displayName: String
+}

@@ -48,11 +48,11 @@ public class File extends BaseEntity
     @OneToMany(mappedBy = FileDoc_.FILE, cascade = CascadeType.ALL)
     List<FileDoc> fileDocs;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = FileState_.FILE, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = FileState_.FILE, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<FileState> fileStates;
 
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = FileActivity_.FILE, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = FileActivity_.FILE, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<FileActivity> fileActivities;
     @OneToOne()
     @JoinColumn()

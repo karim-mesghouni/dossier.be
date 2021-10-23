@@ -1,14 +1,26 @@
 # Query
 extend type Query  {
     allAgent:[Agent]
+    allRoles: [Role]
+    allJobs: [Job]
     currentAgent:Agent
 }
+
+extend type Mutation  {
+    deleteAgent(id: ID!): Boolean
+    updateAgent(input: AgentInput): Agent
+    createAgent(input: AgentInput): Agent
+}
+
 type Agent {
     id:ID
     name:String
     username: String
     password: String
-    caslRules: [RawRule]
+
+    activity: Activity
+    role: Role
+    job: Job
 }
 
 input AgentInput{
@@ -16,6 +28,9 @@ input AgentInput{
     name:String
     username: String
     password: String
-    caslRules: [RawRuleInput]
+
+    activity: ActivityInput
+    role: RoleInput
+    job: JobInput
 }
 

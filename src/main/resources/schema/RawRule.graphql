@@ -1,8 +1,0 @@
-type RawRule {
-    action: String!
-    subject: String
-}
-input RawRuleInput {
-    action: String!
-    subject: String
-}

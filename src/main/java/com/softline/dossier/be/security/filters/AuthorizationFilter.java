@@ -3,8 +3,10 @@ package com.softline.dossier.be.security.filters;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.softline.dossier.be.domain.Activity;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.domain.Policy.BasicPolicyEnforcement;
+import com.softline.dossier.be.security.domain.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.softline.dossier.be.security.filters.constants.SecurityConstants.*;
 
@@ -42,20 +43,16 @@ public class AuthorizationFilter extends BasicAuthenticationFilter
     {
 
         String header = req.getHeader(HEADER_STRING);
-        req.getHeaderNames();
         try {
-
             if (header != null && header.startsWith(TOKEN_PREFIX)) {
                 UsernamePasswordAuthenticationToken authentication = getAuthentication(req);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } catch (Exception e) {
-            logger.error("got invalid jwt token ", e);
+        } catch (Throwable e) {
+            logger.error("got invalid jwt token ");
             res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "invalid token");
         }
         chain.doFilter(req, res);
-
-
     }
 
 
@@ -68,13 +65,14 @@ public class AuthorizationFilter extends BasicAuthenticationFilter
             DecodedJWT decoded = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
                     .build()
                     .verify(token.replace(TOKEN_PREFIX, ""));
-            String user = decoded.getSubject();
-            Agent agent = Agent.builder().id(decoded.getClaim("id").asLong()).username(user).name(user).build();
-            if (user != null) {
-                List<String> authorities = decoded.getClaim("authorities").asList(String.class);
-                agent.setAuthorities(authorities);
-                return new UsernamePasswordAuthenticationToken(agent, null, authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
-            }
+            String role = decoded.getClaim("role").asString();
+
+            Agent agent = new Agent();
+            agent.setId(decoded.getClaim("id").asLong());
+            agent.setUsername(decoded.getSubject());
+            agent.setRole(Role.builder().name(role).build());
+            agent.setActivity(Activity.builder().id(decoded.getClaim("activityId").as(Long.class)).build());
+            return new UsernamePasswordAuthenticationToken(agent, null, List.of(new SimpleGrantedAuthority(role)));
         }
         return null;
     }

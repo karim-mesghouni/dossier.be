@@ -14,8 +14,7 @@ import java.util.List;
 @Data
 public class FileTaskInput
 {
-
-    Long id;
+    long id;
     boolean current;
     FileActivityInput fileActivity;
     TaskInput task;

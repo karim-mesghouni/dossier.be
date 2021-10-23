@@ -31,5 +31,5 @@ public class FileInput
     FileInput reprise;
     boolean inTrash;
     private Long id;
-
+    long order;
 }

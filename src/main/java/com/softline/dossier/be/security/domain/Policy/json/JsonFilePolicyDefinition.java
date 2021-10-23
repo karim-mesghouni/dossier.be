@@ -39,7 +39,7 @@ public class JsonFilePolicyDefinition implements PolicyDefinition
         module.addDeserializer(Expression.class, new SpelDeserializer());
         mapper.registerModule(module);
         try {
-            PolicyRule[] rulesArray = null;
+            PolicyRule[] rulesArray;
             logger.debug("[init] Checking policy file at: {}", policyFilePath);
             if (policyFilePath != null && !policyFilePath.isEmpty()
                     && Files.exists(Paths.get(policyFilePath)))

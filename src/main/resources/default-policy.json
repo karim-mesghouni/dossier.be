@@ -1,18 +1,23 @@
 [
   {
-    "target": "action == 'READ_CLIENT'",
-    "condition": "subject.authorities.contains('READ_CLIENT')"
+    "name": "Manager can do everything",
+    "target": "subject.role.name == 'MANAGER'",
+    "condition": "true"
   },
   {
-    "target": "action == 'DELETE_CLIENT'",
-    "condition": "subject.authorities.contains('DELETE_CLIENT')"
+    "name": "Referent can read client",
+    "description": "Required when referent wants to create a file",
+    "target": "subject.role.name == 'REFERENT' && action == 'READ_CLIENT'",
+    "condition": "true"
   },
   {
-    "target": "action == 'DELETE_CONTACT'",
-    "condition": "subject.authorities.contains('DELETE_CONTACT')"
+    "name": "Referent can read his activity files",
+    "target": "subject.role.name == 'REFERENT' && action == 'READ_FILE'",
+    "condition": "resource.fileActivities.?[activity.id == #root.subject.activity.id].size() != 0"
   },
   {
-    "target": "action == 'CREATE_CONTACT'",
-    "condition": "subject.authorities.contains('CREATE_CONTACT')"
+    "name": "Referent can manage his activity",
+    "target": "subject.role.name == 'REFERENT' && {'CREATE_ACTIVITY', 'UPDATE_ACTIVITY', 'DELETE_ACTIVITY'}.contains(action)",
+    "condition": "resource.activity.id == subject.activity.id"
   }
 ]

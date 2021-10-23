@@ -14,8 +14,6 @@ extend type  Mutation{
     changeActivityState(activityStateId: ID!, fileActivityId: ID!):ActivityState
     sendFileActivityToTrash(fileActivityId: ID!): Boolean
     recoverFileActivityFromTrash(fileActivityId: ID!): Boolean
-    fileActivityOrderDown(fileActivityId: ID!): Boolean
-    fileActivityOrderUp(fileActivityId: ID!): Boolean
     changeFileActivityOrder(fileActivityId: ID!, fileActivityBeforeId: ID!): Boolean
 }
 

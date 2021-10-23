@@ -1,5 +1,7 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.SSE.Event;
+import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.domain.ActivityDataField;
 import com.softline.dossier.be.domain.ActivityState;
 import com.softline.dossier.be.domain.File;
@@ -9,7 +11,9 @@ import com.softline.dossier.be.graphql.types.input.FileActivityInput;
 import com.softline.dossier.be.repository.ActivityRepository;
 import com.softline.dossier.be.repository.ActivityStateRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,7 +66,17 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
             fileActivity.setDataFields(dataFields.collect(Collectors.toList()));
         }
         repository.save(fileActivity);
+        fireEvent("fileActivityAdded", fileActivity);
         return repository.getOne(fileActivity.getId());
+    }
+
+    @SneakyThrows
+    private void fireEvent(String name, FileActivity fileActivity)
+    {
+        var payload = new JSONObject();
+        payload.put("fileActivityId", fileActivity.getId());
+        payload.put("fileId", fileActivity.getFile().getId());
+        EventController.sendForAllChannels(new Event(name, payload));
     }
 
     @Override
@@ -119,6 +133,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     {
         var fileActivity = getRepository().getOne(fileActivityId);
         fileActivity.setInTrash(true);
+        fireEvent("fileActivityTrashed", fileActivity);
         return true;
     }
 
@@ -126,49 +141,8 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     {
         var fileActivity = getRepository().getOne(fileActivityId);
         fileActivity.setInTrash(false);
+        fireEvent("fileActivityRecovered", fileActivity);
         return true;
-    }
-
-    public boolean fileActivityOrderUp(Long fileActivityId)
-    {
-        var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
-        var sourceOrder = fileActivity.getOrder();
-        if (sourceOrder <= 1) {
-            return false;
-        }
-        long targetOrder = sourceOrder;
-        while (targetOrder > 0) {
-            targetOrder = targetOrder - 1;
-            var previousFiles = getRepository().getFileByOrder(targetOrder);
-            if (!previousFiles.isEmpty()) {
-                previousFiles.forEach(fileActivity1 -> fileActivity1.setOrder(fileActivity1.getOrder() + 1));
-                fileActivity.setOrder(targetOrder);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean fileActivityOrderDown(Long fileActivityId)
-    {
-        var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
-        var sourceOrder = fileActivity.getOrder();
-        var maxOrder = getRepository().getMaxOrder();
-
-        if (sourceOrder == maxOrder) {
-            return false;
-        }
-        var targetOrder = sourceOrder;
-        while (targetOrder <= maxOrder) {
-            targetOrder = targetOrder + 1;
-            var previousFiles = getRepository().getFileByOrder(targetOrder);
-            if (!previousFiles.isEmpty()) {
-                previousFiles.forEach(fileActivity1 -> fileActivity1.setOrder(fileActivity1.getOrder() - 1));
-                fileActivity.setOrder(targetOrder);
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

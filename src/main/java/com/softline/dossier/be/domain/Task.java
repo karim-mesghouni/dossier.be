@@ -33,8 +33,6 @@ public class Task extends BaseEntity
     @JoinColumn
     Activity activity;
 
-    @OneToMany(mappedBy = Job_.TASK, cascade = CascadeType.ALL)
-    List<Job> jobs;
     @OneToMany(mappedBy = TaskState_.TASK, cascade = CascadeType.ALL)
     List<TaskSituation> situations;
     @OneToMany(mappedBy = TaskState_.TASK, cascade = CascadeType.ALL)

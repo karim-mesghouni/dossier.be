@@ -2,6 +2,9 @@ package com.softline.dossier.be.service;
 
 import com.softline.dossier.be.Halpers.EnvUtil;
 import com.softline.dossier.be.Halpers.FileSystem;
+import com.softline.dossier.be.Halpers.Functions;
+import com.softline.dossier.be.SSE.Event;
+import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
@@ -13,8 +16,10 @@ import com.softline.dossier.be.security.repository.AgentRepository;
 import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,9 +100,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         //fileTask.setDescription(input.getDescription());
         // fileTask.setRetour(input.getRetour());
         fileTask.setTitle(input.getTitle());
-        if (input.getState() != null && input.getState().getId() != null) {
-            fileTask.setState(TaskState.builder().id(input.getState().getId()).build());
-        }
+        Functions.safeRun(() -> fileTask.setState(taskStateRepository.getOne(input.getState().getId())));
         return fileTask;
     }
 
@@ -313,17 +316,18 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return getRepository().findById(fileTask.getId()).orElseThrow();
     }
 
-    public FileTask changeParent(Long fileTaskId, Long parentId)
+    public boolean changeParent(Long fileTaskId, Long parentId)
     {
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
-        if (parentId != null) {
-            var parent = getRepository().findById(parentId).orElseThrow();
-            fileTask.setParent(parent);
-        } else {
-            fileTask.setParent(null);
+        if (Functions.safeRun(
+                () -> getRepository().getOne(fileTaskId).setParent(getRepository().getOne(parentId)),
+                () -> getRepository().getOne(fileTaskId).setParent(null)
+        ))
+        {
+            var fileTask = getRepository().getOne(fileTaskId);
+            fireEvent("fileTaskUpdated", fileTask);
+            return true;
         }
-        repository.save(fileTask);
-        return fileTask;
+        return false;
     }
 
     public List<FileTask> getAllFileTaskByFileActivityIdInTrash(Long fileActivityId)
@@ -335,13 +339,25 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     {
         var fileTask = getRepository().getOne(fileTaskId);
         fileTask.setInTrash(false);
+        fireEvent("fileTaskRecovered", fileTask);
         return true;
+    }
+
+    @SneakyThrows
+    private void fireEvent(String name, FileTask fileTask)
+    {
+        var payload = new JSONObject();
+        payload.put("fileTaskId", fileTask.getFileActivity().getId());
+        payload.put("fileActivityId", fileTask.getFileActivity().getId());
+        payload.put("fileId", fileTask.getFileActivity().getFile().getId());
+        EventController.sendForAllChannels(new Event(name, payload));
     }
 
     public boolean sendFileTaskToTrash(Long fileTaskId)
     {
         var fileTask = getRepository().getOne(fileTaskId);
         fileTask.setInTrash(true);
+        fireEvent("fileTaskTrashed", fileTask);
         return true;
     }
 
@@ -379,49 +395,6 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         } catch (Exception e) {
             return false;
         }
-    }
-
-
-    public boolean fileTaskOrderUp(Long fileTaskId)
-    {
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
-        var sourceOrder = fileTask.getFileTaskOrder();
-        if (sourceOrder <= 1) {
-            return false;
-        }
-        int targetOrder = sourceOrder;
-        while (targetOrder > 0) {
-            targetOrder = targetOrder - 1;
-            var previousFiles = getRepository().getAllByFileTaskOrder(targetOrder);
-            if (!previousFiles.isEmpty()) {
-                previousFiles.forEach(fileTask1 -> fileTask1.setFileTaskOrder(fileTask1.getFileTaskOrder() + 1));
-                fileTask.setFileTaskOrder(targetOrder);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean fileTaskOrderDown(Long fileTaskId)
-    {
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
-        var sourceOrder = fileTask.getFileTaskOrder();
-        var maxOrder = getRepository().getMaxOrder();
-
-        if (sourceOrder == maxOrder) {
-            return false;
-        }
-        int targetOrder = sourceOrder;
-        while (targetOrder <= maxOrder) {
-            targetOrder = targetOrder + 1;
-            var previousFiles = getRepository().getAllByFileTaskOrder(targetOrder);
-            if (!previousFiles.isEmpty()) {
-                previousFiles.forEach(fileTask1 -> fileTask1.setFileTaskOrder(fileTask1.getFileTaskOrder() - 1));
-                fileTask.setFileTaskOrder(targetOrder);
-                return true;
-            }
-        }
-        return false;
     }
 
     protected boolean delete(Long id)

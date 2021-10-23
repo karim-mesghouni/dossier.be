@@ -34,7 +34,7 @@ public class FileActivity extends BaseEntity
     @JoinColumn
     Activity activity;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = ActivityDataField_.FILE_ACTIVITY, orphanRemoval = true)
+    @OneToMany(mappedBy = ActivityDataField_.FILE_ACTIVITY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<ActivityDataField> dataFields;
 
     @OneToMany(mappedBy = Reprise_.FILE_ACTIVITY)

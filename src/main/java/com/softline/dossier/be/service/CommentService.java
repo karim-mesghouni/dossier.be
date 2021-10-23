@@ -2,8 +2,9 @@ package com.softline.dossier.be.service;
 
 import com.softline.dossier.be.Halpers.EnvUtil;
 import com.softline.dossier.be.Halpers.FileSystem;
-import com.softline.dossier.be.SSE.EventController;
+import com.softline.dossier.be.Halpers.Functions;
 import com.softline.dossier.be.SSE.Event;
+import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
@@ -112,10 +113,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                 .content(input.getContent())
                 .agent(Agent.builder().name(agnet.getName()).id(agnet.getId()).build())
                 .build();
-        if (input.getFileTask() != null && input.getFileTask().getId() != null) {
-            var fileTask = fileTaskRepository.findById(input.getFileTask().getId()).orElseThrow();
-            comment.setFileTask(fileTask);
-        }
+        Functions.safeRun(() -> comment.setFileTask(fileTaskRepository.getOne(input.getFileTask().getId())));
         comment.setType(CommentType.Comment);
         Pair<String, List<String>> changes = parseImageLinks(input.getContent());
         resolveCommentAttachments(comment, changes);

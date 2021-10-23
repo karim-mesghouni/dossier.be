@@ -19,13 +19,7 @@ public class Role
 
     @Column(name = "name", nullable = false)
     private String name;
-
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "role_privilege",
-            joinColumns = @JoinColumn(
-                    name = "role_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(
-                    name = "privilege_id", referencedColumnName = "id"))
-    private List<Privilege> privileges;
+    @OneToMany(mappedBy = Agent_.ROLE, cascade = CascadeType.ALL)
+    List<Agent> agents;
+    private String displayName;
 }

@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,23 +27,7 @@ public class AgentDetailsService implements UserDetailsService
         if (agent == null) {
             throw new UsernameNotFoundException(username);
         }
-
-
-        grantedAuthorities = new ArrayList<>();
-        if (agent.getRoles() instanceof List) {
-            agent.getRoles().forEach(role ->
-            {
-                grantedAuthorities.add(new SimpleGrantedAuthority(role.getName()));
-                if (role.getPrivileges() != null) {
-                    role.getPrivileges().forEach(privilege ->
-                    {
-                        grantedAuthorities.add(new SimpleGrantedAuthority(privilege.getName()));
-                    });
-                }
-            });
-        }
-
-        return new CustomAgentDetails(agent, grantedAuthorities);
+        return new CustomAgentDetails(agent, List.of(new SimpleGrantedAuthority(agent.getRole().getName())));
     }
 
 }

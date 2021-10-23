@@ -1,7 +1,5 @@
 package com.softline.dossier.be.SSE;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,9 +20,10 @@ public class Event implements Serializable
         this.payload = payload;
     }
 
-    public String getPayloadJson() throws JsonProcessingException
+    public String getPayloadJson()
     {
-        return new ObjectMapper().writeValueAsString(this.getPayload());
+        // if the object is of type JSONObject it will be parsed into a json string
+        return this.getPayload().toString();
     }
 
     public String toString()

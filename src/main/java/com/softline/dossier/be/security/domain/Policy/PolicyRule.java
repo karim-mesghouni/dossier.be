@@ -2,10 +2,12 @@ package com.softline.dossier.be.security.domain.Policy;
 
 import lombok.Data;
 import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 @Data
 public class PolicyRule
 {
+    private static SpelExpressionParser parser = new SpelExpressionParser();
 
     private String name;
     private String description;

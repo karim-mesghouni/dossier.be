@@ -27,5 +27,4 @@ public class ActivityInput
 
     List<TaskInput> tasks;
     List<ActivityStateInput> states;
-
 }

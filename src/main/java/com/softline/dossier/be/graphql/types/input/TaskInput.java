@@ -21,7 +21,6 @@ public class TaskInput
 
     ActivityInput activity;
 
-    List<JobInput> jobs;
     List<TaskStateInput> states;
     List<TaskSituationInput> situations;
 }

@@ -1,6 +1,8 @@
 package com.softline.dossier.be.domain;
 
 
+import com.softline.dossier.be.security.domain.Agent;
+import com.softline.dossier.be.security.domain.Agent_;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,7 +32,7 @@ public class Activity extends BaseEntity
     String name;
     String description;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = ActivityField_.ACTIVITY)
+    @OneToMany(mappedBy = ActivityField_.ACTIVITY, cascade = CascadeType.ALL)
     @Builder.Default
     List<ActivityField> fields = new ArrayList<>();
 
@@ -42,6 +44,9 @@ public class Activity extends BaseEntity
 
     @OneToMany(mappedBy = ActivityState_.ACTIVITY, cascade = CascadeType.ALL)
     List<ActivityState> states;
+
+    @OneToMany(mappedBy = Agent_.ACTIVITY, cascade = CascadeType.ALL)
+    List<Agent> agents;
 
     @Override
     public String toString()

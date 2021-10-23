@@ -1,18 +1,16 @@
-type  Task  {
+type Task  {
     id: ID
     name:String
     description:String
     activity:Activity
-    jobs:[Job]
     states:[TaskState]
     situations:[TaskSituation]
 }
-input  TaskInput  {
+input TaskInput  {
     id: ID
     name:String
     description:String
     activity:ActivityInput
-    jobs:[JobInput]
     states:[TaskStateInput]
     situations:[TaskSituationInput]
 }

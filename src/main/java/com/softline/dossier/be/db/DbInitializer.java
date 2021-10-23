@@ -6,24 +6,19 @@ import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.FieldType;
 import com.softline.dossier.be.repository.*;
 import com.softline.dossier.be.security.domain.Agent;
-import com.softline.dossier.be.security.domain.Privilege;
 import com.softline.dossier.be.security.domain.Role;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import com.softline.dossier.be.security.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -50,6 +45,7 @@ public class DbInitializer implements ApplicationRunner
     private final FileStateRepository fileStateRepository;
     private final TaskRepository taskRepository;
     private final TaskStateRepository taskStateRepository;
+    private final PasswordEncoder passwordEncoder;
 
     private final Faker faker; // used to generate fake(mock) date
 
@@ -58,12 +54,10 @@ public class DbInitializer implements ApplicationRunner
     Activity ipon;
     Activity piquetage;
     Activity cdc;
-    PasswordEncoder passwordEncoder;
 
     @Transactional
     public void run(ApplicationArguments args)
     {
-        passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         if (activityRepository.count() == 0) {
             createZapaActivity();
             createFIActivity();
@@ -106,75 +100,36 @@ public class DbInitializer implements ApplicationRunner
             fileStateTypeRepository.save(FileStateType.builder().state("KIZÉO NON ATTRIBUÉ").build());
             fileStateTypeRepository.save(FileStateType.builder().state("ANNULÉ").Final(true).build());
         }
-        String c = "CREATE_", r = "READ_", u = "UPDATE_", d = "DELETE_";
-//        var role = roleRepository.findOne(Example.of(Role.builder().name("ROLE_ADMIN").build())).get();
-//        var privs = role.getPrivileges();
-//        privs.addAll(List.of(Privilege.builder().name(c+"HISTORY").build(),
-//                Privilege.builder().name(r+"HISTORY").build(),
-//                Privilege.builder().name(u+"HISTORY").build(),
-//                Privilege.builder().name(d+"HISTORY").build()));
-//        role.setPrivileges(privs);
-//        roleRepository.save(role);
         if (agentRepository.count() == 0) {
-            final Role MANAGER_ROLE;
-            List<Privilege> allPrivileges = List.of(
-                    Privilege.builder().name(c + "FILE").build(),
-                    Privilege.builder().name(r + "FILE").build(),
-                    Privilege.builder().name(u + "FILE").build(),
-                    Privilege.builder().name(d + "FILE").build(),
-                    Privilege.builder().name(c + "TASK").build(),
-                    Privilege.builder().name(r + "TASK").build(),
-                    Privilege.builder().name(u + "TASK").build(),
-                    Privilege.builder().name(d + "TASK").build(),
-                    Privilege.builder().name(c + "CLIENT").build(),
-                    Privilege.builder().name(r + "CLIENT").build(),
-                    Privilege.builder().name(u + "CLIENT").build(),
-                    Privilege.builder().name(d + "CLIENT").build(),
-                    Privilege.builder().name(c + "CONTACT").build(),
-                    Privilege.builder().name(r + "CONTACT").build(),
-                    Privilege.builder().name(u + "CONTACT").build(),
-                    Privilege.builder().name(d + "CONTACT").build(),
-                    Privilege.builder().name(c + "ACTIVITY").build(),
-                    Privilege.builder().name(r + "ACTIVITY").build(),
-                    Privilege.builder().name(u + "ACTIVITY").build(),
-                    Privilege.builder().name(d + "ACTIVITY").build(),
-                    Privilege.builder().name(c + "HISTORY").build(),
-                    Privilege.builder().name(r + "HISTORY").build(),
-                    Privilege.builder().name(u + "HISTORY").build(),
-                    Privilege.builder().name(d + "HISTORY").build(),
-                    Privilege.builder().name(c + "ROLE").build(),
-                    Privilege.builder().name(r + "ROLE").build(),
-                    Privilege.builder().name(u + "ROLE").build(),
-                    Privilege.builder().name(d + "ROLE").build(),
-                    Privilege.builder().name(c + "Trash").build(),
-                    Privilege.builder().name(r + "Trash").build(),
-                    Privilege.builder().name(u + "Trash").build(),
-                    Privilege.builder().name(d + "Trash").build()
-            );
-            MANAGER_ROLE = roleRepository.save(Role.builder().name("ROLE_MANAGER").privileges(allPrivileges).build());
-            // admin user
-            for (var admin : List.of("elhabib", "othman", "boubaker")) {
+            final Role MANAGER = roleRepository.save(Role.builder().name("MANAGER").displayName("Administrateur").build());
+            final Role REFERENT = roleRepository.save(Role.builder().name("REFERENT").displayName("Référent").build());
+            final Role VALIDATOR = roleRepository.save(Role.builder().name("VALIDATOR").displayName("Valideur").build());
+            final Role ACCOUNTANT = roleRepository.save(Role.builder().name("ACCOUNTANT").displayName("Chargé d'étude").build());
+            List<Role> roles = List.of(MANAGER, REFERENT, VALIDATOR, ACCOUNTANT);
+            for (var role : roles) {
                 agentRepository.save(Agent.builder()
-                        .name(admin)
-                        .email(admin + "@gmail.com")
-                        .username(admin)
+                        .name(faker.name().fullName())
+                        .email(faker.internet().emailAddress())
+                        .username(role.getName().toLowerCase(Locale.ROOT))
                         .password(passwordEncoder.encode("000"))
                         .enabled(true)
-                        .roles(List.of(MANAGER_ROLE))
+                        .activity(role.getName().equals("MANAGER") ? null : getOne(activityRepository.findAll()))
+                        .role(role)
                         .build()
                 );
             }
-            ListUtils.createCount(20, () -> faker.name().username()).stream().distinct().forEach(agent ->
-            {
-                agentRepository.save(Agent.builder()
-                        .name(agent)
-                        .email(agent + "@gmail.com")
-                        .username(agent.replace(" ", "_"))
-                        .password(passwordEncoder.encode("000"))
-                        .enabled(true)
-                        .build()
-                );
-            });
+            ListUtils.createCount(20, () ->
+                    agentRepository.save(Agent.builder()
+                            .name(faker.name().fullName())
+                            .email(faker.internet().emailAddress())
+                            .username(faker.name().username())
+                            .password(passwordEncoder.encode("000"))
+                            .activity(getOne(activityRepository.findAll()))
+                            .role(getOne(roles))
+                            .enabled(true)
+                            .build()
+                    )
+            );
         }
         if (blockingLabelRepository.count() == 0) {
             for (var name : List.of("AUTRE: BLOCAGE INTERNE",
@@ -421,6 +376,9 @@ public class DbInitializer implements ApplicationRunner
 
     private <E> E getOne(List<E> items)
     {
+        if (items == null || items.size() == 0) {
+            return null;
+        }
         return items.get(faker.number().numberBetween(0, items.size()));
     }
 

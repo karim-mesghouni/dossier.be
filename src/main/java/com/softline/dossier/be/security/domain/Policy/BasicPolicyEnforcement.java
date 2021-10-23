@@ -27,6 +27,7 @@ public class BasicPolicyEnforcement implements PolicyEnforcement
         List<PolicyRule> allRules = policyDefinition.getAllPolicyRules();
         //Wrap the context
         SecurityAccessContext cxt = new SecurityAccessContext(subject, resource, action, environment);
+
         //Filter the rules according to context.
         List<PolicyRule> matchedRules = filterRules(allRules, cxt);
         //finally, check if any of the rules are satisfied, otherwise return false.

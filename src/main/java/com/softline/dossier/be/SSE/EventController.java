@@ -22,7 +22,7 @@ public class EventController
 {
     // used ConcurrentHashMap instead of normal Hashmap
     // because HashMap Iterators don't support modifying(removing) the items outside the iterator itself
-    private static final ConcurrentHashMap <Channel, SseEmitter> channels = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Channel, SseEmitter> channels = new ConcurrentHashMap<>();
     private static final ScheduledExecutorService pingThread = Executors.newScheduledThreadPool(1);
 
     public EventController()
@@ -33,14 +33,68 @@ public class EventController
         // every 30 seconds
         pingThread.scheduleAtFixedRate(() ->
         {
+            synchronized (channels) {// obtain lock
+                if (channels.isEmpty()) {
+                    log.info("didnt send heart-beat signal, no channel is connected");
+                    return;
+                }
+            }
             log.info("Sending heart-beat signal for all channels");
             EventController.sendForAllChannels(new Event("ping", System.currentTimeMillis()));
         }, 30, 30, TimeUnit.SECONDS);
     }
 
+    /**
+     * send the event for all registered channels
+     */
+    public static void sendForAllChannels(Event event)
+    {
+        synchronized (channels) {// obtain lock
+            log.info("sendEventForAll, event : {}", event);
+            channels.forEach((channel, em) -> internalSendForEmitter(em, event, channel));
+        }
+    }
+
+    /**
+     * used internally to send an event to a single channel
+     */
+    private static void internalSendForEmitter(SseEmitter emitter, Event event, Channel channel)
+    {
+        synchronized (channels) {// obtain lock
+            try {
+                emitter.send(SseEmitter.event().name(event.getName()).data(event.getPayloadJson()));
+                log.info("sendEventForChannel() sent data to channel: {}, event is: {}", channel, event);
+            } catch (Throwable e) {
+                log.info("sendEventForChannel() data not sent due to error, now calling complete(), channel: {}, event is: {}", channel, event);
+                emitter.complete();
+            }
+        }
+    }
+
+    /**
+     * send an event to all channels opened by the user
+     *
+     * @param agentId the id of the user
+     */
+    public static void sendForUser(long agentId, Event event)
+    {
+        synchronized (channels) {// obtain lock
+            channels.forEach((channel, em) ->
+            {
+                if (channel.agentId == agentId) {
+                    internalSendForEmitter(em, event, channel);
+                }
+            });
+        }
+    }
+
     @GetMapping(value = "/")
     public SseEmitter getEvents()
     {
+        if (!(SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof Agent)) {
+            log.error("attempt to listen for events without login");
+            return null;
+        }
         var agent = (Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final Channel channel = new Channel((long) Math.floor(Math.random() * 1_000_000), agent.getId());
         // create new sse emitter with timeout of 1 hour
@@ -52,60 +106,18 @@ public class EventController
                     // will be called if the client closed the connection (browser tap closed)
                     // or of channel timeout was reached
                     log.info("emitter complete was called, removing channel: {}", channel);
-                    synchronized (channels) {
+                    synchronized (channels) {// obtain lock
                         channels.remove(channel);
                     }
                 }),
                 // will only happen if the channel was opened for more than 1 hour (previous timeout value)
-                em -> em.onTimeout(() ->log.warn("emitter timeout for channel: {}", channel)),
+                em -> em.onTimeout(() -> log.warn("emitter timeout for channel: {}", channel)),
                 // called on event send error
                 em -> em.onError(err -> log.error("emitter error for channel: {}", channel)));
-        synchronized (channels) {
+        synchronized (channels) {// obtain lock
             channels.putIfAbsent(channel, emitter);
         }
         log.info("created new emitter for channel: {}", channel);
         return emitter;
-    }
-
-    /**
-     * send the event for all registered channels
-     */
-    public static void sendForAllChannels(Event event)
-    {
-        synchronized (channels) {
-            log.info("sendEventForAll, event : {}", event);
-            channels.forEach((channel, em) -> internalSendForEmitter(em, event, channel));
-        }
-    }
-
-    /**
-     * used internally to send an event to a single channel
-     */
-    private static void internalSendForEmitter(SseEmitter emitter, Event event, Channel channel)
-    {
-        synchronized (channels) {
-            try {
-                emitter.send(SseEmitter.event().name(event.getName()).data(event.getPayload()));
-                log.info("sendEventForChannel() sent data to channel: {}, event is: {}", channel, event);
-            } catch (Throwable e) {
-                log.info("sendEventForChannel() data not sent due to error, channel: {}, event is: {}", channel, event);
-                emitter.complete();
-            }
-        }
-    }
-
-    /**
-     * send an event to all channels opened by the user
-     * @param agentId the id of the user
-     */
-    public static void sendForUser(long agentId, Event event)
-    {
-        synchronized (channels) {
-            channels.forEach((channel, em) -> {
-                if (channel.agentId == agentId) {
-                    internalSendForEmitter(em, event, channel);
-                }
-            });
-        }
     }
 }

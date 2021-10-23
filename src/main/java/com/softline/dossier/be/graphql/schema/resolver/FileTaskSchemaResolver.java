@@ -147,7 +147,7 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
         return service.createChildFileTask(fileTask);
     }
 
-    public FileTask changeParent(Long FileTaskId, Long parentId)
+    public boolean changeParent(Long FileTaskId, Long parentId)
     {
         return service.changeParent(FileTaskId, parentId);
     }
@@ -170,16 +170,6 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
     public List<Attachment> getAttachedFile(Long idFileTAsk)
     {
         return null;
-    }
-
-    public boolean fileTaskOrderUp(Long fileTaskId)
-    {
-        return service.fileTaskOrderUp(fileTaskId);
-    }
-
-    public boolean fileTaskOrderDown(Long fileTaskId)
-    {
-        return service.fileTaskOrderDown(fileTaskId);
     }
 
     public FileTask get(long id)
