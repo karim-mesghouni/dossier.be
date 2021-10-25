@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import org.springframework.data.annotation.CreatedBy;
@@ -29,11 +31,11 @@ import java.util.Date;
 @Data
 public class BaseEntity
 {
-
+    @Column(columnDefinition = "boolean default false")
     boolean deleted;
     @CreatedBy
-    @ManyToOne()
-    @JoinColumn()
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     Agent agent;
     @Column(nullable = false, updatable = false)
     @CreatedDate

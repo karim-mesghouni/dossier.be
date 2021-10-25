@@ -55,4 +55,10 @@ public class AgentService extends IServiceBase<Agent, AgentInput, AgentRepositor
         }
         return null;
     }
+
+
+    public List<Agent> findBySearch(String search)
+    {
+        return repository.findBySearch(search);
+    }
 }

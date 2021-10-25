@@ -4,6 +4,7 @@ extend type Query  {
     allRoles: [Role]
     allJobs: [Job]
     currentAgent:Agent
+    findAgentBySearch(search: String): [Agent]
 }
 
 extend type Mutation  {

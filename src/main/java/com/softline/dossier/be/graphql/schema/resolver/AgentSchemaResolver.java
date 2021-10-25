@@ -1,6 +1,5 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
-import com.softline.dossier.be.Halpers.Functions;
 import com.softline.dossier.be.domain.Job;
 import com.softline.dossier.be.graphql.types.input.AgentInput;
 import com.softline.dossier.be.repository.ActivityRepository;
@@ -12,29 +11,30 @@ import com.softline.dossier.be.security.repository.RoleRepository;
 import com.softline.dossier.be.service.AgentService;
 import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
+import javax.persistence.EntityManager;
 import java.util.List;
 
+import static com.softline.dossier.be.Halpers.Functions.safeRun;
+import static com.softline.dossier.be.Halpers.Functions.throwIfEmpty;
+
 @Component
-@RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
+@RequiredArgsConstructor
 public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, AgentRepository, AgentService>
 {
-    private static final PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final JobRepository jobRepository;
     private final ActivityRepository activityRepository;
     private final ModelMapper modelMapper;
-
-    public boolean deleteAgent(Long id) throws ClientReadableException
-    {
-        return delete(id);
-    }
+    private final EntityManager entityManager;
 
     public List<Agent> getAllAgent()
     {
@@ -61,28 +61,47 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
         return jobRepository.findAll();
     }
 
+    @PreAuthorize("hasPermission(null, 'DELETE_AGENT')")
+    public boolean deleteAgent(Long id) throws ClientReadableException
+    {
+        return delete(id);
+    }
 
+    @PreAuthorize("hasPermission(null, 'UPDATE_AGENT')")
     public Agent updateAgent(AgentInput input)
     {
-        Agent agent = service.getRepository().getOne(input.getId());
-        Functions.safeRun(() -> agent.setActivity(activityRepository.getOne(input.getActivity().getId())));
-        Functions.safeRun(() -> agent.setJob(jobRepository.getOne(input.getJob().getId())));
-        Functions.safeRun(() -> agent.setRole(roleRepository.getOne(input.getRole().getId())));
-        Functions.safeRun(() -> input.getPassword().length() > 0 && !agent.getPassword().equals(input.getPassword()),
+        Agent agent = entityManager.find(Agent.class, input.getId());
+        safeRun(() -> agent.setUsername(throwIfEmpty(input.getUsername())));
+        safeRun(() -> agent.setName(throwIfEmpty(input.getName())));
+        safeRun(() -> agent.setActivity(activityRepository.findById(input.getActivity().getId()).orElseThrow()));
+        safeRun(() -> agent.setJob(jobRepository.findById(input.getJob().getId()).orElseThrow()));
+        safeRun(() -> agent.setRole(roleRepository.findById(input.getRole().getId()).orElseThrow()));
+        safeRun(() -> input.getPassword().length() > 0,
                 () -> agent.setPassword(passwordEncoder.encode(input.getPassword())));
+        service.getRepository().save(agent);
         return agent;
     }
 
+    @PreAuthorize("hasPermission(null, 'CREATE_AGENT')")
     public Agent createAgent(AgentInput input)
     {
-        input.setPassword(passwordEncoder.encode(input.getPassword()));
         var agent = modelMapper.map(input, Agent.class);
-        return service.getRepository().save(agent);
+        agent.setEnabled(true);
+        agent.setPassword(passwordEncoder.encode(input.getPassword()));
+        Long id = (Long) entityManager.unwrap(Session.class).save(agent);
+        entityManager.clear();
+        return entityManager.find(Agent.class, id);
     }
 
+    @PreAuthorize("hasPermission(null, 'DELETE_AGENT')")
     public boolean deleteAgent(long id)
     {
         service.getRepository().deleteById(id);
         return true;
+    }
+
+    public List<Agent> findAgentBySearch(@Nullable String search)
+    {
+        return service.findBySearch(search);
     }
 }

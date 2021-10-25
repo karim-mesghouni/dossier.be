@@ -29,5 +29,4 @@ public class AgentDetailsService implements UserDetailsService
         }
         return new CustomAgentDetails(agent, List.of(new SimpleGrantedAuthority(agent.getRole().getName())));
     }
-
 }
