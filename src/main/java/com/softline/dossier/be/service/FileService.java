@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+import static com.softline.dossier.be.Halpers.Functions.safeRun;
+
 @Transactional
 @Service
 @RequiredArgsConstructor
@@ -109,11 +111,13 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     @PreAuthorize("hasPermission(null, 'UPDATE_FILE')")
     public File update(FileInput input)
     {
-        File reprise = null;
-        if (input.isFileReprise()) {
-            reprise = getRepository().findById(input.getReprise().getId()).orElseThrow();
-        }
+        var ref = new Object()
+        {
+            File reprise;
+        };
         var file = repository.findById(input.getId()).orElseThrow();
+        safeRun(() -> ref.reprise = getRepository().findById(input.getReprise().getId()).orElseThrow());
+        file.setReprise(ref.reprise);
         var baseActivity = activityRepository.findById(input.getBaseActivity().getId()).orElseThrow();
         file.setClient(clientRepository.findById(input.getClient().getId()).orElseThrow());
         file.setAttributionDate(input.getAttributionDate());
@@ -121,13 +125,12 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
         file.setReturnDeadline(input.getReturnDeadline());
         file.setProvisionalDeliveryDate(input.getProvisionalDeliveryDate());
         file.setProject(input.getProject());
-        file.setReprise(reprise);
         file.setFileReprise(input.isFileReprise());
         file.setCommune(communeRepository.findById(input.getCommune().getId()).orElseThrow());
-        var oldfileState = fileStateRepository.findFirstByCurrentIsTrueAndFile_Id(file.getId());
-        if (oldfileState != null && input.getCurrentFileState() != null && input.getCurrentFileState().getType() != null) {
-            if (oldfileState.getType().getId() != input.getCurrentFileState().getType().getId()) {
-                oldfileState.setCurrent(false);
+        var oldFileState = fileStateRepository.findFirstByCurrentIsTrueAndFile_Id(file.getId());
+        if (oldFileState != null && input.getCurrentFileState() != null && input.getCurrentFileState().getType() != null) {
+            if (oldFileState.getType().getId() != input.getCurrentFileState().getType().getId()) {
+                oldFileState.setCurrent(false);
                 file.getFileStates().add(FileState.builder()
                         .file(file)
                         .agent((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
