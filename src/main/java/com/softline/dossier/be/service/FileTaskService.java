@@ -347,7 +347,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     private void fireEvent(String name, FileTask fileTask)
     {
         var payload = new JSONObject();
-        payload.put("fileTaskId", fileTask.getFileActivity().getId());
+        payload.put("fileTaskId", fileTask.getId());
         payload.put("fileActivityId", fileTask.getFileActivity().getId());
         EventController.sendForAllChannels(new Event(name, payload));
     }
