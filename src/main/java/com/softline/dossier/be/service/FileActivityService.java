@@ -17,11 +17,12 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Transactional
-
 @Service
 public class FileActivityService extends IServiceBase<FileActivity, FileActivityInput, FileActivityRepository>
 {
@@ -35,6 +36,9 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     {
         return repository.findAll();
     }
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public FileActivity create(FileActivityInput entityInput)
@@ -110,9 +114,13 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
         return activityState;
     }
 
-    public List<FileActivity> getAllFileActivityByFileIdInTrash(Long fileId)
+    public List<FileActivity> getAllFileActivityByFileIdInTrash(long fileId)
     {
-        return getRepository().findAllByFile_Id_In_Trash(fileId);
+        return entityManager.createQuery("select distinct fa from FileActivity fa inner join fa.fileTasks ft " +
+                        "where fa.file.id = :fileId " +
+                        "and (fa.inTrash=true or ft.inTrash=true)", FileActivity.class)
+                .setParameter("fileId", fileId)
+                .getResultList();
     }
 
     public boolean sendFileActivityToTrash(Long fileActivityId)
