@@ -113,7 +113,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                 .content(input.getContent())
                 .agent(Agent.builder().name(agnet.getName()).id(agnet.getId()).build())
                 .build();
-        Functions.safeRun(() -> comment.setFileTask(fileTaskRepository.getOne(input.getFileTask().getId())));
+        Functions.safeRun(() -> comment.setFileTask(fileTaskRepository.findById(input.getFileTask().getId()).orElseThrow()));
         comment.setType(CommentType.Comment);
         Pair<String, List<String>> changes = parseImageLinks(input.getContent());
         resolveCommentAttachments(comment, changes);
