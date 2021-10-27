@@ -10,5 +10,5 @@ import java.util.List;
 public class PageList<T>
 {
     List<T> page;
-    long Count;
+    long count;
 }

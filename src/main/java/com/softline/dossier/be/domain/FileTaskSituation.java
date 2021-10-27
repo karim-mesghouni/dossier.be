@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -24,12 +26,14 @@ public class FileTaskSituation extends BaseEntity
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     boolean current;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     TaskSituation situation;
-    @OneToOne(mappedBy = Blocking_.STATE, cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "state", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     Blocking blocking;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn()
     FileTask fileTask;
 

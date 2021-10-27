@@ -39,7 +39,8 @@ public class Contact
 
 
     //region relations
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     private Client client;
     //endregion

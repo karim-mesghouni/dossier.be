@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SelectBeforeUpdate;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.*;
 import java.util.List;
 
@@ -31,11 +30,11 @@ public class ActivityState extends BaseEntity
     boolean initial;
     boolean Final;
 
-    @ManyToOne
-    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     Activity activity;
 
-    @OneToMany(mappedBy = FileActivity_.STATE, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "state", cascade = CascadeType.ALL, orphanRemoval = true)
     List<FileActivity> fileActivities;
 }
 

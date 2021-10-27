@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -27,14 +29,13 @@ public class ActivityField extends BaseEntity
 
     @Enumerated(EnumType.STRING)
     FieldType fieldType;
-    @ManyToOne
-    @JoinColumn()
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     Activity activity;
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn()
+    @NotFound(action = NotFoundAction.IGNORE)
     ActivityFieldGroup group;
-    @OneToOne
-    @JoinColumn
+    @OneToOne(fetch = FetchType.LAZY)
     Activity activityBase;
     @Transient
     String groupName;

@@ -18,7 +18,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@DiscriminatorColumn(name = Comment_.TYPE,
+@DiscriminatorColumn(name = "type",
         discriminatorType = DiscriminatorType.STRING)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @SQLDelete(sql = "UPDATE Comment SET deleted=true WHERE id=?")
@@ -27,24 +27,24 @@ import java.util.List;
 @SelectBeforeUpdate// only detached entities will be selected
 public class Comment extends BaseEntity implements IComment
 {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     @Type(type = "json")
     @Column(columnDefinition = "json")
     String content;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     FileActivity fileActivity;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
+    @NotFound(action = NotFoundAction.IGNORE)
     Agent agent;
     @Enumerated(EnumType.STRING)
     @Column(insertable = false, updatable = false)
     CommentType type;
-    @OneToOne
-    @JoinColumn
+    @OneToOne(fetch = FetchType.LAZY)
     FileTask fileTask;
     @OneToMany(mappedBy = "comment", orphanRemoval = true)
     List<Message> messages;

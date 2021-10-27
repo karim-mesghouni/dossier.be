@@ -19,7 +19,7 @@ public class Role
 
     @Column(name = "name", nullable = false)
     private String name;
-    @OneToMany(mappedBy = Agent_.ROLE, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "role")
     List<Agent> agents;
     private String displayName;
 }

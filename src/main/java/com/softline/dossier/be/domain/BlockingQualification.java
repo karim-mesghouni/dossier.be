@@ -22,7 +22,7 @@ public class BlockingQualification
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    @OneToMany(mappedBy = Blocking_.QUALIFICATION)
+    @OneToMany(mappedBy = "qualification")
     List<Blocking> blocking;
     String name;
 

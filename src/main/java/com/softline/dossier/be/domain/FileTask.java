@@ -33,40 +33,46 @@ public class FileTask extends BaseEntity
     String title;
     @Column(name = "`order`")
     long order;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "fileTask")
     @JoinColumn
     DescriptionComment description;
-    @OneToOne
-    @JoinColumn
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "fileTask")
     ReturnedComment retour;
-    @ManyToOne
-    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @NotFound(action = NotFoundAction.IGNORE)
     FileActivity fileActivity;
-    @ManyToOne
-    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     Task task;
 
     LocalDateTime toStartDate;
     LocalDateTime dueDate;
     LocalDateTime startDate;
     LocalDateTime endDate;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn
+    @NotFound(action = NotFoundAction.IGNORE)
     Agent reporter;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn
+    @NotFound(action = NotFoundAction.IGNORE)
     Agent assignedTo;
-    @OneToMany(mappedBy = FileTaskSituation_.FILE_TASK, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "fileTask", cascade = CascadeType.ALL)
     List<FileTaskSituation> fileTaskSituations;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     TaskState state;
-    @OneToOne
-    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     FileTask parent;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
+    List<FileTask> children;
     boolean returned;
     boolean inTrash;
     int fileTaskOrder;
-    @ManyToOne
-    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     ReturnedCause returnedCause;
 
     @OneToMany(mappedBy = "fileTask", orphanRemoval = true, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)

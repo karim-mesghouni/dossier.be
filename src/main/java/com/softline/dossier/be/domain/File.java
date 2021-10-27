@@ -5,11 +5,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SelectBeforeUpdate;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -38,26 +37,27 @@ public class File extends BaseEntity
     LocalDate deliveryDate;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     Client client;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     Commune commune;
 
-    @OneToMany(mappedBy = FileDoc_.FILE, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL)
     List<FileDoc> fileDocs;
 
-    @OneToMany(mappedBy = FileState_.FILE, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<FileState> fileStates;
 
 
-    @OneToMany(mappedBy = FileActivity_.FILE, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<FileActivity> fileActivities;
-    @OneToOne()
-    @JoinColumn()
+    @OneToOne(fetch = FetchType.LAZY)
     Activity baseActivity;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     File reprise;
     boolean fileReprise;

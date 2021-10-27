@@ -1,5 +1,6 @@
 package com.softline.dossier.be.SSE;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +24,7 @@ public class EventController
     // used ConcurrentHashMap instead of normal Hashmap
     // because HashMap Iterators don't support modifying(removing) the items outside the iterator itself
     private static final ConcurrentHashMap<Channel, SseEmitter> channels = new ConcurrentHashMap<>();
-    private static final ScheduledExecutorService pingThread = Executors.newScheduledThreadPool(1);
+    private static final ScheduledExecutorService pingThread = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("sse-ping-thread").build());
 
     public EventController()
     {

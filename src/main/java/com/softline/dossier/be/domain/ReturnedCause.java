@@ -23,6 +23,6 @@ public class ReturnedCause extends BaseEntity
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     String name;
-    @OneToMany(mappedBy = FileTask_.RETURNED_CAUSE)
+    @OneToMany(mappedBy = "returnedCause")
     List<FileTask> fileTasks;
 }

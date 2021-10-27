@@ -23,9 +23,9 @@ import java.util.function.Predicate;
 @SelectBeforeUpdate// only detached entities will be selected
 public class Client extends BaseEntity
 {
-    @OneToMany(mappedBy = File_.CLIENT)
+    @OneToMany(mappedBy = "client")
     List<File> files;
-    @OneToMany(mappedBy = VisAVis_.CLIENT)
+    @OneToMany(mappedBy = "client")
     List<VisAVis> visAVis;
     @Cascade(CascadeType.ALL)
     @OneToMany(mappedBy = "client")

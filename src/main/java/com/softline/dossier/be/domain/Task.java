@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SelectBeforeUpdate;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.*;
 import java.util.List;
 
@@ -29,15 +28,16 @@ public class Task extends BaseEntity
     long id;
     String name;
     String description;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     Activity activity;
 
-    @OneToMany(mappedBy = TaskState_.TASK, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
     List<TaskSituation> situations;
-    @OneToMany(mappedBy = TaskState_.TASK, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
     List<TaskState> states;
-    @OneToMany(mappedBy = FileTask_.TASK)
+    @OneToMany(mappedBy = "task")
     List<FileTask> fileTasks;
 
     @Override

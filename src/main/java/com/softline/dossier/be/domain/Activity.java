@@ -2,13 +2,14 @@ package com.softline.dossier.be.domain;
 
 
 import com.softline.dossier.be.security.domain.Agent;
-import com.softline.dossier.be.security.domain.Agent_;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
 import javax.persistence.*;
@@ -32,20 +33,21 @@ public class Activity extends BaseEntity
     String name;
     String description;
 
-    @OneToMany(mappedBy = ActivityField_.ACTIVITY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL)
     @Builder.Default
     List<ActivityField> fields = new ArrayList<>();
 
-    @OneToMany(mappedBy = FileActivity_.ACTIVITY)
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL)
     List<FileActivity> fileActivities;
 
-    @OneToMany(mappedBy = Task_.ACTIVITY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL)
     List<Task> tasks;
 
-    @OneToMany(mappedBy = ActivityState_.ACTIVITY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL)
     List<ActivityState> states;
 
-    @OneToMany(mappedBy = Agent_.ACTIVITY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL)
+    @NotFound(action = NotFoundAction.IGNORE)
     List<Agent> agents;
 
     @Override

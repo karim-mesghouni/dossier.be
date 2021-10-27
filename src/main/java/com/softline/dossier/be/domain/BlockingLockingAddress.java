@@ -18,9 +18,9 @@ public class BlockingLockingAddress
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    @OneToMany(mappedBy = Blocking_.LOCKING_ADDRESS)
+    @OneToMany(mappedBy = "lockingAddress")
     List<Blocking> blocking;
-    @OneToMany(mappedBy = VisAVis_.LOCKING_ADDRESS)
+    @OneToMany(mappedBy = "lockingAddress")
     List<VisAVis> visAVis;
     String address;
 

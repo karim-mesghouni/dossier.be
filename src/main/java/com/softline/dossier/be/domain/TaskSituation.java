@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SelectBeforeUpdate;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
+import javax.persistence.Entity;
 import javax.persistence.*;
 import java.util.List;
 
@@ -31,9 +29,10 @@ public class TaskSituation extends BaseEntity
     boolean Final;
     boolean block;
     @ManyToOne()
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn()
     Task task;
-    @OneToMany(mappedBy = FileTaskSituation_.SITUATION)
+    @OneToMany(mappedBy = "situation")
     List<FileTaskSituation> fileTaskSituations;
 
     @Override

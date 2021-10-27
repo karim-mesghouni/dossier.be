@@ -5,11 +5,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SelectBeforeUpdate;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.*;
 import java.util.List;
 
@@ -30,28 +29,31 @@ public class FileActivity extends BaseEntity
     long id;
     boolean current;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     Activity activity;
 
-    @OneToMany(mappedBy = ActivityDataField_.FILE_ACTIVITY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "fileActivity", cascade = CascadeType.ALL, orphanRemoval = true)
     List<ActivityDataField> dataFields;
 
-    @OneToMany(mappedBy = Reprise_.FILE_ACTIVITY)
+    @OneToMany(mappedBy = "fileActivity")
     List<Reprise> reprises;
 
-    @OneToMany(mappedBy = FileTask_.FILE_ACTIVITY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "fileActivity", cascade = CascadeType.ALL, orphanRemoval = true)
     List<FileTask> fileTasks;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
     File file;
-    @OneToMany(mappedBy = Comment_.FILE_ACTIVITY)
+    @OneToMany(mappedBy = "fileActivity")
     List<Comment> comments;
     boolean inTrash;
     @Column(name = "`order`")
     long order;
 
     @ManyToOne()
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     ActivityState state;
 

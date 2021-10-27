@@ -1,11 +1,12 @@
 package com.softline.dossier.be.domain;
 
 import com.softline.dossier.be.security.domain.Agent;
-import com.softline.dossier.be.security.domain.Agent_;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -27,6 +28,7 @@ public class Job extends BaseEntity
 
     String name;
 
-    @OneToMany(mappedBy = Agent_.JOB, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "job")
+    @NotFound(action = NotFoundAction.IGNORE)
     List<Agent> agents;
 }
