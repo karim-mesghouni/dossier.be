@@ -307,26 +307,36 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
                 .setParameter("pddt", input.provisionalDeliveryDate.getTo())
                 .setParameter("pddf", input.provisionalDeliveryDate.getFrom())
                 .setParameter("isReprise", input.reprise)
-                .setParameter("isNotReprise", input.notReprise);
+                .setParameter("isNotReprise", input.notReprise)
+                ;
     }
 
     private <T> Function<String, TypedQuery<T>> buildSelector(FileFilterInput input, Class<T> clazz)
     {
-        return (String sel) -> withParameters(input, entityManager
-                .createQuery("SELECT distinct " + sel + " FROM File f inner join f.fileStates fs on fs.file.id = f.id " +
-                        "where f.project like CONCAT(CONCAT('%', :project), '%') " +
-                        "and :activityId in(0, f.baseActivity.id) " +
-                        "and :clientId in(0, f.client.id) " +
-                        "and (fs.current=true " +
-                        "and :stateId in(0, fs.type.id)) " +
-                        "and f.provisionalDeliveryDate between :pddf and :pddt " +
-                        "and f.attributionDate between :adf and :adt " +
-                        "and f.deliveryDate between :ddf and :ddt " +
-                        "and ((:isReprise = true  and :isNotReprise = false and f.fileReprise = true) " +
-                        "  or (:isReprise = false and :isNotReprise = true  and f.fileReprise = false) " +
-                        "  or (:isReprise = false and :isNotReprise=false)) " +
-                        (input.onlyTrashed ? "and f.inTrash = false" : ""), clazz))
-                ;
+        return (String sel) ->
+        {
+            String query = "SELECT distinct " + sel + " FROM File f inner join f.fileStates fs on fs.file.id = f.id ";
+            if (input.onlyTrashed) {
+                query += "inner join f.fileActivities fa inner join fa.fileTasks ft ";
+            }
+            query += "where f.project like CONCAT(CONCAT('%', :project), '%') " +
+                    "and :activityId in(0, f.baseActivity.id) " +
+                    "and :clientId in(0, f.client.id) " +
+                    "and (fs.current=true " +
+                    "and :stateId in(0, fs.type.id)) " +
+                    "and f.provisionalDeliveryDate between :pddf and :pddt " +
+                    "and f.attributionDate between :adf and :adt " +
+                    "and f.deliveryDate between :ddf and :ddt " +
+                    "and ((:isReprise = true  and :isNotReprise = false and f.fileReprise = true) " +
+                    "  or (:isReprise = false and :isNotReprise = true  and f.fileReprise = false) " +
+                    "  or (:isReprise = false and :isNotReprise=false)) ";
+            if (input.onlyTrashed) {
+                query += "and (f.inTrash=true or fa.inTrash=true or ft.inTrash=true) ";
+            } else {
+                query += "and f.inTrash=false ";
+            }
+            return withParameters(input, entityManager.createQuery(query, clazz));
+        };
     }
 
     @PostFilter("hasPermission(null, 'READ_FILE')")
