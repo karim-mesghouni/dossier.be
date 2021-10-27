@@ -29,7 +29,7 @@ type FileActivity {
     inTrash:Boolean
     order:Int
     createdDate: String
-
+    comments: [Comment]
 }
 input FileActivityInput  {
     id :ID
