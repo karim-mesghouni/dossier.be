@@ -1,25 +1,22 @@
 package com.softline.dossier.be.graphql.types;
 
-import lombok.Data;
+import com.softline.dossier.be.graphql.types.input.ActivityInput;
+import com.softline.dossier.be.graphql.types.input.ClientInput;
+import com.softline.dossier.be.graphql.types.input.FileStateInput;
 
-import java.time.LocalDate;
-
-@Data
 public class FileFilterInput
 {
-    int pageNumber;
-    int pageSize;
-    String project;
-    Long clientId;
-    Long activityId;
-    Long stateId;
-    LocalDate attributionDateFrom;
-    LocalDate attributionDateTo;
-    LocalDate returnDeadlineFrom;
-    LocalDate returnDeadlineTo;
-    LocalDate provisionalDeliveryDateFrom;
-    LocalDate provisionalDeliveryDateTo;
-    LocalDate deliveryDateFrom;
-    LocalDate deliveryDateTo;
-    FileType fileType;
+    public int pageNumber;
+    public int pageSize;
+    public String project;
+    public ClientInput client;
+    public ActivityInput activity;
+    public FileStateInput state;
+    public DateRangeInput attributionDate;
+    public DateRangeInput returnDeadline;
+    public DateRangeInput provisionalDeliveryDate;
+    public DateRangeInput deliveryDate;
+    public boolean reprise;
+    public boolean notReprise;
+    public boolean onlyTrashed;
 }

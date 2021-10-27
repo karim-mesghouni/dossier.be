@@ -57,30 +57,32 @@ input FileInput  {
     inTrash:Boolean
     order: Int
 }
+input DateRangeInput{
+    from: String
+    to: String
+}
 input FileFilterInput{
     pageNumber:Int
     pageSize:Int
     project: String
-    clientId: ID
-    activityId: ID
-    stateId: ID
-    attributionDateFrom: String
-    attributionDateTo: String
-    returnDeadlineFrom: String
-    returnDeadlineTo: String
-    provisionalDeliveryDateFrom: String
-    provisionalDeliveryDateTo: String
-    deliveryDateFrom: String
-    deliveryDateTo: String
-    fileType: FileType
+    client: ClientInput
+    activity: ActivityInput
+    state: FileStateInput
+    attributionDate: DateRangeInput
+    returnDeadline: DateRangeInput
+    provisionalDeliveryDate: DateRangeInput
+    deliveryDate: DateRangeInput
+    reprise: Boolean
+    notReprise: Boolean
+    onlyTrashed: Boolean
 }
-enum  FileType{
+enum FileType{
     Attribution
     Reprise
 }
 type PageList{
     page: [File]
-    Count: Int
+    count: Int
 }
 
 type FileDTO{

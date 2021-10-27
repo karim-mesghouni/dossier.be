@@ -1,5 +1,6 @@
 package com.softline.dossier.be.service;
 
+import com.google.common.base.MoreObjects;
 import com.softline.dossier.be.SSE.Event;
 import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.domain.*;
@@ -8,35 +9,39 @@ import com.softline.dossier.be.graphql.types.FileHistoryDTO;
 import com.softline.dossier.be.graphql.types.PageList;
 import com.softline.dossier.be.graphql.types.input.FileInput;
 import com.softline.dossier.be.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.softline.dossier.be.security.domain.Agent;
+import lombok.RequiredArgsConstructor;
+import org.javatuples.Pair;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 @Transactional
 @Service
+@RequiredArgsConstructor
 public class FileService extends IServiceBase<File, FileInput, FileRepository>
 {
-    @Autowired
-    ActivityRepository activityRepository;
-    @Autowired
-    FileStateTypeRepository fileStateTypeRepository;
-    @Autowired
-    FileStateRepository fileStateRepository;
-    @Autowired
-    ClientRepository clientRepository;
-    @Autowired
-    CommuneRepository communeRepository;
-    @Autowired
-    ActivityStateRepository activityStateRepository;
+    private final ActivityRepository activityRepository;
+    private final FileStateTypeRepository fileStateTypeRepository;
+    private final FileStateRepository fileStateRepository;
+    private final ClientRepository clientRepository;
+    private final CommuneRepository communeRepository;
+    private final ActivityStateRepository activityStateRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     @PostFilter("hasPermission(filterObject, 'READ_FILE')")
@@ -125,6 +130,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
                 oldfileState.setCurrent(false);
                 file.getFileStates().add(FileState.builder()
                         .file(file)
+                        .agent((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
                         .type(fileStateTypeRepository.findById(input.getCurrentFileState().getType().getId()).orElseThrow())
                         .current(true)
                         .build()
@@ -154,18 +160,14 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
         return repository.findById(id).orElseThrow();
     }
 
-    @PostAuthorize("hasPermission(returnObject, 'READ_FILE')")
     public PageList<File> getAllFilePageFilter(FileFilterInput input)
     {
-        if (input.getPageSize() <= 0) { // return everything
-            var result = this.getAll();
-            return new PageList(result, result.size());
-        } else {
-            var result = getRepository().getByFilter(input);
-            return new PageList<>(result.getValue1(), result.getValue0());
-        }
+        var result = getByFilter(input);
+        var filtered = applyFilter(result.getValue1());
+        return new PageList<>(filtered, result.getValue0() - (result.getValue1().size() - filtered.size()));
     }
 
+    @PreAuthorize("hasPermission(null, 'READ_HISTORY')")
     public List<FileHistoryDTO> getFileHistory(long id)
     {
         AtomicInteger i = new AtomicInteger();
@@ -232,45 +234,6 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
         return fileStateTypeRepository.findAll();
     }
 
-    public PageList<File> getAllFileInTrashPageFilter(FileFilterInput input)
-    {
-
-        var allFile = new ArrayList<File>();
-        var fileOnly = getRepository().getInTrashByFilter(input);
-        var fileWithTask = getRepository().getInTrashByFilterWithTask(input);
-        var fileWithActivity = getRepository().getInTrashByFilterWithActivity(input);
-        if (fileWithTask.getValue1().size() == 0 && fileOnly.getValue1().size() == 0 && fileWithActivity.getValue1().size() > 0) {
-            return new PageList<>(fileWithActivity.getValue1(), fileWithActivity.getValue0());
-        }
-        if (fileWithTask.getValue1().size() > 0 && fileOnly.getValue1().size() == 0 && fileWithActivity.getValue1().size() == 0) {
-            return new PageList<>(fileWithTask.getValue1(), fileWithTask.getValue0());
-        }
-        if (fileWithTask.getValue1().size() == 0 && fileOnly.getValue1().size() > 0 && fileWithActivity.getValue1().size() == 0) {
-            return new PageList<>(fileOnly.getValue1(), fileOnly.getValue0());
-        }
-        if (fileWithTask.getValue1().size() == 0 && fileOnly.getValue1().size() == 0 && fileWithActivity.getValue1().size() == 0) {
-            return new PageList<>(new ArrayList<>(), 0);
-        }
-        if (fileWithTask.getValue1().size() > 0 && fileOnly.getValue1().size() > 0 && fileWithActivity.getValue1().size() == 0) {
-            fileOnly.getValue1().stream().filter(x -> fileWithTask.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0).forEach(x -> allFile.add(x));
-            fileWithTask.getValue1().forEach(x -> allFile.add(x));
-        } else {
-            if (fileWithTask.getValue1().size() == 0 && fileOnly.getValue1().size() > 0 && fileWithActivity.getValue1().size() > 0) {
-                fileOnly.getValue1().stream().filter(x -> fileWithActivity.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0).forEach(x -> allFile.add(x));
-                fileWithActivity.getValue1().forEach(x -> allFile.add(x));
-            } else {
-                if (fileWithTask.getValue1().size() > 0 && fileOnly.getValue1().size() > 0 && fileWithActivity.getValue1().size() > 0) {
-                    fileOnly.getValue1().stream().filter(x -> fileWithActivity.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0
-                            && fileWithTask.getValue1().stream().filter(f -> f.getId() == x.getId()).count() == 0).forEach(x -> allFile.add(x));
-                    fileWithActivity.getValue1().forEach(x -> allFile.add(x));
-                    fileWithTask.getValue1().forEach(x -> allFile.add(x));
-                }
-            }
-        }
-        return new PageList<>(allFile, allFile.size());
-
-    }
-
     public boolean sendFileToTrash(Long fileId)
     {
         var file = getRepository().findById(fileId).orElseThrow();
@@ -296,6 +259,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
      * @param fileBeforeId the file(id) which should be before the new position of the file, may be non-existent
      * @return boolean
      */
+    @Transactional
     public synchronized boolean changeOrder(Long fileId, Long fileBeforeId)
     {
         if (repository.count() < 2) {
@@ -327,5 +291,61 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
             allBefore.forEach(File::incrementOrder);
         }
         return true;
+    }
+
+
+    private <T> TypedQuery<T> withParameters(FileFilterInput input, TypedQuery<T> query)
+    {
+        return query.setParameter("project", MoreObjects.firstNonNull(input.project, ""))
+                .setParameter("clientId", MoreObjects.firstNonNull(input.client.getId(), 0))
+                .setParameter("activityId", MoreObjects.firstNonNull(input.activity.getId(), 0))
+                .setParameter("stateId", MoreObjects.firstNonNull(input.state.getType().getId(), 0))
+                .setParameter("adf", input.attributionDate.getFrom())
+                .setParameter("adt", input.attributionDate.getTo())
+                .setParameter("ddf", input.deliveryDate.getFrom())
+                .setParameter("ddt", input.deliveryDate.getTo())
+                .setParameter("pddt", input.provisionalDeliveryDate.getTo())
+                .setParameter("pddf", input.provisionalDeliveryDate.getFrom())
+                .setParameter("isReprise", input.reprise)
+                .setParameter("isNotReprise", input.notReprise);
+    }
+
+    private <T> Function<String, TypedQuery<T>> buildSelector(FileFilterInput input, Class<T> clazz)
+    {
+        return (String sel) -> withParameters(input, entityManager
+                .createQuery("SELECT distinct " + sel + " FROM File f inner join f.fileStates fs on fs.file.id = f.id " +
+                        "where f.project like CONCAT(CONCAT('%', :project), '%') " +
+                        "and :activityId in(0, f.baseActivity.id) " +
+                        "and :clientId in(0, f.client.id) " +
+                        "and (fs.current=true " +
+                        "and :stateId in(0, fs.type.id)) " +
+                        "and f.provisionalDeliveryDate between :pddf and :pddt " +
+                        "and f.attributionDate between :adf and :adt " +
+                        "and f.deliveryDate between :ddf and :ddt " +
+                        "and ((:isReprise = true  and :isNotReprise = false and f.fileReprise = true) " +
+                        "  or (:isReprise = false and :isNotReprise = true  and f.fileReprise = false) " +
+                        "  or (:isReprise = false and :isNotReprise=false)) " +
+                        (input.onlyTrashed ? "and f.inTrash = false" : ""), clazz))
+                ;
+    }
+
+    @PostFilter("hasPermission(null, 'READ_FILE')")
+    private List<File> applyFilter(List<File> files)
+    {
+        return files;
+    }
+
+    private Pair<Long, List<File>> getByFilter(FileFilterInput input)
+    {
+        var qList = buildSelector(input, File.class).apply("f");
+        if (input.pageSize > 0) {
+            qList
+                    .setFirstResult((input.pageNumber - 1) * input.pageSize)
+                    .setMaxResults(input.pageSize);
+        }
+        return new Pair<>(
+                buildSelector(input, Long.class).apply("f.id").getResultStream().count(),
+                qList.getResultList()
+        );
     }
 }
