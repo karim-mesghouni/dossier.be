@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Part;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -162,7 +161,7 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
         return service.sendFileTaskToTrash(fileTaskId);
     }
 
-    public List<Attachment> uploadAttachments(List<Part> part, Long fileTaskId, DataFetchingEnvironment environment) throws IOException, NoSuchAlgorithmException
+    public List<Attachment> uploadAttachments(List<Part> part, Long fileTaskId, DataFetchingEnvironment environment) throws IOException
     {
         return service.saveAttached(fileTaskId, environment);
     }
@@ -172,9 +171,9 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
         return null;
     }
 
-    public FileTask get(long id)
+    public FileTask getFileTask(long fileTaskId)
     {
-        return super.get(id);
+        return super.get(fileTaskId);
     }
 
     public List<FileTask> getAll()
