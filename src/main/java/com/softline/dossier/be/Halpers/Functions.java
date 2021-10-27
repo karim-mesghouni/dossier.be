@@ -2,6 +2,8 @@ package com.softline.dossier.be.Halpers;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
@@ -61,6 +63,22 @@ public class Functions
             log.warn("SafeRun: {}", e.getMessage());
             return false;
         }
+    }
+
+    /**
+     * @return the value passed
+     * @throws RuntimeException if the value (is string and empty) or (is number and equal to 0) or (is object and null) or (is Optional and isEmpty())
+     */
+    public static <T> T throwIfEmpty(T value)
+    {
+        if (Objects.isNull(value)
+                || (value instanceof CharSequence && ((CharSequence) value).length() == 0)
+                || (value instanceof Optional && ((Optional<?>) value).isEmpty())
+                || (value instanceof Number && ((Number) value).doubleValue() == 0))
+        {
+            throw new RuntimeException("Empty");
+        }
+        return value;
     }
 
     /**
