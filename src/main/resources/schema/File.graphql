@@ -3,7 +3,6 @@ extend type Query  {
     allFile:[File]
     file(id: ID! ):File
     allFilePageFilter(filter: FileFilterInput!):PageList
-    allFileInTrashPageFilter(filter: FileFilterInput!):PageList
     fileHistory(id: ID!):[HistoryDTO]
     allFileStateType:[FileStateType]
 }

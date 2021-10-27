@@ -51,12 +51,8 @@ public class FileSchemaResolver extends SchemaResolverBase<File, FileInput, File
 
     public PageList<File> getAllFilePageFilter(FileFilterInput input)
     {
-        return service.getAllFilePageFilter(input);
-    }
 
-    public PageList<File> getAllFileInTrashPageFilter(FileFilterInput input)
-    {
-        return service.getAllFileInTrashPageFilter(input);
+        return service.getAllFilePageFilter(input);
     }
 
     public List<FileHistoryDTO> getFileHistory(Long id)
