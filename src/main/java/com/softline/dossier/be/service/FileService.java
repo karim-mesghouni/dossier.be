@@ -146,12 +146,9 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     }
 
     @Override
-    @PreAuthorize("hasPermission(fileRepository.getOne(#id), 'DELETE_FILE')")
     public boolean delete(long id)
     {
-        // TODO: fix this issue
         // files should not be removed (only trashed for now)
-        // we need their order when changing the order of other files
         return false;
     }
 
@@ -237,6 +234,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
         return fileStateTypeRepository.findAll();
     }
 
+    @PreAuthorize("hasPermission(#fileId, 'File', 'DELETE_FILE')")
     public boolean sendFileToTrash(Long fileId)
     {
         var file = getRepository().findById(fileId).orElseThrow();
