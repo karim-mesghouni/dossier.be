@@ -1,7 +1,7 @@
 package com.softline.dossier.be.SSE;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.softline.dossier.be.events.types.SSEEvent;
+import com.softline.dossier.be.events.types.Event;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,14 +42,14 @@ public class EventController
                 }
             }
             log.info("Sending heart-beat signal for all channels");
-            EventController.sendForAllChannels(new SSEEvent<>("ping", System.currentTimeMillis()));
+            EventController.sendForAllChannels(new Event<>("ping", System.currentTimeMillis()));
         }, 30, 30, TimeUnit.SECONDS);
     }
 
     /**
      * send the event for all registered channels
      */
-    public static void sendForAllChannels(SSEEvent<?> event)
+    public static void sendForAllChannels(Event<?> event)
     {
         synchronized (channels) {// obtain lock
             log.info("sendEventForAll, event : {}", event);
@@ -60,7 +60,7 @@ public class EventController
     /**
      * used internally to send an event to a single channel
      */
-    private static void internalSendForEmitter(SseEmitter emitter, SSEEvent<?> event, Channel channel)
+    private static void internalSendForEmitter(SseEmitter emitter, Event<?> event, Channel channel)
     {
         synchronized (channels) {// obtain lock
             try {
@@ -78,7 +78,7 @@ public class EventController
      *
      * @param agentId the id of the user
      */
-    public static void sendForUser(long agentId, SSEEvent<?> event)
+    public static void sendForUser(long agentId, Event<?> event)
     {
         synchronized (channels) {// obtain lock
             channels.forEach((channel, em) ->

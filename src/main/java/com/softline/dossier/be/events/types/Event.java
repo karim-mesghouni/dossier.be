@@ -13,12 +13,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Builder
-public class SSEEvent<T>
+public class Event<T>
 {
     protected String event;
     protected T payload;
 
-    public SSEEvent(String event, T payload)
+    public Event(String event, T payload)
     {
         this.event = event;
         this.payload = payload;

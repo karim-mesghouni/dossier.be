@@ -6,7 +6,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import java.io.Serializable;
 import java.util.Locale;
 
-public abstract class EntityEvent extends SSEEvent<JSONObject> implements Serializable
+public abstract class EntityEvent extends Event<JSONObject> implements Serializable
 {
     public EntityEvent(String type)
     {
