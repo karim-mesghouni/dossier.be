@@ -5,6 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * A wrapper class for any events that will happen during the request cycle
+ *
+ * @param <T> the type of the event payload(data)
+ */
 @Data
 @NoArgsConstructor
 @Builder
