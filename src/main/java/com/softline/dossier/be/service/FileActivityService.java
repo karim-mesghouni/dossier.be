@@ -1,19 +1,17 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.SSE.Event;
-import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.domain.ActivityDataField;
 import com.softline.dossier.be.domain.ActivityState;
 import com.softline.dossier.be.domain.File;
 import com.softline.dossier.be.domain.FileActivity;
 import com.softline.dossier.be.domain.enums.FieldType;
+import com.softline.dossier.be.events.FileActivityEvent;
+import com.softline.dossier.be.events.types.EntityEvent;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
 import com.softline.dossier.be.repository.ActivityRepository;
 import com.softline.dossier.be.repository.ActivityStateRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,17 +67,8 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
             fileActivity.setDataFields(dataFields.collect(Collectors.toList()));
         }
         repository.save(fileActivity);
-        fireEvent("fileActivityAdded", fileActivity);
+        new FileActivityEvent(EntityEvent.Event.ADDED, fileActivity).fireToAll();
         return repository.getOne(fileActivity.getId());
-    }
-
-    @SneakyThrows
-    private void fireEvent(String name, FileActivity fileActivity)
-    {
-        var payload = new JSONObject();
-        payload.put("fileActivityId", fileActivity.getId());
-        payload.put("fileId", fileActivity.getFile().getId());
-        EventController.sendForAllChannels(new Event(name, payload));
     }
 
     @Override
@@ -127,7 +116,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     {
         var fileActivity = getRepository().getOne(fileActivityId);
         fileActivity.setInTrash(true);
-        fireEvent("fileActivityTrashed", fileActivity);
+        new FileActivityEvent(EntityEvent.Event.TRASHED, fileActivity);
         return true;
     }
 
@@ -135,7 +124,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     {
         var fileActivity = getRepository().getOne(fileActivityId);
         fileActivity.setInTrash(false);
-        fireEvent("fileActivityRecovered", fileActivity);
+        new FileActivityEvent(EntityEvent.Event.RECOVERED, fileActivity);
         return true;
     }
 

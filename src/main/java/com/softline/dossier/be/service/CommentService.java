@@ -3,10 +3,10 @@ package com.softline.dossier.be.service;
 import com.softline.dossier.be.Halpers.EnvUtil;
 import com.softline.dossier.be.Halpers.FileSystem;
 import com.softline.dossier.be.Halpers.Functions;
-import com.softline.dossier.be.SSE.Event;
 import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
+import com.softline.dossier.be.events.types.SSEEvent;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.NotifyMessageInput;
 import com.softline.dossier.be.repository.CommentRepository;
@@ -119,7 +119,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         resolveCommentAttachments(comment, changes);
         getRepository().save(comment);
         var currentAgent = agentRepository.findByUsername(((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
-        EventController.sendForAllChannels(new Event("comment", comment));
+        EventController.sendForAllChannels(new SSEEvent("comment", comment));
         return comment;
     }
 
@@ -263,7 +263,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
             ).collect(Collectors.toList());
             messageRepository.saveAll(messages);
 
-            messages.forEach(x -> EventController.sendForUser(x.getAgent().getId(), Event.builder().name("message").payload(x).build()));
+            messages.forEach(x -> EventController.sendForUser(x.getAgent().getId(), new SSEEvent("message", x)));
             return true;
         }
         return false;

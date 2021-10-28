@@ -1,6 +1,7 @@
 package com.softline.dossier.be.SSE;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.softline.dossier.be.events.types.SSEEvent;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,14 +42,14 @@ public class EventController
                 }
             }
             log.info("Sending heart-beat signal for all channels");
-            EventController.sendForAllChannels(new Event("ping", System.currentTimeMillis()));
+            EventController.sendForAllChannels(new SSEEvent<>("ping", System.currentTimeMillis()));
         }, 30, 30, TimeUnit.SECONDS);
     }
 
     /**
      * send the event for all registered channels
      */
-    public static void sendForAllChannels(Event event)
+    public static void sendForAllChannels(SSEEvent<?> event)
     {
         synchronized (channels) {// obtain lock
             log.info("sendEventForAll, event : {}", event);
@@ -59,11 +60,11 @@ public class EventController
     /**
      * used internally to send an event to a single channel
      */
-    private static void internalSendForEmitter(SseEmitter emitter, Event event, Channel channel)
+    private static void internalSendForEmitter(SseEmitter emitter, SSEEvent<?> event, Channel channel)
     {
         synchronized (channels) {// obtain lock
             try {
-                emitter.send(SseEmitter.event().name(event.getName()).data(event.getPayloadJson()));
+                emitter.send(SseEmitter.event().name(event.getEvent()).data(event.getPayloadJson()));
                 log.info("sendEventForChannel() sent data to channel: {}, event is: {}", channel, event);
             } catch (Throwable e) {
                 log.info("sendEventForChannel() data not sent due to error, now calling complete(), channel: {}, event is: {}", channel, event);
@@ -77,7 +78,7 @@ public class EventController
      *
      * @param agentId the id of the user
      */
-    public static void sendForUser(long agentId, Event event)
+    public static void sendForUser(long agentId, SSEEvent<?> event)
     {
         synchronized (channels) {// obtain lock
             channels.forEach((channel, em) ->
@@ -105,7 +106,7 @@ public class EventController
                 em -> em.onCompletion(() ->
                 {
                     // will be called if the client closed the connection (browser tap closed)
-                    // or of channel timeout was reached
+                    // or if channel timeout was reached
                     log.info("emitter complete was called, removing channel: {}", channel);
                     synchronized (channels) {// obtain lock
                         channels.remove(channel);

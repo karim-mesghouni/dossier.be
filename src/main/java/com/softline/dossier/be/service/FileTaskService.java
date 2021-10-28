@@ -3,10 +3,10 @@ package com.softline.dossier.be.service;
 import com.softline.dossier.be.Halpers.EnvUtil;
 import com.softline.dossier.be.Halpers.FileSystem;
 import com.softline.dossier.be.Halpers.Functions;
-import com.softline.dossier.be.SSE.Event;
-import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
+import com.softline.dossier.be.events.FileTaskEvent;
+import com.softline.dossier.be.events.types.EntityEvent;
 import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
@@ -16,10 +16,8 @@ import com.softline.dossier.be.security.repository.AgentRepository;
 import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -324,7 +322,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         ))
         {
             var fileTask = getRepository().getOne(fileTaskId);
-            fireEvent("fileTaskUpdated", fileTask);
+            new FileTaskEvent(EntityEvent.Event.UPDATED, fileTask).fireToAll();
             return true;
         }
         return false;
@@ -339,25 +337,15 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     {
         var fileTask = getRepository().getOne(fileTaskId);
         fileTask.setInTrash(false);
-        fireEvent("fileTaskRecovered", fileTask);
+        new FileTaskEvent(EntityEvent.Event.RECOVERED, fileTask).fireToAll();
         return true;
-    }
-
-    @SneakyThrows
-    private void fireEvent(String name, FileTask fileTask)
-    {
-        var payload = new JSONObject();
-        payload.put("fileTaskId", fileTask.getId());
-        payload.put("fileActivityId", fileTask.getFileActivity().getId());
-        payload.put("fileId", fileTask.getFileActivity().getFile().getId());
-        EventController.sendForAllChannels(new Event(name, payload));
     }
 
     public boolean sendFileTaskToTrash(Long fileTaskId)
     {
         var fileTask = getRepository().getOne(fileTaskId);
         fileTask.setInTrash(true);
-        fireEvent("fileTaskTrashed", fileTask);
+        new FileTaskEvent(EntityEvent.Event.TRASHED, fileTask).fireToAll();
         return true;
     }
 

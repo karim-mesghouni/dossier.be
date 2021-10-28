@@ -1,9 +1,9 @@
 package com.softline.dossier.be.service;
 
 import com.google.common.base.MoreObjects;
-import com.softline.dossier.be.SSE.Event;
-import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.domain.*;
+import com.softline.dossier.be.events.FileEvent;
+import com.softline.dossier.be.events.types.EntityEvent;
 import com.softline.dossier.be.graphql.types.FileFilterInput;
 import com.softline.dossier.be.graphql.types.FileHistoryDTO;
 import com.softline.dossier.be.graphql.types.PageList;
@@ -103,7 +103,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
             file.setOrder(1);
         }
         repository.save(file);
-        EventController.sendForAllChannels(new Event("fileAdded", file.getId()));
+        new FileEvent(EntityEvent.Event.ADDED, file).fireToAll();
         return file;
     }
 
@@ -141,7 +141,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
             }
         }
         repository.save(file);
-        EventController.sendForAllChannels(new Event("fileUpdated", file.getId()));
+        new FileEvent(EntityEvent.Event.UPDATED, file).fireToAll();
         return file;
     }
 
@@ -241,15 +241,16 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     {
         var file = getRepository().findById(fileId).orElseThrow();
         file.setInTrash(true);
-        EventController.sendForAllChannels(new Event("fileTrashed", file.getId()));
+        new FileEvent(EntityEvent.Event.TRASHED, file).fireToAll();
         return true;
     }
 
+    @PreAuthorize("hasPermission(#fileId, 'File', 'DELETE_FILE')")
     public boolean recoverFileFromTrash(Long fileId)
     {
         var file = getRepository().getOne(fileId);
         file.setInTrash(false);
-        EventController.sendForAllChannels(new Event("fileRecovered", file.getId()));
+        new FileEvent(EntityEvent.Event.RECOVERED, file).fireToAll();
         return true;
     }
 
