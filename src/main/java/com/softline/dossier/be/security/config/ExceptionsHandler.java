@@ -3,7 +3,6 @@ package com.softline.dossier.be.security.config;
 import com.oembedler.moon.graphql.boot.error.ThrowableGraphQLError;
 import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import graphql.GraphQLError;
-import graphql.GraphQLException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
@@ -28,10 +27,10 @@ public class ExceptionsHandler
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public GraphQLException exceptionHandler(AccessDeniedException e)
+    public GraphQLError exceptionHandler(AccessDeniedException e)
     {
         log.error("AccessDeniedException");
-        return new GraphQLException("Erreur de privilège");
+        return new ThrowableGraphQLError(e, "Erreur de privilège");
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
