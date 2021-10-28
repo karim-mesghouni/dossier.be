@@ -20,7 +20,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j(topic = "RequestLogger")
-//TODO: remove in production
 public class LogRequestFilter extends BasicAuthenticationFilter
 {
     public LogRequestFilter(AuthenticationManager authenticationManager)
@@ -29,26 +28,24 @@ public class LogRequestFilter extends BasicAuthenticationFilter
     }
 
 
-    @Override
     @SuppressWarnings("ResultOfMethodCallIgnored")
     protected void doFilterInternal(HttpServletRequest req,
                                     HttpServletResponse res,
                                     FilterChain chain) throws IOException, ServletException
     {
+        CustomHttpRequestWrapper requestWrapper = new CustomHttpRequestWrapper(req);
         try {
             if (req.getMethod().equals("POST")) {
-                CustomHttpRequestWrapper requestWrapper = new CustomHttpRequestWrapper(req);
                 var json = new ObjectMapper().readValue(requestWrapper.getBodyInStringFormat().replaceAll("\\\\n", " ").replaceAll("\\.\\.\\.", "\"}"), Map.class);
                 String gql = Functions.tap(Pattern.compile("(.*?)([{(])").matcher(json.get("query").toString().replaceAll("(query|mutation).*?(?=\\{)", "").replaceFirst("\\{", "").trim()), Matcher::find).group().replaceAll("[}{)(]", "");
                 log.info("[GQL] {}({})", gql, json.get("variables"));
-                chain.doFilter(requestWrapper, res);
-                return;
             }
             log.info("[{}] {} Authorization:{}", req.getMethod(), req.getServletPath(), req.getHeader("Authorization").length() > 20);
         } catch (Throwable e) {
             log.warn("could not read request");
+        } finally {
+            chain.doFilter(requestWrapper, res);
         }
-        chain.doFilter(req, res);
     }
 
 
