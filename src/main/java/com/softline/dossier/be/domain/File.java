@@ -60,7 +60,6 @@ public class File extends BaseEntity
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     File reprise;
-    boolean fileReprise;
     boolean inTrash;
     @Transient()
     FileState currentFileState;
@@ -79,11 +78,14 @@ public class File extends BaseEntity
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "File{" +
                 "id=" + id +
                 ", project='" + project + '\'' +
                 '}';
+    }
+
+    public boolean isFileReprise() {
+        return getReprise() != null;
     }
 }

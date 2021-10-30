@@ -109,15 +109,13 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
 
     @Override
     @PreAuthorize("hasPermission(null, 'UPDATE_FILE')")
-    public File update(FileInput input)
-    {
-        var ref = new Object()
-        {
-            File reprise;
-        };
+    public File update(FileInput input) {
         var file = repository.findById(input.getId()).orElseThrow();
-        safeRun(() -> ref.reprise = getRepository().findById(input.getReprise().getId()).orElseThrow());
-        file.setReprise(ref.reprise);
+        if (safeRun(() -> throwIfEmpty(input.getReprise().getId()))) {
+            file.setReprise(repository.findById(input.getReprise().getId()).orElseThrow());
+        } else {
+            file.setReprise(null);
+        }
         var baseActivity = activityRepository.findById(input.getBaseActivity().getId()).orElseThrow();
         file.setClient(clientRepository.findById(input.getClient().getId()).orElseThrow());
         file.setAttributionDate(input.getAttributionDate());
@@ -125,7 +123,6 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
         file.setReturnDeadline(input.getReturnDeadline());
         file.setProvisionalDeliveryDate(input.getProvisionalDeliveryDate());
         file.setProject(input.getProject());
-        file.setFileReprise(input.isFileReprise());
         file.setCommune(communeRepository.findById(input.getCommune().getId()).orElseThrow());
         var oldFileState = fileStateRepository.findFirstByCurrentIsTrueAndFile_Id(file.getId());
         if (oldFileState != null && input.getCurrentFileState() != null && input.getCurrentFileState().getType() != null) {
@@ -329,8 +326,8 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
                     "and f.provisionalDeliveryDate between :pddf and :pddt " +
                     "and f.attributionDate between :adf and :adt " +
                     "and f.deliveryDate between :ddf and :ddt " +
-                    "and ((:isReprise = true  and :isNotReprise = false and f.fileReprise = true) " +
-                    "  or (:isReprise = false and :isNotReprise = true  and f.fileReprise = false) " +
+                    "and ((:isReprise = true  and :isNotReprise = false and f.reprise is not null) " +
+                    "  or (:isReprise = false and :isNotReprise = true  and f.reprise is null) " +
                     "  or (:isReprise = false and :isNotReprise=false)) ";
             if (input.onlyTrashed) {
                 query += "and (f.inTrash=true or fa.inTrash=true or ft.inTrash=true) ";

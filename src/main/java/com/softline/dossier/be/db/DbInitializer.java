@@ -318,7 +318,6 @@ public class DbInitializer implements ApplicationRunner
                 {
                     var toReprise = getOne(files);
                     file.setReprise(toReprise);
-                    file.setFileReprise(true);
                 }
                 files.add(fileRepository.save(file));
             }
