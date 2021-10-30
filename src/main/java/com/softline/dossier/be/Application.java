@@ -26,21 +26,5 @@ public class Application
         SpringApplication.run(Application.class, args);
     }
 
-    @Bean
-    public Filter OpenFilter()
-    {
-        return new OpenEntityManagerInViewFilter();
-    }
 
-    @Bean
-    public GraphQLScalarType uploadScalar()
-    {
-        return ApolloScalars.Upload;
-    }
-
-    @Bean
-    public AuditorAware<Agent> auditorAware()
-    {
-        return new SecurityAuditorAware();
-    }
 }
