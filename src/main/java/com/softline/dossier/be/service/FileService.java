@@ -337,6 +337,9 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
             } else {
                 query += "and f.inTrash=false ";
             }
+            if (!sel.equals("f.id")) {
+                query += "order by f.order";
+            }
             return withParameters(input, entityManager.createQuery(query, clazz));
         };
     }
