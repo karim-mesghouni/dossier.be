@@ -267,7 +267,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
         if (repository.count() < 2) {
             return true;// this should not happen
         }
-        var file = repository.getOne(fileId);
+        var file = repository.findById(fileId).orElseThrow();
         var res = repository.findById(fileBeforeId);
         // TODO: convert this logic into Mutating queries in JPA
         if (res.isPresent()) {

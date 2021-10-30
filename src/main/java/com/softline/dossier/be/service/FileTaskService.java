@@ -414,7 +414,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         if (repository.count() < 2) {
             return true;// this should not happen
         }
-        var fileTask = repository.getOne(fileTaskId);
+        var fileTask = repository.findById(fileTaskId).orElseThrow();
         var fileActivityId = fileTask.getFileActivity().getId();
         var res = repository.findById(fileTaskBeforeId);
         // TODO: convert this logic into Mutating queries in JPA
