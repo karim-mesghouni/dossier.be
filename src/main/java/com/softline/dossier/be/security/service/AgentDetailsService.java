@@ -14,15 +14,13 @@ import java.util.Collection;
 import java.util.List;
 
 @Service
-public class AgentDetailsService implements UserDetailsService
-{
+public class AgentDetailsService implements UserDetailsService {
     @Autowired
     private AgentRepository agentRepository;
     private Collection<GrantedAuthority> grantedAuthorities;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
-    {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var agent = agentRepository.findByUsername(username);
         if (agent == null) {
             throw new UsernameNotFoundException(username);

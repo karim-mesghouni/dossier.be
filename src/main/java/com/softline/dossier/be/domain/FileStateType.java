@@ -19,8 +19,7 @@ import javax.persistence.Id;
 @Data
 @SQLDelete(sql = "UPDATE file_state_type SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class FileStateType extends BaseEntity
-{
+public class FileStateType extends BaseEntity {
     String state;
     boolean initial;
     boolean Final;
@@ -29,8 +28,7 @@ public class FileStateType extends BaseEntity
     private long id;
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "FileStateType{" +
                 "id=" + id +
                 ", state='" + state + '\'' +

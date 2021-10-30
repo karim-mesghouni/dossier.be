@@ -4,7 +4,6 @@ package com.softline.dossier.be.security.config;
 import com.softline.dossier.be.domain.File;
 import com.softline.dossier.be.domain.FileActivity;
 import com.softline.dossier.be.security.domain.Policy.PolicyEnforcement;
-import graphql.schema.TypeResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.PermissionEvaluator;
@@ -19,15 +18,13 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class AbacPermissionEvaluator implements PermissionEvaluator
-{
+public class AbacPermissionEvaluator implements PermissionEvaluator {
+    private final EntityManager entityManager;
     @Autowired
     PolicyEnforcement policy;
-    private final EntityManager entityManager;
 
     @Override
-    public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission)
-    {
+    public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
         //Getting subject
         Object user = authentication.getPrincipal();
         //Getting environment
@@ -38,12 +35,11 @@ public class AbacPermissionEvaluator implements PermissionEvaluator
     }
 
     @Override
-    public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission)
-    {
+    public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
         Object target = null;
-        if(targetType.equals("File")){
+        if (targetType.equals("File")) {
             target = entityManager.find(File.class, targetId);
-        }else if(targetType.equals("FileActivity")){
+        } else if (targetType.equals("FileActivity")) {
             target = entityManager.find(FileActivity.class, targetId);
         }
         return hasPermission(authentication, target, permission);

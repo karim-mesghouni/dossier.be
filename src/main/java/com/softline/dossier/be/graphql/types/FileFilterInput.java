@@ -4,8 +4,7 @@ import com.softline.dossier.be.graphql.types.input.ActivityInput;
 import com.softline.dossier.be.graphql.types.input.ClientInput;
 import com.softline.dossier.be.graphql.types.input.FileStateInput;
 
-public class FileFilterInput
-{
+public class FileFilterInput {
     public int pageNumber;
     public int pageSize;
     public String project;

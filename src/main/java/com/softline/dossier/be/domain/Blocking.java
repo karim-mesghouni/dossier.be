@@ -23,8 +23,7 @@ import java.time.LocalDateTime;
 @Where(clause = "deleted = false")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
-public class Blocking extends BaseEntity
-{
+public class Blocking extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -47,8 +46,7 @@ public class Blocking extends BaseEntity
     private LocalDateTime date;
     private LocalDateTime dateUnBlocked;
 
-    public static Blocking buildFromInput(BlockingInput input, FileTaskSituation state)
-    {
+    public static Blocking buildFromInput(BlockingInput input, FileTaskSituation state) {
         return Blocking.builder()
                 .id(input.getId())
                 .label(BlockingLabel.builder().id(input.getLabel().getId()).build())
@@ -63,8 +61,7 @@ public class Blocking extends BaseEntity
 
     // can be used to determine if the block is active
     // used by graphql
-    public boolean getBlock()
-    {
+    public boolean getBlock() {
         return this.dateUnBlocked == null;
     }
 }

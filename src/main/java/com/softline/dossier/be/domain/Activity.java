@@ -23,8 +23,7 @@ import java.util.List;
 @NoArgsConstructor
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
-public class Activity extends BaseEntity
-{
+public class Activity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -51,8 +50,7 @@ public class Activity extends BaseEntity
     List<Agent> agents;
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Activity{" +
                 "id=" + id +
                 ", name='" + name + '\'' +

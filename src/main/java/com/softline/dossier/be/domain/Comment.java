@@ -25,8 +25,7 @@ import java.util.List;
 @Where(clause = "deleted = false")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
-public class Comment extends BaseEntity implements IComment
-{
+public class Comment extends BaseEntity implements IComment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;

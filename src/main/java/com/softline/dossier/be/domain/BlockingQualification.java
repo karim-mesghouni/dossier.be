@@ -17,8 +17,7 @@ import java.util.List;
 @Data
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
-public class BlockingQualification
-{
+public class BlockingQualification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -27,8 +26,7 @@ public class BlockingQualification
     String name;
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "BlockingQualification{" +
                 "name='" + name + '\'' +
                 '}';

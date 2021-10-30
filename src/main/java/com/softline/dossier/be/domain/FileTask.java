@@ -23,8 +23,7 @@ import java.util.stream.Collectors;
 @Where(clause = "deleted = false ")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
-public class FileTask extends BaseEntity
-{
+public class FileTask extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -79,8 +78,7 @@ public class FileTask extends BaseEntity
     @Builder.Default
     private List<FileTaskAttachment> attachments = new ArrayList<>();
 
-    public List<Attachment> getAttachments()
-    {
+    public List<Attachment> getAttachments() {
         if (attachments == null) {
             return null;
         }
@@ -88,8 +86,7 @@ public class FileTask extends BaseEntity
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "FileTask{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
@@ -97,18 +94,15 @@ public class FileTask extends BaseEntity
     }
 
     @NonNull
-    public FileTaskSituation getCurrentState()
-    {
+    public FileTaskSituation getCurrentState() {
         return getFileTaskSituations().stream().filter(FileTaskSituation::isCurrent).findFirst().get();
     }
 
-    public void incrementOrder()
-    {
+    public void incrementOrder() {
         this.setOrder(this.getOrder() + 1);
     }
 
-    public void decrementOrder()
-    {
+    public void decrementOrder() {
         this.setOrder(this.getOrder() - 1);
     }
 }

@@ -21,8 +21,7 @@ import java.nio.file.Path;
 @Entity
 @SQLDelete(sql = "UPDATE Attachment SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class Attachment extends BaseEntity
-{
+public class Attachment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -32,13 +31,11 @@ public class Attachment extends BaseEntity
 
     @SneakyThrows
     // used by graphql
-    public String getUrl()
-    {
+    public String getUrl() {
         return EnvUtil.getInstance().getServerUrlPrefi() + "/attachments/" + getStorageName();
     }
 
-    public Path getPath(FileSystem fileSystem)
-    {
+    public Path getPath(FileSystem fileSystem) {
         return fileSystem.getAttachmentsPath().resolve(getStorageName());
     }
 }

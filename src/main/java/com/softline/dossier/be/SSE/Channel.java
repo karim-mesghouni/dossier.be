@@ -5,14 +5,12 @@ import lombok.AllArgsConstructor;
 import java.util.Objects;
 
 @AllArgsConstructor
-public class Channel
-{
+public class Channel {
     public final long sessionId;
     public final long agentId;
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -24,14 +22,12 @@ public class Channel
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return Objects.hash(sessionId, agentId);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Channel{" +
                 "sessionId=" + sessionId +
                 ", agentId=" + agentId +

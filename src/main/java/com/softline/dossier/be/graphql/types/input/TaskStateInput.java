@@ -12,8 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class TaskStateInput
-{
+public class TaskStateInput {
 
 
     Long id;

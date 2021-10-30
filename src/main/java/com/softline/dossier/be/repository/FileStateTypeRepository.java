@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface FileStateTypeRepository extends JpaRepository<FileStateType, Long>
-{
+public interface FileStateTypeRepository extends JpaRepository<FileStateType, Long> {
     FileStateType findFirstByInitialIsTrue();
 }

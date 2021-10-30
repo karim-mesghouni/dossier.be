@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoleInput
-{
+public class RoleInput {
     long id;
     String name;
     String displayName;

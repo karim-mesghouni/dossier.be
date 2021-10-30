@@ -8,8 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FileTaskAttachmentRepository extends JpaRepository<FileTaskAttachment, Long>
-{
+public interface FileTaskAttachmentRepository extends JpaRepository<FileTaskAttachment, Long> {
     @Query("SELECT att from FileTaskAttachment att where att.fileTask.id = :fileTaskId")
     List<FileTaskAttachment> getAllForFileTask(long fileTaskId);
 

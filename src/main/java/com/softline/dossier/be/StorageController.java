@@ -21,15 +21,13 @@ import java.nio.file.Files;
  */
 @Controller
 @RequiredArgsConstructor
-public class StorageController
-{
+public class StorageController {
     private final FileSystem fileSystem;
     private final FileTaskAttachmentRepository fileTaskAttachmentRepository;
     private final CommentAttachmentRepository commentAttachmentRepository;
 
     @GetMapping("/attachments/{storageName}")
-    public ResponseEntity<InputStreamResource> getAttachmentByStorageName(@PathVariable String storageName) throws IOException
-    {
+    public ResponseEntity<InputStreamResource> getAttachmentByStorageName(@PathVariable String storageName) throws IOException {
         Attachment attachment;
         attachment = fileTaskAttachmentRepository.findByStorageName(storageName);
         if (attachment == null) {

@@ -18,8 +18,7 @@ import javax.persistence.ManyToOne;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Entity
-public class CommentAttachment extends Attachment
-{
+public class CommentAttachment extends Attachment {
     @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = NotFoundAction.IGNORE)
     private Comment comment;

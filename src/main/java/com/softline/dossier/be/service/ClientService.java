@@ -17,21 +17,18 @@ import java.util.List;
 @Transactional
 
 @Service
-public class ClientService extends IServiceBase<Client, ClientInput, ClientRepository>
-{
+public class ClientService extends IServiceBase<Client, ClientInput, ClientRepository> {
     @Autowired
     ContactRepository contactRepository;
 
     @Override
-    public List<Client> getAll()
-    {
+    public List<Client> getAll() {
         return repository.findAll();
     }
 
     @Override
     @PreAuthorize("hasPermission(null, 'CREATE_CLIENT')")
-    public Client create(ClientInput input)
-    {
+    public Client create(ClientInput input) {
         Client client = Client.builder().name(input.getName()).address(input.getAddress()).build();
         List<Contact> contacts = new ArrayList<>();
         for (var contact : input.getContacts()) {
@@ -42,8 +39,7 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
     }
 
     @Override
-    public Client update(ClientInput input)
-    {
+    public Client update(ClientInput input) {
         Client client = repository.getOne(input.getId());
         client.setAddress(input.getAddress());
         client.setName(input.getName());
@@ -63,8 +59,7 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
 
     @Override
     @PreAuthorize("hasPermission(null, 'DELETE_CLIENT')")
-    public boolean delete(long id) throws ClientReadableException
-    {
+    public boolean delete(long id) throws ClientReadableException {
         Client client = repository.findWithFilesById(id);
         if (client.getFiles().stream().anyMatch(f -> !f.isDeleted() && !f.isInTrash())) {
             throw new ClientReadableException("ce client a des fichiers ouverts, veuillez d'abord les supprimer");
@@ -74,14 +69,12 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
     }
 
     @Override
-    public Client getById(long id)
-    {
+    public Client getById(long id) {
         return null;
     }
 
     @PreAuthorize("hasPermission(null, 'READ_CLIENT')")
-    public List<Client> getClientsTable(String search)
-    {
+    public List<Client> getClientsTable(String search) {
         return repository.getClientsTable(search);
     }
 }

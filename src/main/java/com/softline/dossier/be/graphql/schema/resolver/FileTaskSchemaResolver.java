@@ -22,27 +22,22 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 
-public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTaskInput, FileTaskRepository, FileTaskService>
-{
+public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTaskInput, FileTaskRepository, FileTaskService> {
 
 
-    public FileTask createFileTask(FileTaskInput fileTask) throws IOException, ClientReadableException
-    {
+    public FileTask createFileTask(FileTaskInput fileTask) throws IOException, ClientReadableException {
         return create(fileTask);
     }
 
-    public FileTask updateFileTask(FileTaskInput fileTask) throws ClientReadableException
-    {
+    public FileTask updateFileTask(FileTaskInput fileTask) throws ClientReadableException {
         return update(fileTask);
     }
 
-    public boolean deleteFileTask(Long id) throws ClientReadableException
-    {
+    public boolean deleteFileTask(Long id) throws ClientReadableException {
         return delete(id);
     }
 
-    public List<FileTask> getAllFileTask()
-    {
+    public List<FileTask> getAllFileTask() {
         return getAll();
     }
 
@@ -50,138 +45,112 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
         return get(fileTaskId);
     }
 
-    public List<TaskSituation> getAllTaskSituations(Long taskId)
-    {
+    public List<TaskSituation> getAllTaskSituations(Long taskId) {
         return service.getAllTaskSituations(taskId);
     }
 
-    public Agent changeAssignedTo(Long assignedToId, Long fileTaskId)
-    {
+    public Agent changeAssignedTo(Long assignedToId, Long fileTaskId) {
         return service.changeAssignedTo(assignedToId, fileTaskId);
     }
 
-    public Agent changeReporter(Long reporterId, Long fileTaskId)
-    {
+    public Agent changeReporter(Long reporterId, Long fileTaskId) {
         return service.changeReporter(reporterId, fileTaskId);
 
     }
 
-    public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) throws ClientReadableException
-    {
+    public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) throws ClientReadableException {
         return service.changeFileTaskSituation(situationId, fileTaskId);
 
     }
 
-    public List<FileTask> getAllFileTaskByFileActivityId(Long fileActivityId)
-    {
+    public List<FileTask> getAllFileTaskByFileActivityId(Long fileActivityId) {
         return service.getAllFileTaskByFileActivityId(fileActivityId);
 
     }
 
-    public List<FileTask> getAllFileTaskByFileActivityIdInTrash(Long fileActivityId)
-    {
+    public List<FileTask> getAllFileTaskByFileActivityIdInTrash(Long fileActivityId) {
         return service.getAllFileTaskByFileActivityIdInTrash(fileActivityId);
 
     }
 
-    public List<FileTask> getAllFileTaskByAssignedToId(Long assignedToId)
-    {
+    public List<FileTask> getAllFileTaskByAssignedToId(Long assignedToId) {
         return service.getAllFileTaskByAssignedToId(assignedToId);
     }
 
-    public boolean changeToStartDate(LocalDateTime toStartDate, Long fileTaskId)
-    {
+    public boolean changeToStartDate(LocalDateTime toStartDate, Long fileTaskId) {
         return service.changeToStartDate(toStartDate, fileTaskId);
     }
 
-    public boolean changeDueDate(LocalDateTime dueDate, Long fileTaskId)
-    {
+    public boolean changeDueDate(LocalDateTime dueDate, Long fileTaskId) {
 
         return service.changeDueDate(dueDate, fileTaskId);
     }
 
-    public boolean changeTitle(String title, Long fileTaskId)
-    {
+    public boolean changeTitle(String title, Long fileTaskId) {
         return service.changeTitle(title, fileTaskId);
     }
 
-    public ReturnedComment changeRetour(CommentInput input)
-    {
+    public ReturnedComment changeRetour(CommentInput input) {
         return service.changeRetour(input);
     }
 
-    public DescriptionComment changeDescription(CommentInput input)
-    {
+    public DescriptionComment changeDescription(CommentInput input) {
         return service.changeDescription(input);
     }
 
-    public boolean changeDataField(ActivityDataFieldInput input)
-    {
+    public boolean changeDataField(ActivityDataFieldInput input) {
         return service.changeDataField(input);
     }
 
-    public List<ReturnedCause> getAllReturnedCause()
-    {
+    public List<ReturnedCause> getAllReturnedCause() {
         return service.getAllReturnedCause();
     }
 
-    public ReturnedCause changeReturnedCause(Long fileTaskId, Long returnedCauseId)
-    {
+    public ReturnedCause changeReturnedCause(Long fileTaskId, Long returnedCauseId) {
         return service.changeReturnedCause(fileTaskId, returnedCauseId);
     }
 
-    public boolean changeReturned(Long fileTaskId, boolean returned)
-    {
+    public boolean changeReturned(Long fileTaskId, boolean returned) {
         return service.changeReturned(fileTaskId, returned);
     }
 
-    public TaskState changeState(Long fileTaskId, Long taskStateId)
-    {
+    public TaskState changeState(Long fileTaskId, Long taskStateId) {
         return service.changeState(fileTaskId, taskStateId);
     }
 
-    public FileTask createChildFileTask(FileTaskInput fileTask)
-    {
+    public FileTask createChildFileTask(FileTaskInput fileTask) {
         return service.createChildFileTask(fileTask);
     }
 
-    public boolean changeParent(Long FileTaskId, Long parentId)
-    {
+    public boolean changeParent(Long FileTaskId, Long parentId) {
         return service.changeParent(FileTaskId, parentId);
     }
 
-    public boolean recoverFileTaskFromTrash(Long fileTaskId)
-    {
+    public boolean recoverFileTaskFromTrash(Long fileTaskId) {
         return service.recoverFileTaskFromTrash(fileTaskId);
     }
 
-    public boolean sendFileTaskToTrash(Long fileTaskId)
-    {
+    public boolean sendFileTaskToTrash(Long fileTaskId) {
         return service.sendFileTaskToTrash(fileTaskId);
     }
 
-    public List<Attachment> uploadAttachments(List<Part> part, Long fileTaskId, DataFetchingEnvironment environment) throws IOException
-    {
+    public List<Attachment> uploadAttachments(List<Part> part, Long fileTaskId, DataFetchingEnvironment environment) throws IOException {
         return service.saveAttached(fileTaskId, environment);
     }
 
-    public List<Attachment> getAttachedFile(Long idFileTAsk)
-    {
+    public List<Attachment> getAttachedFile(Long idFileTAsk) {
         return null;
     }
 
-    public FileTask getFileTask(long fileTaskId)
-    {
+    public FileTask getFileTask(long fileTaskId) {
         return super.get(fileTaskId);
     }
 
-    public List<FileTask> getAll()
-    {
+    public List<FileTask> getAll() {
         return super.getAll();
     }
 
-    public boolean changeFileTaskOrder(long fileTaskId, long fileTaskBeforeId)
-    {
+    public boolean changeFileTaskOrder(long fileTaskId, long fileTaskBeforeId) {
         return service.changeOrder(fileTaskId, fileTaskBeforeId);
     }
 

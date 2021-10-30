@@ -24,14 +24,12 @@ import java.util.List;
 
 import static com.softline.dossier.be.security.filters.constants.SecurityConstants.*;
 
-public class AuthorizationFilter extends BasicAuthenticationFilter
-{
+public class AuthorizationFilter extends BasicAuthenticationFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(BasicPolicyEnforcement.class);
 
 
-    public AuthorizationFilter(AuthenticationManager authenticationManager)
-    {
+    public AuthorizationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
 
@@ -39,8 +37,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter
     @Override
     protected void doFilterInternal(HttpServletRequest req,
                                     HttpServletResponse res,
-                                    FilterChain chain) throws IOException, ServletException
-    {
+                                    FilterChain chain) throws IOException, ServletException {
 
         String header = req.getHeader(HEADER_STRING);
         try {
@@ -56,8 +53,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter
     }
 
 
-    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request)
-    {
+    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         String token = request.getHeader(HEADER_STRING);
         if (token != null) {
             // parse the token.

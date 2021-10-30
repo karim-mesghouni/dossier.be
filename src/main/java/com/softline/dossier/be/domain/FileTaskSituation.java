@@ -20,8 +20,7 @@ import javax.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @SQLDelete(sql = "UPDATE file_task_situation SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class FileTaskSituation extends BaseEntity
-{
+public class FileTaskSituation extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -38,8 +37,7 @@ public class FileTaskSituation extends BaseEntity
     FileTask fileTask;
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "FileTaskSituation{" +
                 "id=" + id +
                 ", situation=" + situation +

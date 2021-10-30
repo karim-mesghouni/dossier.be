@@ -15,28 +15,24 @@ import java.util.List;
 @Transactional
 
 @Service
-public class ContactService extends IServiceBase<Contact, ContactInput, ContactRepository>
-{
+public class ContactService extends IServiceBase<Contact, ContactInput, ContactRepository> {
     @Autowired
     ClientRepository clientRepository;
 
     @Override
-    public List<Contact> getAll()
-    {
+    public List<Contact> getAll() {
         return repository.findAll();
     }
 
     @Override
-    public Contact create(ContactInput input)
-    {
+    public Contact create(ContactInput input) {
 //        Client client = clientRepository.findById(input.getClient().getId()).orElseThrow();
 //        return repository.save(Contact.builder().name(input.getName()).email(input.getEmail()).phone(input.getPhone()).client(client).build());
         return null;
     }
 
     @Override
-    public Contact update(ContactInput input)
-    {
+    public Contact update(ContactInput input) {
         Contact contact = repository.getOne(input.getId());
         contact.setName(input.getName());
         contact.setEmail(input.getEmail());
@@ -47,15 +43,13 @@ public class ContactService extends IServiceBase<Contact, ContactInput, ContactR
     @SneakyThrows
     @Override
     @PreAuthorize("hasPermission(null, 'DELETE_CONTACT')")
-    public boolean delete(long id)
-    {
+    public boolean delete(long id) {
         repository.delete(repository.findById(id).orElseThrow());
         return true;
     }
 
     @Override
-    public Contact getById(long id)
-    {
+    public Contact getById(long id) {
         return null;
     }
 }

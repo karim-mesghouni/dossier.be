@@ -11,8 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class BlockingInput
-{
+public class BlockingInput {
 
     long id;
 

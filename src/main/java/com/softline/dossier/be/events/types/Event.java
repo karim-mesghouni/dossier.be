@@ -13,30 +13,25 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Builder
-public class Event<T>
-{
+public class Event<T> {
     protected String event;
     protected T payload;
 
-    public Event(String event, T payload)
-    {
+    public Event(String event, T payload) {
         this.event = event;
         this.payload = payload;
     }
 
-    public String getPayloadJson()
-    {
+    public String getPayloadJson() {
         // if the object is of type JSONObject it will be parsed into a json string
         return this.getPayload().toString();
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "name: " + event + ", payload: " + payload.toString();
     }
 
-    public void fireToAll()
-    {
+    public void fireToAll() {
         EventController.sendForAllChannels(this);
     }
 }

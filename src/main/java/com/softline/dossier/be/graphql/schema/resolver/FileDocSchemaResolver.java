@@ -16,37 +16,30 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 
-public class FileDocSchemaResolver extends SchemaResolverBase<FileDoc, FileDocInput, FileDocRepository, FileDocService>
-{
+public class FileDocSchemaResolver extends SchemaResolverBase<FileDoc, FileDocInput, FileDocRepository, FileDocService> {
 
 
-    public FileDoc createFileDoc(FileDocInput input) throws IOException, ClientReadableException
-    {
+    public FileDoc createFileDoc(FileDocInput input) throws IOException, ClientReadableException {
         return create(input);
     }
 
-    public FileDoc updateFileDoc(FileDocInput input) throws ClientReadableException
-    {
+    public FileDoc updateFileDoc(FileDocInput input) throws ClientReadableException {
         return update(input);
     }
 
-    public boolean deleteFileDoc(Long id) throws ClientReadableException
-    {
+    public boolean deleteFileDoc(Long id) throws ClientReadableException {
         return delete(id);
     }
 
-    public List<FileDoc> getAllFileDoc()
-    {
+    public List<FileDoc> getAllFileDoc() {
         return getAll();
     }
 
-    public FileDoc getFileDoc(Long id)
-    {
+    public FileDoc getFileDoc(Long id) {
         return get(id);
     }
 
-    public List<FileDoc> getAllByFileActivityIdOrFileId(Long fileActivityId, Long fileId) throws Exception
-    {
+    public List<FileDoc> getAllByFileActivityIdOrFileId(Long fileActivityId, Long fileId) throws Exception {
         return service.getAllByFileActivityIdOrFileId(fileActivityId, fileId);
     }
 }

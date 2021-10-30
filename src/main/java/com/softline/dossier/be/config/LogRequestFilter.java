@@ -20,10 +20,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j(topic = "RequestLogger")
-public class LogRequestFilter extends BasicAuthenticationFilter
-{
-    public LogRequestFilter(AuthenticationManager authenticationManager)
-    {
+public class LogRequestFilter extends BasicAuthenticationFilter {
+    public LogRequestFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
 
@@ -31,8 +29,7 @@ public class LogRequestFilter extends BasicAuthenticationFilter
     @SuppressWarnings("ResultOfMethodCallIgnored")
     protected void doFilterInternal(HttpServletRequest req,
                                     HttpServletResponse res,
-                                    FilterChain chain) throws IOException, ServletException
-    {
+                                    FilterChain chain) throws IOException, ServletException {
         CustomHttpRequestWrapper requestWrapper = new CustomHttpRequestWrapper(req);
         try {
             if (req.getMethod().equals("POST")) {
@@ -49,23 +46,19 @@ public class LogRequestFilter extends BasicAuthenticationFilter
     }
 
 
-    private static class CustomHttpRequestWrapper extends HttpServletRequestWrapper
-    {
+    private static class CustomHttpRequestWrapper extends HttpServletRequestWrapper {
         private final String bodyInStringFormat;
 
-        public CustomHttpRequestWrapper(HttpServletRequest request) throws IOException
-        {
+        public CustomHttpRequestWrapper(HttpServletRequest request) throws IOException {
             super(request);
             bodyInStringFormat = readInputStreamInStringFormat(request.getInputStream(), Charset.forName(request.getCharacterEncoding()));
         }
 
-        public String getBodyInStringFormat()
-        {
+        public String getBodyInStringFormat() {
             return bodyInStringFormat;
         }
 
-        private String readInputStreamInStringFormat(InputStream stream, Charset charset) throws IOException
-        {
+        private String readInputStreamInStringFormat(InputStream stream, Charset charset) throws IOException {
             final int MAX_BODY_SIZE = 1024 * 1024 * 400;
             final StringBuilder bodyStringBuilder = new StringBuilder();
             if (!stream.markSupported()) {
@@ -88,53 +81,44 @@ public class LogRequestFilter extends BasicAuthenticationFilter
         }
 
         @Override
-        public BufferedReader getReader()
-        {
+        public BufferedReader getReader() {
             return new BufferedReader(new InputStreamReader(getInputStream()));
         }
 
         @Override
-        public ServletInputStream getInputStream()
-        {
+        public ServletInputStream getInputStream() {
             final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bodyInStringFormat.getBytes());
 
-            return new ServletInputStream()
-            {
+            return new ServletInputStream() {
                 private boolean finished = false;
 
                 @Override
-                public boolean isFinished()
-                {
+                public boolean isFinished() {
                     return finished;
                 }
 
                 @Override
-                public int available()
-                {
+                public int available() {
                     return byteArrayInputStream.available();
                 }
 
                 @Override
-                public void close() throws IOException
-                {
+                public void close() throws IOException {
                     super.close();
                     byteArrayInputStream.close();
                 }
 
                 @Override
-                public boolean isReady()
-                {
+                public boolean isReady() {
                     return true;
                 }
 
                 @Override
-                public void setReadListener(ReadListener readListener)
-                {
+                public void setReadListener(ReadListener readListener) {
                     throw new UnsupportedOperationException();
                 }
 
-                public int read()
-                {
+                public int read() {
                     int data = byteArrayInputStream.read();
                     if (data == -1) {
                         finished = true;

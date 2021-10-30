@@ -18,8 +18,7 @@ import javax.persistence.Entity;
 @EqualsAndHashCode(callSuper = true)
 @SQLDelete(sql = "UPDATE Comment SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class ReturnedComment extends Comment
-{
+public class ReturnedComment extends Comment {
 
 
 }

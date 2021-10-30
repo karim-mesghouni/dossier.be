@@ -7,14 +7,12 @@ package com.softline.dossier.be.service.exceptions;
  *
  * @see com.softline.dossier.be.security.config.ExceptionsHandler
  */
-public class ClientReadableException extends Exception
-{
+public class ClientReadableException extends Exception {
     /**
      * @param message the exception message, should not contain any sensitive data,
      *                this message is designed to be readable for the client
      */
-    public ClientReadableException(String message)
-    {
+    public ClientReadableException(String message) {
         super(message);
     }
 }

@@ -22,8 +22,7 @@ import java.util.List;
 @Where(clause = "deleted = false ")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
-public class FileActivity extends BaseEntity
-{
+public class FileActivity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -58,19 +57,16 @@ public class FileActivity extends BaseEntity
     ActivityState state;
 
 
-    public void incrementOrder()
-    {
+    public void incrementOrder() {
         this.setOrder(this.getOrder() + 1);
     }
 
-    public void decrementOrder()
-    {
+    public void decrementOrder() {
         this.setOrder(this.getOrder() - 1);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "FileActivity{" +
                 "id=" + id +
                 ", activity=" + activity +

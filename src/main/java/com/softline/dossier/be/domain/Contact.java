@@ -20,8 +20,7 @@ import javax.persistence.*;
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
 //endregion
-public class Contact
-{
+public class Contact {
     @Id
     @GeneratedValue(
             strategy = GenerationType.AUTO,
@@ -46,8 +45,7 @@ public class Contact
     //endregion
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Contact{" +
                 "id=" + id +
                 ", name='" + name + '\'' +

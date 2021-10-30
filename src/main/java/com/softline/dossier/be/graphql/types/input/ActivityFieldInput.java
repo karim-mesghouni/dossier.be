@@ -11,8 +11,7 @@ import lombok.experimental.SuperBuilder;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ActivityFieldInput
-{
+public class ActivityFieldInput {
 
     long id;
     String fieldName;

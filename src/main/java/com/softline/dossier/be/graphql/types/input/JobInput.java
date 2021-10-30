@@ -9,8 +9,7 @@ import lombok.experimental.SuperBuilder;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class JobInput
-{
+public class JobInput {
     long id;
     String name;
 }

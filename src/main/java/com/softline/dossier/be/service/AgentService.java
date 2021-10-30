@@ -12,42 +12,35 @@ import java.util.List;
 
 @Transactional
 @Service
-public class AgentService extends IServiceBase<Agent, AgentInput, AgentRepository>
-{
+public class AgentService extends IServiceBase<Agent, AgentInput, AgentRepository> {
 
     @Override
-    public List<Agent> getAll()
-    {
+    public List<Agent> getAll() {
         return repository.findAll();
     }
 
     @Override
-    public Agent create(AgentInput input)
-    {
+    public Agent create(AgentInput input) {
         return null;
     }
 
     @Override
-    public Agent update(AgentInput input)
-    {
+    public Agent update(AgentInput input) {
         return null;
     }
 
     @Override
-    public boolean delete(long id)
-    {
+    public boolean delete(long id) {
         repository.deleteById(id);
         return true;
     }
 
     @Override
-    public Agent getById(long id)
-    {
+    public Agent getById(long id) {
         return repository.findById(id).orElseThrow();
     }
 
-    public Agent getCurrentAgent()
-    {
+    public Agent getCurrentAgent() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var agent = (Agent) authentication.getPrincipal();
         if (agent != null) {
@@ -57,8 +50,7 @@ public class AgentService extends IServiceBase<Agent, AgentInput, AgentRepositor
     }
 
 
-    public List<Agent> findBySearch(String search)
-    {
+    public List<Agent> findBySearch(String search) {
         return repository.findBySearch(search);
     }
 }

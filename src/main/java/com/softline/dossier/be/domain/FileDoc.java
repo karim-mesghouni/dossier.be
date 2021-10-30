@@ -21,8 +21,7 @@ import javax.persistence.*;
 @Where(clause = "deleted = false")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
-public class FileDoc extends BaseEntity
-{
+public class FileDoc extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn

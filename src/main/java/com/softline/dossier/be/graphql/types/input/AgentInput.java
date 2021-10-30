@@ -10,8 +10,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class AgentInput
-{
+public class AgentInput {
     Long id;
     String name;
     String username;

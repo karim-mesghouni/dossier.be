@@ -5,8 +5,7 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 @Data
-public class PolicyRule
-{
+public class PolicyRule {
     private static SpelExpressionParser parser = new SpelExpressionParser();
 
     private String name;
@@ -21,20 +20,17 @@ public class PolicyRule
      */
     private Expression condition;
 
-    public PolicyRule()
-    {
+    public PolicyRule() {
 
     }
 
-    public PolicyRule(String name, String description, Expression target, Expression condition)
-    {
+    public PolicyRule(String name, String description, Expression target, Expression condition) {
         this(target, condition);
         this.name = name;
         this.description = description;
     }
 
-    public PolicyRule(Expression target, Expression condition)
-    {
+    public PolicyRule(Expression target, Expression condition) {
         super();
         this.target = target;
         this.condition = condition;

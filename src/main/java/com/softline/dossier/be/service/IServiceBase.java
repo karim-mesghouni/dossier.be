@@ -7,8 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.io.IOException;
 import java.util.List;
 
-public abstract class IServiceBase<IEntity, IEntityInput, IRepository extends JpaRepository<IEntity, Long>>
-{
+public abstract class IServiceBase<IEntity, IEntityInput, IRepository extends JpaRepository<IEntity, Long>> {
 
     @Autowired
     IRepository repository;
@@ -23,8 +22,7 @@ public abstract class IServiceBase<IEntity, IEntityInput, IRepository extends Jp
 
     public abstract IEntity getById(long id);
 
-    public IRepository getRepository()
-    {
+    public IRepository getRepository() {
         return repository;
     }
 

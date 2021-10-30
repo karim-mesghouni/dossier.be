@@ -11,8 +11,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class FileInput
-{
+public class FileInput {
 
     String project;
     LocalDate attributionDate;
@@ -30,6 +29,6 @@ public class FileInput
     FileActivityInput currentFileActivity;
     FileInput reprise;
     boolean inTrash;
-    private Long id;
     long order;
+    private Long id;
 }

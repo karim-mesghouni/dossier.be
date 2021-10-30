@@ -6,6 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 
-public interface BlockingLockingAddressRepository extends JpaRepository<BlockingLockingAddress, Long>
-{
+public interface BlockingLockingAddressRepository extends JpaRepository<BlockingLockingAddress, Long> {
 }

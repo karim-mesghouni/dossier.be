@@ -17,8 +17,7 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BaseEntity
-{
+public class BaseEntity {
 
     @Column(nullable = false, updatable = false)
     @CreatedDate

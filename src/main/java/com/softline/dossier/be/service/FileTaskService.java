@@ -33,8 +33,7 @@ import java.util.stream.Collectors;
 @Transactional
 @Service
 @RequiredArgsConstructor
-public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileTaskRepository>
-{
+public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileTaskRepository> {
     private final TaskRepository taskRepository;
     private final TaskStateRepository fileTaskStateRepository;
     private final FileTaskSituationRepository fileTaskSituationRepository;
@@ -52,14 +51,12 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
 
     @Override
-    public List<FileTask> getAll()
-    {
+    public List<FileTask> getAll() {
         return repository.findAll();
     }
 
     @Override
-    public FileTask create(FileTaskInput input)
-    {
+    public FileTask create(FileTaskInput input) {
         var fileTaskOrder = getRepository().getMaxOrder();
         if (fileTaskOrder == null) {
             fileTaskOrder = 0;
@@ -90,8 +87,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     @Override
-    public FileTask update(FileTaskInput input)
-    {
+    public FileTask update(FileTaskInput input) {
         var fileTask = getRepository().findById(input.getId()).orElseThrow();
         fileTask.setToStartDate(input.getToStartDate());
         fileTask.setDueDate(input.getDueDate());
@@ -103,30 +99,25 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     @Override
-    public boolean delete(long id)
-    {
+    public boolean delete(long id) {
         repository.deleteById(id);
         return true;
     }
 
     @Override
-    public FileTask getById(long id)
-    {
+    public FileTask getById(long id) {
         return repository.findById(id).orElseThrow();
     }
 
-    public FileTaskSituation getCurrentFilePhaseState(Long fileAgentId)
-    {
+    public FileTaskSituation getCurrentFilePhaseState(Long fileAgentId) {
         return null; //fileTaskStateRepository.getFilePhaseStateByPhaseAgent_IdAndCurrentIsTrue(fileAgentId);
     }
 
-    public List<TaskSituation> getAllTaskSituations(Long taskId)
-    {
+    public List<TaskSituation> getAllTaskSituations(Long taskId) {
         return taskSituationRepository.findAllByTask_Id(taskId);
     }
 
-    public Agent changeAssignedTo(Long assignedToId, Long fileTaskId)
-    {
+    public Agent changeAssignedTo(Long assignedToId, Long fileTaskId) {
         var assigned = agentRepository.findById(assignedToId).orElseThrow();
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         fileTask.setAssignedTo(assigned);
@@ -134,8 +125,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return assigned;
     }
 
-    public Agent changeReporter(Long reporterId, Long fileTaskId)
-    {
+    public Agent changeReporter(Long reporterId, Long fileTaskId) {
         var reporter = agentRepository.findById(reporterId).orElseThrow();
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         fileTask.setReporter(reporter);
@@ -143,8 +133,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return reporter;
     }
 
-    public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) throws ClientReadableException
-    {
+    public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) throws ClientReadableException {
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         var situation = taskSituationRepository.findById(situationId).orElseThrow();
         if (fileTask.getCurrentState().getSituation().isBlock()) {
@@ -171,39 +160,33 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .fileTask(fileTask).build());
     }
 
-    public List<FileTask> getAllFileTaskByFileActivityId(Long fileActivityId)
-    {
+    public List<FileTask> getAllFileTaskByFileActivityId(Long fileActivityId) {
 
         return getRepository().findAllByFileActivity_Id(fileActivityId);
     }
 
-    public List<FileTask> getAllFileTaskByAssignedToId(Long assignedToId)
-    {
+    public List<FileTask> getAllFileTaskByAssignedToId(Long assignedToId) {
         return getRepository().findAllByAssignedTo_Id(assignedToId);
     }
 
-    public boolean changeToStartDate(LocalDateTime toStartDate, Long fileTaskId)
-    {
+    public boolean changeToStartDate(LocalDateTime toStartDate, Long fileTaskId) {
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         fileTask.setToStartDate(toStartDate);
         return true;
     }
 
-    public boolean changeDueDate(LocalDateTime dueDate, Long fileTaskId)
-    {
+    public boolean changeDueDate(LocalDateTime dueDate, Long fileTaskId) {
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         fileTask.setDueDate(dueDate);
         return true;
     }
 
-    public boolean changeTitle(String title, Long fileTaskId)
-    {
+    public boolean changeTitle(String title, Long fileTaskId) {
         getRepository().getOne(fileTaskId).setTitle(title);
         return true;
     }
 
-    public DescriptionComment changeDescription(CommentInput description)
-    {
+    public DescriptionComment changeDescription(CommentInput description) {
         if (description.getId() != null) {
             var descriptionExist = descriptionCommentRepository.findById(description.getId()).orElseThrow();
             descriptionExist.setContent(description.getContent());
@@ -226,8 +209,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         }
     }
 
-    public ReturnedComment changeRetour(CommentInput retour)
-    {
+    public ReturnedComment changeRetour(CommentInput retour) {
         if (retour.getId() != null) {
             var retourExist = returnedCommentRepository.findById(retour.getId()).orElseThrow();
             retourExist.setContent(retour.getContent());
@@ -249,20 +231,17 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         }
     }
 
-    public boolean changeDataField(ActivityDataFieldInput input)
-    {
+    public boolean changeDataField(ActivityDataFieldInput input) {
         var field = activityDataFieldRepository.findById(input.getId()).orElseThrow();
         field.setData(input.getData());
         return true;
     }
 
-    public List<ReturnedCause> getAllReturnedCause()
-    {
+    public List<ReturnedCause> getAllReturnedCause() {
         return returnedCauseRepository.findAll();
     }
 
-    public ReturnedCause changeReturnedCause(Long fileTaskId, Long returnedCauseId)
-    {
+    public ReturnedCause changeReturnedCause(Long fileTaskId, Long returnedCauseId) {
         var returnedCause = returnedCauseRepository.findById(returnedCauseId).orElseThrow();
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         fileTask.setReturnedCause(returnedCause);
@@ -270,8 +249,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return returnedCause;
     }
 
-    public TaskState changeState(Long fileTaskId, Long taskStateId)
-    {
+    public TaskState changeState(Long fileTaskId, Long taskStateId) {
         var taskState = taskStateRepository.findById(taskStateId).orElseThrow();
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         fileTask.setState(taskState);
@@ -279,16 +257,14 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return taskState;
     }
 
-    public boolean changeReturned(Long fileTaskId, boolean returned)
-    {
+    public boolean changeReturned(Long fileTaskId, boolean returned) {
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         fileTask.setReturned(returned);
         getRepository().save(fileTask);
         return returned;
     }
 
-    public FileTask createChildFileTask(FileTaskInput input)
-    {
+    public FileTask createChildFileTask(FileTaskInput input) {
         var reporter = agentRepository.findByUsername(((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
         var parent = getRepository().findById(input.getParent().getId()).orElseThrow();
         var task = taskRepository.findById(input.getTask().getId()).orElseThrow();
@@ -314,13 +290,11 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return getRepository().findById(fileTask.getId()).orElseThrow();
     }
 
-    public boolean changeParent(Long fileTaskId, Long parentId)
-    {
+    public boolean changeParent(Long fileTaskId, Long parentId) {
         if (Functions.safeRun(
                 () -> getRepository().getOne(fileTaskId).setParent(getRepository().getOne(parentId)),
                 () -> getRepository().getOne(fileTaskId).setParent(null)
-        ))
-        {
+        )) {
             var fileTask = getRepository().getOne(fileTaskId);
             new FileTaskEvent(EntityEvent.Event.UPDATED, fileTask).fireToAll();
             return true;
@@ -328,29 +302,25 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return false;
     }
 
-    public List<FileTask> getAllFileTaskByFileActivityIdInTrash(Long fileActivityId)
-    {
+    public List<FileTask> getAllFileTaskByFileActivityIdInTrash(Long fileActivityId) {
         return getRepository().findAllByFileActivity_Id_In_Trash(fileActivityId);
     }
 
-    public boolean recoverFileTaskFromTrash(Long fileTaskId)
-    {
+    public boolean recoverFileTaskFromTrash(Long fileTaskId) {
         var fileTask = getRepository().getOne(fileTaskId);
         fileTask.setInTrash(false);
         new FileTaskEvent(EntityEvent.Event.RECOVERED, fileTask).fireToAll();
         return true;
     }
 
-    public boolean sendFileTaskToTrash(Long fileTaskId)
-    {
+    public boolean sendFileTaskToTrash(Long fileTaskId) {
         var fileTask = getRepository().getOne(fileTaskId);
         fileTask.setInTrash(true);
         new FileTaskEvent(EntityEvent.Event.TRASHED, fileTask).fireToAll();
         return true;
     }
 
-    public List<Attachment> saveAttached(Long fileTaskId, DataFetchingEnvironment environment) throws IOException
-    {
+    public List<Attachment> saveAttached(Long fileTaskId, DataFetchingEnvironment environment) throws IOException {
         ArrayList<ApplicationPart> files = environment.getArgument("attachments");
         var filesAttached = new ArrayList<FileTaskAttachment>();
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
@@ -373,8 +343,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return filesAttached.stream().map(e -> (Attachment) e).collect(Collectors.toList());
     }
 
-    public boolean deleteAttached(Long attachedId)
-    {
+    public boolean deleteAttached(Long attachedId) {
         var attached = fileTaskAttachmentRepository.findById(attachedId).orElseThrow();
         try {
             Files.deleteIfExists(fileSystem.getAttachmentsPath().resolve(attached.getStorageName()));
@@ -385,8 +354,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         }
     }
 
-    protected boolean delete(Long id)
-    {
+    protected boolean delete(Long id) {
         if (!repository.existsById(id)) {
             return true;
         }
@@ -394,8 +362,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return true;
     }
 
-    public boolean updateTitle(String title, long fileTaskId)
-    {
+    public boolean updateTitle(String title, long fileTaskId) {
         repository.getOne(fileTaskId).setTitle(title);
         return true;
     }
@@ -409,8 +376,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
      * @param fileTaskBeforeId the fileTask(id) which should be before the new position of the fileTask, may be non-existent
      * @return boolean
      */
-    public synchronized boolean changeOrder(long fileTaskId, long fileTaskBeforeId)
-    {
+    public synchronized boolean changeOrder(long fileTaskId, long fileTaskBeforeId) {
         if (repository.count() < 2) {
             return true;// this should not happen
         }

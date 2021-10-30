@@ -29,8 +29,7 @@ import java.util.Date;
         @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 })
 @Data
-public class BaseEntity
-{
+public class BaseEntity {
     @Column(columnDefinition = "boolean default false")
     boolean deleted;
     @CreatedBy

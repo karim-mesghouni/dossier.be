@@ -17,16 +17,14 @@ import static com.softline.dossier.be.Halpers.Functions.tap;
 @RestController
 @RequestMapping("/events")
 @Slf4j(topic = "SSE")
-public class EventController
-{
+public class EventController {
     // used ConcurrentHashMap instead of normal Hashmap
     // because HashMap Iterators don't support modifying(removing) the items outside the iterator itself
     private static final ConcurrentHashMap<Channel, SseEmitter> channels = new ConcurrentHashMap<>();
     private static final ScheduledExecutorService pingThread = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("sse-ping-thread").build());
     private static final ConcurrentLinkedDeque<Channel> scheduledForRemoval = new ConcurrentLinkedDeque<>();
 
-    public EventController()
-    {
+    public EventController() {
         // to keep the connection alive in the client side
         // we must send at least 1 event every 45 seconds,
         // so we create a single thread which will send a ping(heart-beat) event
@@ -56,8 +54,7 @@ public class EventController
     /**
      * send the event for all registered channels
      */
-    public static void sendForAllChannels(Event<?> event)
-    {
+    public static void sendForAllChannels(Event<?> event) {
         synchronized (channels) {// obtain lock
             log.info("sendEventForAll, event : {}", event);
             channels.forEach((channel, em) -> internalSendForEmitter(em, event, channel));
@@ -67,8 +64,7 @@ public class EventController
     /**
      * used internally to send an event to a single channel
      */
-    private static void internalSendForEmitter(SseEmitter emitter, Event<?> event, Channel channel)
-    {
+    private static void internalSendForEmitter(SseEmitter emitter, Event<?> event, Channel channel) {
         synchronized (channels) {// obtain lock
             try {
                 emitter.send(SseEmitter.event().name(event.getEvent()).data(event.getPayloadJson()));
@@ -88,8 +84,7 @@ public class EventController
      *
      * @param agentId the id of the user
      */
-    public static void sendForUser(long agentId, Event<?> event)
-    {
+    public static void sendForUser(long agentId, Event<?> event) {
         synchronized (channels) {// obtain lock
             channels.forEach((channel, em) ->
             {
@@ -101,8 +96,7 @@ public class EventController
     }
 
     @GetMapping(value = "/")
-    public SseEmitter getEvents()
-    {
+    public SseEmitter getEvents() {
         if (!(SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof Agent)) {
             log.error("attempt to listen for events without login");
             return null;

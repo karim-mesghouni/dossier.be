@@ -10,8 +10,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class BlockingService extends IServiceBase<Blocking, BlockingInput, BlockingRepository>
-{
+public class BlockingService extends IServiceBase<Blocking, BlockingInput, BlockingRepository> {
     private final BlockingLockingAddressRepository blockingLockingAddressRepository;
     private final BlockingLabelRepository blockingLabelRepository;
     private final BlockingQualificationRepository blockingQualificationRepository;
@@ -20,14 +19,12 @@ public class BlockingService extends IServiceBase<Blocking, BlockingInput, Block
     private final TaskSituationRepository taskSituationRepository;
 
     @Override
-    public List<Blocking> getAll()
-    {
+    public List<Blocking> getAll() {
         return repository.findAll();
     }
 
     @Override
-    public Blocking create(BlockingInput blockingInput)
-    {
+    public Blocking create(BlockingInput blockingInput) {
         var currentFileTask = fileTaskRepository.findById(blockingInput.getState().getFileTask().getId()).orElseThrow();
 
         FileTaskSituation oldSituation = fileTaskSituationRepository.findFirstByFileTaskAndCurrentIsTrue(currentFileTask);
@@ -43,8 +40,7 @@ public class BlockingService extends IServiceBase<Blocking, BlockingInput, Block
     }
 
     @Override
-    public Blocking update(BlockingInput blockingInput)
-    {
+    public Blocking update(BlockingInput blockingInput) {
         Blocking blocking = repository.getOne(blockingInput.getId());
         boolean wasBlocked = blocking.getBlock();
         blocking = repository.save(Blocking.buildFromInput(blockingInput, blocking.getState()));
@@ -73,36 +69,30 @@ public class BlockingService extends IServiceBase<Blocking, BlockingInput, Block
     }
 
     @Override
-    public boolean delete(long id)
-    {
+    public boolean delete(long id) {
         repository.deleteById(id);
         return true;
     }
 
     @Override
-    public Blocking getById(long id)
-    {
+    public Blocking getById(long id) {
         return repository.getOne(id);
     }
 
-    public List<BlockingQualification> getAllQualification()
-    {
+    public List<BlockingQualification> getAllQualification() {
         return blockingQualificationRepository.findAll();
     }
 
-    public List<BlockingLabel> getAllLables()
-    {
+    public List<BlockingLabel> getAllLables() {
         return blockingLabelRepository.findAll();
     }
 
-    public List<BlockingLockingAddress> getAllLockingAddress()
-    {
+    public List<BlockingLockingAddress> getAllLockingAddress() {
         return blockingLockingAddressRepository.findAll();
 
     }
 
-    public List<Blocking> getBlockingByFileTaskId(Long fileTaskId)
-    {
+    public List<Blocking> getBlockingByFileTaskId(Long fileTaskId) {
         return repository.findAllByState_FileTask_Id(fileTaskId);
     }
 }

@@ -21,8 +21,7 @@ import java.util.function.Predicate;
 @Where(clause = "deleted = false")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
-public class Client extends BaseEntity
-{
+public class Client extends BaseEntity {
     @OneToMany(mappedBy = "client")
     List<File> files;
     @OneToMany(mappedBy = "client")
@@ -37,13 +36,11 @@ public class Client extends BaseEntity
     private String name;
     private String address;
 
-    public void addContact(Contact c)
-    {
+    public void addContact(Contact c) {
         this.contacts.add(c);
     }
 
-    public Contact findInContacts(Predicate<Contact> search)
-    {
+    public Contact findInContacts(Predicate<Contact> search) {
         return this.contacts.stream()
                 .filter(search)
                 .findFirst()
@@ -51,8 +48,7 @@ public class Client extends BaseEntity
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Client{" +
                 "id=" + id +
                 ", name='" + name + '\'' +

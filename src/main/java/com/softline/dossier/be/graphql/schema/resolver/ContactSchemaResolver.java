@@ -15,20 +15,16 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 
-public class ContactSchemaResolver extends SchemaResolverBase<Contact, ContactInput, ContactRepository, ContactService>
-{
-    public Contact createContact(ContactInput clientInput) throws IOException, ClientReadableException
-    {
+public class ContactSchemaResolver extends SchemaResolverBase<Contact, ContactInput, ContactRepository, ContactService> {
+    public Contact createContact(ContactInput clientInput) throws IOException, ClientReadableException {
         return create(clientInput);
     }
 
-    public Contact updateContact(ContactInput clientInput) throws ClientReadableException
-    {
+    public Contact updateContact(ContactInput clientInput) throws ClientReadableException {
         return update(clientInput);
     }
 
-    public boolean deleteContact(Long id) throws ClientReadableException
-    {
+    public boolean deleteContact(Long id) throws ClientReadableException {
         return delete(id);
     }
 }

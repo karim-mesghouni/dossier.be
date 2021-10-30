@@ -11,15 +11,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Role
-{
+public class Role {
+    @OneToMany(mappedBy = "role")
+    List<Agent> agents;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     @Column(name = "name", nullable = false)
     private String name;
-    @OneToMany(mappedBy = "role")
-    List<Agent> agents;
     private String displayName;
 }

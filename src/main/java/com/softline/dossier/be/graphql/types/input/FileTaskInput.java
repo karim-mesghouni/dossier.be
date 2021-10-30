@@ -12,8 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class FileTaskInput
-{
+public class FileTaskInput {
     long id;
     boolean current;
     FileActivityInput fileActivity;

@@ -10,8 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component()
-public class BasicPolicyEnforcement implements PolicyEnforcement
-{
+public class BasicPolicyEnforcement implements PolicyEnforcement {
     private static final Logger logger = LoggerFactory.getLogger(BasicPolicyEnforcement.class);
 
     @Autowired
@@ -21,8 +20,7 @@ public class BasicPolicyEnforcement implements PolicyEnforcement
      * @see edu.mostafa.abac.security.policy.PolicyEnforcement#check(java.lang.Object, java.lang.Object, java.lang.Object)
      */
     @Override
-    public boolean check(Object subject, Object resource, Object action, Object environment)
-    {
+    public boolean check(Object subject, Object resource, Object action, Object environment) {
         //Get all policy rules
         List<PolicyRule> allRules = policyDefinition.getAllPolicyRules();
         //Wrap the context
@@ -34,8 +32,7 @@ public class BasicPolicyEnforcement implements PolicyEnforcement
         return checkRules(matchedRules, cxt);
     }
 
-    private List<PolicyRule> filterRules(List<PolicyRule> allRules, SecurityAccessContext cxt)
-    {
+    private List<PolicyRule> filterRules(List<PolicyRule> allRules, SecurityAccessContext cxt) {
         List<PolicyRule> matchedRules = new ArrayList<>();
         for (PolicyRule rule : allRules) {
             try {
@@ -49,8 +46,7 @@ public class BasicPolicyEnforcement implements PolicyEnforcement
         return matchedRules;
     }
 
-    private boolean checkRules(List<PolicyRule> matchedRules, SecurityAccessContext cxt)
-    {
+    private boolean checkRules(List<PolicyRule> matchedRules, SecurityAccessContext cxt) {
         for (PolicyRule rule : matchedRules) {
             try {
                 if (rule.getCondition().getValue(cxt, Boolean.class)) {

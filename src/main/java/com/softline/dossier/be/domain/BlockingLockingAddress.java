@@ -13,8 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class BlockingLockingAddress
-{
+public class BlockingLockingAddress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -25,8 +24,7 @@ public class BlockingLockingAddress
     String address;
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "BlockingLockingAddress{" +
                 "address='" + address + '\'' +
                 '}';

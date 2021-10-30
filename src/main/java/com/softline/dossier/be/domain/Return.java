@@ -20,8 +20,7 @@ import javax.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @SQLDelete(sql = "UPDATE Return SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class Return extends BaseEntity
-{
+public class Return extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;

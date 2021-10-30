@@ -13,16 +13,14 @@ import javax.persistence.EntityNotFoundException;
 
 @Component
 @Slf4j
-public class ExceptionsHandler
-{
+public class ExceptionsHandler {
 
     /**
      * this exception contains a written message by us,
      * we will send it to the client to give a feedback message.
      */
     @ExceptionHandler(ClientReadableException.class)
-    public GraphQLError exceptionHandler(ClientReadableException e)
-    {
+    public GraphQLError exceptionHandler(ClientReadableException e) {
         log.error("ClientReadableException: {}", e.getMessage());
         return new ThrowableGraphQLError(e);
     }

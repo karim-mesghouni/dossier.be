@@ -22,25 +22,21 @@ import java.util.stream.Collectors;
 
 @Transactional
 @Service
-public class FileActivityService extends IServiceBase<FileActivity, FileActivityInput, FileActivityRepository>
-{
+public class FileActivityService extends IServiceBase<FileActivity, FileActivityInput, FileActivityRepository> {
     @Autowired
     ActivityStateRepository activityStateRepository;
     @Autowired
     private ActivityRepository activityRepository;
-
-    @Override
-    public List<FileActivity> getAll()
-    {
-        return repository.findAll();
-    }
-
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
-    public FileActivity create(FileActivityInput entityInput)
-    {
+    public List<FileActivity> getAll() {
+        return repository.findAll();
+    }
+
+    @Override
+    public FileActivity create(FileActivityInput entityInput) {
         var fileActivityOrder = getRepository().getMaxOrder();
         if (fileActivityOrder == null) {
             fileActivityOrder = 0;
@@ -72,39 +68,33 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     }
 
     @Override
-    public FileActivity update(FileActivityInput entityInput)
-    {
+    public FileActivity update(FileActivityInput entityInput) {
         return null;
     }
 
     @Override
-    public boolean delete(long id)
-    {
+    public boolean delete(long id) {
         repository.deleteById(id);
         return true;
     }
 
     @Override
-    public FileActivity getById(long id)
-    {
+    public FileActivity getById(long id) {
         return repository.findById(id).orElseThrow();
     }
 
-    public List<FileActivity> getAllFileActivityByFileId(Long fileId)
-    {
+    public List<FileActivity> getAllFileActivityByFileId(Long fileId) {
         return getRepository().findAllByFile_Id(fileId);
     }
 
-    public ActivityState changeActivityState(Long activityStateId, Long fileActivityId)
-    {
+    public ActivityState changeActivityState(Long activityStateId, Long fileActivityId) {
         var activityState = activityStateRepository.findById(activityStateId).orElseThrow();
         var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
         fileActivity.setState(activityState);
         return activityState;
     }
 
-    public List<FileActivity> getAllFileActivityByFileIdInTrash(long fileId)
-    {
+    public List<FileActivity> getAllFileActivityByFileIdInTrash(long fileId) {
         return entityManager.createQuery("select distinct fa from FileActivity fa inner join fa.fileTasks ft " +
                         "where fa.file.id = :fileId " +
                         "and (fa.inTrash=true or ft.inTrash=true)", FileActivity.class)
@@ -112,16 +102,14 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
                 .getResultList();
     }
 
-    public boolean sendFileActivityToTrash(Long fileActivityId)
-    {
+    public boolean sendFileActivityToTrash(Long fileActivityId) {
         var fileActivity = getRepository().getOne(fileActivityId);
         fileActivity.setInTrash(true);
         new FileActivityEvent(EntityEvent.Event.TRASHED, fileActivity);
         return true;
     }
 
-    public boolean recoverFileActivityFromTrash(Long fileActivityId)
-    {
+    public boolean recoverFileActivityFromTrash(Long fileActivityId) {
         var fileActivity = getRepository().getOne(fileActivityId);
         fileActivity.setInTrash(false);
         new FileActivityEvent(EntityEvent.Event.RECOVERED, fileActivity);
@@ -137,8 +125,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
      * @param fileActivityBeforeId the fileActivity(id) which should be before the new position of the fileActivity, may be non-existent
      * @return boolean
      */
-    public synchronized boolean changeOrder(long fileActivityId, long fileActivityBeforeId)
-    {
+    public synchronized boolean changeOrder(long fileActivityId, long fileActivityBeforeId) {
         if (repository.count() < 2) {
             return true;// this should not happen
         }

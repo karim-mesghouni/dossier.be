@@ -49,16 +49,14 @@ import java.util.stream.Collectors;
 @Transactional
 @Service
 @RequiredArgsConstructor
-public class CommentService extends IServiceBase<Comment, CommentInput, CommentRepository>
-{
+public class CommentService extends IServiceBase<Comment, CommentInput, CommentRepository> {
     private final AgentRepository agentRepository;
     private final FileActivityRepository fileActivityRepository;
     private final FileTaskRepository fileTaskRepository;
     private final MessageRepository messageRepository;
     private final FileSystem fileSystem;
 
-    private static void resolveCommentAttachments(Comment comment, Pair<String, List<String>> changes)
-    {
+    private static void resolveCommentAttachments(Comment comment, Pair<String, List<String>> changes) {
         var attachments = comment.getAttachments();
         for (var image : changes.getSecond()) {
             attachments.add(CommentAttachment.builder()
@@ -72,8 +70,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         comment.setContent(changes.getFirst());
     }
 
-    private static String search(String pattern, String haystack)
-    {
+    private static String search(String pattern, String haystack) {
         Matcher m = Pattern.compile(pattern).matcher(haystack);
         if (m.find()) {
             return m.toMatchResult().group();
@@ -81,8 +78,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         return "";
     }
 
-    private static String replace(Pattern pattern, Function<String, String> callback, CharSequence subject)
-    {
+    private static String replace(Pattern pattern, Function<String, String> callback, CharSequence subject) {
         Matcher m = pattern.matcher(subject);
         StringBuilder sb = new StringBuilder();
         while (m.find()) {
@@ -93,14 +89,12 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     }
 
     @Override
-    public List<Comment> getAll()
-    {
+    public List<Comment> getAll() {
         return repository.findAll();
     }
 
     @Override
-    public Comment create(CommentInput input) throws IOException
-    {
+    public Comment create(CommentInput input) throws IOException {
         var fileActivity = fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();
         var agnet = agentRepository.findById(input.getAgent().getId()).orElseThrow();
         var comment = Comment.builder()
@@ -125,8 +119,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
 
     @Override
     @SneakyThrows
-    public Comment update(CommentInput input)
-    {
+    public Comment update(CommentInput input) {
         Pair<String, List<String>> changes = parseImageLinks(input.getContent());
         var comment = repository.findWithAttachmentsById(input.getId());
         resolveCommentAttachments(comment, changes);
@@ -134,8 +127,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         return comment;
     }
 
-    private Pair<String, List<String>> parseImageLinks(String json)
-    {
+    private Pair<String, List<String>> parseImageLinks(String json) {
         // NOTE: this regex is better but java has a limitation for repetition inside lookbehinds
         // REGEX: (?<=\{\"type\"\s*:\s*\"image\"\s*,.*\"src\"\s*:\s*\").*?(?=".*?\})
         // this one works only if the given json is linted (no empty spaces between keys and values)
@@ -184,8 +176,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
      * @return saved image storage name
      */
     @Nullable
-    private String saveImage(String base64, String extension)
-    {
+    private String saveImage(String base64, String extension) {
         try {
             byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(base64);
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
@@ -200,8 +191,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     }
 
     @Override
-    public boolean delete(long id)
-    {
+    public boolean delete(long id) {
         var comment = repository.findById(id).orElseThrow();
         if (comment.getFileTask() != null) {
             if (comment.getType() == CommentType.Returned) {
@@ -217,13 +207,11 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     }
 
     @Override
-    public Comment getById(long id)
-    {
+    public Comment getById(long id) {
         return repository.findById(id).orElseThrow();
     }
 
-    public String saveFile(DataFetchingEnvironment environment) throws IOException
-    {
+    public String saveFile(DataFetchingEnvironment environment) throws IOException {
         var file = (ApplicationPart) environment.getArgument("image");
         var storageName = FileSystem.randomMD5() + "." + FilenameUtils.getExtension(file.getSubmittedFileName());
         Files.copy(file.getInputStream(), fileSystem.getAttachmentsPath().resolve(storageName));
@@ -236,14 +224,12 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         return EnvUtil.getInstance().getServerUrlPrefi() + "/attachments/" + storageName;
     }
 
-    public List<Comment> getAllCommentByFileId(Long fileId)
-    {
+    public List<Comment> getAllCommentByFileId(Long fileId) {
         return getRepository().findAllByFileActivity_File_Id(fileId);
     }
 
     // TODO: optimize
-    public boolean notifyMessage(NotifyMessageInput input)
-    {
+    public boolean notifyMessage(NotifyMessageInput input) {
         if (input.getAgentIds() != null) {
             var comment = getRepository().findById(input.getIdComment()).orElseThrow();
             var messages = input.getAgentIds().stream().distinct().map(agentId ->
@@ -269,8 +255,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         return false;
     }
 
-    public List<Message> getMessages(Long agentId)
-    {
+    public List<Message> getMessages(Long agentId) {
         return messageRepository.findAllByAgent_Id(agentId, Sort.by(Sort.Direction.DESC, Message_.CREATED_DATE));
     }
 }

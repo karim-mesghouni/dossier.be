@@ -9,12 +9,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 @Component
-public class FileSystem
-{
+public class FileSystem {
     private static Path attachmentsPath;
 
-    public FileSystem(EnvUtil env) throws IOException
-    {
+    public FileSystem(EnvUtil env) throws IOException {
         if (attachmentsPath == null) {
             attachmentsPath = env.getStoragePath().resolve("attachments");
             if (!attachmentsPath.toFile().exists()) {
@@ -25,8 +23,7 @@ public class FileSystem
         }
     }
 
-    public static String randomMD5()
-    {
+    public static String randomMD5() {
         MessageDigest md;
         try {
             md = MessageDigest.getInstance("MD5");
@@ -42,8 +39,7 @@ public class FileSystem
         return hexString.toString();
     }
 
-    public Path getAttachmentsPath()
-    {
+    public Path getAttachmentsPath() {
         return attachmentsPath;
     }
 }

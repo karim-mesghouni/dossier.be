@@ -10,8 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ActivityDataFieldInput
-{
+public class ActivityDataFieldInput {
 
 
     long id;

@@ -30,12 +30,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import static com.softline.dossier.be.Halpers.Functions.safeRun;
+import static com.softline.dossier.be.Halpers.Functions.throwIfEmpty;
 
-@Transactional
 @Service
+@Transactional
 @RequiredArgsConstructor
-public class FileService extends IServiceBase<File, FileInput, FileRepository>
-{
+public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     private final ActivityRepository activityRepository;
     private final FileStateTypeRepository fileStateTypeRepository;
     private final FileStateRepository fileStateRepository;
@@ -47,15 +47,13 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
 
     @Override
     @PostFilter("hasPermission(filterObject, 'READ_FILE')")
-    public List<File> getAll()
-    {
+    public List<File> getAll() {
         return repository.findAll();
     }
 
     @Override
     @PreAuthorize("hasPermission(#input, 'CREATE_FILE')")
-    public File create(FileInput input) throws IOException
-    {
+    public File create(FileInput input) throws IOException {
         File reprise = null;
         if (input.isFileReprise()) {
             reprise = getRepository().findById(input.getReprise().getId()).orElseThrow();
@@ -69,7 +67,6 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
                 .returnDeadline(input.getReturnDeadline())
                 .fileStates(new ArrayList<>())
                 .reprise(reprise)
-                .fileReprise(input.isFileReprise())
                 .fileActivities(new ArrayList<>())
                 .client(Client.builder().id(input.getClient().getId()).build())
                 .commune(Commune.builder().id(input.getCommune().getId()).build()).build();
@@ -143,30 +140,26 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     }
 
     @Override
-    public boolean delete(long id)
-    {
+    public boolean delete(long id) {
         // files should not be removed (only trashed for now)
         return false;
     }
 
     @Override
     @PostAuthorize("hasPermission(returnObject, 'READ_FILE')")
-    public File getById(long id)
-    {
+    public File getById(long id) {
         repository.flush();
         return repository.findById(id).orElseThrow();
     }
 
-    public PageList<File> getAllFilePageFilter(FileFilterInput input)
-    {
+    public PageList<File> getAllFilePageFilter(FileFilterInput input) {
         var result = getByFilter(input);
         var filtered = applyFilter(result.getValue1());
         return new PageList<>(filtered, result.getValue0() - (result.getValue1().size() - filtered.size()));
     }
 
     @PreAuthorize("hasPermission(null, 'READ_HISTORY')")
-    public List<FileHistoryDTO> getFileHistory(long id)
-    {
+    public List<FileHistoryDTO> getFileHistory(long id) {
         AtomicInteger i = new AtomicInteger();
         var history = new ArrayList<FileHistoryDTO>();
         var file = repository.findById(id).orElseThrow();
@@ -226,14 +219,12 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
 
     }
 
-    public List<FileStateType> getAllFileStateType()
-    {
+    public List<FileStateType> getAllFileStateType() {
         return fileStateTypeRepository.findAll();
     }
 
     @PreAuthorize("hasPermission(#fileId, 'File', 'DELETE_FILE')")
-    public boolean sendFileToTrash(Long fileId)
-    {
+    public boolean sendFileToTrash(Long fileId) {
         var file = getRepository().findById(fileId).orElseThrow();
         file.setInTrash(true);
         new FileEvent(EntityEvent.Event.TRASHED, file).fireToAll();
@@ -241,8 +232,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     }
 
     @PreAuthorize("hasPermission(#fileId, 'File', 'DELETE_FILE')")
-    public boolean recoverFileFromTrash(Long fileId)
-    {
+    public boolean recoverFileFromTrash(Long fileId) {
         var file = getRepository().getOne(fileId);
         file.setInTrash(false);
         new FileEvent(EntityEvent.Event.RECOVERED, file).fireToAll();
@@ -259,8 +249,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
      * @return boolean
      */
     @Transactional
-    public synchronized boolean changeOrder(Long fileId, Long fileBeforeId)
-    {
+    public synchronized boolean changeOrder(Long fileId, Long fileBeforeId) {
         if (repository.count() < 2) {
             return true;// this should not happen
         }
@@ -293,8 +282,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     }
 
 
-    private <T> TypedQuery<T> withParameters(FileFilterInput input, TypedQuery<T> query)
-    {
+    private <T> TypedQuery<T> withParameters(FileFilterInput input, TypedQuery<T> query) {
         return query.setParameter("project", MoreObjects.firstNonNull(input.project, ""))
                 .setParameter("clientId", MoreObjects.firstNonNull(input.client.getId(), 0))
                 .setParameter("activityId", MoreObjects.firstNonNull(input.activity.getId(), 0))
@@ -310,8 +298,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
                 ;
     }
 
-    private <T> Function<String, TypedQuery<T>> buildSelector(FileFilterInput input, Class<T> clazz)
-    {
+    private <T> Function<String, TypedQuery<T>> buildSelector(FileFilterInput input, Class<T> clazz) {
         return (String sel) ->
         {
             String query = "SELECT distinct " + sel + " FROM File f inner join f.fileStates fs on fs.file.id = f.id ";
@@ -342,13 +329,11 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository>
     }
 
     @PostFilter("hasPermission(null, 'READ_FILE')")
-    private List<File> applyFilter(List<File> files)
-    {
+    private List<File> applyFilter(List<File> files) {
         return files;
     }
 
-    private Pair<Long, List<File>> getByFilter(FileFilterInput input)
-    {
+    private Pair<Long, List<File>> getByFilter(FileFilterInput input) {
         var qList = buildSelector(input, File.class).apply("f");
         if (input.pageSize > 0) {
             qList

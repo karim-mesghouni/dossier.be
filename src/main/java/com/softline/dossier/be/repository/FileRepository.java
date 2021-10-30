@@ -12,8 +12,7 @@ import java.util.Optional;
 
 
 @Repository
-public interface FileRepository extends JpaRepository<File, Long>
-{
+public interface FileRepository extends JpaRepository<File, Long> {
 
     @NotNull
     @Query("select f from File f where f.inTrash = false order by f.order")

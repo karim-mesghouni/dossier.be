@@ -18,8 +18,7 @@ import javax.persistence.ManyToOne;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Entity
-public class FileTaskAttachment extends Attachment
-{
+public class FileTaskAttachment extends Attachment {
     @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = NotFoundAction.IGNORE)
     private FileTask fileTask;

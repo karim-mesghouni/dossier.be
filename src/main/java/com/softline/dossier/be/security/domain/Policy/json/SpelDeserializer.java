@@ -10,26 +10,22 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import java.io.IOException;
 
 
-public class SpelDeserializer extends StdDeserializer<Expression>
-{
+public class SpelDeserializer extends StdDeserializer<Expression> {
     private static final long serialVersionUID = -3756824333350261220L;
 
     ExpressionParser elParser = new SpelExpressionParser();
 
-    public SpelDeserializer()
-    {
+    public SpelDeserializer() {
         this(null);
     }
 
-    protected SpelDeserializer(Class<?> vc)
-    {
+    protected SpelDeserializer(Class<?> vc) {
         super(vc);
     }
 
     @Override
     public Expression deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException
-    {
+            throws IOException {
         String expresionString = jp.getCodec().readValue(jp, String.class);
         return elParser.parseExpression(expresionString);
     }

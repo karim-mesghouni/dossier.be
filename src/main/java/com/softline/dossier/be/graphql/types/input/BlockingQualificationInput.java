@@ -11,8 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class BlockingQualificationInput
-{
+public class BlockingQualificationInput {
 
     long id;
     List<BlockingInput> blocking;

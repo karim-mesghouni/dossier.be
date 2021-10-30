@@ -24,48 +24,40 @@ import java.util.Optional;
  * All the custom beans are registered here
  * we can use @AutoWire annotation to invoke these methods with the corresponding method return type
  */
-public class Beans
-{
+public class Beans {
 
     @Bean
-    public ModelMapper modelMapper()
-    {
+    public ModelMapper modelMapper() {
         return new ModelMapper();
     }
 
     @Bean
-    public SchemaParserDictionary schemaParserDictionary()
-    {
+    public SchemaParserDictionary schemaParserDictionary() {
         return new SchemaParserDictionary().add(FileDTO.class);
     }
 
     @Bean
-    public AuditorAware<String> auditorProvider()
-    {
+    public AuditorAware<String> auditorProvider() {
         return () -> Optional.ofNullable("chathuranga");
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder()
-    {
+    public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
-    public Filter OpenFilter()
-    {
+    public Filter OpenFilter() {
         return new OpenEntityManagerInViewFilter();
     }
 
     @Bean
-    public GraphQLScalarType uploadScalar()
-    {
+    public GraphQLScalarType uploadScalar() {
         return ApolloScalars.Upload;
     }
 
     @Bean
-    public AuditorAware<Agent> auditorAware()
-    {
+    public AuditorAware<Agent> auditorAware() {
         return new SecurityAuditorAware();
     }
 }

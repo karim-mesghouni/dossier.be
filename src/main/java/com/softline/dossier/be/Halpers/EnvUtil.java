@@ -12,23 +12,20 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 @Component
-public class EnvUtil
-{
+public class EnvUtil {
     private static EnvUtil instance;
     @Autowired
     Environment environment;
     private String port;
     private String hostname;
 
-    public EnvUtil()
-    {
+    public EnvUtil() {
         if (instance == null) {
             instance = this;
         }
     }
 
-    public static EnvUtil getInstance()
-    {
+    public static EnvUtil getInstance() {
         return instance;
     }
 
@@ -37,8 +34,7 @@ public class EnvUtil
      *
      * @return
      */
-    public String getPort()
-    {
+    public String getPort() {
         if (port == null) {
             port = environment.getProperty("local.server.port");
         }
@@ -50,8 +46,7 @@ public class EnvUtil
      *
      * @return
      */
-    public Integer getPortAsInt()
-    {
+    public Integer getPortAsInt() {
         return Integer.valueOf(getPort());
     }
 
@@ -60,8 +55,7 @@ public class EnvUtil
      *
      * @return
      */
-    public String getHostname() throws UnknownHostException
-    {
+    public String getHostname() throws UnknownHostException {
         // TODO ... would this cache cause issue, when network env change ???
         if (hostname == null) {
             hostname = InetAddress.getLocalHost().getHostAddress();
@@ -70,13 +64,11 @@ public class EnvUtil
     }
 
     @SneakyThrows
-    public String getServerUrlPrefi()
-    {
+    public String getServerUrlPrefi() {
         return "http://" + getHostname() + ":" + getPort();
     }
 
-    public Path getStoragePath()
-    {
+    public Path getStoragePath() {
         return Paths.get(Objects.requireNonNull(environment.getProperty("filesystem.storage.absolute-path")));
     }
 }

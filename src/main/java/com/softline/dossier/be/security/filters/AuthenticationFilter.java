@@ -21,12 +21,10 @@ import java.util.List;
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.softline.dossier.be.security.filters.constants.SecurityConstants.*;
 
-public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter
-{
+public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationFilter(AuthenticationManager authenticationManager)
-    {
+    public AuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
 
     }
@@ -55,15 +53,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter
     protected void successfulAuthentication(HttpServletRequest req,
                                             HttpServletResponse res,
                                             FilterChain chain,
-                                            Authentication auth)
-    {
+                                            Authentication auth) {
         String token = createToken(auth.getName(), auth);
         res.setHeader("Access-Control-Expose-Headers", HEADER_STRING);
         res.addHeader(HEADER_STRING, token);
     }
 
-    private String createToken(String name, Authentication auth)
-    {
+    private String createToken(String name, Authentication auth) {
         Agent agent = ((CustomAgentDetails) auth.getPrincipal()).getAgent();
         var actId = agent.getActivity() != null ? agent.getActivity().getId() : -1;
         return JWT.create()

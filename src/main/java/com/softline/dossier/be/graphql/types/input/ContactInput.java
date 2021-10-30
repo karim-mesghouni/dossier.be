@@ -9,8 +9,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ContactInput
-{
+public class ContactInput {
     private long id;
     private String name;
     private String phone;

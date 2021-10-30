@@ -19,50 +19,40 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
-public class BlockingResolver extends SchemaResolverBase<Blocking, BlockingInput, BlockingRepository, BlockingService>
-{
-    public Blocking createBlocking(BlockingInput blockingInput) throws IOException, ClientReadableException
-    {
+public class BlockingResolver extends SchemaResolverBase<Blocking, BlockingInput, BlockingRepository, BlockingService> {
+    public Blocking createBlocking(BlockingInput blockingInput) throws IOException, ClientReadableException {
         return create(blockingInput);
     }
 
-    public Blocking updateBlocking(BlockingInput blockingInput) throws ClientReadableException
-    {
+    public Blocking updateBlocking(BlockingInput blockingInput) throws ClientReadableException {
         return update(blockingInput);
     }
 
-    public boolean deleteBlocking(Long id) throws ClientReadableException
-    {
+    public boolean deleteBlocking(Long id) throws ClientReadableException {
         return delete(id);
     }
 
-    public List<Blocking> getAllBlocking()
-    {
+    public List<Blocking> getAllBlocking() {
         return getAll();
     }
 
-    public Blocking getBlocking(Long id)
-    {
+    public Blocking getBlocking(Long id) {
         return get(id);
     }
 
-    public List<BlockingQualification> getAllQualification()
-    {
+    public List<BlockingQualification> getAllQualification() {
         return service.getAllQualification();
     }
 
-    public List<BlockingLabel> getAllLables()
-    {
+    public List<BlockingLabel> getAllLables() {
         return service.getAllLables();
     }
 
-    public List<BlockingLockingAddress> getAllLockingAddress()
-    {
+    public List<BlockingLockingAddress> getAllLockingAddress() {
         return service.getAllLockingAddress();
     }
 
-    public List<Blocking> getBlockingByFileTaskId(Long fileTaskId)
-    {
+    public List<Blocking> getBlockingByFileTaskId(Long fileTaskId) {
         return service.getBlockingByFileTaskId(fileTaskId);
     }
 

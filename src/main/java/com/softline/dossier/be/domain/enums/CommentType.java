@@ -1,7 +1,6 @@
 package com.softline.dossier.be.domain.enums;
 
-public enum CommentType
-{
+public enum CommentType {
     Comment,
     Description,
     Returned

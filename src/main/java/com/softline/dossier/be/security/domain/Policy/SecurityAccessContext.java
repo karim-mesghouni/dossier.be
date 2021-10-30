@@ -1,14 +1,12 @@
 package com.softline.dossier.be.security.domain.Policy;
 
-public class SecurityAccessContext
-{
+public class SecurityAccessContext {
     private Object subject;
     private Object resource;
     private Object action;
     private Object environment;
 
-    public SecurityAccessContext(Object subject, Object resource, Object action, Object environment)
-    {
+    public SecurityAccessContext(Object subject, Object resource, Object action, Object environment) {
         super();
         this.subject = subject;
         this.resource = resource;
@@ -16,49 +14,40 @@ public class SecurityAccessContext
         this.environment = environment;
     }
 
-    public Object getSubject()
-    {
+    public Object getSubject() {
         return subject;
     }
 
-    public void setSubject(Object subject)
-    {
+    public void setSubject(Object subject) {
         this.subject = subject;
     }
 
-    public Object getResource()
-    {
+    public Object getResource() {
         return resource;
     }
 
-    public void setResource(Object resource)
-    {
+    public void setResource(Object resource) {
         this.resource = resource;
     }
 
-    public Object getAction()
-    {
+    public Object getAction() {
         return action;
     }
 
-    public void setAction(Object action)
-    {
+    public void setAction(Object action) {
         this.action = action;
     }
 
-    public Object getEnvironment()
-    {
+    public Object getEnvironment() {
         return environment;
     }
 
-    public void setEnvironment(Object environment)
-    {
+    public void setEnvironment(Object environment) {
         this.environment = environment;
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((action == null) ? 0 : action.hashCode());
@@ -69,8 +58,7 @@ public class SecurityAccessContext
     }
 
     @Override
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }

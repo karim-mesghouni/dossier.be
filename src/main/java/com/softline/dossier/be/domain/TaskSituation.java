@@ -19,8 +19,7 @@ import java.util.List;
 @Where(clause = "deleted = false")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
-public class TaskSituation extends BaseEntity
-{
+public class TaskSituation extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
@@ -36,8 +35,7 @@ public class TaskSituation extends BaseEntity
     List<FileTaskSituation> fileTaskSituations;
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "TaskSituation{" +
                 "id=" + id +
                 ", name='" + name + '\'' +

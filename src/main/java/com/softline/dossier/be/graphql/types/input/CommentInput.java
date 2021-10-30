@@ -12,8 +12,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommentInput
-{
+public class CommentInput {
 
 
     Long id;

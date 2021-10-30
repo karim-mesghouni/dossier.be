@@ -27,8 +27,7 @@ import static com.softline.dossier.be.Halpers.Functions.throwIfEmpty;
 @Component
 @PreAuthorize("isAuthenticated()")
 @RequiredArgsConstructor
-public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, AgentRepository, AgentService>
-{
+public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, AgentRepository, AgentService> {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final JobRepository jobRepository;
@@ -36,40 +35,33 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
     private final ModelMapper modelMapper;
     private final EntityManager entityManager;
 
-    public List<Agent> getAllAgent()
-    {
+    public List<Agent> getAllAgent() {
         return getAll();
     }
 
-    public Agent getAgent(Long id)
-    {
+    public Agent getAgent(Long id) {
         return get(id);
     }
 
-    public Agent getCurrentAgent()
-    {
+    public Agent getCurrentAgent() {
         return service.getCurrentAgent();
     }
 
-    public List<Role> allRoles()
-    {
+    public List<Role> allRoles() {
         return roleRepository.findAll();
     }
 
-    public List<Job> allJobs()
-    {
+    public List<Job> allJobs() {
         return jobRepository.findAll();
     }
 
     @PreAuthorize("hasPermission(null, 'DELETE_AGENT')")
-    public boolean deleteAgent(Long id) throws ClientReadableException
-    {
+    public boolean deleteAgent(Long id) throws ClientReadableException {
         return delete(id);
     }
 
     @PreAuthorize("hasPermission(null, 'UPDATE_AGENT')")
-    public Agent updateAgent(AgentInput input)
-    {
+    public Agent updateAgent(AgentInput input) {
         Agent agent = entityManager.find(Agent.class, input.getId());
         safeRun(() -> agent.setUsername(throwIfEmpty(input.getUsername())));
         safeRun(() -> agent.setName(throwIfEmpty(input.getName())));
@@ -93,8 +85,7 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
 
 
     @PreAuthorize("hasPermission(null, 'CREATE_AGENT')")
-    public Agent createAgent(AgentInput input)
-    {
+    public Agent createAgent(AgentInput input) {
         var agent = modelMapper.map(input, Agent.class);
         agent.setEnabled(true);
         agent.setPassword(passwordEncoder.encode(input.getPassword()));
@@ -104,14 +95,12 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
     }
 
     @PreAuthorize("hasPermission(null, 'DELETE_AGENT')")
-    public boolean deleteAgent(long id)
-    {
+    public boolean deleteAgent(long id) {
         service.getRepository().deleteById(id);
         return true;
     }
 
-    public List<Agent> findAgentBySearch(@Nullable String search)
-    {
+    public List<Agent> findAgentBySearch(@Nullable String search) {
         return service.findBySearch(search);
     }
 }

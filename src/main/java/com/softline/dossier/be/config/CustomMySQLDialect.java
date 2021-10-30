@@ -9,10 +9,8 @@ import org.hibernate.dialect.MySQLDialect;
 
 import java.sql.Types;
 
-public class CustomMySQLDialect extends MySQLDialect
-{
-    public CustomMySQLDialect()
-    {
+public class CustomMySQLDialect extends MySQLDialect {
+    public CustomMySQLDialect() {
         registerHibernateType(Types.OTHER, StringArrayType.class.getName());
         registerHibernateType(Types.OTHER, IntArrayType.class.getName());
         registerHibernateType(Types.OTHER, JsonStringType.class.getName());

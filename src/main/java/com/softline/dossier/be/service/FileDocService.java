@@ -14,8 +14,7 @@ import java.util.List;
 
 @Service
 @Transactional
-public class FileDocService extends IServiceBase<FileDoc, FileDocInput, FileDocRepository>
-{
+public class FileDocService extends IServiceBase<FileDoc, FileDocInput, FileDocRepository> {
     @Autowired
     FileActivityRepository fileActivityRepository;
     @Autowired
@@ -26,15 +25,13 @@ public class FileDocService extends IServiceBase<FileDoc, FileDocInput, FileDocR
     FileRepository fileRepository;
 
     @Override
-    public List<FileDoc> getAll()
-    {
+    public List<FileDoc> getAll() {
         return null;
     }
 
     @Override
 
-    public FileDoc create(FileDocInput fileDocInput)
-    {
+    public FileDoc create(FileDocInput fileDocInput) {
         var file = fileRepository.findById(fileDocInput.getFile().getId()).orElseThrow();
         var fileActivity = fileActivityRepository.findById(fileDocInput.getFileActivity().getId());
         var agent = agentRepository.findById(fileDocInput.getAgent().getId()).orElseThrow();
@@ -44,8 +41,7 @@ public class FileDocService extends IServiceBase<FileDoc, FileDocInput, FileDocR
     }
 
     @Override
-    public FileDoc update(FileDocInput fileDocInput)
-    {
+    public FileDoc update(FileDocInput fileDocInput) {
         var fileDoc = fileDocRepository.findById(fileDocInput.getId()).orElseThrow();
         fileDoc.setPath(fileDocInput.getPath());
         fileDoc.setDescription(fileDocInput.getDescription());
@@ -53,20 +49,17 @@ public class FileDocService extends IServiceBase<FileDoc, FileDocInput, FileDocR
     }
 
     @Override
-    public boolean delete(long id)
-    {
+    public boolean delete(long id) {
         fileDocRepository.deleteById(id);
         return true;
     }
 
     @Override
-    public FileDoc getById(long id)
-    {
+    public FileDoc getById(long id) {
         return null;
     }
 
-    public List<FileDoc> getAllByFileActivityIdOrFileId(Long fileActivityId, Long fileId) throws Exception
-    {
+    public List<FileDoc> getAllByFileActivityIdOrFileId(Long fileActivityId, Long fileId) throws Exception {
 
         if (fileId != null) {
             return getRepository().findAllByFile_Id(fileId);

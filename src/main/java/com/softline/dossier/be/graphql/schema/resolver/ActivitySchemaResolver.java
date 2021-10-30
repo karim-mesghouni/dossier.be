@@ -16,31 +16,25 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 
-public class ActivitySchemaResolver extends SchemaResolverBase<Activity, ActivityInput, ActivityRepository, ActivityService>
-{
+public class ActivitySchemaResolver extends SchemaResolverBase<Activity, ActivityInput, ActivityRepository, ActivityService> {
 
-    public Activity createActivity(ActivityInput Activity) throws IOException, ClientReadableException
-    {
+    public Activity createActivity(ActivityInput Activity) throws IOException, ClientReadableException {
         return create(Activity);
     }
 
-    public Activity updateActivity(ActivityInput Activity) throws ClientReadableException
-    {
+    public Activity updateActivity(ActivityInput Activity) throws ClientReadableException {
         return update(Activity);
     }
 
-    public boolean deleteActivity(Long id) throws ClientReadableException
-    {
+    public boolean deleteActivity(Long id) throws ClientReadableException {
         return delete(id);
     }
 
-    protected List<Activity> getAllActivity()
-    {
+    protected List<Activity> getAllActivity() {
         return getAll();
     }
 
-    protected Activity getActivity(Long id)
-    {
+    protected Activity getActivity(Long id) {
         return get(id);
     }
 }

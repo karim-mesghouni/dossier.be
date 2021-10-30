@@ -8,8 +8,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 @Slf4j
-public class Functions
-{
+public class Functions {
     /**
      * call the callback with the given value
      * and then return the value.<br>
@@ -17,8 +16,7 @@ public class Functions
      * this allows to chain functions of the value
      */
     @SafeVarargs // assert that `callbacks` variables are of type Consumer<T>
-    public static <T> T tap(T value, Consumer<T>... callbacks)
-    {
+    public static <T> T tap(T value, Consumer<T>... callbacks) {
         // apply all callbacks on the object
         for (var callable : callbacks)
             callable.accept(value);
@@ -32,8 +30,7 @@ public class Functions
      * @param action the action to be done
      * @return true if the action has run successfully otherwise false is returned
      */
-    public static boolean safeRun(Runnable action)
-    {
+    public static boolean safeRun(Runnable action) {
         try {
             action.run();
             return true;
@@ -52,8 +49,7 @@ public class Functions
      * @param action    the action to be done
      * @return false is returned if the condition or the action threw an exception otherwise true
      */
-    public static boolean safeRun(Callable<Boolean> condition, Runnable action)
-    {
+    public static boolean safeRun(Callable<Boolean> condition, Runnable action) {
         try {
             if (condition.call()) {
                 action.run();
@@ -69,8 +65,7 @@ public class Functions
      * @return the value passed
      * @throws RuntimeException if the value (is string and empty) or (is number and equal to 0) or (is object and null) or (is Optional and isEmpty())
      */
-    public static <T> T throwIfEmpty(T value)
-    {
+    public static <T> T throwIfEmpty(T value) {
         if (Objects.isNull(value)
                 || (value instanceof Boolean && !(Boolean) value)
                 || (value instanceof CharSequence && ((CharSequence) value).length() == 0)
@@ -107,8 +102,7 @@ public class Functions
      * @return true if the action or the fallback has run successfully
      * if both the action and fallback failed false is returned
      */
-    public static boolean safeRun(Runnable action, Runnable fallback)
-    {
+    public static boolean safeRun(Runnable action, Runnable fallback) {
         try {
             action.run();
             return true;
