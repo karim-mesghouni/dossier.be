@@ -15,8 +15,8 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.softline.dossier.be.security.filters.constants.SecurityConstants.*;
@@ -33,8 +33,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req,
-                                                HttpServletResponse res) throws AuthenticationException
-    {
+                                                HttpServletResponse res) throws AuthenticationException {
         try {
             Agent agent = new ObjectMapper()
                     .readValue(req.getInputStream(), Agent.class);
@@ -43,14 +42,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter
                     new UsernamePasswordAuthenticationToken(
                             agent.getUsername(),
                             agent.getPassword(),
-                            Arrays.asList())
+                            List.of())
             );
         } catch (AuthenticationException e) {
-            throw new GraphQLException("Invalid Credentials");
+            throw new GraphQLException("Les informations d'identification invalides");
         } catch (IOException e) {
             throw new GraphQLException("Server Error");
         }
-
     }
 
     @Override
