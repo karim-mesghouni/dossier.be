@@ -10,10 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static com.softline.dossier.be.Halpers.Functions.tap;
 
@@ -26,6 +23,7 @@ public class EventController
     // because HashMap Iterators don't support modifying(removing) the items outside the iterator itself
     private static final ConcurrentHashMap<Channel, SseEmitter> channels = new ConcurrentHashMap<>();
     private static final ScheduledExecutorService pingThread = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("sse-ping-thread").build());
+    private static final ConcurrentLinkedDeque<Channel> scheduledForRemoval = new ConcurrentLinkedDeque<>();
 
     public EventController()
     {
@@ -36,6 +34,15 @@ public class EventController
         pingThread.scheduleAtFixedRate(() ->
         {
             synchronized (channels) {// obtain lock
+                synchronized (scheduledForRemoval) {
+                    scheduledForRemoval.forEach(ch -> {
+                        if (channels.contains(ch)) {
+                            log.info("Removing scheduled channel removal, channel: {}", ch);
+                            channels.remove(ch);
+                        }
+                    });
+                    scheduledForRemoval.clear();
+                }
                 if (channels.isEmpty()) {
                     log.info("didnt send heart-beat signal, no channel is connected");
                     return;
@@ -67,8 +74,11 @@ public class EventController
                 emitter.send(SseEmitter.event().name(event.getEvent()).data(event.getPayloadJson()));
                 log.info("sendEventForChannel() sent data to channel: {}, event is: {}", channel, event);
             } catch (Throwable e) {
-                log.info("sendEventForChannel() data not sent due to error, now calling complete(), channel: {}, event is: {}", channel, event);
+                log.info("sendEventForChannel() data not sent due to error, adding the channel to the clean queue, channel: {}, event is: {}", channel, event);
                 emitter.complete();
+                synchronized (scheduledForRemoval) {
+                    scheduledForRemoval.add(channel);
+                }
             }
         }
     }
