@@ -38,7 +38,7 @@ public class Functions
             action.run();
             return true;
         } catch (Throwable e) {
-            log.warn("SafeRun: {}", e.getMessage());
+            log.error("SafeRun: {}", e.getMessage());
         }
         return false;
     }
@@ -60,7 +60,7 @@ public class Functions
             }
             return true;
         } catch (Throwable e) {
-            log.warn("SafeRun: {}", e.getMessage());
+            log.error("SafeRun: {}", e.getMessage());
             return false;
         }
     }
@@ -72,11 +72,28 @@ public class Functions
     public static <T> T throwIfEmpty(T value)
     {
         if (Objects.isNull(value)
+                || (value instanceof Boolean && !(Boolean) value)
                 || (value instanceof CharSequence && ((CharSequence) value).length() == 0)
                 || (value instanceof Optional && ((Optional<?>) value).isEmpty())
-                || (value instanceof Number && ((Number) value).doubleValue() == 0))
-        {
+                || (value instanceof Number && ((Number) value).doubleValue() == 0)) {
             throw new RuntimeException("Empty");
+        }
+        return value;
+    }
+
+    /**
+     * @param value     the value
+     * @param throwable the exception to be thrown if the value is empty
+     * @return the value passed
+     * @throws E if the value (is string and empty) or (is number and equal to 0) or (is object and null) or (is Optional and isEmpty())
+     */
+    public static <T, E extends Throwable> T throwIfEmpty(T value, E throwable) throws E {
+        if (Objects.isNull(value)
+                || (value instanceof Boolean && !(Boolean) value)
+                || (value instanceof CharSequence && ((CharSequence) value).length() == 0)
+                || (value instanceof Optional && ((Optional<?>) value).isEmpty())
+                || (value instanceof Number && ((Number) value).doubleValue() == 0)) {
+            throw throwable;
         }
         return value;
     }
@@ -96,7 +113,7 @@ public class Functions
             action.run();
             return true;
         } catch (Throwable e) {
-            log.warn("SafeRun: {}", e.getMessage());
+            log.error("SafeRun: {}", e.getMessage());
             return safeRun(fallback);
         }
     }
