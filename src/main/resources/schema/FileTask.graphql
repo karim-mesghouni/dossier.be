@@ -1,6 +1,6 @@
 # Query
 extend type Query  {
-    getFileTask(id: ID!): FileTask
+    getFileTask(fileTaskId: ID!): FileTask
     allFileTaskByAssignedToId(assignedToId: ID!):[FileTask]
     all: [FileTask]
     fileTask(id: ID! ):FileTask

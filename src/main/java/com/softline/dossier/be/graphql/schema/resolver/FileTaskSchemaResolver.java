@@ -46,9 +46,8 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
         return getAll();
     }
 
-    public FileTask getFileTask(Long id)
-    {
-        return get(id);
+    public FileTask getFileTask(Long fileTaskId) {
+        return get(fileTaskId);
     }
 
     public List<TaskSituation> getAllTaskSituations(Long taskId)
