@@ -11,6 +11,7 @@ extend type Mutation  {
     deleteAgent(id: ID!): Boolean
     updateAgent(input: AgentInput): Agent
     createAgent(input: AgentInput): Agent
+    changePassword(input: AgentInput!, oldPassword: String!): Boolean
 }
 
 type Agent {
@@ -18,7 +19,6 @@ type Agent {
     name:String
     username: String
     password: String
-
     activity: Activity
     role: Role
     job: Job
@@ -29,7 +29,6 @@ input AgentInput{
     name:String
     username: String
     password: String
-
     activity: ActivityInput
     role: RoleInput
     job: JobInput

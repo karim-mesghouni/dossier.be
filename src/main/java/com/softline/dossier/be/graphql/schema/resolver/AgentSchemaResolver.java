@@ -82,6 +82,16 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
         return agent;
     }
 
+    public boolean changePassword(AgentInput input, String oldPassword) throws ClientReadableException {
+        Agent agent = entityManager.find(Agent.class, input.getId());
+        throwIfEmpty(passwordEncoder.matches(oldPassword, agent.getPassword()), new ClientReadableException("le mot de passe ne correspond pas"));
+        throwIfEmpty(input.getPassword(), new ClientReadableException("le mot de passe ne doit pas être vide"));
+        agent.setPassword(passwordEncoder.encode(input.getPassword()));
+        service.getRepository().save(agent);
+        return true;
+    }
+
+
     @PreAuthorize("hasPermission(null, 'CREATE_AGENT')")
     public Agent createAgent(AgentInput input)
     {
