@@ -33,11 +33,16 @@ public class LogRequestFilter extends BasicAuthenticationFilter {
         CustomHttpRequestWrapper requestWrapper = new CustomHttpRequestWrapper(req);
         try {
             if (req.getMethod().equals("POST")) {
-                var json = new ObjectMapper().readValue(requestWrapper.getBodyInStringFormat().replaceAll("\\\\n", " ").replaceAll("\\.\\.\\.", "\"}"), Map.class);
-                String gql = Functions.tap(Pattern.compile("(.*?)([{(])").matcher(json.get("query").toString().replaceAll("(query|mutation).*?(?=\\{)", "").replaceFirst("\\{", "").trim()), Matcher::find).group().replaceAll("[}{)(]", "");
-                log.info("[GQL] {}({})", gql, json.get("variables"));
+                if (req.getServletPath().equals("/graphql")) {
+                    var json = new ObjectMapper().readValue(requestWrapper.getBodyInStringFormat().replaceAll("\\\\n", " ").replaceAll("\\.\\.\\.", "\"}"), Map.class);
+                    String gql = Functions.tap(Pattern.compile("(.*?)([{(])").matcher(json.get("query").toString().replaceAll("(query|mutation).*?(?=\\{)", "").replaceFirst("\\{", "").trim()), Matcher::find).group().replaceAll("[}{)(]", "");
+                    log.info("[GQL] {}({})", gql, json.get("variables"));
+                } else {
+                    log.info("[POST] {} Authorization:{}", req.getServletPath(), req.getHeader("Authorization").length() > 20);
+                }
+            } else {
+                log.info("[GET] {}", req.getServletPath());
             }
-            log.info("[{}] {} Authorization:{}", req.getMethod(), req.getServletPath(), req.getHeader("Authorization").length() > 20);
         } catch (Throwable e) {
             log.warn("could not read request");
         } finally {
