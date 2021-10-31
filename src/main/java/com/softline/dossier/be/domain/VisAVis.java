@@ -25,11 +25,11 @@ public class VisAVis {
     String name;
     String email;
     String phone;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     Client client;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     BlockingLockingAddress lockingAddress;

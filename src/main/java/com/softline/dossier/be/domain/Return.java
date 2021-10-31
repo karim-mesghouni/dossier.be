@@ -26,7 +26,7 @@ public class Return extends BaseEntity {
     long id;
     int number;
     String cause;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     FileTask fileTask;

@@ -25,13 +25,13 @@ public class FileTaskSituation extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
     boolean current;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     TaskSituation situation;
     @OneToOne(mappedBy = "state", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     Blocking blocking;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn()
     FileTask fileTask;

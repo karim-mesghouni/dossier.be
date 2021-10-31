@@ -22,11 +22,11 @@ import javax.persistence.*;
 @Where(clause = "deleted = false")
 public class FileState extends BaseEntity {
     boolean current;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     FileStateType type;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     File file;
     @Id

@@ -34,7 +34,7 @@ public class ActivityDataField extends BaseEntity {
     String data;
 
     String groupName;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     FileActivity fileActivity;
 

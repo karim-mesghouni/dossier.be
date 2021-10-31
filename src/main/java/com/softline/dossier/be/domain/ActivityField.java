@@ -28,7 +28,7 @@ public class ActivityField extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     FieldType fieldType;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     Activity activity;
     @ManyToOne(cascade = CascadeType.ALL)

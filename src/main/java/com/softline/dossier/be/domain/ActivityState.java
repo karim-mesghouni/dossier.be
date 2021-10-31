@@ -29,7 +29,7 @@ public class ActivityState extends BaseEntity {
     boolean initial;
     boolean Final;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     Activity activity;
 

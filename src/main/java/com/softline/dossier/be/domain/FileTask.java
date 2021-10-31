@@ -37,10 +37,10 @@ public class FileTask extends BaseEntity {
     DescriptionComment description;
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "fileTask")
     ReturnedComment retour;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     @NotFound(action = NotFoundAction.IGNORE)
     FileActivity fileActivity;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     Task task;
 
@@ -48,21 +48,21 @@ public class FileTask extends BaseEntity {
     LocalDateTime dueDate;
     LocalDateTime startDate;
     LocalDateTime endDate;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn
     @NotFound(action = NotFoundAction.IGNORE)
     Agent reporter;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn
     @NotFound(action = NotFoundAction.IGNORE)
     Agent assignedTo;
     @OneToMany(mappedBy = "fileTask", cascade = CascadeType.ALL)
     List<FileTaskSituation> fileTaskSituations;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     TaskState state;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     FileTask parent;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
@@ -70,7 +70,7 @@ public class FileTask extends BaseEntity {
     boolean returned;
     boolean inTrash;
     int fileTaskOrder;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     ReturnedCause returnedCause;
 

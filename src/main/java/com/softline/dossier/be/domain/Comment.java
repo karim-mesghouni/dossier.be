@@ -32,18 +32,19 @@ public class Comment extends BaseEntity implements IComment {
     @Type(type = "json")
     @Column(columnDefinition = "json")
     String content;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     FileActivity fileActivity;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn
     @NotFound(action = NotFoundAction.IGNORE)
     Agent agent;
     @Enumerated(EnumType.STRING)
     @Column(insertable = false, updatable = false)
     CommentType type;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
+    @NotFound(action = NotFoundAction.IGNORE)
     FileTask fileTask;
     @OneToMany(mappedBy = "comment", orphanRemoval = true)
     List<Message> messages;

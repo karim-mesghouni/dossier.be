@@ -27,7 +27,7 @@ public class Task extends BaseEntity {
     long id;
     String name;
     String description;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     Activity activity;

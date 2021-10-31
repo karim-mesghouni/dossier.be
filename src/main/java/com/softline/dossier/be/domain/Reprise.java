@@ -26,7 +26,7 @@ public class Reprise extends BaseEntity {
     long id;
     int number;
     String cause;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     FileActivity fileActivity;

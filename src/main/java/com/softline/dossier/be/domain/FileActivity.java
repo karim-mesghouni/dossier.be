@@ -28,7 +28,7 @@ public class FileActivity extends BaseEntity {
     long id;
     boolean current;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     Activity activity;
@@ -42,7 +42,7 @@ public class FileActivity extends BaseEntity {
     @OneToMany(mappedBy = "fileActivity", cascade = CascadeType.ALL, orphanRemoval = true)
     List<FileTask> fileTasks;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     File file;
     @OneToMany(mappedBy = "fileActivity")

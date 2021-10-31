@@ -9,7 +9,6 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 
 @SuperBuilder
@@ -19,7 +18,7 @@ import javax.persistence.ManyToOne;
 @NoArgsConstructor
 @Entity
 public class FileTaskAttachment extends Attachment {
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     private FileTask fileTask;
 }

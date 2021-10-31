@@ -36,7 +36,7 @@ public class File extends BaseEntity {
     LocalDate deliveryDate;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     Client client;
@@ -55,7 +55,7 @@ public class File extends BaseEntity {
     List<FileActivity> fileActivities;
     @OneToOne(fetch = FetchType.LAZY)
     Activity baseActivity;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     File reprise;
