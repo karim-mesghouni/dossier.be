@@ -20,10 +20,14 @@ input ActivityFieldInput {
     fieldType: FieldTypeInput
     activity:ActivityInput
     groupName: String
-
+    group: ActivityFieldGroupInput
 }
 
 type  ActivityFieldGroup{
+    id:ID
+    name:String
+}
+input  ActivityFieldGroupInput{
     id:ID
     name:String
 }

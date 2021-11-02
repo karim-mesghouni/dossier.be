@@ -4,7 +4,6 @@ import com.softline.dossier.be.domain.ActivityDataField;
 import com.softline.dossier.be.domain.ActivityState;
 import com.softline.dossier.be.domain.File;
 import com.softline.dossier.be.domain.FileActivity;
-import com.softline.dossier.be.domain.enums.FieldType;
 import com.softline.dossier.be.events.FileActivityEvent;
 import com.softline.dossier.be.events.types.EntityEvent;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
@@ -18,7 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.softline.dossier.be.Halpers.Functions.safeValue;
 
 @Transactional
 @Service
@@ -50,19 +50,20 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
                 .current(true)
                 .order(fileActivityOrder)
                 .build();
-        if (entityInput.getDataFields() != null && !entityInput.getDataFields().isEmpty()) {
-            var dataFields = entityInput.getDataFields().stream()
-                    .map(x -> ActivityDataField.builder()
-                            .data(x.getData())
-                            .groupName(x.getGroupName())
-                            .fieldName(x.getFieldName())
-                            .fieldType(FieldType.valueOf(x.getFieldType().toString()))
-                            .fileActivity(fileActivity)
-                            .build()
-                    );
-            fileActivity.setDataFields(dataFields.collect(Collectors.toList()));
-        }
+
         repository.save(fileActivity);
+        activity.getFields().forEach(field -> {
+            fileActivity.getDataFields().add(
+                    ActivityDataField.builder()
+                            .fieldType(field.getFieldType())
+                            .fieldName(field.getFieldName())
+                            .groupName(safeValue(() -> field.getGroup().getName(), null))
+                            .fileActivity(fileActivity)
+                            .data(null)
+                            .build()
+            );
+        });
+        repository.saveAndFlush(fileActivity);
         new FileActivityEvent(EntityEvent.Event.ADDED, fileActivity).fireToAll();
         return repository.getOne(fileActivity.getId());
     }

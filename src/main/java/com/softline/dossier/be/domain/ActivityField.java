@@ -36,6 +36,4 @@ public class ActivityField extends BaseEntity {
     ActivityFieldGroup group;
     @OneToOne(fetch = FetchType.LAZY)
     Activity activityBase;
-    @Transient
-    String groupName;
 }

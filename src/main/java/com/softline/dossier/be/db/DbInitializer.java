@@ -24,6 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.softline.dossier.be.Halpers.Functions.safeValue;
+
 @Component
 @RequiredArgsConstructor
 public class DbInitializer implements ApplicationRunner {
@@ -349,6 +351,7 @@ public class DbInitializer implements ApplicationRunner {
                     .fieldType(field.getFieldType())
                     .data(data.toString())
                     .fileActivity(activity)
+                    .groupName(safeValue(() -> field.getGroup().getName(), null))
                     .build());
         });
         activity.setDataFields(fields);
