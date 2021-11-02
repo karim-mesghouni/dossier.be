@@ -1,7 +1,6 @@
 package com.softline.dossier.be.security.config;
 
 
-import com.softline.dossier.be.config.LogRequestFilter;
 import com.softline.dossier.be.security.filters.AuthenticationFilter;
 import com.softline.dossier.be.security.filters.AuthorizationFilter;
 import com.softline.dossier.be.security.service.AgentDetailsService;
@@ -49,7 +48,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
                 .addFilter(new AuthenticationFilter(authenticationManager()))
                 .addFilter(new AuthorizationFilter(authenticationManager()))
                 //TODO: remove in production
-                .addFilter(new LogRequestFilter(authenticationManager()))
+//                .addFilter(new LogRequestFilter(authenticationManager()))
                 // this disables session creation on Spring Security
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
