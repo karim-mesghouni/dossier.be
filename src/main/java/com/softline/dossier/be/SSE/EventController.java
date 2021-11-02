@@ -25,35 +25,40 @@ public class EventController {
     // sometimes the SseEmitter.complete() action does not get executed
     // so we will manually clean the emitter in suck case by putting in a removal queue
     private static final ConcurrentLinkedDeque<Channel> scheduledForRemoval = new ConcurrentLinkedDeque<>();
+    private static boolean threadIsRunning = false;
 
     public EventController() {
         // to keep the connection alive in the client side
         // we must send at least 1 event every 45 seconds,
         // so we create a single thread which will send a ping(heart-beat) event
         // every 30 seconds
-        pingThread.scheduleAtFixedRate(() ->
-        {
-            synchronized (channels) {// obtain lock
-                // remove any scheduled for removal channels
-                synchronized (scheduledForRemoval) {// obtain lock
-                    if (scheduledForRemoval.size() > 0) {
-                        scheduledForRemoval.forEach(ch -> {
-                            if (channels.containsKey(ch)) {
-                                log.info("Removing scheduled channel removal, channel: {}", ch);
-                                channels.remove(ch);
-                            }
-                        });
-                        scheduledForRemoval.clear();
+        if (!threadIsRunning) {
+            log.info("starting pingThread");
+            pingThread.scheduleAtFixedRate(() ->
+            {
+                synchronized (channels) {// obtain lock
+                    // remove any scheduled for removal channels
+                    synchronized (scheduledForRemoval) {// obtain lock
+                        if (scheduledForRemoval.size() > 0) {
+                            scheduledForRemoval.forEach(ch -> {
+                                if (channels.containsKey(ch)) {
+                                    log.info("Removing scheduled channel removal, channel: {}", ch);
+                                    channels.remove(ch);
+                                }
+                            });
+                            scheduledForRemoval.clear();
+                        }
+                    }
+                    if (channels.isEmpty()) {
+                        log.info("didnt send heart-beat signal, no channel is connected");
+                        return;
                     }
                 }
-                if (channels.isEmpty()) {
-                    log.info("didnt send heart-beat signal, no channel is connected");
-                    return;
-                }
-            }
-            log.info("Sending heart-beat signal for all channels");
-            EventController.sendForAllChannels(new Event<>("ping", System.currentTimeMillis()));
-        }, 30, 30, TimeUnit.SECONDS);
+                log.info("Sending heart-beat signal for all channels");
+                EventController.sendForAllChannels(new Event<>("ping", System.currentTimeMillis()));
+            }, 30, 30, TimeUnit.SECONDS);
+            threadIsRunning = true;
+        }
     }
 
     /**
