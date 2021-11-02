@@ -33,6 +33,7 @@ type File  {
     currentFileActivity:FileActivity
     baseActivity: Activity
     reprise: File
+    agent: Agent
     fileReprise: Boolean
     inTrash:Boolean
     order: Int
