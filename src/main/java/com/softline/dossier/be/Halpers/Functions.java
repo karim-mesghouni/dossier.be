@@ -94,6 +94,31 @@ public class Functions {
     }
 
     /**
+     * produce a value and fallback if the value is empty or the producer threw an exception
+     *
+     * @param producer the value producer
+     * @param fallback fallback value to be returned if the producer threw an exception or the producer return value was an empty value
+     */
+    public static <T> T safeValue(Callable<T> producer, T fallback) {
+        try {
+            T value = producer.call();
+            if (Objects.isNull(value)
+                    || (value instanceof Boolean && !(Boolean) value)
+                    || (value instanceof CharSequence && ((CharSequence) value).length() == 0)
+                    || (value instanceof Optional && ((Optional<?>) value).isEmpty())
+                    || (value instanceof Number && ((Number) value).doubleValue() == 0)) {
+                log.error("safeValue: value was empty returning fallback");
+                return fallback;
+            } else {
+                return value;
+            }
+        } catch (Throwable e) {
+            log.error("safeValue: {}, returning fallback", e.getMessage());
+            return fallback;
+        }
+    }
+
+    /**
      * will encapsulate the action in a try-catch block,
      * if the action fails the fallback action will be run with encapsulation
      *
@@ -102,12 +127,12 @@ public class Functions {
      * @return true if the action or the fallback has run successfully
      * if both the action and fallback failed false is returned
      */
-    public static boolean safeRun(Runnable action, Runnable fallback) {
+    public static boolean safeRunWithFallback(Runnable action, Runnable fallback) {
         try {
             action.run();
             return true;
         } catch (Throwable e) {
-            log.error("SafeRun: {}", e.getMessage());
+            log.error("SafeRun: {}, running fallback action", e.getMessage());
             return safeRun(fallback);
         }
     }
