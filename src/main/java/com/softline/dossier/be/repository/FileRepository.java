@@ -35,9 +35,9 @@ public interface FileRepository extends JpaRepository<File, Long> {
     int countAllByOrderBetween(long a, long b);
 
     /**
-     * get the min order of all files
+     * get the min order of all files if no files exist then 1 is returned
      */
-    @Query("select MIN(f.order) from File f")
+    @Query("select COALESCE(MIN(f.order), 1) from File f")
     int minOrder();
 
     /**

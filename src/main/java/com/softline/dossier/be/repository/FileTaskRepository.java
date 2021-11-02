@@ -42,9 +42,9 @@ public interface FileTaskRepository extends JpaRepository<FileTask, Long> {
     int countAllByOrderBetween(long a, long b, long fileActivityId);
 
     /**
-     * get the min order of all file tasks associated with a fileActivity
+     * get the min order of all file tasks associated with a fileActivity if no fileTask exist then 1 is returned
      */
-    @Query("select MIN(ft.order) from FileTask ft where ft.fileActivity.id = :fileActivityId")
+    @Query("select COALESCE(MIN(ft.order), 1) from FileTask ft where ft.fileActivity.id = :fileActivityId")
     int minOrder(long fileActivityId);
 
     /**

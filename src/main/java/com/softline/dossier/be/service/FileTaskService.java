@@ -291,7 +291,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public boolean changeParent(Long fileTaskId, Long parentId) {
-        if (Functions.safeRun(
+        if (Functions.safeRunWithFallback(
                 () -> getRepository().getOne(fileTaskId).setParent(getRepository().getOne(parentId)),
                 () -> getRepository().getOne(fileTaskId).setParent(null)
         )) {
