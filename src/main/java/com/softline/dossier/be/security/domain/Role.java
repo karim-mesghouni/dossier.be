@@ -20,4 +20,12 @@ public class Role {
     @Column(name = "name", nullable = false)
     private String name;
     private String displayName;
+
+    @Override
+    public String toString() {
+        return "Role{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

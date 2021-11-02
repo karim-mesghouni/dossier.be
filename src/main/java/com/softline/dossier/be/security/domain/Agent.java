@@ -52,4 +52,15 @@ public class Agent extends BaseEntity {
 
     @OneToMany(mappedBy = "agent")
     private List<File> createdFiles;
+
+    @Override
+    public String toString() {
+        return "Agent{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", username='" + username + '\'' +
+                ", role=" + role +
+                ", activity=" + activity +
+                '}';
+    }
 }
