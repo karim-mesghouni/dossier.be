@@ -7,5 +7,6 @@ public class FileEvent extends EntityEvent {
     public FileEvent(Event type, File file) {
         super("file" + type);
         addData("fileId", file.getId());
+        addData("baseActivityId", file.getBaseActivity().getId());
     }
 }

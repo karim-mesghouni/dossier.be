@@ -9,6 +9,7 @@ import com.softline.dossier.be.graphql.types.FileHistoryDTO;
 import com.softline.dossier.be.graphql.types.PageList;
 import com.softline.dossier.be.graphql.types.input.FileInput;
 import com.softline.dossier.be.repository.*;
+import com.softline.dossier.be.security.config.AbacPermissionEvaluator;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.RequiredArgsConstructor;
 import org.javatuples.Pair;
@@ -28,9 +29,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import static com.softline.dossier.be.Halpers.Functions.safeRun;
-import static com.softline.dossier.be.Halpers.Functions.throwIfEmpty;
+import static com.softline.dossier.be.Halpers.Functions.*;
 
 @Service
 @Transactional
@@ -42,6 +43,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     private final ClientRepository clientRepository;
     private final CommuneRepository communeRepository;
     private final ActivityStateRepository activityStateRepository;
+    private final AbacPermissionEvaluator permissionEvaluator;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -53,12 +55,8 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
 
     @Override
     @PreAuthorize("hasPermission(#input, 'CREATE_FILE')")
+    @Transactional
     public File create(FileInput input) throws IOException {
-        File reprise = null;
-        if (input.isFileReprise()) {
-            reprise = getRepository().findById(input.getReprise().getId()).orElseThrow();
-        }
-
         var file = File.builder()
                 .project(input.getProject())
                 .provisionalDeliveryDate(input.getProvisionalDeliveryDate())
@@ -66,46 +64,28 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
                 .deliveryDate(input.getDeliveryDate())
                 .returnDeadline(input.getReturnDeadline())
                 .fileStates(new ArrayList<>())
-                .reprise(reprise)
                 .fileActivities(new ArrayList<>())
                 .client(Client.builder().id(input.getClient().getId()).build())
                 .commune(Commune.builder().id(input.getCommune().getId()).build()).build();
-        var activity = activityRepository.findById(input.getBaseActivity().getId()).orElseThrow();
-        file.setBaseActivity(activity);
-        if (input.getCurrentFileState() != null && input.getCurrentFileState().getType() != null && input.getCurrentFileState().getType().getId() != null) {
 
-            file.getFileStates().add(FileState.builder()
-                    .file(file)
-                    .current(true)
-                    .type(FileStateType.builder().id(input.getCurrentFileState().getType().getId()).build())
-                    .build()
+        safeRunWithFallback(() -> file.setReprise(repository.findById(input.getReprise().getId()).orElseThrow()),
+                () -> file.setReprise(null));
+        file.setBaseActivity(activityRepository.findById(input.getBaseActivity().getId()).orElseThrow());
+        var stateBuilder = FileState.builder()
+                .file(file)
+                .current(true);
+        safeRunWithFallback(() -> file.getFileStates().add(stateBuilder.type(fileStateTypeRepository.findById(input.getCurrentFileState().getType().getId()).orElseThrow()).build()),
+                () -> file.getFileStates().add(stateBuilder.type(fileStateTypeRepository.findFirstByInitialIsTrue()).build()));
 
-            );
-        } else {
-            var currentType = fileStateTypeRepository.findFirstByInitialIsTrue();
-            file.getFileStates().add(FileState.builder()
-                    .file(file)
-                    .current(true)
-                    .type(currentType)
-                    .build()
-            );
-        }
-
-        if (repository.count() > 0) {
-            // it should be 1
-            // but let's get it from the repository just to be sure
-            file.setOrder(repository.minOrder());
-            repository.incrementAllOrder();
-        } else {
-            file.setOrder(1);
-        }
-        repository.save(file);
+        file.setOrder(repository.minOrder());
+        repository.incrementAllOrder();
+        repository.saveAndFlush(file);
         new FileEvent(EntityEvent.Event.ADDED, file).fireToAll();
         return file;
     }
 
     @Override
-    @PreAuthorize("hasPermission(null, 'UPDATE_FILE')")
+    @PreAuthorize("hasPermission(#input.id, 'File', 'UPDATE_FILE')")
     public File update(FileInput input) {
         var file = repository.findById(input.getId()).orElseThrow();
         if (safeRun(() -> throwIfEmpty(input.getReprise().getId()))) {
@@ -134,7 +114,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
                 );
             }
         }
-        repository.save(file);
+        repository.saveAndFlush(file);
         new FileEvent(EntityEvent.Event.UPDATED, file).fireToAll();
         return file;
     }
@@ -154,11 +134,11 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
 
     public PageList<File> getAllFilePageFilter(FileFilterInput input) {
         var result = getByFilter(input);
-        var filtered = applyFilter(result.getValue1());
+        var filtered = result.getValue1().stream().filter(f -> permissionEvaluator.hasPermission(SecurityContextHolder.getContext().getAuthentication(), f, "READ_FILE")).collect(Collectors.toList());
         return new PageList<>(filtered, result.getValue0() - (result.getValue1().size() - filtered.size()));
     }
 
-    @PreAuthorize("hasPermission(null, 'READ_HISTORY')")
+    @PreAuthorize("hasPermission(#id, 'File', 'READ_FILE')")
     public List<FileHistoryDTO> getFileHistory(long id) {
         AtomicInteger i = new AtomicInteger();
         var history = new ArrayList<FileHistoryDTO>();
@@ -325,11 +305,6 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
             }
             return withParameters(input, entityManager.createQuery(query, clazz));
         };
-    }
-
-    @PostFilter("hasPermission(null, 'READ_FILE')")
-    private List<File> applyFilter(List<File> files) {
-        return files;
     }
 
     private Pair<Long, List<File>> getByFilter(FileFilterInput input) {
