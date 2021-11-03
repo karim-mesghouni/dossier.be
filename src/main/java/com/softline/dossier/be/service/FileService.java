@@ -13,8 +13,6 @@ import com.softline.dossier.be.security.config.AbacPermissionEvaluator;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.RequiredArgsConstructor;
 import org.javatuples.Pair;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -48,9 +46,8 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     private EntityManager entityManager;
 
     @Override
-    @PostFilter("hasPermission(filterObject, 'READ_FILE')")
     public List<File> getAll() {
-        return repository.findAll();
+        return null;
     }
 
     @Override
@@ -126,7 +123,6 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     }
 
     @Override
-    @PostAuthorize("hasPermission(returnObject, 'READ_FILE')")
     public File getById(long id) {
         repository.flush();
         return repository.findById(id).orElseThrow();
