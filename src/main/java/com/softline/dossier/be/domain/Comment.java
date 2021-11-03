@@ -1,7 +1,6 @@
 package com.softline.dossier.be.domain;
 
 import com.softline.dossier.be.domain.enums.CommentType;
-import com.softline.dossier.be.security.domain.Agent;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.*;
@@ -36,10 +35,7 @@ public class Comment extends BaseEntity implements IComment {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
     FileActivity fileActivity;
-    @ManyToOne
-    @JoinColumn
-    @NotFound(action = NotFoundAction.IGNORE)
-    Agent agent;
+    //TODO: need testing after removing the agent field
     @Enumerated(EnumType.STRING)
     @Column(insertable = false, updatable = false)
     CommentType type;
