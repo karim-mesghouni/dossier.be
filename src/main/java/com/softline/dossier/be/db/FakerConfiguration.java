@@ -9,9 +9,13 @@ import java.util.Random;
 
 @Configuration
 public class FakerConfiguration {
+    private static Faker faker;
 
     @Bean
-    public Faker faker() {
-        return new Faker(new Locale("fr"), new Random(0));// fixed seed for persistent results
+    public static Faker faker() {
+        if (faker == null) {
+            faker = new Faker(new Locale("fr"), new Random(0));// fixed seed for persistent results
+        }
+        return faker;
     }
 }

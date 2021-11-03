@@ -10,6 +10,7 @@ import com.softline.dossier.be.security.domain.Role;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import com.softline.dossier.be.security.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,18 +18,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.softline.dossier.be.Halpers.Functions.safeValue;
+import static com.softline.dossier.be.db.SeederHelper.*;
 
 @Component
 @RequiredArgsConstructor
-public class DbInitializer implements ApplicationRunner {
+@Slf4j(topic = "DBSeeder")
+public class DBSeeder implements ApplicationRunner {
     private final ActivityRepository activityRepository;
     private final FileStateTypeRepository fileStateTypeRepository;
     private final BlockingLockingAddressRepository blockingLockingAddressRepository;
@@ -118,14 +116,15 @@ public class DbInitializer implements ApplicationRunner {
                         .build()
                 );
             }
-            ListUtils.createCount(20, () ->
+
+            usersList().forEach(name ->
                     agentRepository.save(Agent.builder()
-                            .name(faker.name().fullName())
+                            .name(name)
                             .email(faker.internet().emailAddress())
                             .username(faker.name().username())
                             .password(passwordEncoder.encode("000"))
                             .activity(getOne(activityRepository.findAll()))
-                            .role(getOne(roles))
+                            .role(getOne(roles, r -> !r.getName().equals("MANAGER")))
                             .enabled(true)
                             .build()
                     )
@@ -206,10 +205,15 @@ public class DbInitializer implements ApplicationRunner {
             var blockingLabels = blockingLabelRepository.findAll();
             var blockingQualifications = blockingQualificationRepository.findAll();
             var blockingLocks = blockingLockingAddressRepository.findAll();
-            for (int i = 0; i < 30; i++) {
+            var ord = new Object() {
+                long fileTaskOrder = 0, fileActivityOrder = 0, fileOrder = 0, fileTaskNumber = 0;
+            };
+            for (int i = 0; i < 100; i++) {
+                ord.fileOrder = 0;
+                ord.fileTaskNumber = 0;
                 var file = File.builder()
                         .client(getOne(clientList))
-                        .order(files.size() + 1)
+                        .order(++ord.fileOrder)
                         .agent(getOne(agents))
                         .commune(getOne(cities))
                         .createdDate(toDate(now))
@@ -220,7 +224,6 @@ public class DbInitializer implements ApplicationRunner {
                         .project(faker.app().name())
                         .build();
                 var baseActivity = getOne(activities);
-                var order = 0;
                 var fileStates = new ArrayList<FileState>(Collections.singletonList(FileState.builder()
                         .file(file)
                         .agent(getOne(agents))
@@ -232,40 +235,44 @@ public class DbInitializer implements ApplicationRunner {
                 file.setFileStates(fileStates);
                 file.setFileDocs(new ArrayList<>(ListUtils.createCount(faker.number().numberBetween(0, 4),
                         () -> FileDoc.builder().file(file).path(faker.file().fileName()).description(faker.file().fileName()).agent(getOne(agents)).build())));
-                AtomicInteger activityOrder = new AtomicInteger();
+                ord.fileActivityOrder = 0;
                 List<FileActivity> fileActivities = new ArrayList<>(List.of(FileActivity.builder()
                         .activity(baseActivity)
                         .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(baseActivity.getId()))
                         .current(true)
                         .agent(getOne(agents))
                         .file(file)
-                        .order(activityOrder.getAndIncrement()).build()));
+                        .order(++ord.fileActivityOrder).build()));
 
-                fileActivities.addAll(ListUtils.createCount(faker.number().numberBetween(0, 4), () ->
+                fileActivities.addAll(ListUtils.createCount(faker.number().numberBetween(0, 6), () ->
                                 FileActivity.builder()
                                         .activity(getOne(activities))
                                         .state(getOne(activityStates))
                                         .agent(getOne(agents))
                                         .current(false)
                                         .file(file)
-                                        .order(activityOrder.getAndIncrement())
+                                        .order(++ord.fileActivityOrder)
                                         .build()
                         )
                 );
-                fileActivities.forEach(activity ->
+                fileActivities.forEach(fileActivity ->
                 {
-                    AtomicLong fileTaskOrder = new AtomicLong(1);
-                    activity.setFileTasks(new ArrayList<>(ListUtils.createCount(faker.number().numberBetween(0, 6), () ->
+                    ord.fileTaskOrder = 0;
+                    fileActivity.setFileTasks(new ArrayList<>(ListUtils.createCount(faker.number().numberBetween(0, 6), () ->
                     {
                         var createdDate = faker.date().between(toDate(now), toDate(now.plusDays(20)));
                         var created = toLocalDate(createdDate);
+                        var reporter = getOne(agents, a -> a.getRole().getName().equals("REFERENT") && a.getActivity().getId() == fileActivity.getActivity().getId(), () -> getOne(agents));
                         FileTask task = FileTask.builder()
-                                .fileActivity(activity)
-                                .agent(getOne(agents))
-                                .order(fileTaskOrder.getAndIncrement())
-                                .assignedTo(getOne(agents))
-                                .reporter(getOne(agents))
-                                .task(getOne(tasks))
+                                .fileActivity(fileActivity)
+                                .agent(reporter)
+                                .order(++ord.fileTaskOrder)
+                                .number(++ord.fileTaskNumber)
+                                .assignedTo(getOne(agents,
+                                        a -> !a.isAdmin() && a.getActivity().getId() == fileActivity.getActivity().getId() && a.getRole().getName().equals("ACCOUNTANT"),
+                                        () -> getOne(agents)))
+                                .reporter(reporter)
+                                .task(getOne(fileActivity.getActivity().getTasks()))
                                 .state(getOne(taskStateList))
                                 .createdDate(toDate(created))
                                 .dueDate(toLocalDate(futureDaysFrom(createdDate, 2, 4)).atStartOfDay())
@@ -306,11 +313,12 @@ public class DbInitializer implements ApplicationRunner {
                             stateDate.set(futureDaysFrom(stateDate.get(), 0, 15));
                             return fileTaskSituation;
                         });
+                        // set last situation as current
                         thisTaskSituations.stream().reduce((__, last) -> last).get().setCurrent(true);
                         task.setFileTaskSituations(thisTaskSituations);
                         return task;
                     })));
-                    fakeDataFields(activity).getDataFields().forEach(field -> field.setAgent(getOne(agents)));
+                    fakeDataFields(fileActivity).getDataFields().forEach(field -> field.setAgent(getOne(agents)));
                 });
                 file.setBaseActivity(baseActivity);
                 file.setFileActivities(fileActivities);
@@ -324,90 +332,6 @@ public class DbInitializer implements ApplicationRunner {
         }
     }
 
-    private Date futureDaysFrom(Date date, int min, int max) {
-        return faker.date().between(toDate(toLocalDate(date).plusDays(min)), toDate(toLocalDate(date).plusDays(max)));
-    }
-
-    private FileActivity fakeDataFields(FileActivity activity) {
-        List<ActivityDataField> fields = new ArrayList<>();
-        activity.getActivity().getFields().forEach(field ->
-        {
-            Object data;
-            switch (field.getFieldType()) {
-                case Date:
-                    data = faker.date().future(10, TimeUnit.DAYS);
-                    break;
-                case Number:
-                    data = faker.number().numberBetween(1, 10);
-                    break;
-                case String:
-                    data = faker.book().author();
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + field.getFieldType());
-            }
-            fields.add(ActivityDataField.builder()
-                    .fieldName(field.getFieldName())
-                    .fieldType(field.getFieldType())
-                    .data(data.toString())
-                    .fileActivity(activity)
-                    .groupName(safeValue(() -> field.getGroup().getName(), null))
-                    .build());
-        });
-        activity.setDataFields(fields);
-        return activity;
-    }
-
-    private Date toDate(LocalDate date) {
-        return Date.from(date.atStartOfDay(ZoneId.systemDefault())
-                .toInstant());
-    }
-
-    private LocalDate toLocalDate(Date date) {
-        return date.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-    }
-
-
-    private <E> E getOne(List<E> items) {
-        if (items == null || items.size() == 0) {
-            return null;
-        }
-        return items.get(faker.number().numberBetween(0, items.size()));
-    }
-
-    private Client fakeClient(String name) {
-        return Client.builder()
-                .name(name)
-                .address(faker.address().fullAddress())
-                .build();
-    }
-
-    private Contact fakeContact() {
-        return Contact.builder()
-                .name(faker.name().fullName())
-                .email(faker.internet().emailAddress())
-                .phone(faker.phoneNumber().phoneNumber())
-                .build();
-    }
-
-    private List<Contact> fakeContacts(Client c) {
-        List<Contact> contacts = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
-            contacts.add(fakeContact(c));
-        }
-        return contacts;
-    }
-
-    private Contact fakeContact(Client c) {
-        return Contact.builder()
-                .name(faker.name().fullName())
-                .email(faker.internet().emailAddress())
-                .phone(faker.phoneNumber().phoneNumber())
-                .client(c)
-                .build();
-    }
 
     private void createCommunes() {
         communeRepository.save(Commune.builder().name("BOURG EN BRESSE").INSEECode("01053").postalCode("1000").build());

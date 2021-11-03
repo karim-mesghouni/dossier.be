@@ -12,6 +12,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 
 @SuperBuilder
 @Entity
@@ -62,5 +63,9 @@ public class Agent extends BaseEntity {
                 ", role=" + role +
                 ", activity=" + activity +
                 '}';
+    }
+
+    public boolean isAdmin() {
+        return getRole() != null && Objects.equals(getRole().getName(), "MANAGER");
     }
 }
