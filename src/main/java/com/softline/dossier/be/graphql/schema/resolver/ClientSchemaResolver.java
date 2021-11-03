@@ -15,10 +15,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
-
 public class ClientSchemaResolver extends SchemaResolverBase<Client, ClientInput, ClientRepository, ClientService> {
-
-
     public Client createClient(ClientInput clientInput) throws IOException, ClientReadableException {
         return create(clientInput);
     }
@@ -42,5 +39,4 @@ public class ClientSchemaResolver extends SchemaResolverBase<Client, ClientInput
     public List<Client> getClientsTable(String search) {
         return service.getClientsTable(search);
     }
-
 }
