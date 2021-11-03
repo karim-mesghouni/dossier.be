@@ -6,13 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class ActivityDataFieldInput {
-
-
     long id;
     String fieldName;
 
@@ -20,4 +21,17 @@ public class ActivityDataFieldInput {
     String data;
     String groupName;
     FileActivityInput fileActivity;
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public void tryCastData() throws NumberFormatException, DateTimeParseException {
+        switch (fieldType) {
+            case String:
+                return;
+            case Number:
+                Double.valueOf(data);
+                return;
+            case Date:
+                LocalDate.parse(data);
+        }
+    }
 }

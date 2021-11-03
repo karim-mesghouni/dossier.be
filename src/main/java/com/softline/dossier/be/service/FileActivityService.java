@@ -13,6 +13,7 @@ import com.softline.dossier.be.repository.ActivityRepository;
 import com.softline.dossier.be.repository.ActivityStateRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
 import com.softline.dossier.be.security.config.AbacPermissionEvaluator;
+import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import static com.softline.dossier.be.Halpers.Functions.safeValue;
@@ -104,9 +106,15 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
         return activityState;
     }
 
-    public boolean changeDataField(ActivityDataFieldInput input) {
+    public boolean changeDataField(ActivityDataFieldInput input) throws ClientReadableException {
         if (!abacPermissionEvaluator.hasPermission(SecurityContextHolder.getContext().getAuthentication(), activityDataFieldRepository.findById(input.getId()).orElseThrow().getFileActivity(), "UPDATE_FILE_ACTIVITY")) {
             throw new AccessDeniedException("Access Denied");
+        }
+        try {
+            input.tryCastData();
+        } catch (NumberFormatException | DateTimeParseException e) {
+            // if data is not of the correct type
+            throw new ClientReadableException("la valeur est malformée");
         }
         var field = activityDataFieldRepository.findById(input.getId()).orElseThrow();
         field.setData(input.getData());

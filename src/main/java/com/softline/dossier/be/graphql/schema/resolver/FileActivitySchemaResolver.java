@@ -25,7 +25,7 @@ public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity,
         return create(FileActivity);
     }
 
-    public boolean changeDataField(ActivityDataFieldInput input) {
+    public boolean changeDataField(ActivityDataFieldInput input) throws ClientReadableException {
         return service.changeDataField(input);
     }
 
