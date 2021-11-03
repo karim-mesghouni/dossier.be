@@ -23,6 +23,7 @@ import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,6 +79,13 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         return "";
     }
 
+    /**
+     * replace any matched pattern in the subject with the return value of the callback
+     *
+     * @param pattern  the pattern finder
+     * @param subject  the string to apply the pattern on
+     * @param callback a function which will be supplied with each match result of the pattern in the subject, the match result will be replaced by the return value of this function
+     */
     private static String replace(Pattern pattern, Function<String, String> callback, CharSequence subject) {
         Matcher m = pattern.matcher(subject);
         StringBuilder sb = new StringBuilder();
@@ -113,12 +121,13 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         resolveCommentAttachments(comment, changes);
         getRepository().save(comment);
         var currentAgent = agentRepository.findByUsername(((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
-        EventController.sendForAllChannels(new Event("comment", comment));
+        EventController.sendForAllChannels(new Event<>("comment", comment));
         return comment;
     }
 
     @Override
     @SneakyThrows
+    @PreAuthorize("hasPermission(#input.id, 'Comment', 'UPDATE_COMMENT')")
     public Comment update(CommentInput input) {
         Pair<String, List<String>> changes = parseImageLinks(input.getContent());
         var comment = repository.findWithAttachmentsById(input.getId());
@@ -127,6 +136,12 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         return comment;
     }
 
+    /**
+     * parses the json and looks for any image links or base64 images and saves them locally
+     *
+     * @param json linted json string
+     * @return the newJson string and the list of saved image names
+     */
     private Pair<String, List<String>> parseImageLinks(String json) {
         // NOTE: this regex is better but java has a limitation for repetition inside lookbehinds
         // REGEX: (?<=\{\"type\"\s*:\s*\"image\"\s*,.*\"src\"\s*:\s*\").*?(?=".*?\})
@@ -173,7 +188,10 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     }
 
     /**
-     * @return saved image storage name
+     * save the base64 image locally with a random hashName
+     * @param base64 the image bytes in base64
+     * @param extension the image extension without a dot
+     * @return the saved image storage name with the extension
      */
     @Nullable
     private String saveImage(String base64, String extension) {
@@ -249,7 +267,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
             ).collect(Collectors.toList());
             messageRepository.saveAll(messages);
 
-            messages.forEach(x -> EventController.sendForUser(x.getAgent().getId(), new Event("message", x)));
+            messages.forEach(x -> EventController.sendForUser(x.getAgent().getId(), new Event<>("message", x)));
             return true;
         }
         return false;
