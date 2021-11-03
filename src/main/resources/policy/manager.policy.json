@@ -1,0 +1,7 @@
+[
+  {
+    "name": "Manager can do everything",
+    "target": "subject.role.name == 'MANAGER'",
+    "condition": "true"
+  }
+]

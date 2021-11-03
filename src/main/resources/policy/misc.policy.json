@@ -1,0 +1,7 @@
+[
+  {
+    "name": "The creator of the thing can manage the thing // TODO: Bug(if the creator role changes he still can modify this thing)",
+    "target": "true",
+    "condition": "resource.agent != null && resource.agent.id > 0 && resource.agent.id == subject.id"
+  }
+]
