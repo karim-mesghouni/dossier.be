@@ -2,6 +2,7 @@ package com.softline.dossier.be.graphql.schema.resolver;
 
 import com.softline.dossier.be.domain.ActivityState;
 import com.softline.dossier.be.domain.FileActivity;
+import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
 import com.softline.dossier.be.repository.FileActivityRepository;
 import com.softline.dossier.be.service.FileActivityService;
@@ -22,6 +23,10 @@ public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity,
 
     public FileActivity createFileActivity(FileActivityInput FileActivity) throws IOException, ClientReadableException {
         return create(FileActivity);
+    }
+
+    public boolean changeDataField(ActivityDataFieldInput input) {
+        return service.changeDataField(input);
     }
 
     public FileActivity updateFileActivity(FileActivityInput FileActivity) throws ClientReadableException {

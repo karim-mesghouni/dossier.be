@@ -6,11 +6,17 @@ import com.softline.dossier.be.domain.File;
 import com.softline.dossier.be.domain.FileActivity;
 import com.softline.dossier.be.events.FileActivityEvent;
 import com.softline.dossier.be.events.types.EntityEvent;
+import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
+import com.softline.dossier.be.repository.ActivityDataFieldRepository;
 import com.softline.dossier.be.repository.ActivityRepository;
 import com.softline.dossier.be.repository.ActivityStateRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.softline.dossier.be.security.config.AbacPermissionEvaluator;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +28,12 @@ import static com.softline.dossier.be.Halpers.Functions.safeValue;
 
 @Transactional
 @Service
+@RequiredArgsConstructor
 public class FileActivityService extends IServiceBase<FileActivity, FileActivityInput, FileActivityRepository> {
-    @Autowired
-    ActivityStateRepository activityStateRepository;
-    @Autowired
-    private ActivityRepository activityRepository;
+    private final ActivityStateRepository activityStateRepository;
+    private final ActivityRepository activityRepository;
+    private final ActivityDataFieldRepository activityDataFieldRepository;
+    private final AbacPermissionEvaluator abacPermissionEvaluator;
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -69,6 +76,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     }
 
     @Override
+    @PreAuthorize("hasPermission(#entityInput.id, 'FileActivity', 'UPDATE_FILE_ACTIVITY')")
     public FileActivity update(FileActivityInput entityInput) {
         return null;
     }
@@ -88,11 +96,21 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
         return getRepository().findAllByFile_Id(fileId);
     }
 
+    @PreAuthorize("hasPermission(#fileActivityId, 'FileActivity', 'UPDATE_FILE_ACTIVITY')")
     public ActivityState changeActivityState(Long activityStateId, Long fileActivityId) {
         var activityState = activityStateRepository.findById(activityStateId).orElseThrow();
         var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
         fileActivity.setState(activityState);
         return activityState;
+    }
+
+    public boolean changeDataField(ActivityDataFieldInput input) {
+        if (!abacPermissionEvaluator.hasPermission(SecurityContextHolder.getContext().getAuthentication(), activityDataFieldRepository.findById(input.getId()).orElseThrow().getFileActivity(), "UPDATE_FILE_ACTIVITY")) {
+            throw new AccessDeniedException("Access Denied");
+        }
+        var field = activityDataFieldRepository.findById(input.getId()).orElseThrow();
+        field.setData(input.getData());
+        return true;
     }
 
     public List<FileActivity> getAllFileActivityByFileIdInTrash(long fileId) {
@@ -103,6 +121,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
                 .getResultList();
     }
 
+    @PreAuthorize("hasPermission(#fileActivityId, 'FileActivity', 'DELETE_FILE_ACTIVITY')")
     public boolean sendFileActivityToTrash(Long fileActivityId) {
         var fileActivity = getRepository().getOne(fileActivityId);
         fileActivity.setInTrash(true);
@@ -110,6 +129,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
         return true;
     }
 
+    @PreAuthorize("hasPermission(#fileActivityId, 'FileActivity', 'DELETE_FILE_ACTIVITY')")
     public boolean recoverFileActivityFromTrash(Long fileActivityId) {
         var fileActivity = getRepository().getOne(fileActivityId);
         fileActivity.setInTrash(false);

@@ -7,7 +7,6 @@ import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.events.FileTaskEvent;
 import com.softline.dossier.be.events.types.EntityEvent;
-import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
 import com.softline.dossier.be.repository.*;
@@ -42,7 +41,6 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     private final TaskStateRepository taskStateRepository;
     private final DescriptionCommentRepository descriptionCommentRepository;
     private final ReturnedCommentRepository returnedCommentRepository;
-    private final ActivityDataFieldRepository activityDataFieldRepository;
     private final FileActivityRepository fileActivityRepository;
     private final ReturnedCauseRepository returnedCauseRepository;
     private final FileTaskAttachmentRepository fileTaskAttachmentRepository;
@@ -231,11 +229,6 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         }
     }
 
-    public boolean changeDataField(ActivityDataFieldInput input) {
-        var field = activityDataFieldRepository.findById(input.getId()).orElseThrow();
-        field.setData(input.getData());
-        return true;
-    }
 
     public List<ReturnedCause> getAllReturnedCause() {
         return returnedCauseRepository.findAll();

@@ -1,7 +1,6 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
 import com.softline.dossier.be.domain.*;
-import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
 import com.softline.dossier.be.repository.FileTaskRepository;
@@ -98,9 +97,6 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
         return service.changeDescription(input);
     }
 
-    public boolean changeDataField(ActivityDataFieldInput input) {
-        return service.changeDataField(input);
-    }
 
     public List<ReturnedCause> getAllReturnedCause() {
         return service.getAllReturnedCause();
