@@ -30,8 +30,10 @@ public class FileTask extends BaseEntity {
     boolean current;
     @Type(type = "text")
     String title;
+
     @Column(name = "`order`")
-    long order;
+    long order;// the order of this fileTask relative to it's FileActivity
+    long number; // number of fileTasks relative to it's File
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "fileTask")
     @JoinColumn
     DescriptionComment description;
@@ -69,7 +71,6 @@ public class FileTask extends BaseEntity {
     List<FileTask> children;
     boolean returned;
     boolean inTrash;
-    int fileTaskOrder;
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     ReturnedCause returnedCause;

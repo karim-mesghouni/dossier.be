@@ -27,8 +27,8 @@ public interface FileTaskRepository extends JpaRepository<FileTask, Long> {
 
     Optional<FileTask> findById(Long aLong);
 
-    @Query("select  max(f.fileTaskOrder) from  FileTask f where f.inTrash=false ")
-    Integer getMaxOrder();
+    @Query("select COALESCE(MAX(f.order), 1) from  FileTask f where f.inTrash=false ")
+    Integer maxOrder();
 
     List<FileTask> getAllByFileTaskOrder(int fileOrder);
 

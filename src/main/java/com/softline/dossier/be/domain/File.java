@@ -35,6 +35,11 @@ public class File extends BaseEntity {
     LocalDate provisionalDeliveryDate;
     LocalDate deliveryDate;
 
+    // used to keep track of fileTasks in this file, it will always increment when we add a new fileTask
+    // also useful in the case where the file has fileTasks before but they was removed,
+    // so this is a replacement for using the count method on fileTasks
+    @Column(columnDefinition = "integer default 1")
+    long nextFileTaskNumber;
 
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
@@ -82,7 +87,12 @@ public class File extends BaseEntity {
                 '}';
     }
 
+    // used by graphql File type (field fileReprise)
     public boolean isFileReprise() {
         return getReprise() != null;
+    }
+
+    public void incrementNextFileTaskNumber() {
+        setNextFileTaskNumber(1 + getNextFileTaskNumber());
     }
 }

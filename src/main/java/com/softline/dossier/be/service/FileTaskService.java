@@ -54,17 +54,14 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     @Override
+    @Transactional
     public FileTask create(FileTaskInput input) {
-        var fileTaskOrder = getRepository().getMaxOrder();
-        if (fileTaskOrder == null) {
-            fileTaskOrder = 0;
-        }
-        fileTaskOrder++;
         var reporter = (Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         var task = taskRepository.findById(input.getTask().getId()).orElseThrow();
         var fileActivity = fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();
         var count = getRepository().countFileTaskByFileActivity_File_Id(fileActivity.getFile().getId());
+        File file = fileActivity.getFile();
         var fileTask = FileTask.builder()
                 .fileActivity(fileActivity)
                 .task(task)
@@ -72,15 +69,15 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .order((count + 1))
                 .fileTaskSituations(new ArrayList<>())
                 .reporter(reporter)
-                .fileTaskOrder(fileTaskOrder)
+                .number(file.getNextFileTaskNumber())
                 .build();
         var fileTaskSituation = FileTaskSituation.builder()
                 .situation(task.getSituations().stream().filter(TaskSituation::isInitial).findFirst().orElseThrow())
                 .fileTask(fileTask)
                 .current(true)
-
                 .build();
         fileTask.getFileTaskSituations().add(fileTaskSituation);
+        file.incrementNextFileTaskNumber();
         return getRepository().save(fileTask);
     }
 
