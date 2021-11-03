@@ -1,6 +1,8 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
 import com.softline.dossier.be.domain.Job;
+import com.softline.dossier.be.events.AgentEvent;
+import com.softline.dossier.be.events.types.EntityEvent;
 import com.softline.dossier.be.graphql.types.input.AgentInput;
 import com.softline.dossier.be.repository.ActivityRepository;
 import com.softline.dossier.be.repository.JobRepository;
@@ -28,12 +30,12 @@ import static com.softline.dossier.be.Halpers.Functions.throwIfEmpty;
 @PreAuthorize("isAuthenticated()")
 @RequiredArgsConstructor
 public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, AgentRepository, AgentService> {
-    private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
-    private final JobRepository jobRepository;
-    private final ActivityRepository activityRepository;
-    private final ModelMapper modelMapper;
-    private final EntityManager entityManager;
+    final PasswordEncoder passwordEncoder;
+    final RoleRepository roleRepository;
+    final JobRepository jobRepository;
+    final ActivityRepository activityRepository;
+    final ModelMapper modelMapper;
+    final EntityManager entityManager;
 
     public List<Agent> getAllAgent() {
         return getAll();
@@ -71,6 +73,7 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
         safeRun(() -> input.getPassword().length() > 0,
                 () -> agent.setPassword(passwordEncoder.encode(input.getPassword())));
         service.getRepository().save(agent);
+        new AgentEvent(EntityEvent.Event.UPDATED, agent).fireToAll();
         return agent;
     }
 
@@ -80,9 +83,9 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
         throwIfEmpty(input.getPassword(), new ClientReadableException("le mot de passe ne doit pas être vide"));
         agent.setPassword(passwordEncoder.encode(input.getPassword()));
         service.getRepository().save(agent);
+        new AgentEvent(EntityEvent.Event.UPDATED, agent).fireToAll();
         return true;
     }
-
 
     @PreAuthorize("hasPermission(null, 'CREATE_AGENT')")
     public Agent createAgent(AgentInput input) {
@@ -91,12 +94,16 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
         agent.setPassword(passwordEncoder.encode(input.getPassword()));
         Long id = (Long) entityManager.unwrap(Session.class).save(agent);
         entityManager.clear();
-        return entityManager.find(Agent.class, id);
+        agent = entityManager.find(Agent.class, id);
+        new AgentEvent(EntityEvent.Event.ADDED, agent).fireToAll();
+        return agent;
     }
 
     @PreAuthorize("hasPermission(null, 'DELETE_AGENT')")
     public boolean deleteAgent(long id) {
+        var agent = service.getRepository().findById(id).orElseThrow();
         service.getRepository().deleteById(id);
+        new AgentEvent(EntityEvent.Event.DELETED, agent).fireToAll();
         return true;
     }
 
