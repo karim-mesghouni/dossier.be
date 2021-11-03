@@ -108,7 +108,7 @@ public class DbInitializer implements ApplicationRunner {
             List<Role> roles = List.of(MANAGER, REFERENT, VALIDATOR, ACCOUNTANT);
             for (var role : roles) {
                 agentRepository.save(Agent.builder()
-                        .name(faker.name().fullName())
+                        .name(role.getName().toLowerCase(Locale.ROOT))
                         .email(faker.internet().emailAddress())
                         .username(role.getName().toLowerCase(Locale.ROOT))
                         .password(passwordEncoder.encode("000"))
