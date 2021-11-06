@@ -21,6 +21,7 @@ import graphql.schema.DataFetchingEnvironment;
 import kotlin.Pair;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +52,7 @@ import java.util.regex.Pattern;
 @Transactional
 @Service
 @RequiredArgsConstructor
+@Slf4j(topic = "CommentService")
 public class CommentService extends IServiceBase<Comment, CommentInput, CommentRepository> {
     private final AgentRepository agentRepository;
     private final FileActivityRepository fileActivityRepository;
@@ -138,7 +140,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
             if (src.startsWith("data:image/")) {
                 String extension = search("(?<=data:image/).*(?=;base64,)", src);
                 String base64 = search("(?<=;base64,).*", src);
-                String name = saveImage(base64, extension);
+                String name = save64Image(base64, extension);
                 imageNames.add(name);
                 return EnvUtil.getServerUrl() + "/attachments/" + name;
             } else {
@@ -165,6 +167,8 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                } else {
+                    log.error("unknown image source ({}), when parsing comment content: {}", src, json);
                 }
             }
             return src;
@@ -180,7 +184,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
      * @return the saved image storage name with the extension
      */
     @Nullable
-    private static String saveImage(String base64, String extension) {
+    private static String save64Image(String base64, String extension) {
         try {
             byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(base64);
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));

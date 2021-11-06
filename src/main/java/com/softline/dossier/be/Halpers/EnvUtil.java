@@ -2,6 +2,7 @@ package com.softline.dossier.be.Halpers;
 
 import com.softline.dossier.be.Application;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 @Component
+@Slf4j(topic = "EnvUtil")
 public class EnvUtil {
     private static Integer port;
     private static String hostname;
@@ -19,7 +21,11 @@ public class EnvUtil {
     public static Integer getPort() {
         if (port == null) {
             Environment environment = Application.context.getEnvironment();
-            port = Integer.valueOf(environment.getProperty("local.server.port"));
+            var portString = environment.getProperty("local.server.port");
+            if (portString == null) {
+                log.error("could not find env value local.server.port using default 80");
+            }
+            port = portString == null ? 80 : Integer.parseInt(portString);
         }
         return port;
     }
@@ -34,7 +40,7 @@ public class EnvUtil {
     }
 
     /**
-     * @return server url without an ending slash ie: (http://server.com:8080)
+     * @return server url without an ending slash ie: (http://www.server.com:8080)
      */
     public static String getServerUrl() {
         return "http://" + getHostname() + ":" + getPort();
