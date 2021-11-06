@@ -23,7 +23,7 @@ public class EventController {
     // because HashMap Iterators don't support modifying(removing) the items outside the iterator itself
     private static final ConcurrentHashMap<Channel, SseEmitter> channels = new ConcurrentHashMap<>();
     // sometimes the SseEmitter.complete() action does not get executed
-    // so we will manually clean the emitter in suck case by putting in a removal queue
+    // so we will manually clean the emitter in such case by putting in a removal queue
     private static final ConcurrentLinkedDeque<Channel> scheduledForRemoval = new ConcurrentLinkedDeque<>();
     private static boolean threadIsRunning = false;
 
