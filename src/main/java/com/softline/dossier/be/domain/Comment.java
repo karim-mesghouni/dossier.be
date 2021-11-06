@@ -3,6 +3,7 @@ package com.softline.dossier.be.domain;
 import com.softline.dossier.be.domain.enums.CommentType;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.*;
 
 import javax.persistence.CascadeType;
@@ -10,6 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.softline.dossier.be.Halpers.TipTap.resolveCommentContent;
 
 @Entity
 @SuperBuilder
@@ -24,6 +27,7 @@ import java.util.List;
 @Where(clause = "deleted = false")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
+@Slf4j(topic = "CommentEntity")
 public class Comment extends BaseEntity implements IComment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,4 +52,15 @@ public class Comment extends BaseEntity implements IComment {
     @OneToMany(mappedBy = "comment", orphanRemoval = true, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @Builder.Default
     List<CommentAttachment> attachments = new ArrayList<>();
+
+
+    /**
+     * Before we save the comment we will parse the json content,
+     * extract any foreign image links, and send messages to any mentioned agent
+     */
+    @PrePersist
+    @PreUpdate
+    public void resolveContent() {
+        resolveCommentContent(this);
+    }
 }

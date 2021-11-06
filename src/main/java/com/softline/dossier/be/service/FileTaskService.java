@@ -28,8 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.softline.dossier.be.service.CommentService.resolveCommentContent;
-
 @Transactional
 @Service
 @RequiredArgsConstructor
@@ -195,7 +193,6 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
             fileTask.setDescription(description);
         }
         description.setContent(commentInput.getContent());
-        resolveCommentContent(description);
         descriptionCommentRepository.save(description);
         return description;
     }
