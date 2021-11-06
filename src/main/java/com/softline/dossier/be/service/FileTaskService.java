@@ -1,6 +1,5 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.Halpers.EnvUtil;
 import com.softline.dossier.be.Halpers.FileSystem;
 import com.softline.dossier.be.Halpers.Functions;
 import com.softline.dossier.be.domain.*;
@@ -26,8 +25,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.softline.dossier.be.service.CommentService.resolveCommentContent;
 
 @Transactional
 @Service
@@ -44,8 +46,6 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     private final FileActivityRepository fileActivityRepository;
     private final ReturnedCauseRepository returnedCauseRepository;
     private final FileTaskAttachmentRepository fileTaskAttachmentRepository;
-    private final EnvUtil envUtil;
-    private final FileSystem fileSystem;
 
 
     @Override
@@ -177,31 +177,28 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public boolean changeTitle(String title, Long fileTaskId) {
-        getRepository().getOne(fileTaskId).setTitle(title);
+        getRepository().findById(fileTaskId).orElseThrow().setTitle(title);
         return true;
     }
 
-    public DescriptionComment changeDescription(CommentInput description) {
-        if (description.getId() != null) {
-            var descriptionExist = descriptionCommentRepository.findById(description.getId()).orElseThrow();
-            descriptionExist.setContent(description.getContent());
-            return descriptionExist;
-        } else {
-            var fileTask = getRepository().findById(description.getFileTask().getId()).orElseThrow();
-            var fileActivity = fileActivityRepository.findById(description.getFileActivity().getId()).orElseThrow();
-
-            var descriptionNew = descriptionCommentRepository.save(DescriptionComment.builder()
-                    .fileActivity(fileActivity)
-                    .content(description.getContent())
+    @Transactional
+    public DescriptionComment changeDescription(CommentInput commentInput) {
+        var fileTask = getRepository().findById(commentInput.getFileTask().getId()).orElseThrow();
+        var description = fileTask.getDescription();
+        if (description == null) {
+            description = DescriptionComment.builder()
                     .fileTask(fileTask)
                     .agent((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-                    .build()
-            );
-            fileTask.setDescription(descriptionNew);
-            descriptionNew.setType(CommentType.Description);
-
-            return descriptionNew;
+                    .type(CommentType.Description)
+                    .fileActivity(fileTask.getFileActivity())
+                    .createdDate(new Date())
+                    .build();
+            fileTask.setDescription(description);
         }
+        description.setContent(commentInput.getContent());
+        resolveCommentContent(description);
+        descriptionCommentRepository.save(description);
+        return description;
     }
 
     public ReturnedComment changeRetour(CommentInput retour) {
@@ -317,7 +314,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         for (ApplicationPart file : files) {
             String originalName = file.getSubmittedFileName();
             String storageName = FileSystem.randomMD5() + "." + FilenameUtils.getExtension(originalName);
-            Path newPath = fileSystem.getAttachmentsPath().resolve(storageName);
+            Path newPath = FileSystem.getAttachmentsPath().resolve(storageName);
             Files.copy(file.getInputStream(), newPath);
             // remove the temp file
             file.delete();
@@ -336,7 +333,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     public boolean deleteAttached(Long attachedId) {
         var attached = fileTaskAttachmentRepository.findById(attachedId).orElseThrow();
         try {
-            Files.deleteIfExists(fileSystem.getAttachmentsPath().resolve(attached.getStorageName()));
+            Files.deleteIfExists(FileSystem.getAttachmentsPath().resolve(attached.getStorageName()));
             fileTaskAttachmentRepository.delete(attached);
             return true;
         } catch (Exception e) {
@@ -353,7 +350,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public boolean updateTitle(String title, long fileTaskId) {
-        repository.getOne(fileTaskId).setTitle(title);
+        repository.findById(fileTaskId).orElseThrow().setTitle(title);
         return true;
     }
 
