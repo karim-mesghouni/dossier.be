@@ -17,10 +17,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.softline.dossier.be.Halpers.DateHelpers.*;
 import static com.softline.dossier.be.db.SeederHelper.*;
 
 @Component
@@ -199,7 +203,7 @@ public class DBSeeder implements ApplicationRunner {
             var activities = activityRepository.findAll();
             var tasks = taskRepository.findAll();
             var taskStateList = taskStateRepository.findAll();
-            var now = LocalDate.now();
+            var now = LocalDateTime.now();
             var files = new ArrayList<File>();
             var activityStates = activityStateRepository.findAll();
             var blockingLabels = blockingLabelRepository.findAll();
@@ -216,7 +220,7 @@ public class DBSeeder implements ApplicationRunner {
                         .order(++ord.fileOrder)
                         .agent(getOne(agents))
                         .commune(getOne(cities))
-                        .createdDate(toDate(now))
+                        .createdDate(now)
                         .attributionDate(toLocalDate(faker.date().between(toDate(now), toDate(now.plusDays(20)))))
                         .returnDeadline(toLocalDate(faker.date().between(toDate(now.plusDays(21)), toDate(now.plusDays(40)))))
                         .provisionalDeliveryDate(toLocalDate(faker.date().between(toDate(now.plusDays(21)), toDate(now.plusDays(40)))))
@@ -261,7 +265,7 @@ public class DBSeeder implements ApplicationRunner {
                     fileActivity.setFileTasks(new ArrayList<>(ListUtils.createCount(faker.number().numberBetween(0, 6), () ->
                     {
                         var createdDate = faker.date().between(toDate(now), toDate(now.plusDays(20)));
-                        var created = toLocalDate(createdDate);
+                        var created = toLocalDateTime(createdDate);
                         var reporter = getOne(agents, a -> a.getRole().getName().equals("REFERENT") && a.getActivity().getId() == fileActivity.getActivity().getId(), () -> getOne(agents));
                         FileTask task = FileTask.builder()
                                 .fileActivity(fileActivity)
@@ -274,15 +278,15 @@ public class DBSeeder implements ApplicationRunner {
                                 .reporter(reporter)
                                 .task(getOne(fileActivity.getActivity().getTasks()))
                                 .state(getOne(taskStateList))
-                                .createdDate(toDate(created))
+                                .createdDate(created)
                                 .dueDate(toLocalDate(futureDaysFrom(createdDate, 2, 4)).atStartOfDay())
                                 .endDate(toLocalDate(futureDaysFrom(createdDate, 5, 15)).atStartOfDay())
                                 .title(faker.job().title())
                                 .build();
                         var situations = task.getTask().getSituations();
                         var blocks = new ArrayList<FileTaskSituation>();
-                        AtomicReference<Date> blockDate = new AtomicReference<>(futureDaysFrom(task.getCreatedDate(), 0, 15));
-                        AtomicReference<Date> stateDate = new AtomicReference<>(futureDaysFrom(task.getCreatedDate(), 0, 15));
+                        AtomicReference<LocalDateTime> blockDate = new AtomicReference<>(futureDaysFrom(task.getCreatedDate(), 0, 15));
+                        AtomicReference<LocalDateTime> stateDate = new AtomicReference<>(futureDaysFrom(task.getCreatedDate(), 0, 15));
                         List<FileTaskSituation> thisTaskSituations = ListUtils.createCount(faker.number().numberBetween(1, 6), () ->
                         {
                             var situation = getOne(situations);

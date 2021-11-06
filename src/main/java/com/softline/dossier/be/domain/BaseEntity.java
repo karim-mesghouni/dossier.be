@@ -20,7 +20,7 @@ import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
@@ -41,8 +41,8 @@ public class BaseEntity {
     Agent agent;
     @Column(nullable = false, updatable = false)
     @CreatedDate
-    private Date createdDate;
+    private LocalDateTime createdDate;
     @Column()
     @LastModifiedDate
-    private Date modifiedDate;
+    private LocalDateTime modifiedDate;
 }

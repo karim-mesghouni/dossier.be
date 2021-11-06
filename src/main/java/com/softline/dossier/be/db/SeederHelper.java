@@ -8,8 +8,7 @@ import com.softline.dossier.be.domain.FileActivity;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,8 +17,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.softline.dossier.be.Halpers.DateHelpers.*;
 import static com.softline.dossier.be.Halpers.Functions.safeValue;
 
+/**
+ * used by {@link DBSeeder} class
+ */
 @Slf4j(topic = "DBSeeder")
 final class SeederHelper {
     private static final Faker faker = FakerConfiguration.faker();
@@ -29,6 +32,10 @@ final class SeederHelper {
 
     static Date futureDaysFrom(Date date, int min, int max) {
         return faker.date().between(toDate(toLocalDate(date).plusDays(min)), toDate(toLocalDate(date).plusDays(max)));
+    }
+
+    static LocalDateTime futureDaysFrom(LocalDateTime date, int min, int max) {
+        return toLocalDateTime(faker.date().between(toDate(date.plusDays(min)), toDate(date.plusDays(max))));
     }
 
     static FileActivity fakeDataFields(FileActivity activity) {
@@ -59,18 +66,6 @@ final class SeederHelper {
         });
         activity.setDataFields(fields);
         return activity;
-    }
-
-
-    static Date toDate(LocalDate date) {
-        return Date.from(date.atStartOfDay(ZoneId.systemDefault())
-                .toInstant());
-    }
-
-    static LocalDate toLocalDate(Date date) {
-        return date.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
     }
 
     /**

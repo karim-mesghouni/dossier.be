@@ -25,7 +25,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -191,7 +190,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                     .agent((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
                     .type(CommentType.Description)
                     .fileActivity(fileTask.getFileActivity())
-                    .createdDate(new Date())
+                    .createdDate(LocalDateTime.now())
                     .build();
             fileTask.setDescription(description);
         }

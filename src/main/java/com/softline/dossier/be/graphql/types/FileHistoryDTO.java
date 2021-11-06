@@ -3,7 +3,7 @@ package com.softline.dossier.be.graphql.types;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -11,7 +11,7 @@ import java.util.List;
 public class FileHistoryDTO {
     long id;
     String who;
-    Date date;
+    LocalDateTime date;
     String message;
     String data;
     List<FileHistoryDTO> children;
