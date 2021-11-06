@@ -12,7 +12,7 @@ extend type Query  {
     allReturnedCause:[ReturnedCause]
 }
 
-extend type  Mutation{
+extend type Mutation{
     createFileTask(input: FileTaskInput!):FileTask
     changeAssignedTo(assignedToId: ID!,fileTaskId: ID! ):Agent
     changeReporter(reporterId: ID!,fileTaskId: ID! ):Agent
@@ -63,6 +63,7 @@ type FileTask{
     parent: FileTask
     attachments: [Attachment]
     currentState: FileTaskSituation
+    number: Int
 }
 input FileTaskInput {
     id:ID

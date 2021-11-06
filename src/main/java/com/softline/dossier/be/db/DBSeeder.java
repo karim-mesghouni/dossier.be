@@ -208,8 +208,8 @@ public class DBSeeder implements ApplicationRunner {
             var ord = new Object() {
                 long fileTaskOrder = 0, fileActivityOrder = 0, fileOrder = 0, fileTaskNumber = 0;
             };
+            ord.fileOrder = 0;
             for (int i = 0; i < 100; i++) {
-                ord.fileOrder = 0;
                 ord.fileTaskNumber = 0;
                 var file = File.builder()
                         .client(getOne(clientList))
@@ -327,6 +327,7 @@ public class DBSeeder implements ApplicationRunner {
                     var toReprise = getOne(files);
                     file.setReprise(toReprise);
                 }
+                file.setNextFileTaskNumber(ord.fileTaskNumber + 1);
                 files.add(fileRepository.save(file));
             }
         }

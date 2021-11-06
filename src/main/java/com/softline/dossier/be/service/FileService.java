@@ -246,7 +246,11 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
                 allAfter.stream()
                         .limit(levelsChange)
                         .forEach(File::incrementOrder);
-                file.setOrder(repository.findAllByOrderAfter(fileBefore.getOrder()).stream().findFirst().get().getOrder() - 1);
+                if (allAfter.isEmpty() && file.getOrder() == fileBefore.getOrder()) {
+                    file.incrementOrder();
+                } else {
+                    file.setOrder(allAfter.stream().findFirst().orElseThrow().getOrder() - 1);
+                }
             }
         }, () -> {// else if fileBefore does not exist
             var allBefore = repository.findAllByOrderBefore(file.getOrder());
