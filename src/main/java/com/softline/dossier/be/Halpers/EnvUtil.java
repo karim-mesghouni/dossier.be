@@ -1,61 +1,31 @@
 package com.softline.dossier.be.Halpers;
 
+import com.softline.dossier.be.Application;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
 @Component
 public class EnvUtil {
-    private static EnvUtil instance;
-    @Autowired
-    Environment environment;
-    private String port;
-    private String hostname;
+    private static Integer port;
+    private static String hostname;
+    private static Path storagePath;
 
-    public EnvUtil() {
-        if (instance == null) {
-            instance = this;
-        }
-    }
-
-    public static EnvUtil getInstance() {
-        return instance;
-    }
-
-    /**
-     * Get port.
-     *
-     * @return
-     */
-    public String getPort() {
+    public static Integer getPort() {
         if (port == null) {
-            port = environment.getProperty("local.server.port");
+            Environment environment = Application.context.getEnvironment();
+            port = Integer.valueOf(environment.getProperty("local.server.port"));
         }
         return port;
     }
 
-    /**
-     * Get port, as Integer.
-     *
-     * @return
-     */
-    public Integer getPortAsInt() {
-        return Integer.valueOf(getPort());
-    }
-
-    /**
-     * Get hostname.
-     *
-     * @return
-     */
-    public String getHostname() throws UnknownHostException {
+    @SneakyThrows
+    public static String getHostname() {
         // TODO ... would this cache cause issue, when network env change ???
         if (hostname == null) {
             hostname = InetAddress.getLocalHost().getHostAddress();
@@ -63,12 +33,18 @@ public class EnvUtil {
         return hostname;
     }
 
-    @SneakyThrows
-    public String getServerUrlPrefi() {
+    /**
+     * @return server url without an ending slash ie: (http://server.com:8080)
+     */
+    public static String getServerUrl() {
         return "http://" + getHostname() + ":" + getPort();
     }
 
-    public Path getStoragePath() {
-        return Paths.get(Objects.requireNonNull(environment.getProperty("filesystem.storage.absolute-path")));
+    public static Path getStoragePath() {
+        if (storagePath == null) {
+            Environment environment = Application.context.getEnvironment();
+            storagePath = Paths.get(Objects.requireNonNull(environment.getProperty("filesystem.storage.absolute-path")));
+        }
+        return storagePath;
     }
 }

@@ -32,10 +32,10 @@ public class Attachment extends BaseEntity {
     @SneakyThrows
     // used by graphql
     public String getUrl() {
-        return EnvUtil.getInstance().getServerUrlPrefi() + "/attachments/" + getStorageName();
+        return EnvUtil.getServerUrl() + "/attachments/" + getStorageName();
     }
 
     public Path getPath(FileSystem fileSystem) {
-        return fileSystem.getAttachmentsPath().resolve(getStorageName());
+        return FileSystem.getAttachmentsPath().resolve(getStorageName());
     }
 }

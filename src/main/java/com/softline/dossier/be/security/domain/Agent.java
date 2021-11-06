@@ -1,6 +1,8 @@
 package com.softline.dossier.be.security.domain;
 
+import com.softline.dossier.be.Application;
 import com.softline.dossier.be.domain.*;
+import com.softline.dossier.be.security.repository.AgentRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +11,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SelectBeforeUpdate;
 import org.hibernate.annotations.Where;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.persistence.*;
 import java.util.List;
@@ -67,5 +70,45 @@ public class Agent extends BaseEntity {
 
     public boolean isAdmin() {
         return getRole() != null && Objects.equals(getRole().getName(), "MANAGER");
+    }
+
+    /**
+     * return the current request agent, the agent returned is detached and might not have any relations connected
+     * if you want the database agent then use {@link Agent#thisDBAgent() }
+     *
+     * @return the current logged-in agent extracted from the JWT
+     * @see Agent#thisDBAgent()
+     */
+    public static Agent thisAgent() {
+        return (Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
+    /**
+     * @return the current agent retrieved from the database
+     */
+    public static Agent thisDBAgent() {
+        return Application.context.getBean(AgentRepository.class).findById(thisAgent().getId()).orElseThrow();
+    }
+
+
+    /**
+     * @return the agent loaded from the database
+     */
+    public static Agent getByIdentifier(long id) {
+        return Application.context.getBean(AgentRepository.class).findById(id).orElseThrow();
+    }
+
+    /**
+     * @return the agent loaded from the database
+     */
+    public static Agent getByIdentifier(String id) {
+        return getByIdentifier(Long.parseLong(id));
+    }
+
+    /**
+     * @return the agent loaded from the database
+     */
+    public static Agent getByIdentifier(Agent id) {
+        return getByIdentifier(id.getId());
     }
 }
