@@ -82,6 +82,9 @@ public class EventController {
             } catch (Throwable e) {
                 log.info("sendEventForChannel() data not sent due to error: ({}), adding the channel to the clean queue, channel: {}, event is: {}", e.getMessage(), channel, event);
                 emitter.complete();
+                // calling emitter.complete() after "event send failure" (not a network error) has no effect,
+                // so we will ensure that the channel gets removed from the list and no further events will be sent to it
+                // the emitter will be auto-cleaned after the timeout reaches (because we will stop sending events to it)
                 synchronized (scheduledForRemoval) {// obtain lock
                     scheduledForRemoval.add(channel);
                 }
@@ -116,6 +119,7 @@ public class EventController {
         // create new sse emitter with timeout of 1 hour
         // this will delete his linked channel emitter
         // and force the client to reconnect again
+        // !! DO NOT OPEN AN SSE CHANNEL WITHOUT SETTING A TIMEOUT, IT IS VERY IMPORTANT FOR AUTO-CLEANING
         SseEmitter emitter = tap(new SseEmitter(1000 * 60 * 60L),
                 em -> em.onCompletion(() ->
                 {

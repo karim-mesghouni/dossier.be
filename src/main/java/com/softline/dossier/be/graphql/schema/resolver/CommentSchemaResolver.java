@@ -3,12 +3,13 @@ package com.softline.dossier.be.graphql.schema.resolver;
 import com.softline.dossier.be.domain.Comment;
 import com.softline.dossier.be.domain.Message;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
-import com.softline.dossier.be.graphql.types.input.NotifyMessageInput;
 import com.softline.dossier.be.repository.CommentRepository;
 import com.softline.dossier.be.service.CommentService;
 import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
@@ -53,11 +54,13 @@ public class CommentSchemaResolver extends SchemaResolverBase<Comment, CommentIn
 
     }
 
-    public boolean notifyMessage(NotifyMessageInput input) {
-        return service.notifyMessage(input);
+    @PostFilter("hasPermission(filterObject, 'READ_MESSAGE')")
+    public List<Message> allMessagesForThisAgent() {
+        return service.getAllMessagesForThisAgent();
     }
 
-    public List<Message> getMessages(Long agentId) {
-        return service.getMessages(agentId);
+    @PostAuthorize("hasPermission(returnObject, 'READ_MESSAGE')")
+    public Message messageByIdForThisAgent(long messageId) {
+        return service.getMessageByIdForThisAgent(messageId);
     }
 }

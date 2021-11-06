@@ -25,6 +25,7 @@ public class Message extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
+    @Column(columnDefinition = "boolean default false")
     boolean readMessage;
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
@@ -33,5 +34,5 @@ public class Message extends BaseEntity {
     @ManyToOne
     @JoinColumn
     @NotFound(action = NotFoundAction.IGNORE)
-    Agent agent;
+    Agent targetAgent;
 }

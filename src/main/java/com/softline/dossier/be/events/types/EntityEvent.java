@@ -3,6 +3,7 @@ package com.softline.dossier.be.events.types;
 import lombok.SneakyThrows;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Locale;
 
@@ -14,7 +15,7 @@ public abstract class EntityEvent extends Event<JSONObject> implements Serializa
     }
 
     @SneakyThrows
-    public void addData(String attribute, Object value) {
+    public void addData(String attribute, @Nullable Object value) {
         if (!payload.has(attribute)) {
             payload.put(attribute, value);
         }

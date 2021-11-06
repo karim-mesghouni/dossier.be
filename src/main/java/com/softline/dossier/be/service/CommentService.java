@@ -1,14 +1,16 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.Application;
 import com.softline.dossier.be.Halpers.EnvUtil;
 import com.softline.dossier.be.Halpers.FileSystem;
 import com.softline.dossier.be.Halpers.Functions;
 import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
+import com.softline.dossier.be.events.MessageEvent;
+import com.softline.dossier.be.events.types.EntityEvent;
 import com.softline.dossier.be.events.types.Event;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
-import com.softline.dossier.be.graphql.types.input.NotifyMessageInput;
 import com.softline.dossier.be.repository.CommentRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
 import com.softline.dossier.be.repository.FileTaskRepository;
@@ -21,8 +23,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -44,7 +46,6 @@ import java.util.Locale;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 
 @Transactional
@@ -57,7 +58,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     private final MessageRepository messageRepository;
     private final FileSystem fileSystem;
 
-    private static void resolveCommentAttachments(Comment comment, Pair<String, List<String>> changes) {
+    public static void resolveCommentAttachments(@NotNull Comment comment, Pair<String, List<String>> changes) {
         var attachments = comment.getAttachments();
         for (var image : changes.getSecond()) {
             attachments.add(CommentAttachment.builder()
@@ -86,19 +87,111 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
      * @param subject  the string to apply the pattern on
      * @param callback a function which will be supplied with each match result of the pattern in the subject, the match result will be replaced by the return value of this function
      */
+    @NotNull
     private static String replace(Pattern pattern, Function<String, String> callback, CharSequence subject) {
         Matcher m = pattern.matcher(subject);
-        StringBuilder sb = new StringBuilder();
+        StringBuilder newSubject = new StringBuilder();
         while (m.find()) {
-            m.appendReplacement(sb, callback.apply(m.toMatchResult().group()));
+            m.appendReplacement(newSubject, callback.apply(m.toMatchResult().group()));
         }
-        m.appendTail(sb);
-        return sb.toString();
+        m.appendTail(newSubject);
+        return newSubject.toString();
+    }
+
+
+    private static String resolveMentions(Comment comment) {
+        return replace(Pattern.compile("(?<=\\{\"type\":\"mention\",\"attrs\":\\{\"id\":\")[^!]*?(?=\")"), agentId -> {
+            Agent targetAgent = Agent.getByIdentifier(agentId);
+            Message message = Message.builder().comment(comment).targetAgent(targetAgent).agent(Agent.thisAgent()).build();
+            Application.context.getBean(MessageRepository.class).saveAndFlush(message);
+            EventController.sendForUser(message.getTargetAgent().getId(), new MessageEvent(EntityEvent.Event.ADDED, message));
+            // add "!" to indicate that the mention has been handled
+            // so next time it will not be captured by the regex matcher (in the case where the comment was updated we won't re-create the Message again)
+            return agentId + "!";
+        }, comment.getContent());
     }
 
     @Override
     public List<Comment> getAll() {
         return repository.findAll();
+    }
+
+    public static void resolveCommentContent(Comment comment) {
+        resolveCommentAttachments(comment, parseImageLinks(comment.getContent()));
+        comment.setContent(resolveMentions(comment));
+    }
+
+    /**
+     * parses the json and looks for any image links or base64 images and saves them locally
+     *
+     * @param json linted json string
+     * @return the newJson string and the list of saved image names
+     */
+    public static Pair<String, List<String>> parseImageLinks(String json) {
+        // NOTE: this regex is better but java has a limitation for repetition inside lookbehinds
+        // REGEX: (?<=\{\"type\"\s*:\s*\"image\"\s*,.*\"src\"\s*:\s*\").*?(?=".*?\})
+        // this one works only if the given json is linted (no new-lines and no empty spaces between keys and values)
+        String pattern = "(?<=src\":\").*?(?=\")";
+        List<String> imageNames = new ArrayList<>();
+        String newJson = replace(Pattern.compile(pattern), src ->
+        {
+            if (src.startsWith("data:image/")) {
+                String extension = search("(?<=data:image/).*(?=;base64,)", src);
+                String base64 = search("(?<=;base64,).*", src);
+                String name = saveImage(base64, extension);
+                imageNames.add(name);
+                return EnvUtil.getServerUrl() + "/attachments/" + name;
+            } else {
+                if (src.startsWith("http") && !src.startsWith(EnvUtil.getServerUrl())) {
+                    try {
+                        URL url = new URL(src);
+                        var is = url.openStream();
+                        String extension = null;
+                        ImageInputStream iis = ImageIO.createImageInputStream(is);
+                        Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
+                        if (readers.hasNext()) {
+                            ImageReader reader = readers.next();
+                            extension = reader.getFormatName().toLowerCase(Locale.ROOT);
+                        }
+                        if (extension == null || extension.isEmpty()) {
+                            return src;
+                        }
+                        String name = FileSystem.randomMD5() + "." + extension;
+                        is.close();
+                        is = url.openStream();
+                        Files.copy(is, FileSystem.getAttachmentsPath().resolve(name));
+                        imageNames.add(name);
+                        return EnvUtil.getServerUrl() + "/attachments/" + name;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return src;
+        }, json);
+        return new Pair<>(newJson, imageNames);
+    }
+
+    /**
+     * save the base64 image locally with a random hashName
+     *
+     * @param base64    the image bytes in base64
+     * @param extension the image extension without a dot
+     * @return the saved image storage name with the extension
+     */
+    @Nullable
+    private static String saveImage(String base64, String extension) {
+        try {
+            byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(base64);
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
+            String name = FileSystem.randomMD5() + "." + extension;
+            var outputFile = FileSystem.getAttachmentsPath().resolve(name).toFile();
+            ImageIO.write(image, extension, outputFile);
+            return name;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -117,8 +210,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                 .build();
         Functions.safeRun(() -> comment.setFileTask(fileTaskRepository.findById(input.getFileTask().getId()).orElseThrow()));
         comment.setType(CommentType.Comment);
-        Pair<String, List<String>> changes = parseImageLinks(input.getContent());
-        resolveCommentAttachments(comment, changes);
+        resolveCommentAttachments(comment, parseImageLinks(input.getContent()));
         getRepository().save(comment);
         var currentAgent = agentRepository.findByUsername(((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
         EventController.sendForAllChannels(new Event<>("comment", comment));
@@ -129,83 +221,10 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     @SneakyThrows
     @PreAuthorize("hasPermission(#input.id, 'Comment', 'UPDATE_COMMENT')")
     public Comment update(CommentInput input) {
-        Pair<String, List<String>> changes = parseImageLinks(input.getContent());
         var comment = repository.findWithAttachmentsById(input.getId());
-        resolveCommentAttachments(comment, changes);
+        resolveCommentAttachments(comment, parseImageLinks(input.getContent()));
         repository.save(comment);
         return comment;
-    }
-
-    /**
-     * parses the json and looks for any image links or base64 images and saves them locally
-     *
-     * @param json linted json string
-     * @return the newJson string and the list of saved image names
-     */
-    private Pair<String, List<String>> parseImageLinks(String json) {
-        // NOTE: this regex is better but java has a limitation for repetition inside lookbehinds
-        // REGEX: (?<=\{\"type\"\s*:\s*\"image\"\s*,.*\"src\"\s*:\s*\").*?(?=".*?\})
-        // this one works only if the given json is linted (no empty spaces between keys and values)
-        String pattern = "(?<=src\":\").*?(?=\")";
-        List<String> imageNames = new ArrayList<>();
-        String newJson = replace(Pattern.compile(pattern), src ->
-        {
-            if (src.startsWith("data:image/")) {
-                String extension = search("(?<=data:image/).*(?=;base64,)", src);
-                String base64 = search("(?<=;base64,).*", src);
-                String name = saveImage(base64, extension);
-                imageNames.add(name);
-                return EnvUtil.getInstance().getServerUrlPrefi() + "/attachments/" + name;
-            } else {
-                if (src.startsWith("http") && !src.startsWith(EnvUtil.getInstance().getServerUrlPrefi())) {
-                    try {
-                        URL url = new URL(src);
-                        var is = url.openStream();
-                        String extension = null;
-                        ImageInputStream iis = ImageIO.createImageInputStream(is);
-                        Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
-                        if (readers.hasNext()) {
-                            ImageReader reader = readers.next();
-                            extension = reader.getFormatName().toLowerCase(Locale.ROOT);
-                        }
-                        if (extension == null || extension.isEmpty()) {
-                            return src;
-                        }
-                        String name = FileSystem.randomMD5() + "." + extension;
-                        is.close();
-                        is = url.openStream();
-                        Files.copy(is, fileSystem.getAttachmentsPath().resolve(name));
-                        imageNames.add(name);
-                        return EnvUtil.getInstance().getServerUrlPrefi() + "/attachments/" + name;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            return src;
-        }, json);
-        return new Pair<>(newJson, imageNames);
-    }
-
-    /**
-     * save the base64 image locally with a random hashName
-     * @param base64 the image bytes in base64
-     * @param extension the image extension without a dot
-     * @return the saved image storage name with the extension
-     */
-    @Nullable
-    private String saveImage(String base64, String extension) {
-        try {
-            byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(base64);
-            BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
-            String name = FileSystem.randomMD5() + "." + extension;
-            var outputFile = fileSystem.getAttachmentsPath().resolve(name).toFile();
-            ImageIO.write(image, extension, outputFile);
-            return name;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     @Override
@@ -232,48 +251,25 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     public String saveFile(DataFetchingEnvironment environment) throws IOException {
         var file = (ApplicationPart) environment.getArgument("image");
         var storageName = FileSystem.randomMD5() + "." + FilenameUtils.getExtension(file.getSubmittedFileName());
-        Files.copy(file.getInputStream(), fileSystem.getAttachmentsPath().resolve(storageName));
+        Files.copy(file.getInputStream(), FileSystem.getAttachmentsPath().resolve(storageName));
 //        attachFileRepository.save(AttachFile.builder()
 //                .storageName(storageName)
 //                .realName(file.getSubmittedFileName())
 //                .contentType(file.getContentType())
 //                .fileTask(fileTask)
 //                .build())
-        return EnvUtil.getInstance().getServerUrlPrefi() + "/attachments/" + storageName;
+        return EnvUtil.getServerUrl() + "/attachments/" + storageName;
     }
 
     public List<Comment> getAllCommentByFileId(Long fileId) {
         return getRepository().findAllByFileActivity_File_Id(fileId);
     }
 
-    // TODO: optimize
-    public boolean notifyMessage(NotifyMessageInput input) {
-        if (input.getAgentIds() != null) {
-            var comment = getRepository().findById(input.getIdComment()).orElseThrow();
-            var messages = input.getAgentIds().stream().distinct().map(agentId ->
-                    Message.builder()
-                            .readMessage(false)
-                            .comment(Comment.builder().id(comment.getId())
-                                    .fileActivity(FileActivity.builder().file(File.builder().id(comment.getFileActivity().getFile().getId())
-                                                    .project(comment.getFileActivity().getFile().getProject())
-                                                    .build())
-                                            .activity(Activity.builder().id(comment.getFileActivity().getActivity().getId())
-                                                    .name(comment.getFileActivity().getActivity().getName())
-                                                    .build()).build())
-                                    .fileTask(comment.getFileTask() != null ? FileTask.builder().id(comment.getFileTask().getId()).order(comment.getFileTask().getOrder())
-                                            .task(Task.builder().id(comment.getFileTask().getTask().getId()).name(comment.getFileTask().getTask().getName()).build()).build() : null)
-                                    .agent(Agent.builder().id(comment.getAgent().getId()).name(comment.getAgent().getName()).build()).build()).
-                            agent(Agent.builder().id(agentId).build()).build()
-            ).collect(Collectors.toList());
-            messageRepository.saveAll(messages);
-
-            messages.forEach(x -> EventController.sendForUser(x.getAgent().getId(), new Event<>("message", x)));
-            return true;
-        }
-        return false;
+    public Message getMessageByIdForThisAgent(long messageId) {
+        return messageRepository.findByIdAndAgent_Id(messageId, Agent.thisAgent().getId());
     }
 
-    public List<Message> getMessages(Long agentId) {
-        return messageRepository.findAllByAgent_Id(agentId, Sort.by(Sort.Direction.DESC, Message_.CREATED_DATE));
+    public List<Message> getAllMessagesForThisAgent() {
+        return messageRepository.findAllByAgent_IdOrderByCreatedDateDesc(Agent.thisAgent().getId());
     }
 }

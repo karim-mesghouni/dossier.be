@@ -3,5 +3,10 @@
     "name": "The creator of the thing can manage the thing // TODO: Bug(if the creator role changes he still can modify this thing)",
     "target": "true",
     "condition": "resource.agent != null && resource.agent.id > 0 && resource.agent.id == subject.id"
+  },
+  {
+    "name": "the current logged in agent can only read his messages or messages where he is mentioned",
+    "target": "action == 'READ_MESSAGE'",
+    "condition": "resource.agent.id == subject.id || resource.targetAgent.id == subject.id"
   }
 ]

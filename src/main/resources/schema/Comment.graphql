@@ -3,7 +3,8 @@ extend type Query  {
     allComment:[Comment]
     allCommentByFileId(fileId: ID! ):[Comment]
     comment(id: ID! ):Comment
-    messages(agentId:ID!):[Message]
+    allMessagesForThisAgent: [Message!]!
+    messageByIdForThisAgent(messageId: ID!): Message
 }
 #mutation
 extend type  Mutation{
@@ -11,7 +12,6 @@ extend type  Mutation{
     updateComment(input: CommentInput! ):Comment
     deleteComment(id: ID!): Boolean
     uploadImage(image: Upload!):String
-    notifyMessage(input: NotifyMessageInput!):Boolean
 }
 input CommentInput {
     id:ID
@@ -52,11 +52,12 @@ type Comment {
     type: CommentType
 
 }
-type  Message{
+type Message{
     id: ID
     readMessage: Boolean
     comment: Comment
     agent: Agent
+    targetAgent: Agent
 }
 interface IComment {
     id:ID

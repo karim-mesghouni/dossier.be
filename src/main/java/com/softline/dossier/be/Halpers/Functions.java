@@ -10,10 +10,10 @@ import java.util.function.Consumer;
 @Slf4j
 public class Functions {
     /**
-     * call the callback with the given value
+     * call the callback(s) with the given value
      * and then return the value.<br>
-     * useful if the value does not return itself,
-     * this allows to chain functions of the value
+     * useful to encapsulate objects that has methods which return void,
+     * this allows to chain functions on the value
      */
     @SafeVarargs // assert that `callbacks` variables are of type Consumer<T>
     public static <T> T tap(T value, Consumer<T>... callbacks) {
@@ -94,7 +94,7 @@ public class Functions {
     }
 
     /**
-     * produce a value and fallback if the value is empty or the producer threw an exception
+     * produce a value or use fallback value if the producer returned empty value or the producer threw an exception
      *
      * @param producer the value producer
      * @param fallback fallback value to be returned if the producer threw an exception or the producer return value was an empty value
