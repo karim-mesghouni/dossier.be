@@ -1,13 +1,8 @@
 package com.softline.dossier.be.Halpers;
 
-import com.softline.dossier.be.Application;
-import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.domain.Comment;
 import com.softline.dossier.be.domain.CommentAttachment;
 import com.softline.dossier.be.domain.Message;
-import com.softline.dossier.be.events.MessageEvent;
-import com.softline.dossier.be.events.types.EntityEvent;
-import com.softline.dossier.be.repository.MessageRepository;
 import com.softline.dossier.be.security.domain.Agent;
 import kotlin.Pair;
 import lombok.extern.slf4j.Slf4j;
@@ -67,8 +62,7 @@ public final class TipTap {
         return TextHelper.replace(Pattern.compile("(?<=\\{\"type\":\"mention\",\"attrs\":\\{\"id\":\")[^!]*?(?=\")"), agentId -> {
             Agent targetAgent = Agent.getByIdentifier(agentId);
             Message message = Message.builder().comment(comment).targetAgent(targetAgent).agent(Agent.thisAgent()).build();
-            Application.context.getBean(MessageRepository.class).saveAndFlush(message);
-            EventController.sendForUser(message.getTargetAgent().getId(), new MessageEvent(EntityEvent.Event.ADDED, message));
+            comment.getMessages().add(message);
             // add "!" to indicate that the mention has been handled
             // so next time it will not be captured by the above regex matcher (in the case where the comment was updated we won't re-create the Message again)
             return agentId + "!";

@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.*;
+import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.softline.dossier.be.Application.context;
 import static com.softline.dossier.be.Halpers.TipTap.resolveCommentContent;
 
 @Entity
@@ -46,21 +48,48 @@ public class Comment extends BaseEntity implements IComment {
     @OneToOne
     @NotFound(action = NotFoundAction.IGNORE)
     FileTask fileTask;
-    @OneToMany(mappedBy = "comment", orphanRemoval = true)
-    List<Message> messages;
+    @OneToMany(mappedBy = "comment", orphanRemoval = true, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @Builder.Default
+    @NotNull
+    List<Message> messages = new ArrayList<>();
 
     @OneToMany(mappedBy = "comment", orphanRemoval = true, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @Builder.Default
     List<CommentAttachment> attachments = new ArrayList<>();
 
+    @Transient
+    @Builder.Default
+    boolean needsResolving = true;
 
     /**
-     * Before we save the comment we will parse the json content,
-     * extract any foreign image links, and send messages to any mentioned agent
+     * after we save the comment we will parse the json content,
+     * extract any foreign image links and save them locally,
+     * then find any mentions and add them to the message list of the comment
+     *
+     * @see Message#sendEvent()
      */
-    @PrePersist
-    @PreUpdate
+    @PostPersist
+    @PostUpdate
     public void resolveContent() {
-        resolveCommentContent(this);
+        if (needsResolving) {
+            needsResolving = false;
+            resolveCommentContent(this);
+            context().getBean(EntityManager.class).persist(this);
+        }
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+        needsResolving = true;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "agent=" + agent +
+                ", id=" + id +
+                ", content='" + content + '\'' +
+                '}';
     }
 }

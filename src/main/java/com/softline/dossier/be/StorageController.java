@@ -22,7 +22,6 @@ import java.nio.file.Files;
 @Controller
 @RequiredArgsConstructor
 public class StorageController {
-    private final FileSystem fileSystem;
     private final FileTaskAttachmentRepository fileTaskAttachmentRepository;
     private final CommentAttachmentRepository commentAttachmentRepository;
 
@@ -44,6 +43,18 @@ public class StorageController {
                 .ok()
                 .headers(headers)
                 .contentType(MediaType.parseMediaType(attachment.getContentType()))
-                .body(new InputStreamResource(Files.newInputStream(fileSystem.getAttachmentsPath().resolve(attachment.getStorageName()))));
+                .body(new InputStreamResource(Files.newInputStream(FileSystem.getAttachmentsPath().resolve(attachment.getStorageName()))));
+    }
+
+    @GetMapping("/assets/{asset}")
+    public ResponseEntity<InputStreamResource> getAsset(@PathVariable String asset) throws IOException {
+        HttpHeaders headers = new HttpHeaders();
+        var path = FileSystem.getAssetsPath().resolve(asset);
+        headers.add("Content-Disposition", "inline; filename=" + asset);
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType(Files.probeContentType(path)))
+                .body(new InputStreamResource(Files.newInputStream(path)));
     }
 }

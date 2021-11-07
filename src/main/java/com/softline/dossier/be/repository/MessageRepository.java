@@ -10,5 +10,5 @@ import java.util.List;
 public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findAllByAgent_IdOrderByCreatedDateDesc(Long agentId);
 
-    Message findByIdAndAgent_Id(Long id, long agentId);
+    Message findByIdAndTargetAgent_Id(Long id, long targetAgentId);
 }

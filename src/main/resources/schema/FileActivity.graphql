@@ -1,15 +1,15 @@
 # Query
 extend type Query  {
     allFileActivity:[FileActivity]
-    fileActivity(id: ID! ):FileActivity
+    fileActivity(id: ID!):FileActivity
     allFileActivityByFileId(fileId: ID!):[FileActivity]
     allFileActivityByFileIdInTrash(fileId: ID!):[FileActivity]
 }
 
 #mutation
 extend type  Mutation{
-    createFileActivity(FileActivity: FileActivityInput! ):FileActivity
-    updateFileActivity(FileActivity: FileActivityInput! ):FileActivity
+    createFileActivity(FileActivity: FileActivityInput!):FileActivity
+    updateFileActivity(FileActivity: FileActivityInput!):FileActivity
     deleteFileActivity(id: Int!):Boolean
     changeActivityState(activityStateId: ID!, fileActivityId: ID!):ActivityState
     sendFileActivityToTrash(fileActivityId: ID!): Boolean

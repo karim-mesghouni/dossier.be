@@ -3,10 +3,10 @@ extend type Query  {
     getFileTask(fileTaskId: ID!): FileTask
     allFileTaskByAssignedToId(assignedToId: ID!):[FileTask]
     all: [FileTask]
-    fileTask(id: ID! ):FileTask
-    #   currentFilePhase(fileActivityId: ID! ):FileTask
-    #  currentFilePhaseState(fileAgentId: ID! ):FilePhaseState
-    # currentFilePhaseAgent(filePhaseId: ID! ):FilePhaseAgent
+    fileTask(id: ID!):FileTask
+    #   currentFilePhase(fileActivityId: ID!):FileTask
+    #  currentFilePhaseState(fileAgentId: ID!):FilePhaseState
+    # currentFilePhaseAgent(filePhaseId: ID!):FilePhaseAgent
     allFileTaskByFileActivityId(fileActivityId: ID!):[FileTask]
     allFileTaskByFileActivityIdInTrash(fileActivityId: ID!):[FileTask]
     allReturnedCause:[ReturnedCause]
@@ -14,20 +14,20 @@ extend type Query  {
 
 extend type Mutation{
     createFileTask(input: FileTaskInput!):FileTask
-    changeAssignedTo(assignedToId: ID!,fileTaskId: ID! ):Agent
-    changeReporter(reporterId: ID!,fileTaskId: ID! ):Agent
-    changeFileTaskSituation(situationId: ID!,fileTaskId: ID! ):FileTaskSituation
-    changeToStartDate(toStartDate: String!,fileTaskId: ID! ):Boolean
-    changeDueDate(dueDate: String!,fileTaskId: ID! ):Boolean
-    changeTitle(title: String,fileTaskId: ID! ):Boolean
+    changeAssignedTo(assignedToId: ID!,fileTaskId: ID!):Agent
+    changeReporter(reporterId: ID!,fileTaskId: ID!):Agent
+    changeFileTaskSituation(situationId: ID!,fileTaskId: ID!):FileTaskSituation
+    changeToStartDate(toStartDate: String!,fileTaskId: ID!):Boolean
+    changeDueDate(dueDate: String!,fileTaskId: ID!):Boolean
+    changeTitle(title: String,fileTaskId: ID!):Boolean
     changeDescription(input: CommentInput):DescriptionComment
     changeRetour(input: CommentInput):ReturnedComment
     changeDataField(input: ActivityDataFieldInput):Boolean
-    # changeAgent(agentId: ID!,phaseFileAgentId: ID! ):FilePhaseAgent
-    # changePhaseState(stateId: ID!,phaseFileAgentId: ID! ):FilePhaseState
+    # changeAgent(agentId: ID!,phaseFileAgentId: ID!):FilePhaseAgent
+    # changePhaseState(stateId: ID!,phaseFileAgentId: ID!):FilePhaseState
     updateFileTask(input: FileTaskInput!):FileTask
     changeState(fileTaskId:ID! ,taskStateId: ID!):TaskState
-    changeReturnedCause(fileTaskId:ID!,returnedCauseId: ID! ): ReturnedCause
+    changeReturnedCause(fileTaskId:ID!,returnedCauseId: ID!): ReturnedCause
     changeReturned(fileTaskId:ID! ,returned: Boolean!):Boolean
     createChildFileTask(input: FileTaskInput!):FileTask
     changeParent(fileTaskId:ID!,parentId:ID):Boolean

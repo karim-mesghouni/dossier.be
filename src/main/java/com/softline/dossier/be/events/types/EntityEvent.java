@@ -1,12 +1,14 @@
 package com.softline.dossier.be.events.types;
 
-import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Locale;
 
+@Slf4j(topic = "EntityEvent")
 public abstract class EntityEvent extends Event<JSONObject> implements Serializable {
     public EntityEvent(String type) {
         super();
@@ -14,10 +16,14 @@ public abstract class EntityEvent extends Event<JSONObject> implements Serializa
         payload = new JSONObject();
     }
 
-    @SneakyThrows
     public void addData(String attribute, @Nullable Object value) {
         if (!payload.has(attribute)) {
-            payload.put(attribute, value);
+            try {
+                payload.put(attribute, value);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                log.error("{}: failed to put json data of type : {}", getClass().getName(), value.getClass().getName());
+            }
         }
     }
 

@@ -16,6 +16,7 @@ import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -179,6 +180,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     @Transactional
+    @PreAuthorize("hasPermission(#commentInput.fileTask.id, 'FileTask', 'UPDATE_FILE_TASK')")
     public DescriptionComment changeDescription(CommentInput commentInput) {
         var fileTask = getRepository().findById(commentInput.getFileTask().getId()).orElseThrow();
         var description = fileTask.getDescription();
@@ -197,6 +199,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return description;
     }
 
+    @PreAuthorize("hasPermission(#retour.fileTask.id, 'FileTask', 'CHANGE_FILE_TASK_RETOUR')")
     public ReturnedComment changeRetour(CommentInput retour) {
         if (retour.getId() != null) {
             var retourExist = returnedCommentRepository.findById(retour.getId()).orElseThrow();

@@ -11,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
 
 @Component
 public class FileSystem {
-    private static Path attachmentsPath;
+    private static Path attachmentsPath, assetsPath;
 
     public static String randomMD5() {
         MessageDigest md;
@@ -40,5 +40,18 @@ public class FileSystem {
             }
         }
         return attachmentsPath;
+    }
+
+    @SneakyThrows
+    public static Path getAssetsPath() {
+        if (assetsPath == null) {
+            assetsPath = EnvUtil.getStoragePath().resolve("assets");
+            if (!assetsPath.toFile().exists()) {
+                if (!assetsPath.toFile().mkdirs()) {
+                    throw new IOException("could not create assets storage");
+                }
+            }
+        }
+        return assetsPath;
     }
 }

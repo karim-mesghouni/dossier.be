@@ -1,15 +1,16 @@
 # Query
 extend type Query  {
     allComment:[Comment]
-    allCommentByFileId(fileId: ID! ):[Comment]
-    comment(id: ID! ):Comment
+    allCommentByFileId(fileId: ID!):[Comment]
+    comment(id: ID!):Comment
     allMessagesForThisAgent: [Message!]!
     messageByIdForThisAgent(messageId: ID!): Message
 }
 #mutation
 extend type  Mutation{
-    createComment(input: CommentInput! ):Comment
-    updateComment(input: CommentInput! ):Comment
+    readMessage(messageId: ID!): Boolean
+    createComment(input: CommentInput!):Comment
+    updateComment(input: CommentInput!):Comment
     deleteComment(id: ID!): Boolean
     uploadImage(image: Upload!):String
 }

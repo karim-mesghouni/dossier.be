@@ -1,14 +1,20 @@
 package com.softline.dossier.be.events;
 
+import com.softline.dossier.be.domain.File;
 import com.softline.dossier.be.domain.Message;
 import com.softline.dossier.be.events.types.EntityEvent;
 
+import javax.persistence.EntityManager;
+
+import static com.softline.dossier.be.Application.context;
 import static com.softline.dossier.be.Halpers.Functions.safeValue;
 
-public class MessageEvent extends EntityEvent {
+public class TaskEvent extends EntityEvent {
 
-    public MessageEvent(Event type, Message message) {
-        super("message" + type);
+    public TaskEvent(Event type, Message message) {
+        super("task" + type);
+        var em = context().getBean(EntityManager.class);
+        var file = em.find(File.class, 1);
         addData("messageId", message.getId());
         addData("commentId", message.getComment().getId());
         addData("targetId", message.getTargetAgent().getId());

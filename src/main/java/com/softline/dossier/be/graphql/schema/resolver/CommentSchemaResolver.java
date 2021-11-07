@@ -4,6 +4,7 @@ import com.softline.dossier.be.domain.Comment;
 import com.softline.dossier.be.domain.Message;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.repository.CommentRepository;
+import com.softline.dossier.be.repository.MessageRepository;
 import com.softline.dossier.be.service.CommentService;
 import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import graphql.schema.DataFetchingEnvironment;
@@ -17,6 +18,8 @@ import javax.servlet.http.Part;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+
+import static com.softline.dossier.be.Application.context;
 
 @Component
 @RequiredArgsConstructor
@@ -62,5 +65,13 @@ public class CommentSchemaResolver extends SchemaResolverBase<Comment, CommentIn
     @PostAuthorize("hasPermission(returnObject, 'READ_MESSAGE')")
     public Message messageByIdForThisAgent(long messageId) {
         return service.getMessageByIdForThisAgent(messageId);
+    }
+
+    @PostAuthorize("hasPermission(#messageId, 'Message', 'READ_MESSAGE')")
+    public boolean readMessage(long messageId) {
+        Message message = context().getBean(MessageRepository.class).findById(messageId).orElseThrow();
+        message.read();
+        context().getBean(MessageRepository.class).save(message);
+        return true;
     }
 }

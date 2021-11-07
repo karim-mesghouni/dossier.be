@@ -1,16 +1,17 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.SSE.EventController;
+import com.softline.dossier.be.events.MessageEvent;
+import com.softline.dossier.be.events.types.EntityEvent;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
+import javax.persistence.Entity;
 import javax.persistence.*;
 
 @SuperBuilder
@@ -21,6 +22,8 @@ import javax.persistence.*;
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE Message SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
+@DynamicUpdate
+@SelectBeforeUpdate
 public class Message extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,4 +38,30 @@ public class Message extends BaseEntity {
     @JoinColumn
     @NotFound(action = NotFoundAction.IGNORE)
     Agent targetAgent;
+
+
+    /**
+     * send event to the mentioned user
+     */
+    @PostPersist
+    public void sendEvent() {
+        EventController.sendForUser(getTargetAgent().getId(), new MessageEvent(EntityEvent.Event.ADDED, this));
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "id=" + id +
+                ", comment=" + comment +
+                ", targetAgent=" + targetAgent +
+                ", readMessage=" + readMessage +
+                '}';
+    }
+
+    /**
+     * mark message as read
+     */
+    public void read() {
+        setReadMessage(true);
+    }
 }

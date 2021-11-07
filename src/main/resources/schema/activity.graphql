@@ -1,13 +1,13 @@
 # Query
 extend type Query  {
     allActivity:[Activity]
-    activity(id: ID! ):Activity
+    activity(id: ID!):Activity
 }
 
 #mutation
 extend type  Mutation{
-    createActivity(Activity: ActivityInput! ):Activity
-    updateActivity(Activity: ActivityInput! ):Activity
+    createActivity(Activity: ActivityInput!):Activity
+    updateActivity(Activity: ActivityInput!):Activity
     deleteActivity(id: ID!): Boolean
 }
 

@@ -1,7 +1,7 @@
 # Query
 extend type Query  {
-    blocking(id: ID! ):Blocking
-    blockingByFileTaskId(fileTaskId: ID! ):[Blocking]
+    blocking(id: ID!):Blocking
+    blockingByFileTaskId(fileTaskId: ID!):[Blocking]
     allLockingAddress:[BlockingLockingAddress]
     allLables:[BlockingLabel]
     allQualification:[BlockingQualification]
@@ -9,8 +9,8 @@ extend type Query  {
 
 #mutation
 extend type Mutation{
-    createBlocking(input: BlockingInput! ):Blocking
-    updateBlocking(input: BlockingInput! ):Blocking
+    createBlocking(input: BlockingInput!):Blocking
+    updateBlocking(input: BlockingInput!):Blocking
     deleteBlocking(id: ID!): Boolean
 }
 

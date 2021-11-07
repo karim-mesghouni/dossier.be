@@ -31,4 +31,5 @@ public class FileInput {
     boolean inTrash;
     long order;
     private Long id;
+    AgentInput agent;
 }

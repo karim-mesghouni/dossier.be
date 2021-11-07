@@ -24,5 +24,10 @@
     "name": "Referent can create File with his base activity",
     "target": "subject.role.name == 'REFERENT' && action == 'CREATE_FILE'",
     "condition": "resource.baseActivity.id == subject.activity.id"
+  },
+  {
+    "name": "Referent can update fileTasks inside his fileActivity",
+    "target": "subject.role.name == 'REFERENT' && action == 'UPDATE_FILE_TASK'",
+    "condition": "resource.fileActivity.activity.id == subject.activity.id"
   }
 ]

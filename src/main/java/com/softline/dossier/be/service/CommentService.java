@@ -6,7 +6,8 @@ import com.softline.dossier.be.Halpers.Functions;
 import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
-import com.softline.dossier.be.events.types.Event;
+import com.softline.dossier.be.events.CommentEvent;
+import com.softline.dossier.be.events.types.EntityEvent;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.repository.CommentRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
@@ -16,7 +17,6 @@ import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
@@ -62,12 +62,11 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         Functions.safeRun(() -> comment.setFileTask(fileTaskRepository.findById(input.getFileTask().getId()).orElseThrow()));
         comment.setType(CommentType.Comment);
         getRepository().save(comment);
-        EventController.sendForAllChannels(new Event<>("comment", comment));
+        EventController.sendForAllChannels(new CommentEvent(EntityEvent.Event.ADDED, comment));
         return comment;
     }
 
     @Override
-    @SneakyThrows
     @PreAuthorize("hasPermission(#input.id, 'Comment', 'UPDATE_COMMENT')")
     public Comment update(CommentInput input) {
         var comment = repository.findWithAttachmentsById(input.getId());
@@ -114,7 +113,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     }
 
     public Message getMessageByIdForThisAgent(long messageId) {
-        return messageRepository.findByIdAndAgent_Id(messageId, Agent.thisAgent().getId());
+        return messageRepository.findByIdAndTargetAgent_Id(messageId, Agent.thisAgent().getId());
     }
 
     public List<Message> getAllMessagesForThisAgent() {

@@ -8,5 +8,10 @@
     "name": "the current logged in agent can only read his messages or messages where he is mentioned",
     "target": "action == 'READ_MESSAGE'",
     "condition": "resource.agent.id == subject.id || resource.targetAgent.id == subject.id"
+  },
+  {
+    "name": "the current logged in agent can only update or delete his own comments",
+    "target": "{'UPDATE_COMMENT', 'DELETE_COMMENT'}.contains(action)",
+    "condition": "resource.agent.id == subject.id"
   }
 ]
