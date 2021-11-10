@@ -2,18 +2,13 @@ package com.softline.dossier.be.service;
 
 import com.softline.dossier.be.Halpers.EnvUtil;
 import com.softline.dossier.be.Halpers.FileSystem;
-import com.softline.dossier.be.Halpers.Functions;
-import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
-import com.softline.dossier.be.events.CommentEvent;
-import com.softline.dossier.be.events.types.EntityEvent;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.repository.CommentRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
 import com.softline.dossier.be.repository.FileTaskRepository;
 import com.softline.dossier.be.repository.MessageRepository;
-import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+
+import static com.softline.dossier.be.Halpers.Functions.safeRun;
+import static com.softline.dossier.be.security.domain.Agent.thisAgent;
+import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 
 
 @Transactional
@@ -48,7 +47,6 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     @Override
     public Comment create(CommentInput input) throws IOException {
         var fileActivity = fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();
-        var agnet = agentRepository.findById(input.getAgent().getId()).orElseThrow();
         var comment = Comment.builder()
                 .fileActivity(FileActivity.builder()
                         .id(fileActivity.getId())
@@ -57,20 +55,19 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                         .build()
                 )
                 .content(input.getContent())
-                .agent(Agent.builder().name(agnet.getName()).id(agnet.getId()).build())
+                .agent(thisDBAgent())
                 .build();
-        Functions.safeRun(() -> comment.setFileTask(fileTaskRepository.findById(input.getFileTask().getId()).orElseThrow()));
+        safeRun(() -> comment.setFileTask(fileTaskRepository.findById(input.getFileTask().getId()).orElseThrow()));
         comment.setType(CommentType.Comment);
         getRepository().save(comment);
-        EventController.sendForAllChannels(new CommentEvent(EntityEvent.Event.ADDED, comment));
         return comment;
     }
 
     @Override
     @PreAuthorize("hasPermission(#input.id, 'Comment', 'UPDATE_COMMENT')")
     public Comment update(CommentInput input) {
-        var comment = repository.findWithAttachmentsById(input.getId());
-        repository.save(comment);
+        var comment = repository.findById(input.getId()).orElseThrow();
+        comment.setContent(input.getContent());
         return comment;
     }
 
@@ -113,10 +110,10 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     }
 
     public Message getMessageByIdForThisAgent(long messageId) {
-        return messageRepository.findByIdAndTargetAgent_Id(messageId, Agent.thisAgent().getId());
+        return messageRepository.findByIdAndTargetAgent_Id(messageId, thisAgent().getId());
     }
 
     public List<Message> getAllMessagesForThisAgent() {
-        return messageRepository.findAllByAgent_IdOrderByCreatedDateDesc(Agent.thisAgent().getId());
+        return messageRepository.findAllByAgent_IdOrderByCreatedDateDesc(thisAgent().getId());
     }
 }

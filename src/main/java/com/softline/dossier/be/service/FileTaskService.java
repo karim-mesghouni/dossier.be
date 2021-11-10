@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
+
 @Transactional
 @Service
 @RequiredArgsConstructor
@@ -187,7 +189,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         if (description == null) {
             description = DescriptionComment.builder()
                     .fileTask(fileTask)
-                    .agent((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                    .agent(thisDBAgent())
                     .type(CommentType.Description)
                     .fileActivity(fileTask.getFileActivity())
                     .createdDate(LocalDateTime.now())
@@ -213,7 +215,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                     .fileActivity(fileActivity)
                     .content(retour.getContent())
                     .fileTask(fileTask)
-                    .agent(agentRepository.findById(retour.getAgent().getId()).orElseThrow())
+                    .agent(thisDBAgent())
                     .build()
             );
             fileTask.setRetour(retourNew);
@@ -235,6 +237,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return returnedCause;
     }
 
+    @PreAuthorize("hasPermission(#fileTaskId, 'FilTask', 'CHANGE_FILE_TASK_STATE')")
     public TaskState changeState(Long fileTaskId, Long taskStateId) {
         var taskState = taskStateRepository.findById(taskStateId).orElseThrow();
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
@@ -282,7 +285,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 () -> getRepository().getOne(fileTaskId).setParent(null)
         )) {
             var fileTask = getRepository().getOne(fileTaskId);
-            new FileTaskEvent(EntityEvent.Event.UPDATED, fileTask).fireToAll();
+            new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
             return true;
         }
         return false;
@@ -295,14 +298,14 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     public boolean recoverFileTaskFromTrash(Long fileTaskId) {
         var fileTask = getRepository().getOne(fileTaskId);
         fileTask.setInTrash(false);
-        new FileTaskEvent(EntityEvent.Event.RECOVERED, fileTask).fireToAll();
+        new FileTaskEvent(EntityEvent.Type.RECOVERED, fileTask).fireToAll();
         return true;
     }
 
     public boolean sendFileTaskToTrash(Long fileTaskId) {
         var fileTask = getRepository().getOne(fileTaskId);
         fileTask.setInTrash(true);
-        new FileTaskEvent(EntityEvent.Event.TRASHED, fileTask).fireToAll();
+        new FileTaskEvent(EntityEvent.Type.TRASHED, fileTask).fireToAll();
         return true;
     }
 

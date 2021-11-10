@@ -8,6 +8,9 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Locale;
 
+/**
+ * A wrapper class for any entity action events that will happen during the request life-cycle
+ */
 @Slf4j(topic = "EntityEvent")
 public abstract class EntityEvent extends Event<JSONObject> implements Serializable {
     public EntityEvent(String type) {
@@ -22,12 +25,12 @@ public abstract class EntityEvent extends Event<JSONObject> implements Serializa
                 payload.put(attribute, value);
             } catch (JSONException e) {
                 e.printStackTrace();
-                log.error("{}: failed to put json data of type : {}", getClass().getName(), value.getClass().getName());
+                log.error("{}: failed to put json data of type : {}", getClass().getName(), value == null ? "null" : value.getClass().getName());
             }
         }
     }
 
-    public enum Event {
+    public enum Type {
         TRASHED,
         UPDATED,
         RECOVERED,

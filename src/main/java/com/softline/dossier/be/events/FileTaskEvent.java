@@ -5,7 +5,7 @@ import com.softline.dossier.be.events.types.EntityEvent;
 
 public class FileTaskEvent extends EntityEvent {
 
-    public FileTaskEvent(Event type, FileTask fileTask) {
+    public FileTaskEvent(Type type, FileTask fileTask) {
         super("fileTask" + type);
         addData("fileTaskId", fileTask.getId());
         addData("fileActivityId", fileTask.getFileActivity().getId());

@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 
 public interface AgentRepository extends JpaRepository<Agent, Long> {
-    @Query("select a from Agent a where :search is null or a.username like %:search% or a.name like %:search% order by a.createdDate desc")
+    @Query("select a from Agent a where :search is null or a.username like %:search% or a.name like %:search% order by a.role.name, a.activity.name")
     List<Agent> findBySearch(String search);
 
     Agent findByUsername(String userName);

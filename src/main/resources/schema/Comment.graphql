@@ -2,7 +2,7 @@
 extend type Query  {
     allComment:[Comment]
     allCommentByFileId(fileId: ID!):[Comment]
-    comment(id: ID!):Comment
+    comment(commentId: ID!):Comment
     allMessagesForThisAgent: [Message!]!
     messageByIdForThisAgent(messageId: ID!): Message
 }
@@ -11,17 +11,15 @@ extend type  Mutation{
     readMessage(messageId: ID!): Boolean
     createComment(input: CommentInput!):Comment
     updateComment(input: CommentInput!):Comment
-    deleteComment(id: ID!): Boolean
+    deleteComment(commentId: ID!): Boolean
     uploadImage(image: Upload!):String
 }
 input CommentInput {
     id:ID
     content:String
     fileActivity: FileActivityInput
-    agent: AgentInput
-    createdDate:String
     fileTask:FileTaskInput
-    attachments: [AttachmentInput]
+    type: CommentType
 }
 type  DescriptionComment implements IComment{
     id:ID
@@ -31,7 +29,6 @@ type  DescriptionComment implements IComment{
     createdDate: String
     fileTask: FileTask
     type: CommentType
-
 }
 type  ReturnedComment implements IComment{
     id:ID
@@ -41,7 +38,6 @@ type  ReturnedComment implements IComment{
     createdDate: String
     fileTask: FileTask
     type: CommentType
-
 }
 type Comment {
     id:ID
@@ -51,7 +47,6 @@ type Comment {
     createdDate: String
     fileTask: FileTask
     type: CommentType
-
 }
 type Message{
     id: ID
@@ -67,7 +62,6 @@ interface IComment {
     agent: Agent
     fileTask: FileTask
     type: CommentType
-
 }
 enum CommentType{
     Comment,

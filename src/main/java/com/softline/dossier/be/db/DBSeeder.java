@@ -25,6 +25,8 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.softline.dossier.be.Halpers.DateHelpers.*;
+import static com.softline.dossier.be.Halpers.Functions.runNTimes;
+import static com.softline.dossier.be.Halpers.Functions.safeValue;
 import static com.softline.dossier.be.db.SeederHelper.*;
 
 @Component
@@ -244,21 +246,22 @@ public class DBSeeder implements ApplicationRunner {
                         .activity(baseActivity)
                         .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(baseActivity.getId()))
                         .current(true)
-                        .agent(getOne(agents))
+                        .agent(getOne(agents, a -> safeValue(() -> a.getActivity().getId(), -1L) == baseActivity.getId()))
                         .file(file)
                         .order(++ord.fileActivityOrder).build()));
-
-                fileActivities.addAll(ListUtils.createCount(faker.number().numberBetween(0, 6), () ->
-                                FileActivity.builder()
-                                        .activity(getOne(activities))
-                                        .state(getOne(activityStates))
-                                        .agent(getOne(agents))
-                                        .current(false)
-                                        .file(file)
-                                        .order(++ord.fileActivityOrder)
-                                        .build()
-                        )
-                );
+                runNTimes(faker.number().numberBetween(0, 7), () -> {
+                    var fa = FileActivity.builder()
+                            .activity(getOne(activities))
+                            .state(getOne(activityStates))
+                            .agent(getOne(agents, a -> safeValue(() -> a.getActivity().getId(), -1L) == baseActivity.getId()))
+                            .current(false)
+                            .file(file)
+                            .order(++ord.fileActivityOrder)
+                            .build();
+                    if (fileActivities.stream().noneMatch(f -> f.getActivity().getId() == fa.getActivity().getId())) {
+                        fileActivities.add(fa);
+                    }
+                });
                 fileActivities.forEach(fileActivity ->
                 {
                     ord.fileTaskOrder = 0;

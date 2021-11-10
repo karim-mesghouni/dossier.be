@@ -1,7 +1,7 @@
 # Query
 extend type Query  {
-    allFile:[File]
-    file(id: ID!):File
+    allFile:[File!]!
+    file(id: ID!): File
     allFilePageFilter(filter: FileFilterInput!):PageList
     fileHistory(id: ID!):[HistoryDTO]
     allFileStateType:[FileStateType]
@@ -83,7 +83,7 @@ enum FileType{
     Reprise
 }
 type PageList{
-    page: [File]
+    page: [File!]!
     count: Int
 }
 

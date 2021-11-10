@@ -7,7 +7,7 @@ import static com.softline.dossier.be.Halpers.Functions.safeValue;
 
 public class CommentEvent extends EntityEvent {
 
-    public CommentEvent(Event type, Comment comment) {
+    public CommentEvent(Type type, Comment comment) {
         super("comment" + type);
         addData("commentId", comment.getId());
         addData("fileActivityId", safeValue(() -> comment.getFileActivity().getId(), null));

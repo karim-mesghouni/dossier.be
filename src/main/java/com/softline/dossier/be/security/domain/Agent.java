@@ -11,11 +11,16 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SelectBeforeUpdate;
 import org.hibernate.annotations.Where;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
+
+import static com.softline.dossier.be.Halpers.Functions.safeRun;
+import static com.softline.dossier.be.Halpers.Functions.throwIfEmpty;
 
 @SuperBuilder
 @Entity
@@ -86,7 +91,7 @@ public class Agent extends BaseEntity {
     /**
      * @return the current agent retrieved from the database
      */
-    public static Agent thisDBAgent() {
+    public static Agent thisDBAgent() throws NoSuchElementException {
         return Application.context.getBean(AgentRepository.class).findById(thisAgent().getId()).orElseThrow();
     }
 
@@ -106,9 +111,23 @@ public class Agent extends BaseEntity {
     }
 
     /**
-     * @return the agent loaded from the database
+     * @return the authentication extracted from the token
      */
-    public static Agent getByIdentifier(Agent id) {
-        return getByIdentifier(id.getId());
+    public static Authentication auth() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    /**
+     * @return true if the request contains a valid jwt token with user data
+     */
+    public static boolean isLoggedIn() {
+        return safeRun(() -> throwIfEmpty(thisAgent().getId()));// will return false if the value retrieval fails
+    }
+
+    /**
+     * @return false if the request contains a valid jwt token with user data
+     */
+    public static boolean notLoggedIn() {
+        return !isLoggedIn();
     }
 }

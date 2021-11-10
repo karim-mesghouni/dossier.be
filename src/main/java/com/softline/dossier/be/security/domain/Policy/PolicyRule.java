@@ -1,38 +1,31 @@
 package com.softline.dossier.be.security.domain.Policy;
 
-import lombok.Data;
 import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 
-@Data
 public class PolicyRule {
-    private static SpelExpressionParser parser = new SpelExpressionParser();
-
-    private String name;
-    private String description;
+    public String name;
+    public String description;
     /*
      * Boolean SpEL expression. If evaluated to true, then this rule is applied to the request access context.
      */
-    private Expression target;
-
+    public Expression target;
     /*
      * Boolean SpEL expression, if evaluated to true, then access granted.
      */
-    private Expression condition;
+    public Expression condition;
 
+    // required by object mapper
     public PolicyRule() {
 
     }
 
-    public PolicyRule(String name, String description, Expression target, Expression condition) {
-        this(target, condition);
-        this.name = name;
-        this.description = description;
-    }
-
-    public PolicyRule(Expression target, Expression condition) {
-        super();
-        this.target = target;
-        this.condition = condition;
+    @Override
+    public String toString() {
+        return "PolicyRule{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", target=" + target.getExpressionString() +
+                ", condition=" + condition.getExpressionString() +
+                '}';
     }
 }

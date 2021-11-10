@@ -83,35 +83,24 @@ public class Functions {
      * @throws E if the value (is string and empty) or (is number and equal to 0) or (is object and null) or (is Optional and isEmpty())
      */
     public static <T, E extends Throwable> T throwIfEmpty(T value, E throwable) throws E {
-        if (Objects.isNull(value)
-                || (value instanceof Boolean && !(Boolean) value)
-                || (value instanceof CharSequence && ((CharSequence) value).length() == 0)
-                || (value instanceof Optional && ((Optional<?>) value).isEmpty())
-                || (value instanceof Number && ((Number) value).doubleValue() == 0)) {
+        try {
+            return throwIfEmpty(value);
+        } catch (Throwable e) {
             throw throwable;
         }
-        return value;
     }
 
     /**
-     * produce a value or use fallback value if the producer returned empty value or the producer threw an exception
+     * produce a value or use fallback value if the producer returned empty value or the producer threw an exception,
+     * Value is considered empty it (is string and empty) or (is number and equal to 0)
+     * or (is object and null) or (is Optional and isEmpty())
      *
      * @param producer the value producer
      * @param fallback fallback value to be returned if the producer threw an exception or the producer return value was an empty value
      */
     public static <T> T safeValue(Callable<T> producer, T fallback) {
         try {
-            T value = producer.call();
-            if (Objects.isNull(value)
-                    || (value instanceof Boolean && !(Boolean) value)
-                    || (value instanceof CharSequence && ((CharSequence) value).length() == 0)
-                    || (value instanceof Optional && ((Optional<?>) value).isEmpty())
-                    || (value instanceof Number && ((Number) value).doubleValue() == 0)) {
-                log.error("safeValue: value was empty returning fallback");
-                return fallback;
-            } else {
-                return value;
-            }
+            return throwIfEmpty(producer.call());
         } catch (Throwable e) {
             log.error("safeValue: {}, returning fallback", e.getMessage());
             return fallback;
@@ -135,5 +124,13 @@ public class Functions {
             log.error("SafeRun: {}, running fallback action", e.getMessage());
             return safeRun(fallback);
         }
+    }
+
+    /**
+     * call the action n number of times
+     */
+    public static void runNTimes(int n, Runnable action) {
+        for (int i = 0; i < n; i++)
+            action.run();
     }
 }

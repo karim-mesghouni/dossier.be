@@ -6,7 +6,7 @@ import lombok.SneakyThrows;
 
 public class AgentEvent extends EntityEvent {
     @SneakyThrows
-    public AgentEvent(Event type, Agent agent) {
+    public AgentEvent(Type type, Agent agent) {
         super("agent" + type);
         addData("agentId", agent.getId());
     }

@@ -11,7 +11,7 @@ import static com.softline.dossier.be.Halpers.Functions.safeValue;
 
 public class TaskEvent extends EntityEvent {
 
-    public TaskEvent(Event type, Message message) {
+    public TaskEvent(Type type, Message message) {
         super("task" + type);
         var em = context().getBean(EntityManager.class);
         var file = em.find(File.class, 1);

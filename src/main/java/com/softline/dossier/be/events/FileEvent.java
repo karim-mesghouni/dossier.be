@@ -4,7 +4,7 @@ import com.softline.dossier.be.domain.File;
 import com.softline.dossier.be.events.types.EntityEvent;
 
 public class FileEvent extends EntityEvent {
-    public FileEvent(Event type, File file) {
+    public FileEvent(Type type, File file) {
         super("file" + type);
         addData("fileId", file.getId());
         addData("baseActivityId", file.getBaseActivity().getId());

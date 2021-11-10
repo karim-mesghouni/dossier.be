@@ -1,5 +1,6 @@
 package com.softline.dossier.be.Halpers;
 
+import org.apache.logging.log4j.message.ParameterizedMessage;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,5 +36,15 @@ public final class TextHelper {
         }
         m.appendTail(newSubject);
         return newSubject.toString();
+    }
+
+    /**
+     * Format the given text with the given arguments,
+     * argument format in text is {} like in Slf4j logger
+     */
+    public static String format(String format, Object... args) {
+        var sb = new StringBuilder();
+        new ParameterizedMessage(format, args).formatTo(sb);
+        return sb.toString();
     }
 }

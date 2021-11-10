@@ -1,6 +1,8 @@
 package com.softline.dossier.be.domain;
 
 import com.softline.dossier.be.domain.enums.CommentType;
+import com.softline.dossier.be.events.CommentEvent;
+import com.softline.dossier.be.events.types.EntityEvent;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +15,6 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.softline.dossier.be.Application.context;
 import static com.softline.dossier.be.Halpers.TipTap.resolveCommentContent;
 
 @Entity
@@ -48,7 +49,7 @@ public class Comment extends BaseEntity implements IComment {
     @OneToOne
     @NotFound(action = NotFoundAction.IGNORE)
     FileTask fileTask;
-    @OneToMany(mappedBy = "comment", orphanRemoval = true, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "comment", orphanRemoval = true, cascade = CascadeType.ALL)
     @Builder.Default
     @NotNull
     List<Message> messages = new ArrayList<>();
@@ -61,6 +62,22 @@ public class Comment extends BaseEntity implements IComment {
     @Builder.Default
     boolean needsResolving = true;
 
+
+    @PostUpdate
+    private void afterUpdate() {
+        new CommentEvent(EntityEvent.Type.UPDATED, this).fireToAll();
+    }
+
+    @PostPersist
+    private void afterCreate() {
+        new CommentEvent(EntityEvent.Type.ADDED, this).fireToAll();
+    }
+
+    @PostRemove
+    private void afterRemove() {
+        new CommentEvent(EntityEvent.Type.DELETED, this).fireToAll();
+    }
+
     /**
      * after we save the comment we will parse the json content,
      * extract any foreign image links and save them locally,
@@ -68,21 +85,19 @@ public class Comment extends BaseEntity implements IComment {
      *
      * @see Message#sendEvent()
      */
-    @PostPersist
-    @PostUpdate
-    public void resolveContent() {
+    @PreUpdate
+    @PrePersist
+    private void resolveContent() {
         if (needsResolving) {
             needsResolving = false;
             resolveCommentContent(this);
-            context().getBean(EntityManager.class).persist(this);
         }
     }
 
     public void setContent(String content) {
         this.content = content;
-        needsResolving = true;
+        needsResolving = true;// marks it for resolving for the next persist or update call
     }
-
 
     @Override
     public String toString() {

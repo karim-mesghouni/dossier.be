@@ -1,2 +1,7 @@
 [
+  {
+    "name": "Validator can change the fileTaskState if he is linked to the activity",
+    "target": "action == 'CHANGE_FILE_TASK_STATE' && subject.role.name == 'VALIDATOR'",
+    "condition": "resource.fileActivity.activity.id == subject.activity.id"
+  }
 ]

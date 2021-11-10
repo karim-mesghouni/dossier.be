@@ -2,22 +2,17 @@ package com.softline.dossier.be.service;
 
 import com.softline.dossier.be.domain.ActivityDataField;
 import com.softline.dossier.be.domain.ActivityState;
-import com.softline.dossier.be.domain.File;
 import com.softline.dossier.be.domain.FileActivity;
 import com.softline.dossier.be.events.FileActivityEvent;
 import com.softline.dossier.be.events.types.EntityEvent;
 import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
-import com.softline.dossier.be.repository.ActivityDataFieldRepository;
-import com.softline.dossier.be.repository.ActivityRepository;
-import com.softline.dossier.be.repository.ActivityStateRepository;
-import com.softline.dossier.be.repository.FileActivityRepository;
+import com.softline.dossier.be.repository.*;
 import com.softline.dossier.be.security.config.AbacPermissionEvaluator;
 import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +21,10 @@ import javax.persistence.PersistenceContext;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import static com.softline.dossier.be.Application.context;
 import static com.softline.dossier.be.Halpers.Functions.safeValue;
+import static com.softline.dossier.be.Halpers.TextHelper.format;
+import static com.softline.dossier.be.security.config.AbacPermissionEvaluator.cannot;
 
 @Transactional
 @Service
@@ -46,18 +44,15 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
 
     @Override
     public FileActivity create(FileActivityInput entityInput) {
-        var fileActivityOrder = getRepository().getMaxOrder();
-        if (fileActivityOrder == null) {
-            fileActivityOrder = 0;
-        }
-        fileActivityOrder++;
-        var activity = activityRepository.getOne(entityInput.getActivity().getId());
+        var fileId = entityInput.getFile().getId();
+        var file = context().getBean(FileRepository.class).findById(fileId).orElseThrow();// validate file exists
+        var activity = activityRepository.findById(entityInput.getActivity().getId()).orElseThrow();
         var fileActivity = FileActivity.builder()
                 .activity(activity)
-                .file(File.builder().id(entityInput.getFile().getId()).build())
+                .file(file)
                 .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(entityInput.getActivity().getId()))
                 .current(true)
-                .order(fileActivityOrder)
+                .order(getRepository().getNextOrder(fileId))
                 .build();
 
         repository.save(fileActivity);
@@ -73,8 +68,8 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
             );
         });
         repository.saveAndFlush(fileActivity);
-        new FileActivityEvent(EntityEvent.Event.ADDED, fileActivity).fireToAll();
-        return repository.getOne(fileActivity.getId());
+        new FileActivityEvent(EntityEvent.Type.ADDED, fileActivity).fireToAll();
+        return fileActivity;
     }
 
     @Override
@@ -107,16 +102,16 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     }
 
     public boolean changeDataField(ActivityDataFieldInput input) throws ClientReadableException {
-        if (!abacPermissionEvaluator.hasPermission(SecurityContextHolder.getContext().getAuthentication(), activityDataFieldRepository.findById(input.getId()).orElseThrow().getFileActivity(), "UPDATE_FILE_ACTIVITY")) {
+        var field = activityDataFieldRepository.findById(input.getId()).orElseThrow();
+        if (cannot(field.getFileActivity(), "UPDATE_FILE_ACTIVITY")) {
             throw new AccessDeniedException("Access Denied");
         }
         try {
             input.tryCastData();
         } catch (NumberFormatException | DateTimeParseException e) {
             // if data is not of the correct type
-            throw new ClientReadableException("la valeur est malformée");
+            throw new ClientReadableException(format("la valeur est malformée({})", field.getFieldType()));
         }
-        var field = activityDataFieldRepository.findById(input.getId()).orElseThrow();
         field.setData(input.getData());
         return true;
     }
@@ -133,7 +128,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     public boolean sendFileActivityToTrash(Long fileActivityId) {
         var fileActivity = getRepository().getOne(fileActivityId);
         fileActivity.setInTrash(true);
-        new FileActivityEvent(EntityEvent.Event.TRASHED, fileActivity);
+        new FileActivityEvent(EntityEvent.Type.TRASHED, fileActivity).fireToAll();
         return true;
     }
 
@@ -141,7 +136,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     public boolean recoverFileActivityFromTrash(Long fileActivityId) {
         var fileActivity = getRepository().getOne(fileActivityId);
         fileActivity.setInTrash(false);
-        new FileActivityEvent(EntityEvent.Event.RECOVERED, fileActivity);
+        new FileActivityEvent(EntityEvent.Type.RECOVERED, fileActivity).fireToAll();
         return true;
     }
 

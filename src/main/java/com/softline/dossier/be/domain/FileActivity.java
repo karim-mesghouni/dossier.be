@@ -1,15 +1,13 @@
 package com.softline.dossier.be.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @SuperBuilder
@@ -34,7 +32,8 @@ public class FileActivity extends BaseEntity {
     Activity activity;
 
     @OneToMany(mappedBy = "fileActivity", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<ActivityDataField> dataFields;
+    @Builder.Default
+    List<ActivityDataField> dataFields = new ArrayList<>();
 
     @OneToMany(mappedBy = "fileActivity")
     List<Reprise> reprises;

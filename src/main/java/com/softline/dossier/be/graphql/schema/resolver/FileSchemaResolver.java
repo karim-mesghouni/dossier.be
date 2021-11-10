@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.List;
 
+@SuppressWarnings("ALL")
 @Component
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
@@ -45,7 +46,7 @@ public class FileSchemaResolver extends SchemaResolverBase<File, FileInput, File
 
     public PageList<File> getAllFilePageFilter(FileFilterInput input) {
 
-        return service.getAllFilePageFilter(input);
+        return service.getAllFilesByFilter(input);
     }
 
     public List<FileHistoryDTO> getFileHistory(Long id) {

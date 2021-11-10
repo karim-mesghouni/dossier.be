@@ -1,6 +1,5 @@
 package com.softline.dossier.be.domain;
 
-import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.events.MessageEvent;
 import com.softline.dossier.be.events.types.EntityEvent;
 import com.softline.dossier.be.security.domain.Agent;
@@ -44,8 +43,16 @@ public class Message extends BaseEntity {
      * send event to the mentioned user
      */
     @PostPersist
-    public void sendEvent() {
-        EventController.sendForUser(getTargetAgent().getId(), new MessageEvent(EntityEvent.Event.ADDED, this));
+    public void afterCreate() {
+        new MessageEvent(EntityEvent.Type.ADDED, this).fireTo(getTargetAgent().getId());
+    }
+
+    /**
+     * send event to the mentioned user
+     */
+    @PostRemove
+    public void afterDelete() {
+        new MessageEvent(EntityEvent.Type.DELETED, this).fireTo(getTargetAgent().getId());
     }
 
     @Override

@@ -2,12 +2,12 @@
   {
     "name": "Accountant can read activity which contains his tasks",
     "target": "subject.role.name == 'ACCOUNTANT' && 'READ_ACTIVITY' == action",
-    "condition": "resource.fileTasks.?[referent.id == #root.subject.id].size != 0"
+    "condition": "resource.fileTasks.^[referent.id == #root.subject.id] != null"
   },
   {
     "name": "Accountant can read activity which contains his tasks",
     "target": "subject.role.name == 'ACCOUNTANT' && 'READ_ACTIVITY' == action",
-    "condition": "resource.fileTasks.?[referent.id == #root.subject.id].size != 0"
+    "condition": "resource.fileTasks.^[referent.id == #root.subject.id] != null"
   },
   {
     "name": "Accountant can update dataFields in his activity",

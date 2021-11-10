@@ -7,7 +7,7 @@ import static com.softline.dossier.be.Halpers.Functions.safeValue;
 
 public class MessageEvent extends EntityEvent {
 
-    public MessageEvent(Event type, Message message) {
+    public MessageEvent(Type type, Message message) {
         super("message" + type);
         addData("messageId", message.getId());
         addData("commentId", message.getComment().getId());

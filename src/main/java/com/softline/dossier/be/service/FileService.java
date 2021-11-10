@@ -1,6 +1,5 @@
 package com.softline.dossier.be.service;
 
-import com.google.common.base.MoreObjects;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.events.FileEvent;
 import com.softline.dossier.be.events.types.EntityEvent;
@@ -12,7 +11,9 @@ import com.softline.dossier.be.repository.*;
 import com.softline.dossier.be.security.config.AbacPermissionEvaluator;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.RequiredArgsConstructor;
-import org.javatuples.Pair;
+import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -26,9 +27,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.softline.dossier.be.Halpers.Functions.*;
 
 @Service
@@ -46,8 +46,9 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     private EntityManager entityManager;
 
     @Override
+    @PostFilter("hasPermission(filterObject, 'READ_FILE')")
     public List<File> getAll() {
-        return null;
+        return getRepository().findAll();
     }
 
     @Override
@@ -77,7 +78,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         file.setOrder(repository.minOrder());
         repository.incrementAllOrder();
         repository.saveAndFlush(file);
-        new FileEvent(EntityEvent.Event.ADDED, file).fireToAll();
+        new FileEvent(EntityEvent.Type.ADDED, file).fireToAll();
         return file;
     }
 
@@ -112,7 +113,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
             }
         }
         repository.saveAndFlush(file);
-        new FileEvent(EntityEvent.Event.UPDATED, file).fireToAll();
+        new FileEvent(EntityEvent.Type.UPDATED, file).fireToAll();
         return file;
     }
 
@@ -128,10 +129,15 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         return repository.findById(id).orElseThrow();
     }
 
-    public PageList<File> getAllFilePageFilter(FileFilterInput input) {
-        var result = getByFilter(input);
-        var filtered = result.getValue1().stream().filter(f -> permissionEvaluator.hasPermission(SecurityContextHolder.getContext().getAuthentication(), f, "READ_FILE")).collect(Collectors.toList());
-        return new PageList<>(filtered, result.getValue0() - (result.getValue1().size() - filtered.size()));
+    public PageList<File> getAllFilesByFilter(FileFilterInput filter) {
+        var q = buildQuery("f", filter, File.class);
+        if (filter.pageSize > 1 && filter.pageNumber > 0) {
+            q.setMaxResults(filter.pageSize).setFirstResult((filter.pageNumber - 1) * filter.pageSize);
+        }
+        return new PageList<>(
+                q.getResultList(),
+                buildQuery("f.id", filter, Long.class).getResultStream().count()
+        );
     }
 
     @PreAuthorize("hasPermission(#id, 'File', 'READ_FILE')")
@@ -203,7 +209,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     public boolean sendFileToTrash(Long fileId) {
         var file = getRepository().findById(fileId).orElseThrow();
         file.setInTrash(true);
-        new FileEvent(EntityEvent.Event.TRASHED, file).fireToAll();
+        new FileEvent(EntityEvent.Type.TRASHED, file).fireToAll();
         return true;
     }
 
@@ -211,7 +217,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     public boolean recoverFileFromTrash(Long fileId) {
         var file = getRepository().getOne(fileId);
         file.setInTrash(false);
-        new FileEvent(EntityEvent.Event.RECOVERED, file).fireToAll();
+        new FileEvent(EntityEvent.Type.RECOVERED, file).fireToAll();
         return true;
     }
 
@@ -260,63 +266,41 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         return true;
     }
 
-
-    private <T> TypedQuery<T> withParameters(FileFilterInput input, TypedQuery<T> query) {
-        return query.setParameter("project", MoreObjects.firstNonNull(input.project, ""))
-                .setParameter("clientId", MoreObjects.firstNonNull(input.client.getId(), 0))
-                .setParameter("activityId", MoreObjects.firstNonNull(input.activity.getId(), 0))
-                .setParameter("stateId", MoreObjects.firstNonNull(input.state.getType().getId(), 0))
-                .setParameter("adf", input.attributionDate.getFrom())
-                .setParameter("adt", input.attributionDate.getTo())
-                .setParameter("ddf", input.deliveryDate.getFrom())
-                .setParameter("ddt", input.deliveryDate.getTo())
-                .setParameter("pddt", input.provisionalDeliveryDate.getTo())
-                .setParameter("pddf", input.provisionalDeliveryDate.getFrom())
-                .setParameter("isReprise", input.reprise)
-                .setParameter("isNotReprise", input.notReprise)
-                ;
-    }
-
-    private <T> Function<String, TypedQuery<T>> buildSelector(FileFilterInput input, Class<T> clazz) {
-        return (String sel) ->
-        {
-            String query = "SELECT distinct " + sel + " FROM File f inner join f.fileStates fs on fs.file.id = f.id ";
-            if (input.onlyTrashed) {
-                query += "inner join f.fileActivities fa inner join fa.fileTasks ft ";
-            }
-            query += "where f.project like CONCAT(CONCAT('%', :project), '%') " +
-                    "and :activityId in(0, f.baseActivity.id) " +
-                    "and :clientId in(0, f.client.id) " +
-                    "and (fs.current=true " +
-                    "and :stateId in(0, fs.type.id)) " +
-                    "and f.provisionalDeliveryDate between :pddf and :pddt " +
-                    "and f.attributionDate between :adf and :adt " +
-                    "and f.deliveryDate between :ddf and :ddt " +
-                    "and ((:isReprise = true  and :isNotReprise = false and f.reprise is not null) " +
-                    "  or (:isReprise = false and :isNotReprise = true  and f.reprise is null) " +
-                    "  or (:isReprise = false and :isNotReprise=false)) ";
-            if (input.onlyTrashed) {
-                query += "and (f.inTrash=true or fa.inTrash=true or ft.inTrash=true) ";
-            } else {
-                query += "and f.inTrash=false ";
-            }
-            if (!sel.equals("f.id")) {
-                query += "order by f.order";
-            }
-            return withParameters(input, entityManager.createQuery(query, clazz));
-        };
-    }
-
-    private Pair<Long, List<File>> getByFilter(FileFilterInput input) {
-        var qList = buildSelector(input, File.class).apply("f");
-        if (input.pageSize > 0) {
-            qList
-                    .setFirstResult((input.pageNumber - 1) * input.pageSize)
-                    .setMaxResults(input.pageSize);
+    @NotNull
+    private <T> TypedQuery<T> buildQuery(String select, FileFilterInput filter, Class<T> type) {
+        @Language("JPAQL")
+        String query = "SELECT distinct " + select + " FROM File f inner join f.fileStates fs on fs.file.id = f.id " +
+                "inner join f.fileActivities fa inner join fa.fileTasks ft " +
+                "where f.project like CONCAT(CONCAT('%', :project), '%') " +
+                "and :activityId in(0, f.baseActivity.id) " +
+                "and :clientId in(0, f.client.id) " +
+                "and (:isAdmin = true or fa.activity.id = :userActivityId) " +
+                "and (fs.current=true and :stateId in(0, fs.type.id)) " +
+                "and f.provisionalDeliveryDate between :pddf and :pddt " +
+                "and f.attributionDate between :adf and :adt " +
+                "and f.deliveryDate between :ddf and :ddt " +
+                "and ((:isReprise = true  and :isNotReprise = false and f.reprise is not null) " +
+                "  or (:isReprise = false and :isNotReprise = true  and f.reprise is null) " +
+                "  or (:isReprise = false and :isNotReprise=false)) ";
+        if (filter.onlyTrashed) {
+            query += "and (f.inTrash=true or fa.inTrash=true or ft.inTrash=true) ";
+        } else {
+            query += "and f.inTrash = false and fa.inTrash = false and ft.inTrash = false";
         }
-        return new Pair<>(
-                buildSelector(input, Long.class).apply("f.id").getResultStream().count(),
-                qList.getResultList()
-        );
+        return entityManager.createQuery(query, type)
+                .setParameter("project", firstNonNull(filter.project, ""))
+                .setParameter("clientId", firstNonNull(filter.client.getId(), 0))
+                .setParameter("activityId", firstNonNull(filter.activity.getId(), 0))
+                .setParameter("stateId", firstNonNull(filter.state.getType().getId(), 0))
+                .setParameter("adf", filter.attributionDate.getFrom())
+                .setParameter("adt", filter.attributionDate.getTo())
+                .setParameter("ddf", filter.deliveryDate.getFrom())
+                .setParameter("ddt", filter.deliveryDate.getTo())
+                .setParameter("pddt", filter.provisionalDeliveryDate.getTo())
+                .setParameter("pddf", filter.provisionalDeliveryDate.getFrom())
+                .setParameter("isReprise", filter.reprise)
+                .setParameter("isNotReprise", filter.notReprise)
+                .setParameter("isAdmin", Agent.thisAgent().isAdmin())
+                .setParameter("userActivityId", safeValue(() -> Agent.thisAgent().getActivity().getId(), -1));
     }
 }

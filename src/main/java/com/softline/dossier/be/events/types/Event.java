@@ -27,11 +27,25 @@ public class Event<T> {
         return this.getPayload().toString();
     }
 
+    @Override
     public String toString() {
-        return "name: " + event + ", payload: " + payload.toString();
+        return "Event{" +
+                "event='" + event + '\'' +
+                ", payload=" + payload +
+                '}';
     }
 
+    /**
+     * send this event to every open channel
+     */
     public void fireToAll() {
         EventController.sendForAllChannels(this);
+    }
+
+    /**
+     * send this event to every channel opened by the user
+     */
+    public void fireTo(long userId) {
+        EventController.sendForUser(userId, this);
     }
 }
