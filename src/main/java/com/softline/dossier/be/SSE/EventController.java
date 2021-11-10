@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.concurrent.*;
 
 import static com.softline.dossier.be.Halpers.Functions.tap;
+import static com.softline.dossier.be.security.domain.Agent.notLoggedIn;
 
 @RestController
 @RequestMapping("/events")
@@ -31,7 +32,7 @@ public class EventController {
         // to keep the connection alive in the client side
         // we must send at least 1 event every 45 seconds,
         // so we create a single thread which will send a ping(heart-beat) event
-        // every 30 seconds
+        // to all open channels every 30 seconds
         if (!threadIsRunning) {
             log.info("starting pingThread");
             pingThread.scheduleAtFixedRate(() ->
@@ -42,7 +43,7 @@ public class EventController {
                         if (scheduledForRemoval.size() > 0) {
                             scheduledForRemoval.forEach(ch -> {
                                 if (channels.containsKey(ch)) {
-                                    log.info("Removing scheduled channel removal, channel: {}", ch);
+                                    log.debug("Removing scheduled channel removal, channel: {}", ch);
                                     channels.remove(ch);
                                 }
                             });
@@ -50,11 +51,11 @@ public class EventController {
                         }
                     }
                     if (channels.isEmpty()) {
-                        log.info("didnt send heart-beat signal, no channel is connected");
+                        log.debug("didnt send heart-beat signal, no channel is connected");
                         return;
                     }
                 }
-                log.info("Sending heart-beat signal for all channels");
+                log.debug("Sending heart-beat signal for all channels");
                 EventController.sendForAllChannels(new Event<>("ping", System.currentTimeMillis()));
             }, 30, 30, TimeUnit.SECONDS);
             threadIsRunning = true;
@@ -66,7 +67,7 @@ public class EventController {
      */
     public static void sendForAllChannels(Event<?> event) {
         synchronized (channels) {// obtain lock
-            log.info("sendEventForAll, event : {}", event);
+            log.debug("sendEventForAll, event : {}", event);
             channels.forEach((channel, em) -> internalSendForEmitter(em, event, channel));
         }
     }
@@ -78,9 +79,9 @@ public class EventController {
         synchronized (channels) {// obtain lock
             try {
                 emitter.send(SseEmitter.event().name(event.getEvent()).data(event.getPayloadJson()));
-                log.info("sendEventForChannel() sent data to channel: {}, event is: {}", channel, event);
+                log.info("sent event {} to channel {}", event, channel);
             } catch (Throwable e) {
-                log.info("sendEventForChannel() data not sent due to error: ({}), adding the channel to the clean queue, channel: {}, event is: {}", e.getMessage(), channel, event);
+                log.error("sendEventForChannel() data not sent due to error: ({}), adding the channel to the clean queue {} {}", e.getMessage(), channel, event);
                 emitter.complete();
                 // calling emitter.complete() after "event send failure" (not a network error) has no effect,
                 // so we will ensure that the channel gets removed from the list and no further events will be sent to it
@@ -95,49 +96,52 @@ public class EventController {
     /**
      * send an event to all channels opened by the user
      *
-     * @param agentId the id of the user
+     * @param userId the id of the user
      */
-    public static void sendForUser(long agentId, Event<?> event) {
+    public static void sendForUser(long userId, Event<?> event) {
         synchronized (channels) {// obtain lock
             channels.forEach((channel, em) ->
             {
-                if (channel.agentId == agentId) {
+                if (channel.userId == userId) {
                     internalSendForEmitter(em, event, channel);
                 }
             });
         }
     }
 
+    /**
+     * subscribe the request to a sse channel and keep the connection open
+     */
     @GetMapping(value = "/")
-    public SseEmitter getEvents() {
-        if (!(SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof Agent)) {
+    public SseEmitter subscribe() {
+        if (notLoggedIn()) {
             log.error("attempt to listen for events without login");
             return null;
         }
         var agent = (Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final Channel channel = new Channel((long) Math.floor(Math.random() * 1_000_000), agent.getId());
-        // create new sse emitter with timeout of 1 hour
-        // this will delete his linked channel emitter
-        // and force the client to reconnect again
-        // !! DO NOT OPEN AN SSE CHANNEL WITHOUT SETTING A TIMEOUT, IT IS VERY IMPORTANT FOR AUTO-CLEANING
-        SseEmitter emitter = tap(new SseEmitter(1000 * 60 * 60L),
-                em -> em.onCompletion(() ->
-                {
-                    // will be called if the client closed the connection (browser tap closed)
-                    // or if channel timeout was reached
-                    log.info("emitter complete was called, removing channel: {}", channel);
-                    synchronized (channels) {// obtain lock
-                        channels.remove(channel);
-                    }
-                }),
-                // will only happen if the channel was opened for more than 1 hour (previous timeout value)
-                em -> em.onTimeout(() -> log.warn("emitter timeout for channel: {}", channel)),
-                // called on event send error
-                em -> em.onError(err -> log.error("emitter error for channel: {}", channel)));
         synchronized (channels) {// obtain lock
-            channels.putIfAbsent(channel, emitter);
+            log.debug("creating new emitter for channel: {}", channel);
+            // create new sse emitter with timeout of 1 hour
+            // this will delete his linked channel emitter
+            // and force the client to reconnect again
+            // !! DO NOT OPEN AN SSE CHANNEL WITHOUT SETTING A TIMEOUT, IT IS VERY IMPORTANT FOR AUTO-CLEANING
+            return tap(new SseEmitter(1000 * 60 * 60L),
+                    em -> em.onCompletion(() ->
+                    {
+                        // will be called if the client closed the connection (browser tap closed)
+                        // or if channel timeout was reached
+                        log.debug("emitter complete was called, removing channel: {}", channel);
+                        synchronized (channels) {// obtain lock
+                            channels.remove(channel);
+                        }
+                    }),
+                    // will only happen if the channel was opened for more than 1 hour (previous timeout value)
+                    em -> em.onTimeout(() -> log.debug("emitter timeout for channel: {}", channel)),
+                    // called on event send error
+                    em -> em.onError(err -> log.error("emitter error for channel: {}", channel)),
+                    em -> channels.putIfAbsent(channel, em));
+
         }
-        log.info("created new emitter for channel: {}", channel);
-        return emitter;
     }
 }
