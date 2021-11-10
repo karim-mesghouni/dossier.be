@@ -1,5 +1,7 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.events.EntityEvent;
+import com.softline.dossier.be.events.entities.FileDocumentEvent;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,4 +41,20 @@ public class FileDoc extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String path;
+
+
+    @PostPersist
+    public void afterCreate() {
+        new FileDocumentEvent(EntityEvent.Type.ADDED, this).fireToAll();
+    }
+
+    @PostUpdate
+    public void afterUpdate() {
+        new FileDocumentEvent(EntityEvent.Type.UPDATED, this).fireToAll();
+    }
+
+    @PostRemove
+    public void afterDelete() {
+        new FileDocumentEvent(EntityEvent.Type.DELETED, this).fireToAll();
+    }
 }

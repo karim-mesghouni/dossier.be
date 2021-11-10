@@ -56,7 +56,7 @@ public class FileDocService extends IServiceBase<FileDoc, FileDocInput, FileDocR
 
     @Override
     public FileDoc getById(long id) {
-        return null;
+        return getRepository().findById(id).orElseThrow();
     }
 
     public List<FileDoc> getAllByFileActivityIdOrFileId(Long fileActivityId, Long fileId) throws Exception {

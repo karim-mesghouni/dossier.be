@@ -1,6 +1,6 @@
 # Query
 extend type Query  {
-    fileDoc(id:ID):FileDoc
+    fileDoc(fileDocumentId: ID):FileDoc
     allByFileActivityIdOrFileId(fileActivityId:ID,fileId: ID):[FileDoc]
 }
 
@@ -13,7 +13,7 @@ extend type Query  {
 extend type  Mutation{
     createFileDoc(input: FileDocIput):FileDoc
     updateFileDoc(input: FileDocIput):FileDoc
-    deleteFileDoc(id: ID!):Boolean
+    deleteFileDoc(fileDocumentId: ID!):Boolean
 }
 
 type FileDoc {

@@ -108,6 +108,17 @@ public class Functions {
     }
 
     /**
+     * produce a value or fallback to null value if the producer returned empty value or the producer threw an exception,
+     * Value is considered empty it (is string and empty) or (is number and equal to 0)
+     * or (is object and null) or (is Optional and isEmpty())
+     *
+     * @param producer the value producer
+     */
+    public static <T> T safeValue(Callable<T> producer) {
+        return safeValue(producer, null);
+    }
+
+    /**
      * will encapsulate the action in a try-catch block,
      * if the action fails the fallback action will be run with encapsulation
      *

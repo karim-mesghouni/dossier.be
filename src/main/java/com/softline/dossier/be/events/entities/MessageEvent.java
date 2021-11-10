@@ -13,7 +13,7 @@ public class MessageEvent extends EntityEvent {
         addData("commentId", message.getComment().getId());
         addData("targetId", message.getTargetAgent().getId());
         addData("notifierId", message.getAgent().getId());
-        addData("activityId", safeValue(() -> message.getComment().getFileActivity().getId(), null));
-        addData("fileTaskId", safeValue(() -> message.getComment().getFileTask().getId(), null));
+        addData("activityId", safeValue(() -> message.getComment().getFileActivity().getId()));
+        addData("fileTaskId", safeValue(() -> message.getComment().getFileTask().getId()));
     }
 }

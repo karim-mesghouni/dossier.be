@@ -3,8 +3,8 @@ package com.softline.dossier.be.service;
 import com.softline.dossier.be.domain.ActivityDataField;
 import com.softline.dossier.be.domain.ActivityState;
 import com.softline.dossier.be.domain.FileActivity;
-import com.softline.dossier.be.events.entities.FileActivityEvent;
 import com.softline.dossier.be.events.EntityEvent;
+import com.softline.dossier.be.events.entities.FileActivityEvent;
 import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
 import com.softline.dossier.be.repository.*;
@@ -60,7 +60,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
                     ActivityDataField.builder()
                             .fieldType(field.getFieldType())
                             .fieldName(field.getFieldName())
-                            .groupName(safeValue(() -> field.getGroup().getName(), null))
+                            .groupName(safeValue(() -> field.getGroup().getName()))
                             .fileActivity(fileActivity)
                             .data(null)
                             .build()

@@ -4,8 +4,8 @@ import com.softline.dossier.be.Tools.FileSystem;
 import com.softline.dossier.be.Tools.Functions;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
-import com.softline.dossier.be.events.entities.FileTaskEvent;
 import com.softline.dossier.be.events.EntityEvent;
+import com.softline.dossier.be.events.entities.FileTaskEvent;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
 import com.softline.dossier.be.repository.*;
@@ -95,8 +95,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     @Override
     public boolean delete(long id) {
-        repository.deleteById(id);
-        return true;
+        return false;
     }
 
     @Override
@@ -112,6 +111,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return taskSituationRepository.findAllByTask_Id(taskId);
     }
 
+    @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public Agent changeAssignedTo(Long assignedToId, Long fileTaskId) {
         var assigned = agentRepository.findById(assignedToId).orElseThrow();
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
@@ -120,6 +120,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return assigned;
     }
 
+    @PreAuthorize("hasPermission(null, 'ADMIN')")
     public Agent changeReporter(Long reporterId, Long fileTaskId) {
         var reporter = agentRepository.findById(reporterId).orElseThrow();
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
@@ -128,6 +129,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return reporter;
     }
 
+    @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'WORK_ON_FILE_TASK') or hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) throws ClientReadableException {
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         var situation = taskSituationRepository.findById(situationId).orElseThrow();
@@ -164,18 +166,21 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return getRepository().findAllByAssignedTo_Id(assignedToId);
     }
 
+    @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public boolean changeToStartDate(LocalDateTime toStartDate, Long fileTaskId) {
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         fileTask.setToStartDate(toStartDate);
         return true;
     }
 
+    @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public boolean changeDueDate(LocalDateTime dueDate, Long fileTaskId) {
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         fileTask.setDueDate(dueDate);
         return true;
     }
 
+    @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public boolean changeTitle(String title, Long fileTaskId) {
         getRepository().findById(fileTaskId).orElseThrow().setTitle(title);
         return true;

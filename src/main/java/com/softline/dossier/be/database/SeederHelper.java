@@ -61,7 +61,7 @@ final class SeederHelper {
                     .fieldType(field.getFieldType())
                     .data(data.toString())
                     .fileActivity(activity)
-                    .groupName(safeValue(() -> field.getGroup().getName(), null))
+                    .groupName(safeValue(() -> field.getGroup().getName()))
                     .build());
         });
         activity.setDataFields(fields);
