@@ -1,8 +1,8 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
 import com.softline.dossier.be.domain.Job;
-import com.softline.dossier.be.events.AgentEvent;
-import com.softline.dossier.be.events.types.EntityEvent;
+import com.softline.dossier.be.events.EntityEvent;
+import com.softline.dossier.be.events.entities.AgentEvent;
 import com.softline.dossier.be.graphql.types.input.AgentInput;
 import com.softline.dossier.be.repository.ActivityRepository;
 import com.softline.dossier.be.repository.JobRepository;
@@ -23,8 +23,8 @@ import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static com.softline.dossier.be.Halpers.Functions.safeRun;
-import static com.softline.dossier.be.Halpers.Functions.throwIfEmpty;
+import static com.softline.dossier.be.Tools.Functions.safeRun;
+import static com.softline.dossier.be.Tools.Functions.throwIfEmpty;
 
 @Component
 @PreAuthorize("isAuthenticated()")

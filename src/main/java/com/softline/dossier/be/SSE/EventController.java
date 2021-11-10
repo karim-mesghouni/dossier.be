@@ -1,7 +1,7 @@
 package com.softline.dossier.be.SSE;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.softline.dossier.be.events.types.Event;
+import com.softline.dossier.be.events.Event;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,9 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.Objects;
 import java.util.concurrent.*;
 
-import static com.softline.dossier.be.Halpers.Functions.tap;
+import static com.softline.dossier.be.Tools.Functions.tap;
 import static com.softline.dossier.be.security.domain.Agent.notLoggedIn;
 
 @RestController
@@ -34,7 +35,7 @@ public class EventController {
         // so we create a single thread which will send a ping(heart-beat) event
         // to all open channels every 30 seconds
         if (!threadIsRunning) {
-            log.info("starting pingThread");
+            log.debug("starting pingThread");
             pingThread.scheduleAtFixedRate(() ->
             {
                 synchronized (channels) {// obtain lock
@@ -43,7 +44,7 @@ public class EventController {
                         if (scheduledForRemoval.size() > 0) {
                             scheduledForRemoval.forEach(ch -> {
                                 if (channels.containsKey(ch)) {
-                                    log.debug("Removing scheduled channel removal, channel: {}", ch);
+                                    log.debug("Removing scheduled channel removal {}", ch);
                                     channels.remove(ch);
                                 }
                             });
@@ -56,7 +57,7 @@ public class EventController {
                     }
                 }
                 log.debug("Sending heart-beat signal for all channels");
-                EventController.sendForAllChannels(new Event<>("ping", System.currentTimeMillis()));
+                EventController.sendForAllChannels(Event.pingEvent());
             }, 30, 30, TimeUnit.SECONDS);
             threadIsRunning = true;
         }
@@ -67,7 +68,7 @@ public class EventController {
      */
     public static void sendForAllChannels(Event<?> event) {
         synchronized (channels) {// obtain lock
-            log.debug("sendEventForAll, event : {}", event);
+            log.debug("sendEventForAll: {}", event);
             channels.forEach((channel, em) -> internalSendForEmitter(em, event, channel));
         }
     }
@@ -78,10 +79,15 @@ public class EventController {
     private static void internalSendForEmitter(SseEmitter emitter, Event<?> event, Channel channel) {
         synchronized (channels) {// obtain lock
             try {
-                emitter.send(SseEmitter.event().name(event.getEvent()).data(event.getPayloadJson()));
-                log.info("sent event {} to channel {}", event, channel);
+                channel.setLastEvent(event);
+                emitter.send(SseEmitter.event().name(event.getType()).data(event.getData()));
+                log.debug("sent {} to {}", event, channel);
             } catch (Throwable e) {
-                log.error("sendEventForChannel() data not sent due to error: ({}), adding the channel to the clean queue {} {}", e.getMessage(), channel, event);
+                if (!Event.pingEvent().equals(event)) {
+                    log.error("{} was not sent to {} due to error: ({}), adding the channel to the clean queue", event, channel, e.getMessage());
+                } else {
+                    log.debug("{} was not sent to {} due to error: ({}), adding the channel to the clean queue", event, channel, e.getMessage());
+                }
                 emitter.complete();
                 // calling emitter.complete() after "event send failure" (not a network error) has no effect,
                 // so we will ensure that the channel gets removed from the list and no further events will be sent to it
@@ -121,7 +127,7 @@ public class EventController {
         var agent = (Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final Channel channel = new Channel((long) Math.floor(Math.random() * 1_000_000), agent.getId());
         synchronized (channels) {// obtain lock
-            log.debug("creating new emitter for channel: {}", channel);
+            log.debug("creating new emitter for {}", channel);
             // create new sse emitter with timeout of 1 hour
             // this will delete his linked channel emitter
             // and force the client to reconnect again
@@ -131,15 +137,21 @@ public class EventController {
                     {
                         // will be called if the client closed the connection (browser tap closed)
                         // or if channel timeout was reached
-                        log.debug("emitter complete was called, removing channel: {}", channel);
+                        log.debug("emitter complete was called, removing {}", channel);
                         synchronized (channels) {// obtain lock
                             channels.remove(channel);
                         }
                     }),
                     // will only happen if the channel was opened for more than 1 hour (previous timeout value)
-                    em -> em.onTimeout(() -> log.debug("emitter timeout for channel: {}", channel)),
+                    em -> em.onTimeout(() -> log.debug("emitter timeout for {}", channel)),
                     // called on event send error
-                    em -> em.onError(err -> log.error("emitter error for channel: {}", channel)),
+                    em -> em.onError(err -> {
+                        if (!Objects.equals(channel.getLastEvent(), Event.pingEvent())) {
+                            log.error("emitter error for {} last {} {}", channel, channel.getLastEvent(), err.toString());
+                        } else {
+                            log.debug("emitter error for {} last {} {}", channel, channel.getLastEvent(), err.toString());
+                        }
+                    }),
                     em -> channels.putIfAbsent(channel, em));
 
         }

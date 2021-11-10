@@ -1,11 +1,11 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.Halpers.FileSystem;
-import com.softline.dossier.be.Halpers.Functions;
+import com.softline.dossier.be.Tools.FileSystem;
+import com.softline.dossier.be.Tools.Functions;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
-import com.softline.dossier.be.events.FileTaskEvent;
-import com.softline.dossier.be.events.types.EntityEvent;
+import com.softline.dossier.be.events.entities.FileTaskEvent;
+import com.softline.dossier.be.events.EntityEvent;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
 import com.softline.dossier.be.repository.*;

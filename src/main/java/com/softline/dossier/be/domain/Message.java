@@ -1,7 +1,7 @@
 package com.softline.dossier.be.domain;
 
-import com.softline.dossier.be.events.MessageEvent;
-import com.softline.dossier.be.events.types.EntityEvent;
+import com.softline.dossier.be.events.entities.MessageEvent;
+import com.softline.dossier.be.events.EntityEvent;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.AllArgsConstructor;
 import lombok.Data;

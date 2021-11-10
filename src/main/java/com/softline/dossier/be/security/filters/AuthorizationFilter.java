@@ -5,8 +5,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.softline.dossier.be.domain.Activity;
 import com.softline.dossier.be.security.domain.Agent;
-import com.softline.dossier.be.security.domain.Policy.BasicPolicyEnforcement;
 import com.softline.dossier.be.security.domain.Role;
+import com.softline.dossier.be.security.policy.PolicyMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,7 +26,7 @@ import static com.softline.dossier.be.security.filters.constants.SecurityConstan
 
 public class AuthorizationFilter extends BasicAuthenticationFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(BasicPolicyEnforcement.class);
+    private static final Logger logger = LoggerFactory.getLogger(PolicyMatcher.class);
 
 
     public AuthorizationFilter(AuthenticationManager authenticationManager) {

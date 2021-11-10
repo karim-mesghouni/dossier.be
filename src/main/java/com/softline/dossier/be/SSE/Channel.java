@@ -1,16 +1,38 @@
 package com.softline.dossier.be.SSE;
 
-import lombok.AllArgsConstructor;
+import com.softline.dossier.be.events.Event;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-@AllArgsConstructor
 public class Channel {
     public final long sessionId;
     public final long userId;
 
+    private Event<?> lastEvent;
+
+    public Channel(long sessionId, long userId) {
+        this.sessionId = sessionId;
+        this.userId = userId;
+    }
+
     /**
-     * if sessionId and userId returns true
+     * @return the last attempted event send to this channel
+     */
+    @Nullable
+    public Event<?> getLastEvent() {
+        return lastEvent;
+    }
+
+    /**
+     * register an event send attempt to this channel
+     */
+    public void setLastEvent(Event<?> lastEvent) {
+        this.lastEvent = lastEvent;
+    }
+
+    /**
+     * if sessionId and userId are equal returns true
      */
     @Override
     public boolean equals(Object o) {

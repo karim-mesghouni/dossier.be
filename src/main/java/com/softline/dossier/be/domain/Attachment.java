@@ -1,7 +1,7 @@
 package com.softline.dossier.be.domain;
 
-import com.softline.dossier.be.Halpers.EnvUtil;
-import com.softline.dossier.be.Halpers.FileSystem;
+import com.softline.dossier.be.Tools.EnvUtil;
+import com.softline.dossier.be.Tools.FileSystem;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;

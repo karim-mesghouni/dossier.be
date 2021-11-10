@@ -3,12 +3,11 @@ package com.softline.dossier.be.service;
 import com.softline.dossier.be.domain.ActivityDataField;
 import com.softline.dossier.be.domain.ActivityState;
 import com.softline.dossier.be.domain.FileActivity;
-import com.softline.dossier.be.events.FileActivityEvent;
-import com.softline.dossier.be.events.types.EntityEvent;
+import com.softline.dossier.be.events.entities.FileActivityEvent;
+import com.softline.dossier.be.events.EntityEvent;
 import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
 import com.softline.dossier.be.repository.*;
-import com.softline.dossier.be.security.config.AbacPermissionEvaluator;
 import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -22,9 +21,9 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import static com.softline.dossier.be.Application.context;
-import static com.softline.dossier.be.Halpers.Functions.safeValue;
-import static com.softline.dossier.be.Halpers.TextHelper.format;
-import static com.softline.dossier.be.security.config.AbacPermissionEvaluator.cannot;
+import static com.softline.dossier.be.Tools.Functions.safeValue;
+import static com.softline.dossier.be.Tools.TextHelper.format;
+import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.cannot;
 
 @Transactional
 @Service
@@ -33,7 +32,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
     private final ActivityStateRepository activityStateRepository;
     private final ActivityRepository activityRepository;
     private final ActivityDataFieldRepository activityDataFieldRepository;
-    private final AbacPermissionEvaluator abacPermissionEvaluator;
+
     @PersistenceContext
     private EntityManager entityManager;
 

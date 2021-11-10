@@ -1,14 +1,14 @@
 package com.softline.dossier.be.service;
 
 import com.softline.dossier.be.domain.*;
-import com.softline.dossier.be.events.FileEvent;
-import com.softline.dossier.be.events.types.EntityEvent;
+import com.softline.dossier.be.events.entities.FileEvent;
+import com.softline.dossier.be.events.EntityEvent;
 import com.softline.dossier.be.graphql.types.FileFilterInput;
 import com.softline.dossier.be.graphql.types.FileHistoryDTO;
 import com.softline.dossier.be.graphql.types.PageList;
 import com.softline.dossier.be.graphql.types.input.FileInput;
 import com.softline.dossier.be.repository.*;
-import com.softline.dossier.be.security.config.AbacPermissionEvaluator;
+import com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.RequiredArgsConstructor;
 import org.intellij.lang.annotations.Language;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.softline.dossier.be.Halpers.Functions.*;
+import static com.softline.dossier.be.Tools.Functions.*;
 
 @Service
 @Transactional
@@ -41,7 +41,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     private final ClientRepository clientRepository;
     private final CommuneRepository communeRepository;
     private final ActivityStateRepository activityStateRepository;
-    private final AbacPermissionEvaluator permissionEvaluator;
+    private final AttributeBasedAccessControlEvaluator permissionEvaluator;
     @PersistenceContext
     private EntityManager entityManager;
 

@@ -1,7 +1,7 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.Halpers.EnvUtil;
-import com.softline.dossier.be.Halpers.FileSystem;
+import com.softline.dossier.be.Tools.EnvUtil;
+import com.softline.dossier.be.Tools.FileSystem;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
-import static com.softline.dossier.be.Halpers.Functions.safeRun;
+import static com.softline.dossier.be.Tools.Functions.safeRun;
 import static com.softline.dossier.be.security.domain.Agent.thisAgent;
 import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 

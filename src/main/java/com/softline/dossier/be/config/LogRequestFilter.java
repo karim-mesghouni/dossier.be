@@ -1,7 +1,7 @@
 package com.softline.dossier.be.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.softline.dossier.be.Halpers.Functions;
+import com.softline.dossier.be.Tools.Functions;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;

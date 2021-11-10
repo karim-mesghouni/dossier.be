@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import static com.softline.dossier.be.Halpers.Functions.safeRun;
-import static com.softline.dossier.be.Halpers.Functions.throwIfEmpty;
+import static com.softline.dossier.be.Tools.Functions.safeRun;
+import static com.softline.dossier.be.Tools.Functions.throwIfEmpty;
 
 @SuperBuilder
 @Entity
