@@ -1,8 +1,6 @@
 package com.softline.dossier.be.service;
 
 import com.softline.dossier.be.domain.*;
-import com.softline.dossier.be.events.entities.FileEvent;
-import com.softline.dossier.be.events.EntityEvent;
 import com.softline.dossier.be.graphql.types.FileFilterInput;
 import com.softline.dossier.be.graphql.types.FileHistoryDTO;
 import com.softline.dossier.be.graphql.types.PageList;
@@ -78,7 +76,6 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         file.setOrder(repository.minOrder());
         repository.incrementAllOrder();
         repository.saveAndFlush(file);
-        new FileEvent(EntityEvent.Type.ADDED, file).fireToAll();
         return file;
     }
 
@@ -113,7 +110,6 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
             }
         }
         repository.saveAndFlush(file);
-        new FileEvent(EntityEvent.Type.UPDATED, file).fireToAll();
         return file;
     }
 
@@ -209,15 +205,13 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     public boolean sendFileToTrash(Long fileId) {
         var file = getRepository().findById(fileId).orElseThrow();
         file.setInTrash(true);
-        new FileEvent(EntityEvent.Type.TRASHED, file).fireToAll();
         return true;
     }
 
     @PreAuthorize("hasPermission(#fileId, 'File', 'DELETE_FILE')")
     public boolean recoverFileFromTrash(Long fileId) {
-        var file = getRepository().getOne(fileId);
+        var file = getRepository().findById(fileId).orElseThrow();
         file.setInTrash(false);
-        new FileEvent(EntityEvent.Type.RECOVERED, file).fireToAll();
         return true;
     }
 
@@ -274,7 +268,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
                 "where f.project like CONCAT(CONCAT('%', :project), '%') " +
                 "and :activityId in(0, f.baseActivity.id) " +
                 "and :clientId in(0, f.client.id) " +
-                "and (:isAdmin = true or fa.activity.id = :userActivityId) " +
+                "and :isAdmin = true " +
                 "and (fs.current=true and :stateId in(0, fs.type.id)) " +
                 "and f.provisionalDeliveryDate between :pddf and :pddt " +
                 "and f.attributionDate between :adf and :adt " +
@@ -300,7 +294,6 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
                 .setParameter("pddf", filter.provisionalDeliveryDate.getFrom())
                 .setParameter("isReprise", filter.reprise)
                 .setParameter("isNotReprise", filter.notReprise)
-                .setParameter("isAdmin", Agent.thisAgent().isAdmin())
-                .setParameter("userActivityId", safeValue(() -> Agent.thisAgent().getActivity().getId(), -1));
+                .setParameter("isAdmin", Agent.thisAgent().isAdmin() || Agent.thisAgent().getRole().getName().equals("REFERENT"));
     }
 }

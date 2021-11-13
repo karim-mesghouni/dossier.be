@@ -41,7 +41,7 @@ public class BlockingService extends IServiceBase<Blocking, BlockingInput, Block
 
     @Override
     public Blocking update(BlockingInput blockingInput) {
-        Blocking blocking = repository.getOne(blockingInput.getId());
+        Blocking blocking = repository.findById(blockingInput.getId()).orElseThrow();
         boolean wasBlocked = blocking.getBlock();
         blocking = repository.save(Blocking.buildFromInput(blockingInput, blocking.getState()));
         FileTask fileTask = blocking.getState().getFileTask();
@@ -76,7 +76,7 @@ public class BlockingService extends IServiceBase<Blocking, BlockingInput, Block
 
     @Override
     public Blocking getById(long id) {
-        return repository.getOne(id);
+        return repository.findById(id).orElseThrow();
     }
 
     public List<BlockingQualification> getAllQualification() {

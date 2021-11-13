@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ import static com.softline.dossier.be.database.SeederHelper.*;
 @Component
 @RequiredArgsConstructor
 @Slf4j(topic = "DBSeeder")
+@Order(1)
 public class DBSeeder implements ApplicationRunner {
     private final ActivityRepository activityRepository;
     private final FileStateTypeRepository fileStateTypeRepository;
@@ -396,7 +398,7 @@ public class DBSeeder implements ApplicationRunner {
         zapa.getTasks().add(controle);
         zapa.getTasks().add(PreparatrionLivraison);
         var fields = new ArrayList<ActivityField>();
-        fields.add(ActivityField.builder().fieldName("CEM").fieldType(FieldType.Number).activity(zapa).build());
+        fields.add(ActivityField.builder().fieldName("CEM").fieldType(FieldType.String).activity(zapa).build());
         fields.add(ActivityField.builder().fieldName("NBre EL BE").fieldType(FieldType.Number).activity(zapa).build());
         fields.add(ActivityField.builder().fieldName("NBRE EL Client").fieldType(FieldType.Number).activity(zapa).build());
         fields.add(ActivityField.builder().fieldName("NBRE FOA").fieldType(FieldType.Number).activity(zapa).build());
@@ -444,9 +446,9 @@ public class DBSeeder implements ApplicationRunner {
         fi.getTasks().add(controle);
         fi.getTasks().add(PreparatrionLivraison);
         var fields = new ArrayList<ActivityField>();
-        fields.add(ActivityField.builder().fieldName("CEM").fieldType(FieldType.Number).activity(fi).build());
-        fields.add(ActivityField.builder().fieldName("IMB").fieldType(FieldType.Number).activity(fi).build());
-        fields.add(ActivityField.builder().fieldName("FIS").fieldType(FieldType.Number).activity(fi).build());
+        fields.add(ActivityField.builder().fieldName("CEM").fieldType(FieldType.String).activity(fi).build());
+        fields.add(ActivityField.builder().fieldName("IMB").fieldType(FieldType.String).activity(fi).build());
+        fields.add(ActivityField.builder().fieldName("FIS").fieldType(FieldType.String).activity(fi).build());
         fields.add(ActivityField.builder().fieldName("EL BE DL").fieldType(FieldType.Number).activity(fi).build());
         fields.add(ActivityField.builder().fieldName("EL IMB / FIS").fieldType(FieldType.Number).activity(fi).build());
         fi.setFields(fields);
@@ -540,10 +542,10 @@ public class DBSeeder implements ApplicationRunner {
         piquetage.getTasks().add(control);
         piquetage.getTasks().add(verification);
         var fields = new ArrayList<ActivityField>();
-        fields.add(ActivityField.builder().fieldName("Poteaux FT").fieldType(FieldType.String).activity(piquetage).activityBase(zapa).build());
-        fields.add(ActivityField.builder().fieldName("Poteaux ERDF").fieldType(FieldType.String).activity(piquetage).activityBase(zapa).build());
+        fields.add(ActivityField.builder().fieldName("Poteaux FT").fieldType(FieldType.Number).activity(piquetage).activityBase(zapa).build());
+        fields.add(ActivityField.builder().fieldName("Poteaux ERDF").fieldType(FieldType.Number).activity(piquetage).activityBase(zapa).build());
         fields.add(ActivityField.builder().fieldName("NBRE APPUI PIQUETÉS").fieldType(FieldType.Number).activity(piquetage).activityBase(zapa).build());
-        fields.add(ActivityField.builder().fieldName("IMB***").fieldType(FieldType.Number).activity(piquetage).activityBase(fi).build());
+        fields.add(ActivityField.builder().fieldName("IMB***").fieldType(FieldType.String).activity(piquetage).activityBase(fi).build());
         piquetage.setFields(fields);
         activityRepository.save(piquetage);
     }

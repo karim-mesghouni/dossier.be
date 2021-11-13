@@ -14,9 +14,12 @@ import java.util.Objects;
  * A wrapper class for any entity action events that will happen during the request life-cycle
  */
 @Slf4j(topic = "EntityEvent")
-public abstract class EntityEvent extends Event<JSONObject> implements Serializable {
-    public EntityEvent(String type) {
+public abstract class EntityEvent<E> extends Event<JSONObject> implements Serializable {
+    protected E entity;
+
+    public EntityEvent(String type, E entity) {
         super(type, new JSONObject());
+        this.entity = entity;
     }
 
     public void addData(@NotNull String attribute, @Nullable Object value) {
@@ -29,6 +32,7 @@ public abstract class EntityEvent extends Event<JSONObject> implements Serializa
             }
         }
     }
+
 
     public enum Type {
         TRASHED,

@@ -1,6 +1,8 @@
 package com.softline.dossier.be.Tools;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -16,7 +18,7 @@ public class Functions {
      * this allows to chain functions on the value
      */
     @SafeVarargs // assert that `callbacks` variables are of type Consumer<T>
-    public static <T> T tap(T value, Consumer<T>... callbacks) {
+    public static <T> T tap(T value, @NotNull Consumer<T>... callbacks) {
         // apply all callbacks on the object
         for (var callable : callbacks)
             callable.accept(value);
@@ -30,7 +32,7 @@ public class Functions {
      * @param action the action to be done
      * @return true if the action has run successfully otherwise false is returned
      */
-    public static boolean safeRun(Runnable action) {
+    public static boolean safeRun(@NotNull Runnable action) {
         try {
             action.run();
             return true;
@@ -49,7 +51,7 @@ public class Functions {
      * @param action    the action to be done
      * @return false is returned if the condition or the action threw an exception otherwise true
      */
-    public static boolean safeRun(Callable<Boolean> condition, Runnable action) {
+    public static boolean safeRun(@NotNull Callable<Boolean> condition, @NotNull Runnable action) {
         try {
             if (condition.call()) {
                 action.run();
@@ -91,9 +93,23 @@ public class Functions {
     }
 
     /**
+     * value is considered empty if the value (is string and empty) or (is number and equal to 0) or (is object and null) or (is Optional and isEmpty())
+     *
+     * @param producer a callback which will produce the value to be tested
+     * @return true if the producer return value is not empty, false if the producer threw and exception or the returned value was empty,
+     */
+    public static boolean isEmpty(@NotNull Callable<Object> producer) {
+        try {
+            throwIfEmpty(producer.call());
+            return true;
+        } catch (Throwable e) {
+            log.error("isEmpty, value was empty");
+            return false;
+        }
+    }
+
+    /**
      * produce a value or use fallback value if the producer returned empty value or the producer threw an exception,
-     * Value is considered empty it (is string and empty) or (is number and equal to 0)
-     * or (is object and null) or (is Optional and isEmpty())
      *
      * @param producer the value producer
      * @param fallback fallback value to be returned if the producer threw an exception or the producer return value was an empty value
@@ -114,7 +130,8 @@ public class Functions {
      *
      * @param producer the value producer
      */
-    public static <T> T safeValue(Callable<T> producer) {
+    @Nullable
+    public static <T> T safeValue(@NotNull Callable<T> producer) {
         return safeValue(producer, null);
     }
 
@@ -127,7 +144,7 @@ public class Functions {
      * @return true if the action or the fallback has run successfully
      * if both the action and fallback failed false is returned
      */
-    public static boolean safeRunWithFallback(Runnable action, Runnable fallback) {
+    public static boolean safeRunWithFallback(@NotNull Runnable action, @NotNull Runnable fallback) {
         try {
             action.run();
             return true;
@@ -140,7 +157,7 @@ public class Functions {
     /**
      * call the action n number of times
      */
-    public static void runNTimes(int n, Runnable action) {
+    public static void runNTimes(int n, @NotNull Runnable action) {
         for (int i = 0; i < n; i++)
             action.run();
     }

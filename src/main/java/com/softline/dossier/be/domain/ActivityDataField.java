@@ -1,6 +1,8 @@
 package com.softline.dossier.be.domain;
 
 import com.softline.dossier.be.domain.enums.FieldType;
+import com.softline.dossier.be.events.EntityEvent;
+import com.softline.dossier.be.events.entities.FileActivityDataFieldEvent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -38,4 +40,19 @@ public class ActivityDataField extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     FileActivity fileActivity;
 
+
+    @PostPersist
+    private void afterCreate() {
+        new FileActivityDataFieldEvent(EntityEvent.Type.ADDED, this).fireToAll();
+    }
+
+    @PostUpdate
+    private void afterUpdate() {
+        new FileActivityDataFieldEvent(EntityEvent.Type.UPDATED, this).fireToAll();
+    }
+
+    @PostRemove
+    private void afterDelete() {
+        new FileActivityDataFieldEvent(EntityEvent.Type.DELETED, this).fireToAll();
+    }
 }

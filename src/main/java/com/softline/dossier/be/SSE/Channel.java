@@ -58,4 +58,11 @@ public class Channel {
                 ", agentId=" + userId +
                 '}';
     }
+
+    /**
+     * @return boolean value which tells if this channel can read the event
+     */
+    public boolean canRead(Event<?> event) {
+        return event.isReadableByChannel(this);
+    }
 }

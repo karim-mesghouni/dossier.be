@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 /**
- * This controller is responsible for serving attachments in the storage
+ * This controller is responsible for serving files in the storage directory
  */
 @Controller
 @RequiredArgsConstructor

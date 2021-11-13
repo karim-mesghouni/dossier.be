@@ -38,7 +38,7 @@ public class JsonPolicyLoader {
             Resource[] resources = resolver.getResources("classpath:/policy/*.policy.json");
             for (Resource resource : resources) {
                 try {
-                    log.debug("loading policy file: {}", resource.getFile());
+                    log.info("loading policy file: {}", resource.getFile());
                     rules.addAll(Arrays.stream(mapper.readValue(resource.getInputStream(), PolicyRule[].class)).collect(Collectors.toList()));
                 } catch (Exception e) {
                     log.error("An error occurred while parsing the policy file.", e);

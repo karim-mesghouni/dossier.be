@@ -6,9 +6,9 @@
     "condition": "true"
   },
   {
-    "name": "Referent can read or update his activity files",
-    "target": "subject.role.name == 'REFERENT' && {'READ_FILE', 'UPDATE_FILE'}.contains(action)",
-    "condition": "resource.baseActivity.id == subject.activity.id || resource.fileActivities.^[activity.id == #root.subject.activity.id] != null"
+    "name": "Referent can read  all files",
+    "target": "subject.role.name == 'REFERENT' && 'READ_FILE' == action",
+    "condition": "true"
   },
   {
     "name": "Referent can update only manage his activity",
@@ -34,5 +34,10 @@
     "name": "Referent can change the state of any fileTasks inside his fileActivity",
     "target": "action == 'CHANGE_FILE_TASK_STATE' && subject.role.name == 'REFERENT'",
     "condition": "resource.fileActivity.activity.id == subject.activity.id"
+  },
+  {
+    "name": "Referent can read any fileTask",
+    "target": "'READ_FILE_TASK' == action && subject.role.name == 'REFERENT'",
+    "condition": "true"
   }
 ]

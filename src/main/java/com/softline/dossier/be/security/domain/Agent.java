@@ -2,6 +2,8 @@ package com.softline.dossier.be.security.domain;
 
 import com.softline.dossier.be.Application;
 import com.softline.dossier.be.domain.*;
+import com.softline.dossier.be.events.EntityEvent;
+import com.softline.dossier.be.events.entities.AgentEvent;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,8 +21,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import static com.softline.dossier.be.Tools.Functions.safeRun;
-import static com.softline.dossier.be.Tools.Functions.throwIfEmpty;
+import static com.softline.dossier.be.Tools.Functions.isEmpty;
 
 @SuperBuilder
 @Entity
@@ -121,7 +122,7 @@ public class Agent extends BaseEntity {
      * @return true if the request contains a valid jwt token with user data
      */
     public static boolean isLoggedIn() {
-        return safeRun(() -> throwIfEmpty(thisAgent().getId()));// will return false if the value retrieval fails
+        return isEmpty(() -> thisAgent().getId());// will return false if the value retrieval fails
     }
 
     /**
@@ -129,5 +130,21 @@ public class Agent extends BaseEntity {
      */
     public static boolean notLoggedIn() {
         return !isLoggedIn();
+    }
+
+
+    @PostPersist
+    private void afterCreate() {
+        new AgentEvent(EntityEvent.Type.ADDED, this).fireToAll();
+    }
+
+    @PostUpdate
+    private void afterUpdate() {
+        new AgentEvent(EntityEvent.Type.UPDATED, this).fireToAll();
+    }
+
+    @PostRemove
+    private void afterDelete() {
+        new AgentEvent(EntityEvent.Type.DELETED, this).fireToAll();
     }
 }

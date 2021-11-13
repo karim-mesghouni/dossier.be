@@ -1,9 +1,8 @@
 package com.softline.dossier.be.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import com.softline.dossier.be.events.EntityEvent;
+import com.softline.dossier.be.events.entities.FileEvent;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.*;
 
@@ -87,12 +86,56 @@ public class File extends BaseEntity {
                 '}';
     }
 
+    @Transient
+    @Builder.Default
+    private boolean wasTrashed = false;
+
+
+    public void incrementNextFileTaskNumber() {
+        setNextFileTaskNumber(1 + getNextFileTaskNumber());
+    }
+
+    @Transient
+    @Builder.Default
+    private boolean wasRecovered = false;
+
     // used by graphql File type (field fileReprise)
+    @SuppressWarnings("unused")
     public boolean isFileReprise() {
         return getReprise() != null;
     }
 
-    public void incrementNextFileTaskNumber() {
-        setNextFileTaskNumber(1 + getNextFileTaskNumber());
+    @PostPersist
+    private void afterCreate() {
+        new FileEvent(EntityEvent.Type.ADDED, this).fireToAll();
+    }
+
+    @PostRemove
+    private void afterDelete() {
+        new FileEvent(EntityEvent.Type.DELETED, this).fireToAll();
+    }
+
+    @PostUpdate
+    private void afterUpdate() {
+        if (wasTrashed) {
+            new FileEvent(EntityEvent.Type.TRASHED, this).fireToAll();
+            wasTrashed = false;
+        } else if (wasRecovered) {
+            new FileEvent(EntityEvent.Type.RECOVERED, this).fireToAll();
+            wasRecovered = false;
+        } else {
+            new FileEvent(EntityEvent.Type.UPDATED, this).fireToAll();
+        }
+    }
+
+    public void setInTrash(boolean inTrash) {
+        if (getId() != 0) {
+            if (inTrash) {
+                wasTrashed = true;
+            } else {
+                wasRecovered = true;
+            }
+        }
+        this.inTrash = inTrash;
     }
 }

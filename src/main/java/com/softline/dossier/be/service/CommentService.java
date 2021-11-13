@@ -9,7 +9,6 @@ import com.softline.dossier.be.repository.CommentRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
 import com.softline.dossier.be.repository.FileTaskRepository;
 import com.softline.dossier.be.repository.MessageRepository;
-import com.softline.dossier.be.security.repository.AgentRepository;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +32,6 @@ import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 @RequiredArgsConstructor
 @Slf4j(topic = "CommentService")
 public class CommentService extends IServiceBase<Comment, CommentInput, CommentRepository> {
-    private final AgentRepository agentRepository;
     private final FileActivityRepository fileActivityRepository;
     private final FileTaskRepository fileTaskRepository;
     private final MessageRepository messageRepository;

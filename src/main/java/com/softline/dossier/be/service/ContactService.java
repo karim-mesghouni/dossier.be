@@ -33,7 +33,7 @@ public class ContactService extends IServiceBase<Contact, ContactInput, ContactR
 
     @Override
     public Contact update(ContactInput input) {
-        Contact contact = repository.getOne(input.getId());
+        Contact contact = repository.findById(input.getId()).orElseThrow();
         contact.setName(input.getName());
         contact.setEmail(input.getEmail());
         contact.setPhone(input.getPhone());

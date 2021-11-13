@@ -3,6 +3,7 @@ package com.softline.dossier.be.domain;
 import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.events.EntityEvent;
 import com.softline.dossier.be.events.entities.CommentEvent;
+import com.softline.dossier.be.repository.CommentRepository;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.softline.dossier.be.Application.context;
 import static com.softline.dossier.be.Tools.TipTap.resolveCommentContent;
 
 @Entity
@@ -65,11 +67,13 @@ public class Comment extends BaseEntity {
 
     @PostUpdate
     private void afterUpdate() {
+        this.resolveContent();
         new CommentEvent(EntityEvent.Type.UPDATED, this).fireToAll();
     }
 
     @PostPersist
     private void afterCreate() {
+        this.resolveContent();
         new CommentEvent(EntityEvent.Type.ADDED, this).fireToAll();
     }
 
@@ -78,19 +82,11 @@ public class Comment extends BaseEntity {
         new CommentEvent(EntityEvent.Type.DELETED, this).fireToAll();
     }
 
-    /**
-     * after we save the comment we will parse the json content,
-     * extract any foreign image links and save them locally,
-     * then find any mentions and add them to the message list of the comment
-     *
-     * @see Message#afterCreate()
-     */
-    @PreUpdate
-    @PrePersist
     private void resolveContent() {
         if (needsResolving) {
             needsResolving = false;
             resolveCommentContent(this);
+            context().getBean(CommentRepository.class).save(this);
         }
     }
 

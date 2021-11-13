@@ -1,5 +1,7 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.events.EntityEvent;
+import com.softline.dossier.be.events.entities.FileActivityEvent;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.*;
@@ -70,5 +72,46 @@ public class FileActivity extends BaseEntity {
                 "id=" + id +
                 ", activity=" + activity +
                 '}';
+    }
+
+    @Transient
+    @Builder.Default
+    private boolean wasTrashed = false;
+    @Transient
+    @Builder.Default
+    private boolean wasRecovered = false;
+
+    @PostPersist
+    private void afterCreate() {
+        new FileActivityEvent(EntityEvent.Type.ADDED, this).fireToAll();
+    }
+
+    @PostRemove
+    private void afterDelete() {
+        new FileActivityEvent(EntityEvent.Type.DELETED, this).fireToAll();
+    }
+
+    @PostUpdate
+    private void afterUpdate() {
+        if (wasTrashed) {
+            new FileActivityEvent(EntityEvent.Type.TRASHED, this).fireToAll();
+            wasTrashed = false;
+        } else if (wasRecovered) {
+            new FileActivityEvent(EntityEvent.Type.RECOVERED, this).fireToAll();
+            wasRecovered = false;
+        } else {
+            new FileActivityEvent(EntityEvent.Type.UPDATED, this).fireToAll();
+        }
+    }
+
+    public void setInTrash(boolean inTrash) {
+        if (getId() != 0) {
+            if (inTrash) {
+                wasTrashed = true;
+            } else {
+                wasRecovered = true;
+            }
+        }
+        this.inTrash = inTrash;
     }
 }

@@ -1,11 +1,8 @@
 package com.softline.dossier.be.service;
 
 import com.softline.dossier.be.Tools.FileSystem;
-import com.softline.dossier.be.Tools.Functions;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
-import com.softline.dossier.be.events.EntityEvent;
-import com.softline.dossier.be.events.entities.FileTaskEvent;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
 import com.softline.dossier.be.repository.*;
@@ -21,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.softline.dossier.be.Application.context;
+import static com.softline.dossier.be.Tools.Functions.*;
 import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 
 @Transactional
@@ -89,7 +89,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         //fileTask.setDescription(input.getDescription());
         // fileTask.setRetour(input.getRetour());
         fileTask.setTitle(input.getTitle());
-        Functions.safeRun(() -> fileTask.setState(taskStateRepository.getOne(input.getState().getId())));
+        safeRun(() -> fileTask.setState(taskStateRepository.findById(input.getState().getId()).orElseThrow()));
         return fileTask;
     }
 
@@ -285,15 +285,10 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public boolean changeParent(Long fileTaskId, Long parentId) {
-        if (Functions.safeRunWithFallback(
-                () -> getRepository().getOne(fileTaskId).setParent(getRepository().getOne(parentId)),
-                () -> getRepository().getOne(fileTaskId).setParent(null)
-        )) {
-            var fileTask = getRepository().getOne(fileTaskId);
-            new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
-            return true;
-        }
-        return false;
+        return safeRunWithFallback(
+                () -> getRepository().findById(fileTaskId).orElseThrow().setParent(getRepository().findById(parentId).orElseThrow()),
+                () -> getRepository().findById(fileTaskId).orElseThrow().setParent(null)
+        );
     }
 
     public List<FileTask> getAllFileTaskByFileActivityIdInTrash(Long fileActivityId) {
@@ -301,17 +296,13 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public boolean recoverFileTaskFromTrash(Long fileTaskId) {
-        var fileTask = getRepository().getOne(fileTaskId);
+        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         fileTask.setInTrash(false);
-        new FileTaskEvent(EntityEvent.Type.RECOVERED, fileTask).fireToAll();
         return true;
     }
 
     public boolean sendFileTaskToTrash(Long fileTaskId) {
-        var fileTask = getRepository().getOne(fileTaskId);
-        fileTask.setInTrash(true);
-        new FileTaskEvent(EntityEvent.Type.TRASHED, fileTask).fireToAll();
-        return true;
+        return tap(true, v -> context().getBean(EntityManager.class).find(FileTask.class, fileTaskId).setInTrash(v));
     }
 
     public List<Attachment> saveAttached(Long fileTaskId, DataFetchingEnvironment environment) throws IOException {

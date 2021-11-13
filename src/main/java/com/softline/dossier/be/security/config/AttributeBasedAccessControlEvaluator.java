@@ -35,7 +35,7 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
      * return true if the current logged-in user cannot do the action on the object
      */
     public static boolean cannot(Object domain, String action) {
-        return !can(domain, action);
+        return !can(action, domain);
     }
 
     public static <T> Stream<T> filter(Stream<T> stream, String action) {
@@ -46,7 +46,7 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
     /**
      * return true if the current logged-in user can do the action on the object
      */
-    public static boolean can(Object domain, String action) {
+    public static boolean can(String action, Object domain) {
         var eval = context().getBean(AttributeBasedAccessControlEvaluator.class);
         return eval.hasPermission(Agent.auth(), domain, action);
     }

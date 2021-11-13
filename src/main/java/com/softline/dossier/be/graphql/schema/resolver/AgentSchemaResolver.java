@@ -1,8 +1,6 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
 import com.softline.dossier.be.domain.Job;
-import com.softline.dossier.be.events.EntityEvent;
-import com.softline.dossier.be.events.entities.AgentEvent;
 import com.softline.dossier.be.graphql.types.input.AgentInput;
 import com.softline.dossier.be.repository.ActivityRepository;
 import com.softline.dossier.be.repository.JobRepository;
@@ -73,7 +71,6 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
         safeRun(() -> input.getPassword().length() > 0,
                 () -> agent.setPassword(passwordEncoder.encode(input.getPassword())));
         service.getRepository().save(agent);
-        new AgentEvent(EntityEvent.Type.UPDATED, agent).fireToAll();
         return agent;
     }
 
@@ -83,7 +80,6 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
         throwIfEmpty(input.getPassword(), new ClientReadableException("le mot de passe ne doit pas être vide"));
         agent.setPassword(passwordEncoder.encode(input.getPassword()));
         service.getRepository().save(agent);
-        new AgentEvent(EntityEvent.Type.UPDATED, agent).fireToAll();
         return true;
     }
 
@@ -95,7 +91,6 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
         Long id = (Long) entityManager.unwrap(Session.class).save(agent);
         entityManager.clear();
         agent = entityManager.find(Agent.class, id);
-        new AgentEvent(EntityEvent.Type.ADDED, agent).fireToAll();
         return agent;
     }
 
@@ -103,7 +98,6 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
     public boolean deleteAgent(long id) {
         var agent = service.getRepository().findById(id).orElseThrow();
         service.getRepository().deleteById(id);
-        new AgentEvent(EntityEvent.Type.DELETED, agent).fireToAll();
         return true;
     }
 

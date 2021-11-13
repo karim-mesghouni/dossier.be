@@ -20,47 +20,43 @@ import static com.softline.dossier.be.security.domain.Agent.notLoggedIn;
 @RequestMapping("/events")
 @Slf4j(topic = "SSE")
 public class EventController {
-    private static final ScheduledExecutorService pingThread = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("sse-ping-thread").build());
+    private static final ScheduledExecutorService pingThread = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("sse-ping-thread").build());
     // used ConcurrentHashMap instead of normal Hashmap
     // because HashMap Iterators don't support modifying(removing) the items outside the iterator itself
     private static final ConcurrentHashMap<Channel, SseEmitter> channels = new ConcurrentHashMap<>();
     // sometimes the SseEmitter.complete() action does not get executed
     // so we will manually clean the emitter in such case by putting in a removal queue
     private static final ConcurrentLinkedDeque<Channel> scheduledForRemoval = new ConcurrentLinkedDeque<>();
-    private static boolean threadIsRunning = false;
 
     public EventController() {
         // to keep the connection alive in the client side
         // we must send at least 1 event every 45 seconds,
         // so we create a single thread which will send a ping(heart-beat) event
         // to all open channels every 30 seconds
-        if (!threadIsRunning) {
-            log.debug("starting pingThread");
-            pingThread.scheduleAtFixedRate(() ->
-            {
-                synchronized (channels) {// obtain lock
-                    // remove any scheduled for removal channels
-                    synchronized (scheduledForRemoval) {// obtain lock
-                        if (scheduledForRemoval.size() > 0) {
-                            scheduledForRemoval.forEach(ch -> {
-                                if (channels.containsKey(ch)) {
-                                    log.debug("Removing scheduled channel removal {}", ch);
-                                    channels.remove(ch);
-                                }
-                            });
-                            scheduledForRemoval.clear();
-                        }
-                    }
-                    if (channels.isEmpty()) {
-                        log.debug("didnt send heart-beat signal, no channel is connected");
-                        return;
+        log.info("starting pingThreads");
+        pingThread.scheduleAtFixedRate(() ->
+        {
+            synchronized (channels) {// obtain lock
+                // remove any scheduled for removal channels
+                synchronized (scheduledForRemoval) {// obtain lock
+                    if (scheduledForRemoval.size() > 0) {
+                        scheduledForRemoval.forEach(ch -> {
+                            if (channels.containsKey(ch)) {
+                                log.info("Removing scheduled channel removal {}", ch);
+                                channels.remove(ch);
+                            }
+                        });
+                        scheduledForRemoval.clear();
                     }
                 }
-                log.debug("Sending heart-beat signal for all channels");
-                EventController.sendForAllChannels(Event.pingEvent());
-            }, 30, 30, TimeUnit.SECONDS);
-            threadIsRunning = true;
-        }
+                if (channels.isEmpty()) {
+                    log.info("didnt send heart-beat signal, no channel is connected");
+                    return;
+                }
+            }
+            log.info("Sending heart-beat signal for all channels");
+            Event.pingEvent().fireToAll();
+        }, 30, 30, TimeUnit.SECONDS);
     }
 
     /**
@@ -68,8 +64,11 @@ public class EventController {
      */
     public static void sendForAllChannels(Event<?> event) {
         synchronized (channels) {// obtain lock
-            log.debug("sendEventForAll: {}", event);
-            channels.forEach((channel, em) -> internalSendForEmitter(em, event, channel));
+            log.info("sendEventForAll: {}", event);
+            channels.forEach((channel, em) -> {
+                if (channel.canRead(event))
+                    internalSendForEmitter(em, event, channel);
+            });
         }
     }
 
@@ -81,12 +80,12 @@ public class EventController {
             try {
                 channel.setLastEvent(event);
                 emitter.send(SseEmitter.event().name(event.getType()).data(event.getData()));
-                log.debug("sent {} to {}", event, channel);
+                log.info("sent {} to {}", event, channel);
             } catch (Throwable e) {
                 if (!Event.pingEvent().equals(event)) {
-                    log.error("{} was not sent to {} due to error: ({}), adding the channel to the clean queue", event, channel, e.getMessage());
+                    log.error("{} was not sent to {} because of [{}], adding the channel to the clean queue", event, channel, e.getMessage());
                 } else {
-                    log.debug("{} was not sent to {} due to error: ({}), adding the channel to the clean queue", event, channel, e.getMessage());
+                    log.info("{} was not sent to {} because of [{}], adding the channel to the clean queue", event, channel, e.getMessage());
                 }
                 emitter.complete();
                 // calling emitter.complete() after "event send failure" (not a network error) has no effect,
@@ -108,7 +107,7 @@ public class EventController {
         synchronized (channels) {// obtain lock
             channels.forEach((channel, em) ->
             {
-                if (channel.userId == userId) {
+                if (channel.userId == userId && channel.canRead(event)) {
                     internalSendForEmitter(em, event, channel);
                 }
             });
@@ -127,7 +126,7 @@ public class EventController {
         var agent = (Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final Channel channel = new Channel((long) Math.floor(Math.random() * 1_000_000), agent.getId());
         synchronized (channels) {// obtain lock
-            log.debug("creating new emitter for {}", channel);
+            log.info("creating new emitter for {}", channel);
             // create new sse emitter with timeout of 1 hour
             // this will delete his linked channel emitter
             // and force the client to reconnect again
@@ -137,23 +136,22 @@ public class EventController {
                     {
                         // will be called if the client closed the connection (browser tap closed)
                         // or if channel timeout was reached
-                        log.debug("emitter complete was called, removing {}", channel);
+                        log.info("emitter complete was called, removing {}", channel);
                         synchronized (channels) {// obtain lock
                             channels.remove(channel);
                         }
                     }),
                     // will only happen if the channel was opened for more than 1 hour (previous timeout value)
-                    em -> em.onTimeout(() -> log.debug("emitter timeout for {}", channel)),
+                    em -> em.onTimeout(() -> log.info("emitter timeout for {}", channel)),
                     // called on event send error
                     em -> em.onError(err -> {
                         if (!Objects.equals(channel.getLastEvent(), Event.pingEvent())) {
                             log.error("emitter error for {} last {} {}", channel, channel.getLastEvent(), err.toString());
                         } else {
-                            log.debug("emitter error for {} last {} {}", channel, channel.getLastEvent(), err.toString());
+                            log.info("emitter error for {} last {} {}", channel, channel.getLastEvent(), err.toString());
                         }
                     }),
                     em -> channels.putIfAbsent(channel, em));
-
         }
     }
 }

@@ -9,8 +9,11 @@ import java.util.List;
 
 @Repository
 public interface FileActivityRepository extends JpaRepository<FileActivity, Long> {
-    @Query("select  fa from  FileActivity fa where fa.file.id=?1 and fa.inTrash=false order by fa.order ")
+    @Query("select fa from  FileActivity fa where fa.file.id=?1 and fa.inTrash=false order by fa.order ")
     List<FileActivity> findAllByFile_Id(Long fileId);
+
+    @Query("select distinct fa from FileActivity fa inner join fetch fa.fileTasks as ft where ft.inTrash = false and fa.id = :fileActivityId and fa.inTrash = false order by fa.order")
+    FileActivity findByIdAndFileTasksNotTrashed(long fileActivityId);
 
     @Query("select COALESCE(MAX(f.order), 0) + 1 from  FileActivity f where f.file.id = :fileId")
     Integer getNextOrder(long fileId);

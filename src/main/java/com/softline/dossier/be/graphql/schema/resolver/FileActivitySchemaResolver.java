@@ -42,7 +42,7 @@ public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity,
     }
 
     protected FileActivity getFileActivity(Long id) {
-        return get(id);
+        return getService().getById(id);
     }
 
     public List<FileActivity> getAllFileActivityByFileId(Long fileId) {

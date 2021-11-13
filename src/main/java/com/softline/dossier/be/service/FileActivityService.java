@@ -3,8 +3,6 @@ package com.softline.dossier.be.service;
 import com.softline.dossier.be.domain.ActivityDataField;
 import com.softline.dossier.be.domain.ActivityState;
 import com.softline.dossier.be.domain.FileActivity;
-import com.softline.dossier.be.events.EntityEvent;
-import com.softline.dossier.be.events.entities.FileActivityEvent;
 import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
 import com.softline.dossier.be.repository.*;
@@ -67,7 +65,6 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
             );
         });
         repository.saveAndFlush(fileActivity);
-        new FileActivityEvent(EntityEvent.Type.ADDED, fileActivity).fireToAll();
         return fileActivity;
     }
 
@@ -85,7 +82,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
 
     @Override
     public FileActivity getById(long id) {
-        return repository.findById(id).orElseThrow();
+        return repository.findByIdAndFileTasksNotTrashed(id);
     }
 
     public List<FileActivity> getAllFileActivityByFileId(Long fileId) {
@@ -102,7 +99,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
 
     public boolean changeDataField(ActivityDataFieldInput input) throws ClientReadableException {
         var field = activityDataFieldRepository.findById(input.getId()).orElseThrow();
-        if (cannot(field.getFileActivity(), "UPDATE_FILE_ACTIVITY")) {
+        if (cannot(field.getFileActivity(), "UPDATE_FILE_ACTIVITY") && cannot(field.getFileActivity(), "UPDATE_FILE_ACTIVITY_DATA_FIELD")) {
             throw new AccessDeniedException("Access Denied");
         }
         try {
@@ -125,17 +122,15 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
 
     @PreAuthorize("hasPermission(#fileActivityId, 'FileActivity', 'DELETE_FILE_ACTIVITY')")
     public boolean sendFileActivityToTrash(Long fileActivityId) {
-        var fileActivity = getRepository().getOne(fileActivityId);
+        var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
         fileActivity.setInTrash(true);
-        new FileActivityEvent(EntityEvent.Type.TRASHED, fileActivity).fireToAll();
         return true;
     }
 
     @PreAuthorize("hasPermission(#fileActivityId, 'FileActivity', 'DELETE_FILE_ACTIVITY')")
     public boolean recoverFileActivityFromTrash(Long fileActivityId) {
-        var fileActivity = getRepository().getOne(fileActivityId);
+        var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
         fileActivity.setInTrash(false);
-        new FileActivityEvent(EntityEvent.Type.RECOVERED, fileActivity).fireToAll();
         return true;
     }
 

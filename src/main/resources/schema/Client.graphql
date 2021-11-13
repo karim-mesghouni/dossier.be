@@ -2,6 +2,7 @@
 extend type Query  {
     allClient:[Client]
     getClientsTable(search: String): [Client]
+    client(clientId: ID!): Client
 }
 
 extend type Mutation  {
