@@ -24,6 +24,7 @@ type FileActivity {
     activity:Activity
     dataFields:[ActivityDataField]
     reprises:[Reprise]
+    documents: [Document]
     fileTasks:[FileTask]
     state:ActivityState
     inTrash:Boolean
@@ -41,8 +42,6 @@ input FileActivityInput  {
     fileTasks:[FileTaskInput]
     state:ActivityStateInput
     order:Int
-
-
 }
 type FileState  {
     id :ID

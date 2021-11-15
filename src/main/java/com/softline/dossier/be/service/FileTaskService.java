@@ -13,12 +13,12 @@ import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,8 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.softline.dossier.be.Application.context;
+import static com.softline.dossier.be.SSE.EventController.silently;
+import static com.softline.dossier.be.Tools.Database.database;
 import static com.softline.dossier.be.Tools.Functions.*;
+import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.cannot;
 import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 
 @Transactional
@@ -36,7 +38,6 @@ import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 @RequiredArgsConstructor
 public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileTaskRepository> {
     private final TaskRepository taskRepository;
-    private final TaskStateRepository fileTaskStateRepository;
     private final FileTaskSituationRepository fileTaskSituationRepository;
     private final TaskSituationRepository taskSituationRepository;
     private final AgentRepository agentRepository;
@@ -180,9 +181,12 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return true;
     }
 
-    @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public boolean changeTitle(String title, Long fileTaskId) {
-        getRepository().findById(fileTaskId).orElseThrow().setTitle(title);
+        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        if (cannot("UPDATE_FILE_TASK", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
+            throw new AccessDeniedException("erreur de privilege");
+        }
+        fileTask.setTitle(title);
         return true;
     }
 
@@ -206,14 +210,16 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return description;
     }
 
-    @PreAuthorize("hasPermission(#retour.fileTask.id, 'FileTask', 'CHANGE_FILE_TASK_RETOUR')")
     public ReturnedComment changeRetour(CommentInput retour) {
+        var fileTask = getRepository().findById(retour.getFileTask().getId()).orElseThrow();
+        if (cannot("CHANGE_FILE_TASK_RETOUR", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
+            throw new AccessDeniedException("erreur de privilege");
+        }
         if (retour.getId() != null) {
             var retourExist = returnedCommentRepository.findById(retour.getId()).orElseThrow();
             retourExist.setContent(retour.getContent());
             return retourExist;
         } else {
-            var fileTask = getRepository().findById(retour.getFileTask().getId()).orElseThrow();
             var fileActivity = fileActivityRepository.findById(retour.getFileActivity().getId()).orElseThrow();
 
             var retourNew = returnedCommentRepository.save(ReturnedComment.builder()
@@ -302,7 +308,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public boolean sendFileTaskToTrash(Long fileTaskId) {
-        return tap(true, v -> context().getBean(EntityManager.class).find(FileTask.class, fileTaskId).setInTrash(v));
+        return tap(true, $true -> database().find(FileTask.class, fileTaskId).setInTrash($true));
     }
 
     public List<Attachment> saveAttached(Long fileTaskId, DataFetchingEnvironment environment) throws IOException {
@@ -362,35 +368,36 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
      * @return boolean
      */
     public synchronized boolean changeOrder(long fileTaskId, long fileTaskBeforeId) {
-        if (repository.count() < 2) {
-            return true;// this should not happen
-        }
-        var fileTask = repository.findById(fileTaskId).orElseThrow();
-        var fileActivityId = fileTask.getFileActivity().getId();
-        var res = repository.findById(fileTaskBeforeId);
-        // TODO: convert this logic into Mutating queries in JPA
-        if (res.isPresent()) {
-            var fileTaskBefore = res.get();
-            // how many fileTasks will be updated (increment or decrement their order)
-            var levelsChange = repository.countAllByOrderBetween(fileTask.getOrder(), fileTaskBefore.getOrder(), fileActivityId);
-            if (fileTask.getOrder() < fileTaskBefore.getOrder()) {// fileTask is moving down the list
-                repository.findAllByOrderAfter(fileTask.getOrder(), fileActivityId)
-                        .stream()
-                        .limit(levelsChange + 1)
-                        .forEach(FileTask::decrementOrder);
-                fileTask.setOrder(fileTaskBefore.getOrder() + 1);
-            } else {// fileTask is moving up the list
-                var allAfter = repository.findAllByOrderAfter(fileTaskBefore.getOrder(), fileActivityId);
-                allAfter.stream()
-                        .limit(levelsChange)
-                        .forEach(FileTask::incrementOrder);
-                fileTask.setOrder(repository.findAllByOrderAfter(fileTaskBefore.getOrder(), fileActivityId).stream().findFirst().get().getOrder() - 1);
+        return silently(() -> {
+            if (repository.count() < 2) {
+                return true;// this should not happen
             }
-        } else {// fileTask should be the first item in the list
-            var allBefore = repository.findAllByOrderBefore(fileTask.getOrder(), fileActivityId);
-            fileTask.setOrder(allBefore.stream().findFirst().get().getOrder());// gets the order of the old first file
-            allBefore.forEach(FileTask::incrementOrder);
-        }
-        return true;
+            var fileTask = repository.findById(fileTaskId).orElseThrow();
+            var fileActivityId = fileTask.getFileActivity().getId();
+            var res = repository.findById(fileTaskBeforeId);
+            // TODO: convert this logic into Mutating queries in JPA
+            if (res.isPresent()) {
+                var fileTaskBefore = res.get();
+                // how many fileTasks will be updated (increment or decrement their order)
+                var levelsChange = repository.countAllByOrderBetween(fileTask.getOrder(), fileTaskBefore.getOrder(), fileActivityId);
+                if (fileTask.getOrder() < fileTaskBefore.getOrder()) {// fileTask is moving down the list
+                    repository.findAllByOrderAfter(fileTask.getOrder(), fileActivityId)
+                            .stream()
+                            .limit(levelsChange + 1)
+                            .forEach(FileTask::decrementOrder);
+                    fileTask.setOrder(fileTaskBefore.getOrder() + 1);
+                } else {// fileTask is moving up the list
+                    var allAfter = repository.findAllByOrderAfter(fileTaskBefore.getOrder(), fileActivityId);
+                    allAfter.stream()
+                            .limit(levelsChange)
+                            .forEach(FileTask::incrementOrder);
+                    fileTask.setOrder(repository.findAllByOrderAfter(fileTaskBefore.getOrder(), fileActivityId).stream().findFirst().get().getOrder() - 1);
+                }
+            } else {// fileTask should be the first item in the list
+                repository.findAllByOrderBefore(fileTask.getOrder(), fileActivityId).forEach(FileTask::incrementOrder);
+                fileTask.setOrder(repository.minOrder(fileActivityId) - 1);
+            }
+            return true;
+        });
     }
 }

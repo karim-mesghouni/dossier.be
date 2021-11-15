@@ -18,6 +18,9 @@ public interface FileActivityRepository extends JpaRepository<FileActivity, Long
     @Query("select COALESCE(MAX(f.order), 0) + 1 from  FileActivity f where f.file.id = :fileId")
     Integer getNextOrder(long fileId);
 
+    @Query("select COALESCE(MIN(f.order), 1) from  FileActivity f where f.file.id = :fileId")
+    Integer getMinOrder(long fileId);
+
     @Query("select fa from FileActivity fa where fa.file.id = :fileId and fa.order > :order order by fa.order")
     List<FileActivity> findAllByOrderAfter(long order, long fileId);
 

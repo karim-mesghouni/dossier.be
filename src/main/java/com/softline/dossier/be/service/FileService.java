@@ -9,7 +9,6 @@ import com.softline.dossier.be.repository.*;
 import com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.RequiredArgsConstructor;
-import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.softline.dossier.be.SSE.EventController.silently;
 import static com.softline.dossier.be.Tools.Functions.*;
 
 @Service
@@ -226,43 +226,41 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
      */
     @Transactional
     public synchronized boolean changeOrder(Long fileId, Long fileBeforeId) {
-        if (repository.count() < 2) {
-            return true;// this should not happen
-        }
-        var file = repository.findById(fileId).orElseThrow();
-        var res = repository.findById(fileBeforeId);
-        // TODO: convert this logic into Mutating queries in JPA
-        res.ifPresentOrElse(fileBefore -> {
-            // how many files will be updated (increment or decrement their order)
-            var levelsChange = repository.countAllByOrderBetween(file.getOrder(), fileBefore.getOrder());
-            if (file.getOrder() < fileBefore.getOrder()) {// file is moving down the list
-                repository.findAllByOrderAfter(file.getOrder())
-                        .stream()
-                        .limit(levelsChange + 1)
-                        .forEach(File::decrementOrder);
-                file.setOrder(fileBefore.getOrder() + 1);
-            } else {// file is moving up the list
-                var allAfter = repository.findAllByOrderAfter(fileBefore.getOrder());
-                allAfter.stream()
-                        .limit(levelsChange)
-                        .forEach(File::incrementOrder);
-                if (allAfter.isEmpty() && file.getOrder() == fileBefore.getOrder()) {
-                    file.incrementOrder();
-                } else {
-                    file.setOrder(allAfter.stream().findFirst().orElseThrow().getOrder() - 1);
-                }
+        return silently(() -> {
+            if (repository.count() < 2) {
+                return true;// this should not happen
             }
-        }, () -> {// else if fileBefore does not exist
-            var allBefore = repository.findAllByOrderBefore(file.getOrder());
-            file.setOrder(allBefore.stream().findFirst().get().getOrder());// gets the order of the old first file
-            allBefore.forEach(File::incrementOrder);
+            var file = repository.findById(fileId).orElseThrow();
+            repository.findById(fileBeforeId).ifPresentOrElse(fileBefore -> {
+                // how many files will be updated (increment or decrement their order)
+                var levelsChange = repository.countAllByOrderBetween(file.getOrder(), fileBefore.getOrder());
+                if (file.getOrder() < fileBefore.getOrder()) {// file is moving down the list
+                    repository.findAllByOrderAfter(file.getOrder())
+                            .stream()
+                            .limit(levelsChange + 1)
+                            .forEach(File::decrementOrder);
+                    file.setOrder(fileBefore.getOrder() + 1);
+                } else {// file is moving up the list
+                    var allAfter = repository.findAllByOrderAfter(fileBefore.getOrder());
+                    allAfter.stream()
+                            .limit(levelsChange)
+                            .forEach(File::incrementOrder);
+                    if (allAfter.isEmpty() && file.getOrder() == fileBefore.getOrder()) {
+                        file.incrementOrder();
+                    } else {
+                        file.setOrder(allAfter.stream().findFirst().orElseThrow().getOrder() - 1);
+                    }
+                }
+            }, () -> {// else if fileBefore does not exist
+                repository.findAllByOrderBefore(file.getOrder()).forEach(File::incrementOrder);
+                file.setOrder(repository.minOrder() - 1);
+            });
+            return true;
         });
-        return true;
     }
 
     @NotNull
     private <T> TypedQuery<T> buildQuery(String select, FileFilterInput filter, Class<T> type) {
-        @Language("JPAQL")
         String query = "SELECT distinct " + select + " FROM File f inner join f.fileStates fs on fs.file.id = f.id " +
                 "inner join f.fileActivities fa inner join fa.fileTasks ft " +
                 "where f.project like CONCAT(CONCAT('%', :project), '%') " +
@@ -279,7 +277,10 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
         if (filter.onlyTrashed) {
             query += "and (f.inTrash=true or fa.inTrash=true or ft.inTrash=true) ";
         } else {
-            query += "and f.inTrash = false and fa.inTrash = false and ft.inTrash = false";
+            query += "and f.inTrash = false and fa.inTrash = false and ft.inTrash = false ";
+        }
+        if (type == File.class) {
+            query += "order by f.order";
         }
         return entityManager.createQuery(query, type)
                 .setParameter("project", firstNonNull(filter.project, ""))

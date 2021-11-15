@@ -1,0 +1,26 @@
+
+extend type Query  {
+    document(documentId: ID):Document
+    documentsForFile(fileId: ID!):[Document]
+}
+
+extend type Mutation{
+    createDocument(input: DocumentInput):Document
+    updateDocument(input: DocumentInput):Document
+    deleteDocument(documentId: ID!):Boolean
+}
+
+type Document {
+    id: ID
+    path:String
+    description:String
+    agent:Agent
+    fileActivity:FileActivity
+}
+input DocumentInput {
+    id: ID
+    path:String
+    description:String
+    agent:AgentInput
+    fileActivity:FileActivityInput
+}

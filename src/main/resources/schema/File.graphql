@@ -26,7 +26,7 @@ type File  {
     deliveryDate:String
     client:Client
     commune:Commune
-    fileDocs:[FileDoc]
+    documents:[Document]
     fileStates:[FileState]
     fileActivities:[FileActivity]
     currentFileState:FileState
@@ -47,7 +47,6 @@ input FileInput  {
     deliveryDate:String
     client:ClientInput
     commune:CommuneInput
-    fileDocs:[FileDocIput]
     fileStates: [FileStateInput]
     fileActivities:[FileActivityInput]
     currentFileState:FileStateInput

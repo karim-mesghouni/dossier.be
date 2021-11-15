@@ -27,7 +27,6 @@ public abstract class EntityEvent<E> extends Event<JSONObject> implements Serial
             try {
                 payload.put(attribute, value);
             } catch (JSONException e) {
-                e.printStackTrace();
                 log.error("{}: failed to put json data of type : {}", getClass().getName(), value == null ? "null" : value.getClass().getName());
             }
         }

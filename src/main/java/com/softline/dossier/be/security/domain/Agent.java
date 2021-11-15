@@ -1,6 +1,5 @@
 package com.softline.dossier.be.security.domain;
 
-import com.softline.dossier.be.Application;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.events.EntityEvent;
 import com.softline.dossier.be.events.entities.AgentEvent;
@@ -21,6 +20,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import static com.softline.dossier.be.Application.context;
 import static com.softline.dossier.be.Tools.Functions.isEmpty;
 
 @SuperBuilder
@@ -93,7 +93,7 @@ public class Agent extends BaseEntity {
      * @return the current agent retrieved from the database
      */
     public static Agent thisDBAgent() throws NoSuchElementException {
-        return Application.context.getBean(AgentRepository.class).findById(thisAgent().getId()).orElseThrow();
+        return context().getBean(AgentRepository.class).findById(thisAgent().getId()).orElseThrow();
     }
 
 
@@ -101,7 +101,7 @@ public class Agent extends BaseEntity {
      * @return the agent loaded from the database
      */
     public static Agent getByIdentifier(long id) {
-        return Application.context.getBean(AgentRepository.class).findById(id).orElseThrow();
+        return context.getBean(AgentRepository.class).findById(id).orElseThrow();
     }
 
     /**

@@ -20,6 +20,7 @@ public interface FileTaskRepository extends JpaRepository<FileTask, Long> {
     List<FileTask> findAllByAssignedTo_Id(Long assignedToId);
 
     Long countFileTaskByFileActivity_File_Id(Long fileId);
+
     @Query("select ft from FileTask ft where ft.fileActivity.id = :fileActivityId and ft.order > :order order by ft.order")
     List<FileTask> findAllByOrderAfter(long order, long fileActivityId);
 
@@ -28,4 +29,7 @@ public interface FileTaskRepository extends JpaRepository<FileTask, Long> {
 
     @Query("select count(ft) from FileTask ft where ft.fileActivity.id = :fileActivityId and ((:a < :b and ft.order > :a and ft.order < :b) or (:a >= :b and ft.order > :b and ft.order < :a))")
     int countAllByOrderBetween(long a, long b, long fileActivityId);
+
+    @Query("select COALESCE(MIN(ft.order), 1) from FileTask ft where ft.fileActivity.id = :fileActivityId")
+    int minOrder(long fileActivityId);
 }

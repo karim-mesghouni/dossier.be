@@ -1,5 +1,6 @@
 package com.softline.dossier.be.Tools;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,7 +16,7 @@ public class Functions {
      * call the callback(s) with the given value
      * and then return the value.<br>
      * useful to encapsulate objects that has methods which return void,
-     * this allows to chain functions on the value
+     * this allows to chain functions on the value in a single statement
      */
     @SafeVarargs // assert that `callbacks` variables are of type Consumer<T>
     public static <T> T tap(T value, @NotNull Consumer<T>... callbacks) {
@@ -37,7 +38,7 @@ public class Functions {
             action.run();
             return true;
         } catch (Throwable e) {
-            log.error("SafeRun: {}", e.getMessage());
+            log.info("SafeRun: {}", e.getMessage());
         }
         return false;
     }
@@ -58,14 +59,14 @@ public class Functions {
             }
             return true;
         } catch (Throwable e) {
-            log.error("SafeRun: {}", e.getMessage());
+            log.info("SafeRun: {}", e.getMessage());
             return false;
         }
     }
 
     /**
      * @return the value passed
-     * @throws RuntimeException if the value (is string and empty) or (is number and equal to 0) or (is object and null) or (is Optional and isEmpty())
+     * @throws RuntimeException if the value (is null) or (is string and empty) or (is number and equal to 0) or (is Optional and isEmpty())
      */
     public static <T> T throwIfEmpty(T value) {
         if (Objects.isNull(value)
@@ -79,21 +80,23 @@ public class Functions {
     }
 
     /**
-     * @param value     the value
-     * @param throwable the exception to be thrown if the value is empty
+     * @param value         the value
+     * @param lazyThrowable the exception producer to be thrown if the value is empty
      * @return the value passed
-     * @throws E if the value (is string and empty) or (is number and equal to 0) or (is object and null) or (is Optional and isEmpty())
+     * @throws E if the value (is null) or (is string and empty) or (is number and equal to 0) or (is Optional and isEmpty())
      */
-    public static <T, E extends Throwable> T throwIfEmpty(T value, E throwable) throws E {
+    @SuppressWarnings("RedundantThrows")
+    @SneakyThrows
+    public static <T, E extends Throwable> T throwIfEmpty(T value, Callable<E> lazyThrowable) throws E {
         try {
             return throwIfEmpty(value);
         } catch (Throwable e) {
-            throw throwable;
+            throw lazyThrowable.call();
         }
     }
 
     /**
-     * value is considered empty if the value (is string and empty) or (is number and equal to 0) or (is object and null) or (is Optional and isEmpty())
+     * value is considered empty if the value (is null) or (is string and empty) or (is number and equal to 0) or (is Optional and isEmpty())
      *
      * @param producer a callback which will produce the value to be tested
      * @return true if the producer return value is not empty, false if the producer threw and exception or the returned value was empty,
@@ -103,7 +106,7 @@ public class Functions {
             throwIfEmpty(producer.call());
             return true;
         } catch (Throwable e) {
-            log.error("isEmpty, value was empty");
+            log.info("isEmpty, value was empty");
             return false;
         }
     }
@@ -118,17 +121,17 @@ public class Functions {
         try {
             return throwIfEmpty(producer.call());
         } catch (Throwable e) {
-            log.error("safeValue: {}, returning fallback", e.getMessage());
+            log.info("safeValue: {}, returning fallback", e.getMessage());
             return fallback;
         }
     }
 
     /**
      * produce a value or fallback to null value if the producer returned empty value or the producer threw an exception,
-     * Value is considered empty it (is string and empty) or (is number and equal to 0)
-     * or (is object and null) or (is Optional and isEmpty())
+     * Value is considered empty if the value (is null) or (is string and empty) or (is number and equal to 0) or (is Optional and isEmpty())
      *
      * @param producer the value producer
+     * @return the producer return value or null if exception was thrown by the producer
      */
     @Nullable
     public static <T> T safeValue(@NotNull Callable<T> producer) {
@@ -149,7 +152,7 @@ public class Functions {
             action.run();
             return true;
         } catch (Throwable e) {
-            log.error("SafeRun: {}, running fallback action", e.getMessage());
+            log.info("SafeRun: {}, running fallback action", e.getMessage());
             return safeRun(fallback);
         }
     }

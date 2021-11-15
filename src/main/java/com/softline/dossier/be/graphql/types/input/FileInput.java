@@ -12,7 +12,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class FileInput {
-
     String project;
     LocalDate attributionDate;
     LocalDate returnDeadline;
@@ -20,7 +19,6 @@ public class FileInput {
     LocalDate deliveryDate;
     ClientInput client;
     CommuneInput commune;
-    List<FileDocInput> fileDocs;
     List<FileStateInput> fileStates;
     List<FileActivityInput> fileActivities;
     ActivityInput baseActivity;

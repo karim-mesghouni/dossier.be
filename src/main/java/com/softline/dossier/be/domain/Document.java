@@ -1,7 +1,7 @@
 package com.softline.dossier.be.domain;
 
 import com.softline.dossier.be.events.EntityEvent;
-import com.softline.dossier.be.events.entities.FileDocumentEvent;
+import com.softline.dossier.be.events.entities.DocumentEvent;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,15 +19,11 @@ import javax.persistence.*;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Entity
-@SQLDelete(sql = "UPDATE file_doc  SET deleted=true WHERE id=?")
+@SQLDelete(sql = "UPDATE document SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
-public class FileDoc extends BaseEntity {
-    @ManyToOne
-    @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn
-    File file;
+public class Document extends BaseEntity {
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn
@@ -45,16 +41,16 @@ public class FileDoc extends BaseEntity {
 
     @PostPersist
     public void afterCreate() {
-        new FileDocumentEvent(EntityEvent.Type.ADDED, this).fireToAll();
+        new DocumentEvent(EntityEvent.Type.ADDED, this).fireToAll();
     }
 
     @PostUpdate
     public void afterUpdate() {
-        new FileDocumentEvent(EntityEvent.Type.UPDATED, this).fireToAll();
+        new DocumentEvent(EntityEvent.Type.UPDATED, this).fireToAll();
     }
 
     @PostRemove
     public void afterDelete() {
-        new FileDocumentEvent(EntityEvent.Type.DELETED, this).fireToAll();
+        new DocumentEvent(EntityEvent.Type.DELETED, this).fireToAll();
     }
 }

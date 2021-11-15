@@ -64,5 +64,4 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
-
 }

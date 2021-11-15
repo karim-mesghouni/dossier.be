@@ -10,7 +10,9 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SuperBuilder
 @AllArgsConstructor
@@ -48,9 +50,6 @@ public class File extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     Commune commune;
 
-    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL)
-    List<FileDoc> fileDocs;
-
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<FileState> fileStates;
 
@@ -69,6 +68,10 @@ public class File extends BaseEntity {
     @Transient()
     FileActivity currentFileActivity;
 
+
+    List<Document> getDocuments() {
+        return getFileActivities().stream().map(FileActivity::getDocuments).flatMap(Collection::stream).collect(Collectors.toList());
+    }
 
     public void incrementOrder() {
         this.setOrder(this.getOrder() + 1);

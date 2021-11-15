@@ -9,6 +9,7 @@ import java.util.List;
 
 public abstract class IServiceBase<IEntity, IEntityInput, IRepository extends JpaRepository<IEntity, Long>> {
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     IRepository repository;
 

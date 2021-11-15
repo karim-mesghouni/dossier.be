@@ -13,14 +13,12 @@ import java.util.List;
 @NoArgsConstructor
 public class FileActivityInput {
 
+    int order;
+    ActivityStateInput state;
     boolean current;
+    private long id;
     FileInput file;
     ActivityInput activity;
     List<ActivityDataFieldInput> dataFields;
-    //  List<RepriseInput> reprises;
     List<FileTaskInput> fileTasks;
-    ActivityStateInput state;
-    int order;
-    private long id;
-
 }

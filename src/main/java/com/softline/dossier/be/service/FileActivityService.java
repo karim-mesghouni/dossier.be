@@ -19,6 +19,7 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import static com.softline.dossier.be.Application.context;
+import static com.softline.dossier.be.SSE.EventController.silently;
 import static com.softline.dossier.be.Tools.Functions.safeValue;
 import static com.softline.dossier.be.Tools.TextHelper.format;
 import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.cannot;
@@ -99,7 +100,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
 
     public boolean changeDataField(ActivityDataFieldInput input) throws ClientReadableException {
         var field = activityDataFieldRepository.findById(input.getId()).orElseThrow();
-        if (cannot(field.getFileActivity(), "UPDATE_FILE_ACTIVITY") && cannot(field.getFileActivity(), "UPDATE_FILE_ACTIVITY_DATA_FIELD")) {
+        if (cannot("UPDATE_FILE_ACTIVITY", field.getFileActivity()) && cannot("UPDATE_FILE_ACTIVITY_DATA_FIELD", field.getFileActivity())) {
             throw new AccessDeniedException("Access Denied");
         }
         try {
@@ -144,35 +145,34 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
      * @return boolean
      */
     public synchronized boolean changeOrder(long fileActivityId, long fileActivityBeforeId) {
-        if (repository.count() < 2) {
-            return true;// this should not happen
-        }
-        var fileActivity = repository.findById(fileActivityId).orElseThrow();
-        var fileId = fileActivity.getFile().getId();
-        var res = repository.findById(fileActivityBeforeId);
-        // TODO: convert this logic into Mutating queries in JPA
-        if (res.isPresent()) {
-            var fileActivityBefore = res.get();
-            // how many fileActivitys will be updated (increment or decrement their order)
-            var levelsChange = repository.countAllByOrderBetween(fileActivity.getOrder(), fileActivityBefore.getOrder(), fileId);
-            if (fileActivity.getOrder() < fileActivityBefore.getOrder()) {// fileActivity is moving down the list
-                repository.findAllByOrderAfter(fileActivity.getOrder(), fileId)
-                        .stream()
-                        .limit(levelsChange + 1)
-                        .forEach(FileActivity::decrementOrder);
-                fileActivity.setOrder(fileActivityBefore.getOrder() + 1);
-            } else {// fileActivity is moving up the list
-                var allAfter = repository.findAllByOrderAfter(fileActivityBefore.getOrder(), fileId);
-                allAfter.stream()
-                        .limit(levelsChange)
-                        .forEach(FileActivity::incrementOrder);
-                fileActivity.setOrder(repository.findAllByOrderAfter(fileActivityBefore.getOrder(), fileId).stream().findFirst().get().getOrder() - 1);
+        return silently(() -> {
+            if (repository.count() < 2) {
+                return true;// this should not happen
             }
-        } else {// fileActivity should be the first item in the list
-            var allBefore = repository.findAllByOrderBefore(fileActivity.getOrder(), fileId);
-            fileActivity.setOrder(allBefore.stream().findFirst().get().getOrder());// gets the order of the old first file
-            allBefore.forEach(FileActivity::incrementOrder);
-        }
-        return true;
+            var fileActivity = repository.findById(fileActivityId).orElseThrow();
+            var fileId = fileActivity.getFile().getId();
+            repository.findById(fileActivityBeforeId).ifPresentOrElse(fileActivityBefore -> {
+                // how many fileActivities will be updated (increment or decrement their order)
+                var levelsChange = repository.countAllByOrderBetween(fileActivity.getOrder(), fileActivityBefore.getOrder(), fileId);
+                if (fileActivity.getOrder() < fileActivityBefore.getOrder()) {// fileActivity is moving down the list
+                    repository.findAllByOrderAfter(fileActivity.getOrder(), fileId)
+                            .stream()
+                            .limit(levelsChange + 1)
+                            .forEach(FileActivity::decrementOrder);
+                    fileActivity.setOrder(fileActivityBefore.getOrder() + 1);
+                } else {// fileActivity is moving up the list
+                    var allAfter = repository.findAllByOrderAfter(fileActivityBefore.getOrder(), fileId);
+                    allAfter.stream()
+                            .limit(levelsChange)
+                            .forEach(FileActivity::incrementOrder);
+                    fileActivity.setOrder(repository.findAllByOrderAfter(fileActivityBefore.getOrder(), fileId).stream().findFirst().get().getOrder() - 1);
+                }
+            }, () -> {
+                // fileActivity should be the first item in the list
+                repository.findAllByOrderBefore(fileActivity.getOrder(), fileId).forEach(FileActivity::incrementOrder);
+                fileActivity.setOrder(repository.getMinOrder(fileId) - 1);
+            });
+            return true;
+        });
     }
 }

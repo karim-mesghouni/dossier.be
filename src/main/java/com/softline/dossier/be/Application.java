@@ -17,7 +17,12 @@ public class Application {
         context = SpringApplication.run(Application.class, args);
     }
 
+
+    /**
+     * @return the current spring boot application context (useful for getting beans)
+     */
     public static ConfigurableApplicationContext context() {
         return context;
     }
+
 }

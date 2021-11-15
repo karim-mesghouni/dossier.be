@@ -43,6 +43,10 @@ public class FileActivity extends BaseEntity {
     @OneToMany(mappedBy = "fileActivity", cascade = CascadeType.ALL, orphanRemoval = true)
     List<FileTask> fileTasks;
 
+
+    @OneToMany(mappedBy = "fileActivity", cascade = CascadeType.ALL)
+    List<Document> documents;
+
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     File file;

@@ -12,6 +12,7 @@ import java.util.List;
 
 public abstract class SchemaResolverBase<IEntity, IEntityInput, IRepository extends JpaRepository<IEntity, Long>, IService extends IServiceBase<IEntity, IEntityInput, IRepository>> implements GraphQLMutationResolver, GraphQLQueryResolver {
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     protected IService service;
 

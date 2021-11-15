@@ -39,5 +39,10 @@
     "name": "Referent can read any fileTask",
     "target": "'READ_FILE_TASK' == action && subject.role.name == 'REFERENT'",
     "condition": "true"
+  },
+  {
+    "name": "Referent can manage Documents in his activity",
+    "target": "{'DELETE_DOCUMENT', 'UPDATE_DOCUMENT'}.contains(action) && subject.role.name == 'REFERENT'",
+    "condition": "resource.fileActivity.activity.id == subject.activity.id"
   }
 ]

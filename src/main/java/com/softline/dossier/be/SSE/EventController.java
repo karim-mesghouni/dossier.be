@@ -12,7 +12,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.Objects;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.softline.dossier.be.Tools.Database.unsafeEntityManager;
 import static com.softline.dossier.be.Tools.Functions.tap;
 import static com.softline.dossier.be.security.domain.Agent.notLoggedIn;
 
@@ -24,16 +26,17 @@ public class EventController {
     // used ConcurrentHashMap instead of normal Hashmap
     // because HashMap Iterators don't support modifying(removing) the items outside the iterator itself
     private static final ConcurrentHashMap<Channel, SseEmitter> channels = new ConcurrentHashMap<>();
-    // sometimes the SseEmitter.complete() action does not get executed
+    // sometimes the SseEmitter.complete() action does not get executed,
     // so we will manually clean the emitter in such case by putting in a removal queue
     private static final ConcurrentLinkedDeque<Channel> scheduledForRemoval = new ConcurrentLinkedDeque<>();
+    private static final AtomicBoolean silentModeActive = new AtomicBoolean();
 
     public EventController() {
         // to keep the connection alive in the client side
         // we must send at least 1 event every 45 seconds,
         // so we create a single thread which will send a ping(heart-beat) event
         // to all open channels every 30 seconds
-        log.info("starting pingThreads");
+        log.info("starting ping thread");
         pingThread.scheduleAtFixedRate(() ->
         {
             synchronized (channels) {// obtain lock
@@ -57,19 +60,6 @@ public class EventController {
             log.info("Sending heart-beat signal for all channels");
             Event.pingEvent().fireToAll();
         }, 30, 30, TimeUnit.SECONDS);
-    }
-
-    /**
-     * send the event for all registered channels
-     */
-    public static void sendForAllChannels(Event<?> event) {
-        synchronized (channels) {// obtain lock
-            log.info("sendEventForAll: {}", event);
-            channels.forEach((channel, em) -> {
-                if (channel.canRead(event))
-                    internalSendForEmitter(em, event, channel);
-            });
-        }
     }
 
     /**
@@ -99,11 +89,32 @@ public class EventController {
     }
 
     /**
+     * send the event for all registered channels
+     */
+    public static void sendForAllChannels(Event<?> event) {
+        if (silentModeActive.get() && !Event.pingEvent().equals(event)) {
+            log.info("silent mode is active {}, send to [all] was discarded", event);
+            return;
+        }
+        synchronized (channels) {// obtain lock
+            log.info("sendEventForAll: {}", event);
+            channels.forEach((channel, em) -> {
+                if (channel.canRead(event))
+                    internalSendForEmitter(em, event, channel);
+            });
+        }
+    }
+
+    /**
      * send an event to all channels opened by the user
      *
      * @param userId the id of the user
      */
     public static void sendForUser(long userId, Event<?> event) {
+        if (silentModeActive.get()) {
+            log.info("silent mode is active, send {} to [user:{}] was discarded", event, userId);
+            return;
+        }
         synchronized (channels) {// obtain lock
             channels.forEach((channel, em) ->
             {
@@ -112,6 +123,56 @@ public class EventController {
                 }
             });
         }
+    }
+
+    private static void activateSilentMode() {
+        silentModeActive.set(true);
+        log.info("silent mode is now active");
+    }
+
+    private static void deactivateSilentMode() {
+        silentModeActive.set(false);
+        log.info("silent mode is now inactive");
+    }
+
+    /**
+     * force any pending changes on this hibernate session (current request)
+     */
+    private static void flushPendingDatabaseChanges() {
+        var em = unsafeEntityManager();
+        if (em != null) {
+            em.flush();
+            em.clear();
+        }
+    }
+
+    /**
+     * Run the action and discard any events that fired inside the action
+     */
+    public static void silently(Runnable action) {
+        activateSilentMode();
+        action.run();
+        flushPendingDatabaseChanges();
+        deactivateSilentMode();
+    }
+
+    /**
+     * Run the action and discard any events that fired inside the action, returns the value returned from the action
+     *
+     * @throws RuntimeException if the action failed to perform
+     */
+    public static <T> T silently(Callable<T> action) throws RuntimeException {
+        activateSilentMode();
+        T returning;
+        try {
+            returning = action.call();
+        } catch (Exception e) {
+            log.error("[SILENTLY] {}", e.getMessage());
+            deactivateSilentMode();
+            throw new RuntimeException(e);
+        }
+        flushPendingDatabaseChanges();
+        return returning;
     }
 
     /**
@@ -125,33 +186,34 @@ public class EventController {
         }
         var agent = (Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final Channel channel = new Channel((long) Math.floor(Math.random() * 1_000_000), agent.getId());
-        synchronized (channels) {// obtain lock
-            log.info("creating new emitter for {}", channel);
-            // create new sse emitter with timeout of 1 hour
-            // this will delete his linked channel emitter
-            // and force the client to reconnect again
-            // !! DO NOT OPEN AN SSE CHANNEL WITHOUT SETTING A TIMEOUT, IT IS VERY IMPORTANT FOR AUTO-CLEANING
-            return tap(new SseEmitter(1000 * 60 * 60L),
-                    em -> em.onCompletion(() ->
-                    {
-                        // will be called if the client closed the connection (browser tap closed)
-                        // or if channel timeout was reached
-                        log.info("emitter complete was called, removing {}", channel);
-                        synchronized (channels) {// obtain lock
-                            channels.remove(channel);
-                        }
-                    }),
-                    // will only happen if the channel was opened for more than 1 hour (previous timeout value)
-                    em -> em.onTimeout(() -> log.info("emitter timeout for {}", channel)),
-                    // called on event send error
-                    em -> em.onError(err -> {
-                        if (!Objects.equals(channel.getLastEvent(), Event.pingEvent())) {
-                            log.error("emitter error for {} last {} {}", channel, channel.getLastEvent(), err.toString());
-                        } else {
-                            log.info("emitter error for {} last {} {}", channel, channel.getLastEvent(), err.toString());
-                        }
-                    }),
-                    em -> channels.putIfAbsent(channel, em));
-        }
+        log.info("creating new emitter for {}", channel);
+        // create new sse emitter with timeout of 1 hour
+        // this will delete his linked channel emitter
+        // and force the client to reconnect again
+        // !! DO NOT OPEN AN SSE CHANNEL WITHOUT SETTING A TIMEOUT, IT IS VERY IMPORTANT FOR AUTO-CLEANING
+        return tap(new SseEmitter(1000 * 60 * 60L),
+                em -> em.onCompletion(() -> {
+                    // will be called if the client closed the connection (browser tap closed)
+                    // or if channel timeout was reached
+                    log.info("emitter complete was called, removing {}", channel);
+                    synchronized (channels) {// obtain lock
+                        channels.remove(channel);
+                    }
+                }),
+                // will only happen if the channel was opened for more than 1 hour (previous timeout value)
+                em -> em.onTimeout(() -> log.info("emitter timeout for {}", channel)),
+                // called on event send error
+                em -> em.onError(err -> {
+                    if (!Objects.equals(channel.getLastEvent(), Event.pingEvent())) {
+                        log.error("emitter error for {} last {} {}", channel, channel.getLastEvent(), err.toString());
+                    } else {
+                        log.info("emitter error for {} last {} {}", channel, channel.getLastEvent(), err.toString());
+                    }
+                }),
+                em -> {
+                    synchronized (channels) {
+                        channels.putIfAbsent(channel, em);
+                    }
+                });
     }
 }

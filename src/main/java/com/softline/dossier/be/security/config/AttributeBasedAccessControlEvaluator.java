@@ -4,6 +4,7 @@ package com.softline.dossier.be.security.config;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.policy.PolicyMatcher;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -34,8 +35,26 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
     /**
      * return true if the current logged-in user cannot do the action on the object
      */
-    public static boolean cannot(Object domain, String action) {
+    public static boolean cannot(String action, Object domain) {
         return !can(action, domain);
+    }
+
+    /**
+     * throws {@link AccessDeniedException} if the current logged-in user cannot do the action on the object
+     */
+    public static void throwIfCannot(String action, Object domain) throws AccessDeniedException {
+        if (cannot(action, domain)) {
+            throw new AccessDeniedException("erreur de privilege");
+        }
+    }
+
+    /**
+     * throws {@link AccessDeniedException} if the current logged-in user cannot do the action on the object
+     */
+    public static void throwIfCannot(String action, Object domain, String exceptionMessage) throws AccessDeniedException {
+        if (cannot(action, domain)) {
+            throw new AccessDeniedException(exceptionMessage);
+        }
     }
 
     public static <T> Stream<T> filter(Stream<T> stream, String action) {

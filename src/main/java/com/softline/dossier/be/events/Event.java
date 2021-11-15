@@ -1,5 +1,6 @@
 package com.softline.dossier.be.events;
 
+import com.google.errorprone.annotations.ForOverride;
 import com.softline.dossier.be.SSE.Channel;
 import com.softline.dossier.be.SSE.EventController;
 import lombok.extern.slf4j.Slf4j;
@@ -107,6 +108,7 @@ public class Event<T> {
      * a boolean which tells if the channel has permission to read this event according to the passed channel.
      * default callable return value is true
      */
+    @ForOverride
     protected Callable<Boolean> getPermissionEvaluator(Channel channel) {
         return () -> true;
     }
