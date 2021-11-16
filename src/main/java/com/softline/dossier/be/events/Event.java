@@ -58,14 +58,14 @@ public class Event<T> {
     }
 
     /**
-     * send this event to every open channel
+     * flush the database and send this event to every open channel
      */
     public void fireToAll() {
         EventController.sendForAllChannels(this);
     }
 
     /**
-     * send this event to every channel opened by the user
+     * flush the database and send this event to every channel opened by the user
      */
     public void fireTo(long userId) {
         EventController.sendForUser(userId, this);

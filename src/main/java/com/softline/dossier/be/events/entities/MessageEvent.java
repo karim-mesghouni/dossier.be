@@ -7,7 +7,6 @@ import com.softline.dossier.be.events.EntityEvent;
 import java.util.concurrent.Callable;
 
 import static com.softline.dossier.be.Tools.Functions.safeValue;
-import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.can;
 
 public class MessageEvent extends EntityEvent<Message> {
 
@@ -23,6 +22,6 @@ public class MessageEvent extends EntityEvent<Message> {
 
     @Override
     public Callable<Boolean> getPermissionEvaluator(Channel channel) {
-        return () -> can("READ_MESSAGE", entity);
+        return () -> true;
     }
 }

@@ -1,5 +1,6 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.Tools.Database;
 import com.softline.dossier.be.Tools.EnvUtil;
 import com.softline.dossier.be.Tools.FileSystem;
 import com.softline.dossier.be.domain.*;
@@ -87,6 +88,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
 
     @Override
     public Comment getById(long id) {
+        Database.database().flush();
         return repository.findById(id).orElseThrow();
     }
 
@@ -108,10 +110,12 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     }
 
     public Message getMessageByIdForThisAgent(long messageId) {
+        Database.database().flush();
         return messageRepository.findByIdAndTargetAgent_Id(messageId, thisAgent().getId());
     }
 
     public List<Message> getAllMessagesForThisAgent() {
+        Database.database().flush();
         return messageRepository.findAllByAgent_IdOrderByCreatedDateDesc(thisAgent().getId());
     }
 }

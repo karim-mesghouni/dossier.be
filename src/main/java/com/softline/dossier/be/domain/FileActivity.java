@@ -41,17 +41,20 @@ public class FileActivity extends BaseEntity {
     List<Reprise> reprises;
 
     @OneToMany(mappedBy = "fileActivity", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<FileTask> fileTasks;
+    @Builder.Default
+    List<FileTask> fileTasks = new ArrayList<>();
 
 
     @OneToMany(mappedBy = "fileActivity", cascade = CascadeType.ALL)
-    List<Document> documents;
+    @Builder.Default
+    List<Document> documents = new ArrayList<>();
 
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     File file;
     @OneToMany(mappedBy = "fileActivity")
-    List<Comment> comments;
+    @Builder.Default
+    List<Comment> comments = new ArrayList<>();
     boolean inTrash;
     @Column(name = "`order`")
     long order;

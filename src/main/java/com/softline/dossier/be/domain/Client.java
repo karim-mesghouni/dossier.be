@@ -20,7 +20,6 @@ import java.util.function.Predicate;
 @AllArgsConstructor
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE Client SET deleted=true WHERE id=?")
-@Where(clause = "deleted = false")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
 public class Client extends BaseEntity {

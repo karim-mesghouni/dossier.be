@@ -17,7 +17,7 @@
   },
   {
     "name": "Referent can manage his activity",
-    "target": "subject.role.name == 'REFERENT' && {'CREATE_ACTIVITY', 'UPDATE_ACTIVITY', 'DELETE_ACTIVITY'}.contains(action)",
+    "target": "subject.role.name == 'REFERENT' && {'CREATE_FILE_ACTIVITY', 'UPDATE_FILE_ACTIVITY', 'DELETE_FILE_ACTIVITY'}.contains(action)",
     "condition": "resource.activity.id == subject.activity.id"
   },
   {
@@ -31,8 +31,8 @@
     "condition": "resource.fileActivity.activity.id == subject.activity.id"
   },
   {
-    "name": "Referent can change the state of any fileTasks inside his fileActivity",
-    "target": "action == 'CHANGE_FILE_TASK_STATE' && subject.role.name == 'REFERENT'",
+    "name": "Referent can manage any fileTasks inside his fileActivity",
+    "target": "{'CREATE_FILE_TASK', 'WORK_IN_FILE_TASK', 'DELETE_FILE_TASK', 'UPDATE_FILE_TASK'}.contains(action) && subject.role.name == 'REFERENT'",
     "condition": "resource.fileActivity.activity.id == subject.activity.id"
   },
   {

@@ -1,5 +1,6 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.Tools.Database;
 import com.softline.dossier.be.domain.ActivityDataField;
 import com.softline.dossier.be.domain.ActivityState;
 import com.softline.dossier.be.domain.FileActivity;
@@ -83,7 +84,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
 
     @Override
     public FileActivity getById(long id) {
-        return repository.findByIdAndFileTasksNotTrashed(id);
+        return Database.findOrThrow(FileActivity.class, id);
     }
 
     public List<FileActivity> getAllFileActivityByFileId(Long fileId) {
@@ -144,6 +145,7 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
      * @param fileActivityBeforeId the fileActivity(id) which should be before the new position of the fileActivity, may be non-existent
      * @return boolean
      */
+    @Transactional
     public synchronized boolean changeOrder(long fileActivityId, long fileActivityBeforeId) {
         return silently(() -> {
             if (repository.count() < 2) {

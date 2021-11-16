@@ -1,5 +1,7 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.SSE.EventController;
+import com.softline.dossier.be.Tools.Database;
 import com.softline.dossier.be.Tools.FileSystem;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
@@ -27,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.softline.dossier.be.SSE.EventController.silently;
 import static com.softline.dossier.be.Tools.Database.database;
 import static com.softline.dossier.be.Tools.Functions.*;
 import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.cannot;
@@ -130,7 +131,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return reporter;
     }
 
-    @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'WORK_ON_FILE_TASK') or hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
+    @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'WORK_IN_FILE_TASK') or hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) throws ClientReadableException {
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         var situation = taskSituationRepository.findById(situationId).orElseThrow();
@@ -181,6 +182,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return true;
     }
 
+    // permission inside
     public boolean changeTitle(String title, Long fileTaskId) {
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
         if (cannot("UPDATE_FILE_TASK", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
@@ -210,9 +212,10 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return description;
     }
 
+    // permission inside
     public ReturnedComment changeRetour(CommentInput retour) {
         var fileTask = getRepository().findById(retour.getFileTask().getId()).orElseThrow();
-        if (cannot("CHANGE_FILE_TASK_RETOUR", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
+        if (cannot("WORK_IN_FILE_TASK", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
             throw new AccessDeniedException("erreur de privilege");
         }
         if (retour.getId() != null) {
@@ -240,31 +243,46 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return returnedCauseRepository.findAll();
     }
 
+    // permission inside
     public ReturnedCause changeReturnedCause(Long fileTaskId, Long returnedCauseId) {
         var returnedCause = returnedCauseRepository.findById(returnedCauseId).orElseThrow();
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        if (cannot("WORK_IN_FILE_TASK", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
+            throw new AccessDeniedException("erreur de privilege");
+        }
         fileTask.setReturnedCause(returnedCause);
         getRepository().save(fileTask);
         return returnedCause;
     }
 
-    @PreAuthorize("hasPermission(#fileTaskId, 'FilTask', 'CHANGE_FILE_TASK_STATE')")
+    // permission inside
     public TaskState changeState(Long fileTaskId, Long taskStateId) {
         var taskState = taskStateRepository.findById(taskStateId).orElseThrow();
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        if (cannot("WORK_IN_FILE_TASK", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
+            throw new AccessDeniedException("erreur de privilege");
+        }
         fileTask.setState(taskState);
         getRepository().save(fileTask);
         return taskState;
     }
 
+    // permission inside
     public boolean changeReturned(Long fileTaskId, boolean returned) {
         var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        if (cannot("WORK_IN_FILE_TASK", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
+            throw new AccessDeniedException("erreur de privilege");
+        }
         fileTask.setReturned(returned);
         getRepository().save(fileTask);
         return returned;
     }
 
+    // permission inside
     public FileTask createChildFileTask(FileTaskInput input) {
+        if (cannot("CREATE_FILE_TASK", input)) {
+            throw new AccessDeniedException("erreur de privilege");
+        }
         var reporter = agentRepository.findByUsername(((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
         var parent = getRepository().findById(input.getParent().getId()).orElseThrow();
         var task = taskRepository.findById(input.getTask().getId()).orElseThrow();
@@ -290,6 +308,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return getRepository().findById(fileTask.getId()).orElseThrow();
     }
 
+    @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public boolean changeParent(Long fileTaskId, Long parentId) {
         return safeRunWithFallback(
                 () -> getRepository().findById(fileTaskId).orElseThrow().setParent(getRepository().findById(parentId).orElseThrow()),
@@ -346,16 +365,14 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     protected boolean delete(Long id) {
-        if (!repository.existsById(id)) {
-            return true;
-        }
-        repository.deleteById(id);
-        return true;
+        return Database.remove(FileTask.class, id, "DELETE_FILE_TASK");
     }
 
     public boolean updateTitle(String title, long fileTaskId) {
-        repository.findById(fileTaskId).orElseThrow().setTitle(title);
-        return true;
+        return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+            fileTask.setTitle(title);
+            return true;
+        });
     }
 
     /**
@@ -367,11 +384,10 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
      * @param fileTaskBeforeId the fileTask(id) which should be before the new position of the fileTask, may be non-existent
      * @return boolean
      */
+    @Transactional
     public synchronized boolean changeOrder(long fileTaskId, long fileTaskBeforeId) {
-        return silently(() -> {
-            if (repository.count() < 2) {
-                return true;// this should not happen
-            }
+        EventController.silently(() -> {
+            if (repository.count() < 2) return;// this should not happen
             var fileTask = repository.findById(fileTaskId).orElseThrow();
             var fileActivityId = fileTask.getFileActivity().getId();
             var res = repository.findById(fileTaskBeforeId);
@@ -397,7 +413,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 repository.findAllByOrderBefore(fileTask.getOrder(), fileActivityId).forEach(FileTask::incrementOrder);
                 fileTask.setOrder(repository.minOrder(fileActivityId) - 1);
             }
-            return true;
         });
+        return true;
     }
 }

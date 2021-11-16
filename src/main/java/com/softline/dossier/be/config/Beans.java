@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -59,5 +60,14 @@ public class Beans {
     @Bean
     public AuditorAware<Agent> auditorAware() {
         return new SecurityAuditorAware();
+    }
+
+
+    @Bean
+    public ThreadPoolTaskScheduler scheduler() {
+        var scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(1);
+        scheduler.setThreadNamePrefix("ThreadPoolTaskScheduler");
+        return scheduler;
     }
 }

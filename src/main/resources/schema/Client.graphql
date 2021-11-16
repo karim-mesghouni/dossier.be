@@ -18,6 +18,7 @@ type Client {
     files: [File]
     visAVis:[VisAVis]
     contacts: [Contact]
+    deleted: Boolean
 }
 input ClientInput {
     id: ID

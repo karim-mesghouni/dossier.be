@@ -1,17 +1,22 @@
 package com.softline.dossier.be.SSE;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.softline.dossier.be.config.Beans;
 import com.softline.dossier.be.events.Event;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.softline.dossier.be.Tools.Database.unsafeEntityManager;
@@ -22,7 +27,6 @@ import static com.softline.dossier.be.security.domain.Agent.notLoggedIn;
 @RequestMapping("/events")
 @Slf4j(topic = "SSE")
 public class EventController {
-    private static final ScheduledExecutorService pingThread = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("sse-ping-thread").build());
     // used ConcurrentHashMap instead of normal Hashmap
     // because HashMap Iterators don't support modifying(removing) the items outside the iterator itself
     private static final ConcurrentHashMap<Channel, SseEmitter> channels = new ConcurrentHashMap<>();
@@ -31,13 +35,18 @@ public class EventController {
     private static final ConcurrentLinkedDeque<Channel> scheduledForRemoval = new ConcurrentLinkedDeque<>();
     private static final AtomicBoolean silentModeActive = new AtomicBoolean();
 
-    public EventController() {
+    /**
+     * start the ping scheduler
+     *
+     * @see Beans#scheduler()
+     */
+    public EventController(ThreadPoolTaskScheduler scheduler) {
         // to keep the connection alive in the client side
         // we must send at least 1 event every 45 seconds,
         // so we create a single thread which will send a ping(heart-beat) event
         // to all open channels every 30 seconds
         log.info("starting ping thread");
-        pingThread.scheduleAtFixedRate(() ->
+        scheduler.scheduleAtFixedRate(() ->
         {
             synchronized (channels) {// obtain lock
                 // remove any scheduled for removal channels
@@ -59,7 +68,7 @@ public class EventController {
             }
             log.info("Sending heart-beat signal for all channels");
             Event.pingEvent().fireToAll();
-        }, 30, 30, TimeUnit.SECONDS);
+        }, Instant.now(), Duration.ofSeconds(30));
     }
 
     /**

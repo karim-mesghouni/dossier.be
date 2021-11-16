@@ -121,7 +121,6 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
 
     @Override
     public File getById(long id) {
-        repository.flush();
         return repository.findById(id).orElseThrow();
     }
 

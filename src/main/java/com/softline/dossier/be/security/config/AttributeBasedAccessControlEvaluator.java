@@ -1,6 +1,7 @@
 package com.softline.dossier.be.security.config;
 
 
+import com.softline.dossier.be.Tools.Database;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.policy.PolicyMatcher;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,6 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityManager;
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,9 +27,7 @@ import static com.softline.dossier.be.Tools.Functions.safeRun;
  */
 @Component
 @RequiredArgsConstructor
-@SuppressWarnings("CodeBlock2Expr")
 public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator {
-    private final EntityManager entityManager;
     private final PolicyMatcher policy;
 
     /**
@@ -84,6 +82,15 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
                 null);
     }
 
+    public static AttributeBasedAccessControlEvaluator accessControl() {
+        return context().getBean(AttributeBasedAccessControlEvaluator.class);
+    }
+
+
+    public static <T> List<T> filter(List<T> list, String action) {
+        return filter(list.stream(), action).collect(Collectors.toList());
+    }
+
     /**
      * @param authentication user
      * @param entityId       primary key
@@ -96,20 +103,9 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
         var ref = new Object() {
             Object target = null;
         };
-        entityManager
-                .getMetamodel()
-                .getEntities()
-                .stream()
-                .filter(t -> t.getName().equals(entityType))
-                .findFirst()
-                .ifPresent(entityTarget -> {
-                    safeRun(() -> ref.target = entityManager.find(entityTarget.getJavaType(), entityId));
-                });
+        Database.getEntityType(entityType).ifPresent(type -> {
+            safeRun(() -> ref.target = Database.findOrThrow(type.getJavaType(), entityId));
+        });
         return hasPermission(authentication, ref.target, action);
-    }
-
-
-    public static <T> List<T> filter(List<T> list, String action) {
-        return filter(list.stream(), action).collect(Collectors.toList());
     }
 }

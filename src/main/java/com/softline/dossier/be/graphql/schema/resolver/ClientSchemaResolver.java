@@ -1,5 +1,6 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
+import com.softline.dossier.be.Tools.Database;
 import com.softline.dossier.be.domain.Client;
 import com.softline.dossier.be.graphql.types.input.ClientInput;
 import com.softline.dossier.be.repository.ClientRepository;
@@ -33,7 +34,7 @@ public class ClientSchemaResolver extends SchemaResolverBase<Client, ClientInput
     }
 
     public Client getClient(Long id) {
-        return get(id);
+        return Database.findOrThrow(Client.class, id);
     }
 
     public List<Client> getClientsTable(String search) {

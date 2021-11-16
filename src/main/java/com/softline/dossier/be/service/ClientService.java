@@ -1,5 +1,6 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.Tools.Database;
 import com.softline.dossier.be.domain.Client;
 import com.softline.dossier.be.domain.Contact;
 import com.softline.dossier.be.graphql.types.input.ClientInput;
@@ -58,19 +59,13 @@ public class ClientService extends IServiceBase<Client, ClientInput, ClientRepos
     }
 
     @Override
-    @PreAuthorize("hasPermission(null, 'DELETE_CLIENT')")
     public boolean delete(long id) throws ClientReadableException {
-        Client client = repository.findWithFilesById(id);
-        if (client.getFiles().stream().anyMatch(f -> !f.isDeleted() && !f.isInTrash())) {
-            throw new ClientReadableException("ce client a des fichiers ouverts, veuillez d'abord les supprimer");
-        }
-        repository.deleteById(id);
-        return true;
+        return Database.remove(Client.class, id, "DELETE_CLIENT");
     }
 
     @Override
     public Client getById(long id) {
-        return null;
+        return Database.findOrThrow(Client.class, id);
     }
 
 

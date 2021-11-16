@@ -1,7 +1,7 @@
 package com.softline.dossier.be.domain;
 
-import com.softline.dossier.be.events.entities.MessageEvent;
 import com.softline.dossier.be.events.EntityEvent;
+import com.softline.dossier.be.events.entities.MessageEvent;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -59,8 +59,8 @@ public class Message extends BaseEntity {
     public String toString() {
         return "Message{" +
                 "id=" + id +
-                ", comment=" + comment +
                 ", targetAgent=" + targetAgent +
+                ", comment=" + comment +
                 ", readMessage=" + readMessage +
                 '}';
     }
