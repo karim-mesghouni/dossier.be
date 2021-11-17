@@ -1,6 +1,7 @@
 package com.softline.dossier.be.graphql.types.input;
 
 
+import com.softline.dossier.be.domain.Concerns.HasId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,11 +13,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ActivityInput {
-
-    Long id;
-
-
+public class ActivityInput implements HasId {
+    long id;
     String name;
     String description;
 

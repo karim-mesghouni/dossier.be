@@ -1,5 +1,6 @@
 package com.softline.dossier.be.graphql.types.input;
 
+import com.softline.dossier.be.domain.Concerns.HasId;
 import com.softline.dossier.be.security.domain.RoleInput;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,8 +11,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class AgentInput {
-    Long id;
+public class AgentInput implements HasId {
+    long id;
     String name;
     String username;
     String password;

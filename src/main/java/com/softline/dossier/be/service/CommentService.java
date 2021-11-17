@@ -3,8 +3,11 @@ package com.softline.dossier.be.service;
 import com.softline.dossier.be.Tools.Database;
 import com.softline.dossier.be.Tools.EnvUtil;
 import com.softline.dossier.be.Tools.FileSystem;
+import com.softline.dossier.be.Tools.TipTap;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
+import com.softline.dossier.be.events.EntityEvent;
+import com.softline.dossier.be.events.entities.CommentEvent;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.repository.CommentRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
@@ -15,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,38 +60,46 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                 .build();
         safeRun(() -> comment.setFileTask(fileTaskRepository.findById(input.getFileTask().getId()).orElseThrow()));
         comment.setType(CommentType.Comment);
-        getRepository().save(comment);
+        Database.persist(comment);
+        TipTap.resolveCommentContent(comment);
+        Database.flush();
+        new CommentEvent(EntityEvent.Type.ADDED, comment).fireToAll();
         return comment;
     }
 
     @Override
-    @PreAuthorize("hasPermission(#input.id, 'Comment', 'UPDATE_COMMENT')")
     public Comment update(CommentInput input) {
-        var comment = repository.findById(input.getId()).orElseThrow();
-        comment.setContent(input.getContent());
-        return comment;
+        return Database.findOrThrow(Comment.class, input, "UPDATE_COMMENT", comment -> {
+            comment.setContent(input.getContent());
+            TipTap.resolveCommentContent(comment);
+            Database.flush();
+            new CommentEvent(EntityEvent.Type.UPDATED, comment).fireToAll();
+            return comment;
+        });
     }
 
     @Override
     public boolean delete(long id) {
-        var comment = repository.findById(id).orElseThrow();
-        if (comment.getFileTask() != null) {
-            if (comment.getType() == CommentType.Returned) {
-                comment.getFileTask().setRetour(null);
-            } else {
-                if (comment.getType() == CommentType.Description) {
-                    comment.getFileTask().setDescription(null);
+        return Database.findOrThrow(Comment.class, id, "DELETE_COMMENT", comment -> {
+            if (comment.getFileTask() != null) {
+                if (comment.getType() == CommentType.Returned) {
+                    comment.getFileTask().setRetour(null);
+                } else {
+                    if (comment.getType() == CommentType.Description) {
+                        comment.getFileTask().setDescription(null);
+                    }
                 }
             }
-        }
-        repository.deleteById(id);
-        return true;
+            Database.remove(comment);
+            Database.flush();
+            new CommentEvent(EntityEvent.Type.DELETED, comment).fireToAll();
+            return true;
+        });
     }
 
     @Override
     public Comment getById(long id) {
-        Database.database().flush();
-        return repository.findById(id).orElseThrow();
+        return Database.findOrThrow(Comment.class, id);
     }
 
     public String saveFile(DataFetchingEnvironment environment) throws IOException {
@@ -110,12 +120,12 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     }
 
     public Message getMessageByIdForThisAgent(long messageId) {
-        Database.database().flush();
+        Database.flush();
         return messageRepository.findByIdAndTargetAgent_Id(messageId, thisAgent().getId());
     }
 
     public List<Message> getAllMessagesForThisAgent() {
-        Database.database().flush();
+        Database.flush();
         return messageRepository.findAllByAgent_IdOrderByCreatedDateDesc(thisAgent().getId());
     }
 }

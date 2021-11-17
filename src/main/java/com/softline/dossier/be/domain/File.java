@@ -1,8 +1,8 @@
 package com.softline.dossier.be.domain;
 
-import com.softline.dossier.be.events.EntityEvent;
-import com.softline.dossier.be.events.entities.FileEvent;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.*;
 
@@ -18,16 +18,13 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Entity
 @Data
-@EqualsAndHashCode(callSuper = true)
+
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE File SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
 public class File extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
     @Column(name = "`order`")
     long order;
     String project;
@@ -89,56 +86,13 @@ public class File extends BaseEntity {
                 '}';
     }
 
-    @Transient
-    @Builder.Default
-    private boolean wasTrashed = false;
-
-
     public void incrementNextFileTaskNumber() {
         setNextFileTaskNumber(1 + getNextFileTaskNumber());
     }
-
-    @Transient
-    @Builder.Default
-    private boolean wasRecovered = false;
 
     // used by graphql File type (field fileReprise)
     @SuppressWarnings("unused")
     public boolean isFileReprise() {
         return getReprise() != null;
-    }
-
-    @PostPersist
-    private void afterCreate() {
-        new FileEvent(EntityEvent.Type.ADDED, this).fireToAll();
-    }
-
-    @PostRemove
-    private void afterDelete() {
-        new FileEvent(EntityEvent.Type.DELETED, this).fireToAll();
-    }
-
-    @PostUpdate
-    private void afterUpdate() {
-        if (wasTrashed) {
-            new FileEvent(EntityEvent.Type.TRASHED, this).fireToAll();
-            wasTrashed = false;
-        } else if (wasRecovered) {
-            new FileEvent(EntityEvent.Type.RECOVERED, this).fireToAll();
-            wasRecovered = false;
-        } else {
-            new FileEvent(EntityEvent.Type.UPDATED, this).fireToAll();
-        }
-    }
-
-    public void setInTrash(boolean inTrash) {
-        if (getId() != 0) {
-            if (inTrash) {
-                wasTrashed = true;
-            } else {
-                wasRecovered = true;
-            }
-        }
-        this.inTrash = inTrash;
     }
 }

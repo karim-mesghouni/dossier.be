@@ -2,7 +2,6 @@ package com.softline.dossier.be.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.NotFound;
@@ -17,13 +16,10 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = true)
+
 @SQLDelete(sql = "UPDATE file_task_situation SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 public class FileTaskSituation extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
     boolean current;
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)

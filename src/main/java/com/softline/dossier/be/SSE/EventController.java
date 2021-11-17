@@ -79,7 +79,8 @@ public class EventController {
             try {
                 channel.setLastEvent(event);
                 emitter.send(SseEmitter.event().name(event.getType()).data(event.getData()));
-                log.info("sent {} to {}", event, channel);
+                if (!Event.pingEvent().equals(event))
+                    log.info("sent {} to {}", event, channel);
             } catch (Throwable e) {
                 if (!Event.pingEvent().equals(event)) {
                     log.error("{} was not sent to {} because of [{}], adding the channel to the clean queue", event, channel, e.getMessage());
@@ -156,7 +157,8 @@ public class EventController {
     }
 
     /**
-     * Run the action and discard any events that fired inside the action
+     * Run the action and discard any events that fired inside the action<br>
+     * will force database flush before returning
      */
     public static void silently(Runnable action) {
         activateSilentMode();
@@ -166,8 +168,10 @@ public class EventController {
     }
 
     /**
-     * Run the action and discard any events that fired inside the action, returns the value returned from the action
+     * Run the action and discard any events that fired inside the action<br>
+     * will force database flush before returning
      *
+     * @return the value returned from the action
      * @throws RuntimeException if the action failed to perform
      */
     public static <T> T silently(Callable<T> action) throws RuntimeException {

@@ -21,9 +21,6 @@ import javax.persistence.*;
 @SQLDelete(sql = "UPDATE activity_field SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 public class ActivityField extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
     String fieldName;
 
     @Enumerated(EnumType.STRING)

@@ -16,7 +16,7 @@ public class Role {
     List<Agent> agents;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private long id;
     @Column(name = "name", nullable = false)
     private String name;
     private String displayName;

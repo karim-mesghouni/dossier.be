@@ -2,7 +2,10 @@ package com.softline.dossier.be.domain;
 
 import com.softline.dossier.be.events.EntityEvent;
 import com.softline.dossier.be.events.entities.ClientEvent;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.*;
@@ -14,7 +17,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
+
 @SuperBuilder
 @Entity
 @AllArgsConstructor
@@ -31,9 +34,6 @@ public class Client extends BaseEntity {
     @OneToMany(mappedBy = "client")
     @Builder.Default
     List<Contact> contacts = new ArrayList<>();
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
     private String name;
     private String address;
 

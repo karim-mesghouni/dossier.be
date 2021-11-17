@@ -10,9 +10,6 @@ import org.hibernate.annotations.SelectBeforeUpdate;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 @SuperBuilder
 @Entity
@@ -24,11 +21,6 @@ import javax.persistence.Id;
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
 public class Commune extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
     private String name;
 
     private String postalCode;

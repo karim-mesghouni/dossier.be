@@ -23,6 +23,7 @@ type Agent {
     activity: Activity
     role: Role
     job: Job
+    deleted: Boolean
 }
 
 input AgentInput{

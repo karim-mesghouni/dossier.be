@@ -12,7 +12,9 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,11 +26,6 @@ import java.util.List;
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
 public class Activity extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
-
-
     String name;
     String description;
 

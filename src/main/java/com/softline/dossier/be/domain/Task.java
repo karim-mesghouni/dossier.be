@@ -21,10 +21,6 @@ import java.util.List;
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
 public class Task extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
     String name;
     String description;
     @ManyToOne

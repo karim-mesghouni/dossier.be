@@ -1,5 +1,6 @@
 package com.softline.dossier.be.graphql.types.input;
 
+import com.softline.dossier.be.domain.Concerns.HasId;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class FileInput {
+public class FileInput implements HasId {
     String project;
     LocalDate attributionDate;
     LocalDate returnDeadline;
@@ -28,6 +29,6 @@ public class FileInput {
     FileInput reprise;
     boolean inTrash;
     long order;
-    private Long id;
+    private long id;
     AgentInput agent;
 }

@@ -7,7 +7,9 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.*;
 
 import javax.persistence.Entity;
-import javax.persistence.*;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import java.util.List;
 
 @SuperBuilder
@@ -20,9 +22,6 @@ import java.util.List;
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
 public class TaskSituation extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
     String name;
     boolean initial;
     boolean Final;

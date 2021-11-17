@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
@@ -16,14 +17,15 @@ import java.util.concurrent.Callable;
  * @param <T> the type of the event-payload (data type)
  */
 @Slf4j(topic = "EventObject")
-public class Event<T> {
-    private static Event<Long> pingEvent;
+public class Event<T> implements Serializable {
+    private static final long serialVersionUID = 5689867320034832774L;
+
     @NotNull
     protected String type;
     @Nullable
     protected T payload;
-    @Nullable
-    private Boolean permissionEvaluationResult;
+
+    private static Event<Long> pingEvent;
 
     public Event(@NotNull String type, @Nullable T payload) {
         this.type = type;
@@ -93,14 +95,12 @@ public class Event<T> {
      * @return boolean value which tells if the channel has permission to read this event
      */
     public boolean isReadableByChannel(Channel channel) {
-        if (permissionEvaluationResult != null) return permissionEvaluationResult;
         try {
-            permissionEvaluationResult = Boolean.TRUE.equals(getPermissionEvaluator(channel).call());// convert null to false
+            return Boolean.TRUE.equals(getPermissionEvaluator(channel).call());// convert null to false
         } catch (Exception e) {
             log.error("Event.getPermission() failed to get permissionEvaluator result", e);
-            permissionEvaluationResult = false;
+            return false;
         }
-        return permissionEvaluationResult;
     }
 
     /**

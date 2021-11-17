@@ -28,11 +28,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter implemen
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(agentDetailsService).passwordEncoder(getPasswordEncoder());
+        auth.userDetailsService(agentDetailsService).passwordEncoder(passwordEncoder());
     }
 
     @Bean
-    public PasswordEncoder getPasswordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 

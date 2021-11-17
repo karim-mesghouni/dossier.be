@@ -1,8 +1,6 @@
 package com.softline.dossier.be.security.domain;
 
 import com.softline.dossier.be.domain.*;
-import com.softline.dossier.be.events.EntityEvent;
-import com.softline.dossier.be.events.entities.AgentEvent;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +9,6 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SelectBeforeUpdate;
-import org.hibernate.annotations.Where;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -21,7 +18,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import static com.softline.dossier.be.Application.context;
-import static com.softline.dossier.be.Tools.Functions.isEmpty;
+import static com.softline.dossier.be.Tools.Functions.notEmpty;
 
 @SuperBuilder
 @Entity
@@ -29,13 +26,9 @@ import static com.softline.dossier.be.Tools.Functions.isEmpty;
 @AllArgsConstructor
 @Data
 @SQLDelete(sql = "UPDATE agent SET deleted=true WHERE id=?")
-@Where(clause = "deleted = false")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
 public class Agent extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
     String name;
 
     @OneToMany(mappedBy = "agent", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
@@ -122,7 +115,7 @@ public class Agent extends BaseEntity {
      * @return true if the request contains a valid jwt token with user data
      */
     public static boolean isLoggedIn() {
-        return isEmpty(() -> thisAgent().getId());// will return false if the value retrieval fails
+        return notEmpty(() -> thisAgent().getId());// will return false if the value retrieval fails
     }
 
     /**
@@ -130,21 +123,5 @@ public class Agent extends BaseEntity {
      */
     public static boolean notLoggedIn() {
         return !isLoggedIn();
-    }
-
-
-    @PostPersist
-    private void afterCreate() {
-        new AgentEvent(EntityEvent.Type.ADDED, this).fireToAll();
-    }
-
-    @PostUpdate
-    private void afterUpdate() {
-        new AgentEvent(EntityEvent.Type.UPDATED, this).fireToAll();
-    }
-
-    @PostRemove
-    private void afterDelete() {
-        new AgentEvent(EntityEvent.Type.DELETED, this).fireToAll();
     }
 }

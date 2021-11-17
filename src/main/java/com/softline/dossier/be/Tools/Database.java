@@ -1,5 +1,6 @@
 package com.softline.dossier.be.Tools;
 
+import com.softline.dossier.be.domain.Concerns.HasId;
 import com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,9 +10,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.metamodel.EntityType;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.softline.dossier.be.Application.context;
 import static com.softline.dossier.be.Tools.Functions.throwIfEmpty;
@@ -43,16 +47,29 @@ public class Database {
     }
 
     /**
-     * find the entity T with the given id, throws RuntimeException if entity was not found
+     * find the entity T with the given id, throws EntityNotFoundException if entity was not found
      *
      * @param clazz the entity class
      * @param id    entity id
      * @param <T>   entity type
      * @return T entity
-     * @throws RuntimeException if entity was not found
+     * @throws EntityNotFoundException if entity was not found
      */
-    public static <T> T findOrThrow(Class<T> clazz, Serializable id) throws RuntimeException {
-        return throwIfEmpty(database().find(clazz, id), () -> new RuntimeException(new EntityNotFoundException(format("No entity of type {} with id {} was found", clazz, id))));
+    public static <T> T findOrThrow(Class<T> clazz, Serializable id) throws EntityNotFoundException {
+        return throwIfEmpty(database().find(clazz, id), () -> new EntityNotFoundException(format("No entity of type {} with id {} was found", clazz, id)));
+    }
+
+    /**
+     * find the entity T with the given entity, throws EntityNotFoundException if entity was not found
+     *
+     * @param clazz the entity class
+     * @param id    entity which has an id field
+     * @param <T>   entity type
+     * @return T entity
+     * @throws EntityNotFoundException if entity was not found
+     */
+    public static <T> T findOrThrow(Class<T> clazz, HasId id) throws EntityNotFoundException {
+        return throwIfEmpty(database().find(clazz, id.getId()), () -> new EntityNotFoundException(format("No entity of type {} with id {} was found", clazz, id.getId())));
     }
 
 
@@ -62,9 +79,21 @@ public class Database {
      * uses {@link Database#findOrThrow(Class, Serializable)} to get the entity
      *
      * @return the entity after modification
-     * @throws RuntimeException if entity was not found
+     * @throws EntityNotFoundException if entity was not found
      */
-    public static <T, R> R findOrThrow(Class<T> clazz, Serializable id, Function<T, R> action) throws RuntimeException {
+    public static <T, R> R findOrThrow(Class<T> clazz, Serializable id, Function<T, R> action) throws EntityNotFoundException {
+        return action.apply(findOrThrow(clazz, id));
+    }
+
+    /**
+     * apply the action on the given entity,
+     * and then return the value returned by the action,
+     * uses {@link Database#findOrThrow(Class, HasId)} to get the entity
+     *
+     * @return the entity after modification
+     * @throws EntityNotFoundException if entity was not found
+     */
+    public static <T, R> R findOrThrow(Class<T> clazz, HasId id, Function<T, R> action) throws EntityNotFoundException {
         return action.apply(findOrThrow(clazz, id));
     }
 
@@ -74,34 +103,64 @@ public class Database {
      * uses {@link Database#findOrThrow(Class, Serializable)} to get the entity
      *
      * @return the entity after modification
-     * @throws RuntimeException      if entity was not found
+     * @throws EntityNotFoundException      if entity was not found
      * @throws AccessDeniedException if permission evaluation failed
      */
-    public static <T, R> R findOrThrow(Class<T> clazz, Serializable id, String permission, Function<T, R> action) throws RuntimeException {
+    public static <T, R> R findOrThrow(Class<T> clazz, Serializable id, String permission, Function<T, R> action) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
         throwIfCannot(permission, entity);
         return action.apply(entity);
     }
 
     /**
+     * apply the action on the given entity if the permission evaluation returns true,
+     * and then return the value returned by the action,
+     * uses {@link Database#findOrThrow(Class, Serializable)} to get the entity
+     * uses {@link AttributeBasedAccessControlEvaluator#throwIfCannot(String, Object)} to evaluate the permission
+     * @return the entity after modification
+     * @throws EntityNotFoundException      if entity was not found
+     * @throws AccessDeniedException if permission evaluation failed
+     */
+    public static <T, R> R findOrThrow(Class<T> clazz, HasId id, String permission, Function<T, R> action) throws EntityNotFoundException {
+        T entity = findOrThrow(clazz, id);
+        throwIfCannot(permission, entity);
+        return action.apply(entity);
+    }
+
+
+    /**
      * apply the action on the given entity and then return it, uses {@link Database#findOrThrow(Class, Serializable)} to get the entity
      *
-     * @throws RuntimeException if entity was not found
+     * @throws EntityNotFoundException if entity was not found
      */
-    public static <T> T findOrThrow(Class<T> clazz, Serializable id, Consumer<T> action) throws RuntimeException {
+    public static <T> T findOrThrow(Class<T> clazz, Serializable id, Consumer<T> action) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
         action.accept(entity);
         return entity;
     }
 
     /**
+     * find all results with entity T
+     */
+    public static <T> List<T> findAll(Class<T> clazz) {
+        return database().createQuery("SELECT e FROM " + getEntityType(clazz).orElseThrow().getName() + " e", clazz).getResultList();
+    }
+    /**
+     * find all results with entity T after applying the filter
+     */
+    public static <T> List<T> findAll(Class<T> clazz, Predicate<T> filter) {
+        return database().createQuery("SELECT e FROM " + getEntityType(clazz).orElseThrow().getName() + " e", clazz).getResultStream().filter(filter).collect(Collectors.toList());
+    }
+
+
+    /**
      * remove the entity, uses {@link Database#findOrThrow(Class, Serializable)} to get the entity
      * and {@link EntityManager#remove(Object)} to delete the entity
      *
-     * @throws RuntimeException         if entity was not found
+     * @throws EntityNotFoundException         if entity was not found
      * @throws IllegalArgumentException if the instance is not an entity or is a detached entity
      */
-    public static void remove(Object entity) throws RuntimeException, IllegalArgumentException {
+    public static void remove(Object entity) throws EntityNotFoundException, IllegalArgumentException {
         database().remove(entity);
     }
 
@@ -122,9 +181,9 @@ public class Database {
      * and {@link Database#findOrThrow(Class, Serializable)} to retrieve the entity
      *
      * @return always returns true
-     * @throws RuntimeException if the entity was not found
+     * @throws EntityNotFoundException if the entity was not found
      */
-    public static <T> boolean remove(Class<T> clazz, Serializable id, Consumer<T> consumer) throws RuntimeException {
+    public static <T> boolean remove(Class<T> clazz, Serializable id, Consumer<T> consumer) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
         consumer.accept(entity);
         remove(entity);
@@ -137,9 +196,9 @@ public class Database {
      * and {@link Database#findOrThrow(Class, Serializable)} to retrieve the entity
      *
      * @return always returns true
-     * @throws RuntimeException if the entity was not found
+     * @throws EntityNotFoundException if the entity was not found
      */
-    public static <T> boolean remove(Class<T> clazz, Serializable id) throws RuntimeException {
+    public static <T> boolean remove(Class<T> clazz, Serializable id) throws EntityNotFoundException {
         remove(findOrThrow(clazz, id));
         return true;
     }
@@ -151,10 +210,10 @@ public class Database {
      * and {@link Database#findOrThrow(Class, Serializable)} to retrieve the entity
      * and {@link AttributeBasedAccessControlEvaluator#throwIfCannot(String, Object)} to evaluate the permission
      *
-     * @throws RuntimeException      if the entity was not found
+     * @throws EntityNotFoundException      if the entity was not found
      * @throws AccessDeniedException if the permission evaluation failed
      */
-    public static <T> boolean remove(Class<T> clazz, Serializable id, String permission) throws RuntimeException {
+    public static <T> boolean remove(Class<T> clazz, Serializable id, String permission) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
         throwIfCannot(permission, entity);
         remove(entity);

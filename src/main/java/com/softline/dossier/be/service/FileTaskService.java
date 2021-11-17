@@ -3,8 +3,12 @@ package com.softline.dossier.be.service;
 import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.Tools.Database;
 import com.softline.dossier.be.Tools.FileSystem;
+import com.softline.dossier.be.Tools.TipTap;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
+import com.softline.dossier.be.events.EntityEvent;
+import com.softline.dossier.be.events.entities.CommentEvent;
+import com.softline.dossier.be.events.entities.FileTaskEvent;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
 import com.softline.dossier.be.repository.*;
@@ -29,8 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.softline.dossier.be.Tools.Database.database;
-import static com.softline.dossier.be.Tools.Functions.*;
+import static com.softline.dossier.be.Tools.Functions.safeRun;
+import static com.softline.dossier.be.Tools.Functions.safeRunWithFallback;
 import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.cannot;
 import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 
@@ -116,24 +120,26 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public Agent changeAssignedTo(Long assignedToId, Long fileTaskId) {
         var assigned = agentRepository.findById(assignedToId).orElseThrow();
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
         fileTask.setAssignedTo(assigned);
-        getRepository().save(fileTask);
+        Database.flush();
+        new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
         return assigned;
     }
 
     @PreAuthorize("hasPermission(null, 'ADMIN')")
     public Agent changeReporter(Long reporterId, Long fileTaskId) {
         var reporter = agentRepository.findById(reporterId).orElseThrow();
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
         fileTask.setReporter(reporter);
-        getRepository().save(fileTask);
+        Database.flush();
+        new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
         return reporter;
     }
 
     @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'WORK_IN_FILE_TASK') or hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) throws ClientReadableException {
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
         var situation = taskSituationRepository.findById(situationId).orElseThrow();
         if (fileTask.getCurrentState().getSituation().isBlock()) {
             throw new ClientReadableException("vous ne pouvez pas modifier le statut d'une tâche bloquée, veuillez débloquer la tâche et réessayer.");
@@ -153,10 +159,13 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
             }
         }
 
-        return fileTaskSituationRepository.save(FileTaskSituation.builder()
+        var state = fileTaskSituationRepository.save(FileTaskSituation.builder()
                 .situation(situation)
                 .current(true)
                 .fileTask(fileTask).build());
+        Database.flush();
+        new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
+        return state;
     }
 
     public List<FileTask> getAllFileTaskByFileActivityId(Long fileActivityId) {
@@ -168,34 +177,38 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return getRepository().findAllByAssignedTo_Id(assignedToId);
     }
 
-    @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public boolean changeToStartDate(LocalDateTime toStartDate, Long fileTaskId) {
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
-        fileTask.setToStartDate(toStartDate);
-        return true;
+        return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+            fileTask.setToStartDate(toStartDate);
+            Database.flush();
+            new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
+            return true;
+        });
     }
 
-    @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public boolean changeDueDate(LocalDateTime dueDate, Long fileTaskId) {
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
-        fileTask.setDueDate(dueDate);
-        return true;
+        return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+            fileTask.setDueDate(dueDate);
+            Database.flush();
+            new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
+            return true;
+        });
     }
 
     // permission inside
     public boolean changeTitle(String title, Long fileTaskId) {
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
-        if (cannot("UPDATE_FILE_TASK", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
-            throw new AccessDeniedException("erreur de privilege");
-        }
-        fileTask.setTitle(title);
-        return true;
+        return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+            fileTask.setTitle(title);
+            Database.flush();
+            new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
+            return true;
+        });
     }
 
     @Transactional
     @PreAuthorize("hasPermission(#commentInput.fileTask.id, 'FileTask', 'UPDATE_FILE_TASK')")
     public DescriptionComment changeDescription(CommentInput commentInput) {
-        var fileTask = getRepository().findById(commentInput.getFileTask().getId()).orElseThrow();
+        var fileTask = Database.findOrThrow(FileTask.class, commentInput.getFileTask());
         var description = fileTask.getDescription();
         if (description == null) {
             description = DescriptionComment.builder()
@@ -208,17 +221,21 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
             fileTask.setDescription(description);
         }
         description.setContent(commentInput.getContent());
-        descriptionCommentRepository.save(description);
+        Database.persist(description);
+        TipTap.resolveCommentContent(description);
+        Database.flush();
+        new CommentEvent(EntityEvent.Type.UPDATED, description).fireToAll();
+        new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
         return description;
     }
 
     // permission inside
     public ReturnedComment changeRetour(CommentInput retour) {
-        var fileTask = getRepository().findById(retour.getFileTask().getId()).orElseThrow();
+        var fileTask = Database.findOrThrow(FileTask.class, retour.getFileTask());
         if (cannot("WORK_IN_FILE_TASK", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
             throw new AccessDeniedException("erreur de privilege");
         }
-        if (retour.getId() != null) {
+        if (retour.getId() != 0) {
             var retourExist = returnedCommentRepository.findById(retour.getId()).orElseThrow();
             retourExist.setContent(retour.getContent());
             return retourExist;
@@ -234,6 +251,8 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
             );
             fileTask.setRetour(retourNew);
             retourNew.setType(CommentType.Returned);
+            Database.flush();
+            new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
             return retourNew;
         }
     }
@@ -245,37 +264,37 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     // permission inside
     public ReturnedCause changeReturnedCause(Long fileTaskId, Long returnedCauseId) {
-        var returnedCause = returnedCauseRepository.findById(returnedCauseId).orElseThrow();
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
-        if (cannot("WORK_IN_FILE_TASK", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
-            throw new AccessDeniedException("erreur de privilege");
-        }
-        fileTask.setReturnedCause(returnedCause);
-        getRepository().save(fileTask);
-        return returnedCause;
+        return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+            var returnedCause = Database.findOrThrow(ReturnedCause.class, returnedCauseId);
+            fileTask.setReturnedCause(returnedCause);
+            Database.flush();
+            new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
+            return returnedCause;
+        });
     }
 
     // permission inside
     public TaskState changeState(Long fileTaskId, Long taskStateId) {
-        var taskState = taskStateRepository.findById(taskStateId).orElseThrow();
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
-        if (cannot("WORK_IN_FILE_TASK", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
-            throw new AccessDeniedException("erreur de privilege");
-        }
-        fileTask.setState(taskState);
-        getRepository().save(fileTask);
-        return taskState;
+        return Database.findOrThrow(FileTask.class, fileTaskId, fileTask -> {
+            if (cannot("WORK_IN_FILE_TASK", fileTask) && cannot("UPDATE_FILE_TASK", fileTask.getFileActivity())) {
+                throw new AccessDeniedException("erreur de privilege");
+            }
+            var state = Database.findOrThrow(TaskState.class, taskStateId);
+            fileTask.setState(state);
+            Database.flush();
+            new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
+            return state;
+        });
     }
 
     // permission inside
     public boolean changeReturned(Long fileTaskId, boolean returned) {
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
-        if (cannot("WORK_IN_FILE_TASK", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
-            throw new AccessDeniedException("erreur de privilege");
-        }
-        fileTask.setReturned(returned);
-        getRepository().save(fileTask);
-        return returned;
+        return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+            fileTask.setReturned(returned);
+            Database.flush();
+            new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
+            return true;
+        });
     }
 
     // permission inside
@@ -305,15 +324,21 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .build();
         fileTask.getFileTaskSituations().add(fileTaskSituation);
         getRepository().save(fileTask);
+        new FileTaskEvent(EntityEvent.Type.ADDED, fileTask).fireToAll();
         return getRepository().findById(fileTask.getId()).orElseThrow();
     }
 
-    @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public boolean changeParent(Long fileTaskId, Long parentId) {
-        return safeRunWithFallback(
-                () -> getRepository().findById(fileTaskId).orElseThrow().setParent(getRepository().findById(parentId).orElseThrow()),
-                () -> getRepository().findById(fileTaskId).orElseThrow().setParent(null)
-        );
+        return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+            safeRunWithFallback(
+                    () -> fileTask.setParent(Database.findOrThrow(FileTask.class, parentId)),
+                    () -> fileTask.setParent(null)
+            );
+            Database.flush();
+            new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
+            return true;
+        });
+
     }
 
     public List<FileTask> getAllFileTaskByFileActivityIdInTrash(Long fileActivityId) {
@@ -321,13 +346,21 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public boolean recoverFileTaskFromTrash(Long fileTaskId) {
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
-        fileTask.setInTrash(false);
-        return true;
+        return Database.findOrThrow(FileTask.class, fileTaskId, "DELETE_FILE_TASK", fileTask -> {
+            fileTask.setInTrash(false);
+            Database.flush();
+            new FileTaskEvent(EntityEvent.Type.RECOVERED, fileTask).fireToAll();
+            return true;
+        });
     }
 
     public boolean sendFileTaskToTrash(Long fileTaskId) {
-        return tap(true, $true -> database().find(FileTask.class, fileTaskId).setInTrash($true));
+        return Database.findOrThrow(FileTask.class, fileTaskId, "DELETE_FILE_TASK", fileTask -> {
+            fileTask.setInTrash(true);
+            Database.flush();
+            new FileTaskEvent(EntityEvent.Type.TRASHED, fileTask).fireToAll();
+            return true;
+        });
     }
 
     public List<Attachment> saveAttached(Long fileTaskId, DataFetchingEnvironment environment) throws IOException {
@@ -364,13 +397,11 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         }
     }
 
-    protected boolean delete(Long id) {
-        return Database.remove(FileTask.class, id, "DELETE_FILE_TASK");
-    }
-
     public boolean updateTitle(String title, long fileTaskId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
             fileTask.setTitle(title);
+            Database.flush();
+            new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
             return true;
         });
     }

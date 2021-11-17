@@ -8,9 +8,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 @Entity
 @SuperBuilder
@@ -23,10 +20,6 @@ public class FileStateType extends BaseEntity {
     String state;
     boolean initial;
     boolean Final;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
     @Override
     public String toString() {
         return "FileStateType{" +

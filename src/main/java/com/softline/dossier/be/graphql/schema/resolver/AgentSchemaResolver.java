@@ -1,5 +1,6 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
+import com.softline.dossier.be.Tools.Database;
 import com.softline.dossier.be.domain.Job;
 import com.softline.dossier.be.graphql.types.input.AgentInput;
 import com.softline.dossier.be.repository.ActivityRepository;
@@ -11,7 +12,6 @@ import com.softline.dossier.be.security.repository.RoleRepository;
 import com.softline.dossier.be.service.AgentService;
 import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,10 +19,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
+import java.io.IOException;
 import java.util.List;
-
-import static com.softline.dossier.be.Tools.Functions.safeRun;
-import static com.softline.dossier.be.Tools.Functions.throwIfEmpty;
 
 @Component
 @PreAuthorize("isAuthenticated()")
@@ -48,57 +46,31 @@ public class AgentSchemaResolver extends SchemaResolverBase<Agent, AgentInput, A
     }
 
     public List<Role> allRoles() {
-        return roleRepository.findAll();
+        return Database.findAll(Role.class);
     }
 
     public List<Job> allJobs() {
-        return jobRepository.findAll();
+        return Database.findAll(Job.class);
     }
 
-    @PreAuthorize("hasPermission(null, 'DELETE_AGENT')")
     public boolean deleteAgent(Long id) throws ClientReadableException {
         return delete(id);
     }
 
-    @PreAuthorize("hasPermission(null, 'UPDATE_AGENT')")
-    public Agent updateAgent(AgentInput input) {
-        Agent agent = entityManager.find(Agent.class, input.getId());
-        safeRun(() -> agent.setUsername(throwIfEmpty(input.getUsername())));
-        safeRun(() -> agent.setName(throwIfEmpty(input.getName())));
-        safeRun(() -> agent.setActivity(activityRepository.findById(input.getActivity().getId()).orElseThrow()));
-        safeRun(() -> agent.setJob(jobRepository.findById(input.getJob().getId()).orElseThrow()));
-        safeRun(() -> agent.setRole(roleRepository.findById(input.getRole().getId()).orElseThrow()));
-        safeRun(() -> input.getPassword().length() > 0,
-                () -> agent.setPassword(passwordEncoder.encode(input.getPassword())));
-        service.getRepository().save(agent);
-        return agent;
+    public Agent updateAgent(AgentInput input) throws ClientReadableException {
+        return update(input);
     }
 
     public boolean changePassword(AgentInput input, String oldPassword) throws ClientReadableException {
-        Agent agent = entityManager.find(Agent.class, input.getId());
-        throwIfEmpty(passwordEncoder.matches(oldPassword, agent.getPassword()), () -> new ClientReadableException("le mot de passe ne correspond pas"));
-        throwIfEmpty(input.getPassword(), () -> new ClientReadableException("le mot de passe ne doit pas être vide"));
-        agent.setPassword(passwordEncoder.encode(input.getPassword()));
-        service.getRepository().save(agent);
-        return true;
+        return service.changePassword(input, oldPassword);
     }
 
-    @PreAuthorize("hasPermission(null, 'CREATE_AGENT')")
-    public Agent createAgent(AgentInput input) {
-        var agent = modelMapper.map(input, Agent.class);
-        agent.setEnabled(true);
-        agent.setPassword(passwordEncoder.encode(input.getPassword()));
-        Long id = (Long) entityManager.unwrap(Session.class).save(agent);
-        entityManager.clear();
-        agent = entityManager.find(Agent.class, id);
-        return agent;
+    public Agent createAgent(AgentInput input) throws ClientReadableException, IOException {
+        return create(input);
     }
 
-    @PreAuthorize("hasPermission(null, 'DELETE_AGENT')")
-    public boolean deleteAgent(long id) {
-        var agent = service.getRepository().findById(id).orElseThrow();
-        service.getRepository().deleteById(id);
-        return true;
+    public boolean deleteAgent(long id) throws ClientReadableException {
+        return delete(id);
     }
 
     public List<Agent> findAgentBySearch(@Nullable String search) {

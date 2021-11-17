@@ -1,6 +1,9 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.Tools.Database;
 import com.softline.dossier.be.domain.*;
+import com.softline.dossier.be.events.EntityEvent;
+import com.softline.dossier.be.events.entities.FileEvent;
 import com.softline.dossier.be.graphql.types.FileFilterInput;
 import com.softline.dossier.be.graphql.types.FileHistoryDTO;
 import com.softline.dossier.be.graphql.types.PageList;
@@ -80,37 +83,36 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     }
 
     @Override
-    @PreAuthorize("hasPermission(#input.id, 'File', 'UPDATE_FILE')")
     public File update(FileInput input) {
-        var file = repository.findById(input.getId()).orElseThrow();
-        if (safeRun(() -> throwIfEmpty(input.getReprise().getId()))) {
-            file.setReprise(repository.findById(input.getReprise().getId()).orElseThrow());
-        } else {
-            file.setReprise(null);
-        }
-        var baseActivity = activityRepository.findById(input.getBaseActivity().getId()).orElseThrow();
-        file.setClient(clientRepository.findById(input.getClient().getId()).orElseThrow());
-        file.setAttributionDate(input.getAttributionDate());
-        file.setBaseActivity(baseActivity);
-        file.setReturnDeadline(input.getReturnDeadline());
-        file.setProvisionalDeliveryDate(input.getProvisionalDeliveryDate());
-        file.setProject(input.getProject());
-        file.setCommune(communeRepository.findById(input.getCommune().getId()).orElseThrow());
-        var oldFileState = fileStateRepository.findFirstByCurrentIsTrueAndFile_Id(file.getId());
-        if (oldFileState != null && input.getCurrentFileState() != null && input.getCurrentFileState().getType() != null) {
-            if (oldFileState.getType().getId() != input.getCurrentFileState().getType().getId()) {
-                oldFileState.setCurrent(false);
-                file.getFileStates().add(FileState.builder()
-                        .file(file)
-                        .agent((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-                        .type(fileStateTypeRepository.findById(input.getCurrentFileState().getType().getId()).orElseThrow())
-                        .current(true)
-                        .build()
-                );
+        return Database.findOrThrow(File.class, input, "UPDATE_FILE", file -> {
+            if(isEmpty(() -> file.getReprise().getId()) != isEmpty(() -> input.getReprise().getId())){
+                file.setReprise(safeValue(() -> Database.findOrThrow(File.class, input.getReprise())));
             }
-        }
-        repository.saveAndFlush(file);
-        return file;
+            var baseActivity = activityRepository.findById(input.getBaseActivity().getId()).orElseThrow();
+            file.setClient(clientRepository.findById(input.getClient().getId()).orElseThrow());
+            file.setAttributionDate(input.getAttributionDate());
+            file.setBaseActivity(baseActivity);
+            file.setReturnDeadline(input.getReturnDeadline());
+            file.setProvisionalDeliveryDate(input.getProvisionalDeliveryDate());
+            file.setProject(input.getProject());
+            file.setCommune(communeRepository.findById(input.getCommune().getId()).orElseThrow());
+            var oldFileState = fileStateRepository.findFirstByCurrentIsTrueAndFile_Id(file.getId());
+            if (oldFileState != null && input.getCurrentFileState() != null && input.getCurrentFileState().getType() != null) {
+                if (oldFileState.getType().getId() != input.getCurrentFileState().getType().getId()) {
+                    oldFileState.setCurrent(false);
+                    file.getFileStates().add(FileState.builder()
+                            .file(file)
+                            .agent((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                            .type(fileStateTypeRepository.findById(input.getCurrentFileState().getType().getId()).orElseThrow())
+                            .current(true)
+                            .build()
+                    );
+                }
+            }
+            Database.flush();
+            new FileEvent(EntityEvent.Type.UPDATED, file).fireToAll();
+            return file;
+        });
     }
 
     @Override
@@ -121,7 +123,7 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
 
     @Override
     public File getById(long id) {
-        return repository.findById(id).orElseThrow();
+        return Database.findOrThrow(File.class, id);
     }
 
     public PageList<File> getAllFilesByFilter(FileFilterInput filter) {
@@ -204,6 +206,8 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     public boolean sendFileToTrash(Long fileId) {
         var file = getRepository().findById(fileId).orElseThrow();
         file.setInTrash(true);
+        Database.flush();
+        new FileEvent(EntityEvent.Type.TRASHED, file).fireToAll();
         return true;
     }
 
@@ -211,6 +215,8 @@ public class FileService extends IServiceBase<File, FileInput, FileRepository> {
     public boolean recoverFileFromTrash(Long fileId) {
         var file = getRepository().findById(fileId).orElseThrow();
         file.setInTrash(false);
+        Database.flush();
+        new FileEvent(EntityEvent.Type.RECOVERED, file).fireToAll();
         return true;
     }
 

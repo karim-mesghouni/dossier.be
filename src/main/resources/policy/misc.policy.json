@@ -15,6 +15,11 @@
     "condition": "resource.agent.id == subject.id"
   },
   {
+    "name": "user can change his password",
+    "target": "action == 'CHANGE_PASSWORD'",
+    "condition": "resource.id == subject.id"
+  },
+  {
     "name": "anyone can create documents",
     "target": "action == 'CREATE_DOCUMENT_IN_ACTIVITY'",
     "condition": "true"

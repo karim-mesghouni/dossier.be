@@ -5,7 +5,6 @@ import com.softline.dossier.be.events.EntityEvent;
 import com.softline.dossier.be.events.entities.FileActivityDataFieldEvent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.NotFound;
@@ -17,17 +16,13 @@ import javax.persistence.*;
 
 @SuperBuilder
 @Data
-@EqualsAndHashCode(callSuper = true)
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @SQLDelete(sql = "UPDATE activity_data_field SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 public class ActivityDataField extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
     String fieldName;
 
     @Enumerated(EnumType.STRING)

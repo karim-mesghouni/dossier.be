@@ -1,5 +1,6 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.domain.Concerns.HasId;
 import com.softline.dossier.be.security.domain.Agent;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
@@ -16,10 +17,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Column;
-import javax.persistence.EntityListeners;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @EntityListeners(AuditingEntityListener.class)
@@ -32,7 +30,11 @@ import java.time.LocalDateTime;
         @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 })
 @Data
-public class BaseEntity {
+public class BaseEntity implements HasId {
+    @javax.persistence.Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    protected long id;
+
     @Column(columnDefinition = "boolean default false")
     boolean deleted;
     @CreatedBy

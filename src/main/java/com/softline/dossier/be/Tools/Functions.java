@@ -99,16 +99,26 @@ public class Functions {
      * value is considered empty if the value (is null) or (is string and empty) or (is number and equal to 0) or (is Optional and isEmpty())
      *
      * @param producer a callback which will produce the value to be tested
-     * @return true if the producer return value is not empty, false if the producer threw and exception or the returned value was empty,
+     * @return true if the producer return value is empty or the producer threw an exception, false if the producer's returned value was not empty,
      */
     public static boolean isEmpty(@NotNull Callable<Object> producer) {
         try {
             throwIfEmpty(producer.call());
-            return true;
+            return false;
         } catch (Throwable e) {
             log.info("isEmpty, value was empty");
-            return false;
+            return true;
         }
+    }
+
+    /**
+     * value is considered empty if the value (is null) or (is string and empty) or (is number and equal to 0) or (is Optional and isEmpty())
+     *
+     * @param producer a callback which will produce the value to be tested
+     * @return true if the producer return value is not empty, false if the producer threw and exception or the returned value was empty,
+     */
+    public static boolean notEmpty(@NotNull Callable<Object> producer) {
+        return !isEmpty(producer);
     }
 
     /**

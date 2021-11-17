@@ -3,7 +3,6 @@ package com.softline.dossier.be.domain;
 import com.softline.dossier.be.graphql.types.input.BlockingInput;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.*;
@@ -18,15 +17,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = true)
+
 @SQLDelete(sql = "UPDATE Blocking SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
 public class Blocking extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn
     private FileTaskSituation state;

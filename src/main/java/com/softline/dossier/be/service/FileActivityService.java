@@ -1,12 +1,16 @@
 package com.softline.dossier.be.service;
 
 import com.softline.dossier.be.Tools.Database;
-import com.softline.dossier.be.domain.ActivityDataField;
-import com.softline.dossier.be.domain.ActivityState;
-import com.softline.dossier.be.domain.FileActivity;
+import com.softline.dossier.be.domain.*;
+import com.softline.dossier.be.events.EntityEvent;
+import com.softline.dossier.be.events.entities.FileActivityDataFieldEvent;
+import com.softline.dossier.be.events.entities.FileActivityEvent;
 import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
-import com.softline.dossier.be.repository.*;
+import com.softline.dossier.be.repository.ActivityDataFieldRepository;
+import com.softline.dossier.be.repository.ActivityRepository;
+import com.softline.dossier.be.repository.ActivityStateRepository;
+import com.softline.dossier.be.repository.FileActivityRepository;
 import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,7 +23,6 @@ import javax.persistence.PersistenceContext;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
-import static com.softline.dossier.be.Application.context;
 import static com.softline.dossier.be.SSE.EventController.silently;
 import static com.softline.dossier.be.Tools.Functions.safeValue;
 import static com.softline.dossier.be.Tools.TextHelper.format;
@@ -43,31 +46,37 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
 
     @Override
     public FileActivity create(FileActivityInput entityInput) {
-        var fileId = entityInput.getFile().getId();
-        var file = context().getBean(FileRepository.class).findById(fileId).orElseThrow();// validate file exists
-        var activity = activityRepository.findById(entityInput.getActivity().getId()).orElseThrow();
-        var fileActivity = FileActivity.builder()
-                .activity(activity)
-                .file(file)
-                .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(entityInput.getActivity().getId()))
-                .current(true)
-                .order(getRepository().getNextOrder(fileId))
-                .build();
-
-        repository.save(fileActivity);
-        activity.getFields().forEach(field -> {
-            fileActivity.getDataFields().add(
-                    ActivityDataField.builder()
-                            .fieldType(field.getFieldType())
-                            .fieldName(field.getFieldName())
-                            .groupName(safeValue(() -> field.getGroup().getName()))
-                            .fileActivity(fileActivity)
-                            .data(null)
-                            .build()
-            );
+        return Database.findOrThrow(File.class, entityInput.getFile(), file -> {
+            var activity = Database.findOrThrow(Activity.class, entityInput.getActivity());
+            var state = Database.database()
+                    .createQuery("SELECT s from ActivityState s where " +
+                            "s.initial = true and s.activity.id = :actId", ActivityState.class)
+                    .setParameter("actId", entityInput.getActivity().getId())
+                    .setMaxResults(1)
+                    .getSingleResult();
+            var fileActivity = Database.persist(FileActivity.builder()
+                    .activity(activity)
+                    .file(file)
+                    .state(state)
+                    .current(true)
+                    .order(getRepository().getNextOrder(file.getId()))
+                    .build());
+            Database.flush();
+            activity.getFields().forEach(field -> {
+                fileActivity.getDataFields().add(
+                        ActivityDataField.builder()
+                                .fieldType(field.getFieldType())
+                                .fieldName(field.getFieldName())
+                                .groupName(safeValue(() -> field.getGroup().getName()))
+                                .fileActivity(fileActivity)
+                                .data(null)
+                                .build()
+                );
+            });
+            Database.flush();
+            new FileActivityEvent(EntityEvent.Type.ADDED, fileActivity).fireToAll();
+            return fileActivity;
         });
-        repository.saveAndFlush(fileActivity);
-        return fileActivity;
     }
 
     @Override
@@ -91,16 +100,18 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
         return getRepository().findAllByFile_Id(fileId);
     }
 
-    @PreAuthorize("hasPermission(#fileActivityId, 'FileActivity', 'UPDATE_FILE_ACTIVITY')")
     public ActivityState changeActivityState(Long activityStateId, Long fileActivityId) {
-        var activityState = activityStateRepository.findById(activityStateId).orElseThrow();
-        var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
-        fileActivity.setState(activityState);
-        return activityState;
+        return Database.findOrThrow(FileActivity.class, fileActivityId, "UPDATE_FILE_ACTIVITY", fileActivity -> {
+            var activityState = Database.findOrThrow(ActivityState.class, activityStateId);
+            fileActivity.setState(activityState);
+            Database.flush();
+            new FileActivityEvent(EntityEvent.Type.UPDATED, fileActivity).fireToAll();
+            return activityState;
+        });
     }
 
     public boolean changeDataField(ActivityDataFieldInput input) throws ClientReadableException {
-        var field = activityDataFieldRepository.findById(input.getId()).orElseThrow();
+        var field = Database.findOrThrow(ActivityDataField.class, input);
         if (cannot("UPDATE_FILE_ACTIVITY", field.getFileActivity()) && cannot("UPDATE_FILE_ACTIVITY_DATA_FIELD", field.getFileActivity())) {
             throw new AccessDeniedException("Access Denied");
         }
@@ -111,6 +122,8 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
             throw new ClientReadableException(format("la valeur est malformée({})", field.getFieldType()));
         }
         field.setData(input.getData());
+        Database.flush();
+        new FileActivityDataFieldEvent(EntityEvent.Type.UPDATED, field).fireToAll();
         return true;
     }
 
@@ -124,16 +137,22 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
 
     @PreAuthorize("hasPermission(#fileActivityId, 'FileActivity', 'DELETE_FILE_ACTIVITY')")
     public boolean sendFileActivityToTrash(Long fileActivityId) {
-        var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
-        fileActivity.setInTrash(true);
-        return true;
+        return Database.findOrThrow(FileActivity.class, fileActivityId, fileActivity -> {
+            fileActivity.setInTrash(true);
+            Database.flush();
+            new FileActivityEvent(EntityEvent.Type.TRASHED, fileActivity).fireToAll();
+            return true;
+        });
     }
 
     @PreAuthorize("hasPermission(#fileActivityId, 'FileActivity', 'DELETE_FILE_ACTIVITY')")
     public boolean recoverFileActivityFromTrash(Long fileActivityId) {
-        var fileActivity = getRepository().findById(fileActivityId).orElseThrow();
-        fileActivity.setInTrash(false);
-        return true;
+        return Database.findOrThrow(FileActivity.class, fileActivityId, fileActivity -> {
+            fileActivity.setInTrash(false);
+            Database.flush();
+            new FileActivityEvent(EntityEvent.Type.RECOVERED, fileActivity).fireToAll();
+            return true;
+        });
     }
 
     /**

@@ -1,7 +1,5 @@
 package com.softline.dossier.be.domain;
 
-import com.softline.dossier.be.events.EntityEvent;
-import com.softline.dossier.be.events.entities.FileTaskEvent;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -20,15 +18,12 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = true)
+
 @SQLDelete(sql = "UPDATE file_task SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false ")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
 public class FileTask extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
     boolean current;
     @Type(type = "text")
     String title;
@@ -107,47 +102,5 @@ public class FileTask extends BaseEntity {
 
     public void decrementOrder() {
         this.setOrder(this.getOrder() - 1);
-    }
-
-
-    @Transient
-    @Builder.Default
-    private boolean wasTrashed = false;
-    @Transient
-    @Builder.Default
-    private boolean wasRecovered = false;
-
-    @PostPersist
-    private void afterCreate() {
-        new FileTaskEvent(EntityEvent.Type.ADDED, this).fireToAll();
-    }
-
-    @PostRemove
-    private void afterDelete() {
-        new FileTaskEvent(EntityEvent.Type.DELETED, this).fireToAll();
-    }
-
-    @PostUpdate
-    private void afterUpdate() {
-        if (wasTrashed) {
-            new FileTaskEvent(EntityEvent.Type.TRASHED, this).fireToAll();
-            wasTrashed = false;
-        } else if (wasRecovered) {
-            new FileTaskEvent(EntityEvent.Type.RECOVERED, this).fireToAll();
-            wasRecovered = false;
-        } else {
-            new FileTaskEvent(EntityEvent.Type.UPDATED, this).fireToAll();
-        }
-    }
-
-    public void setInTrash(boolean inTrash) {
-        if (getId() != 0) {
-            if (inTrash) {
-                wasTrashed = true;
-            } else {
-                wasRecovered = true;
-            }
-        }
-        this.inTrash = inTrash;
     }
 }

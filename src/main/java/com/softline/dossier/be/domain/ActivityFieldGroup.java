@@ -8,9 +8,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 @Data
 @NoArgsConstructor
@@ -21,8 +18,5 @@ import javax.persistence.Id;
 @Where(clause = "deleted = false")
 
 public class ActivityFieldGroup extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
     String name;
 }
