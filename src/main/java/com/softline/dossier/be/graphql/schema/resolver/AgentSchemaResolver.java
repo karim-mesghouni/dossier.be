@@ -1,6 +1,6 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
-import com.softline.dossier.be.Tools.Database;
+import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.Job;
 import com.softline.dossier.be.graphql.types.input.AgentInput;
 import com.softline.dossier.be.repository.ActivityRepository;

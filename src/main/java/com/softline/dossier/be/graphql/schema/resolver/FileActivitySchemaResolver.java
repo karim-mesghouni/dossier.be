@@ -19,7 +19,6 @@ import java.util.List;
 @PreAuthorize("isAuthenticated()")
 public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity, FileActivityInput, FileActivityRepository, FileActivityService> {
 
-
     public FileActivity createFileActivity(FileActivityInput FileActivity) throws IOException, ClientReadableException {
         return create(FileActivity);
     }

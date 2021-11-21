@@ -1,7 +1,5 @@
 package com.softline.dossier.be.domain;
 
-import com.softline.dossier.be.events.EntityEvent;
-import com.softline.dossier.be.events.entities.DocumentEvent;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +8,8 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.*;
 
 import javax.persistence.Entity;
-import javax.persistence.*;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @SuperBuilder
 @AllArgsConstructor
@@ -33,20 +32,4 @@ public class Document extends BaseEntity {
     Agent agent;
     String description;
     private String path;
-
-
-    @PostPersist
-    public void afterCreate() {
-        new DocumentEvent(EntityEvent.Type.ADDED, this).fireToAll();
-    }
-
-    @PostUpdate
-    public void afterUpdate() {
-        new DocumentEvent(EntityEvent.Type.UPDATED, this).fireToAll();
-    }
-
-    @PostRemove
-    public void afterDelete() {
-        new DocumentEvent(EntityEvent.Type.DELETED, this).fireToAll();
-    }
 }

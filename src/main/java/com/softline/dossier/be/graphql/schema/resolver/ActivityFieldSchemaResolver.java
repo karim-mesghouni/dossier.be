@@ -1,45 +1,30 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
+import com.coxautodev.graphql.tools.GraphQLMutationResolver;
+import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import com.softline.dossier.be.domain.ActivityField;
-import com.softline.dossier.be.graphql.types.input.ActivityFieldInput;
-import com.softline.dossier.be.repository.ActivityFieldRepository;
 import com.softline.dossier.be.service.ActivityFieldService;
-import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
-
-public class ActivityFieldSchemaResolver extends SchemaResolverBase<ActivityField, ActivityFieldInput, ActivityFieldRepository, ActivityFieldService> {
-
-
-    public ActivityField createActivityFieldI(ActivityFieldInput activityFieldInput) throws IOException, ClientReadableException {
-        return create(activityFieldInput);
-    }
-
-    public ActivityField updateActivityField(ActivityFieldInput activityFieldInput) throws ClientReadableException {
-        return update(activityFieldInput);
-    }
-
-    public boolean deleteActivityField(Long id) throws ClientReadableException {
-        return delete(id);
-    }
+public class ActivityFieldSchemaResolver implements GraphQLMutationResolver, GraphQLQueryResolver {
+    private final ActivityFieldService service;
 
     protected List<ActivityField> getAllActivityField() {
-        return getAll();
+        return service.getAll();
     }
 
     protected ActivityField getActivityField(Long id) {
-        return get(id);
+        return service.getById(id);
     }
 
     public List<ActivityField> getAllActivityFieldByActivityId(Long activityId) {
-        return getService().getAllActivityFieldByActivityId(activityId);
+        return service.getAllActivityFieldByActivityId(activityId);
     }
 }

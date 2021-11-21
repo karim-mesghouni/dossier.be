@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @Slf4j
 public class Functions {
@@ -18,7 +19,7 @@ public class Functions {
      * useful to encapsulate objects that has methods which return void,
      * this allows to chain functions on the value in a single statement
      */
-    @SafeVarargs // assert that `callbacks` variables are of type Consumer<T>
+    @SafeVarargs
     public static <T> T tap(T value, @NotNull Consumer<T>... callbacks) {
         // apply all callbacks on the object
         for (var callable : callbacks)
@@ -38,7 +39,8 @@ public class Functions {
             action.run();
             return true;
         } catch (Throwable e) {
-            log.info("SafeRun: {}", e.getMessage());
+            if (log.isDebugEnabled())
+                log.info("SafeRun: {}", e.getMessage());
         }
         return false;
     }
@@ -59,7 +61,8 @@ public class Functions {
             }
             return true;
         } catch (Throwable e) {
-            log.info("SafeRun: {}", e.getMessage());
+            if (log.isDebugEnabled())
+                log.info("SafeRun: {}", e.getMessage());
             return false;
         }
     }
@@ -87,11 +90,11 @@ public class Functions {
      */
     @SuppressWarnings("RedundantThrows")
     @SneakyThrows
-    public static <T, E extends Throwable> T throwIfEmpty(T value, Callable<E> lazyThrowable) throws E {
+    public static <T, E extends Throwable> T throwIfEmpty(T value, Supplier<E> lazyThrowable) throws E {
         try {
             return throwIfEmpty(value);
         } catch (Throwable e) {
-            throw lazyThrowable.call();
+            throw lazyThrowable.get();
         }
     }
 
@@ -106,7 +109,8 @@ public class Functions {
             throwIfEmpty(producer.call());
             return false;
         } catch (Throwable e) {
-            log.info("isEmpty, value was empty");
+            if (log.isDebugEnabled())
+                log.info("isEmpty, value was empty");
             return true;
         }
     }
@@ -127,14 +131,32 @@ public class Functions {
      * @param producer the value producer
      * @param fallback fallback value to be returned if the producer threw an exception or the producer return value was an empty value
      */
-    public static <T> T safeValue(Callable<T> producer, T fallback) {
+    public static <T> T safeValue(Supplier<T> producer, T fallback) {
         try {
-            return throwIfEmpty(producer.call());
+            return throwIfEmpty(producer.get());
         } catch (Throwable e) {
-            log.info("safeValue: {}, returning fallback", e.getMessage());
+            if (log.isDebugEnabled())
+                log.info("safeValue: {}, returning fallback", e.getMessage());
             return fallback;
         }
     }
+
+    /**
+     * produce a value or use fallback value if the producer returned empty value or the producer threw an exception,
+     *
+     * @param producer the value producer
+     * @param fallback fallback value to be returned if the producer threw an exception or the producer return value was an empty value
+     */
+    public static <T> T safeSupplied(Supplier<T> producer, Supplier<T> fallback) {
+        try {
+            return throwIfEmpty(producer.get());
+        } catch (Throwable e) {
+            if (log.isDebugEnabled())
+                log.info("safeValue: {}, returning fallback", e.getMessage());
+            return fallback.get();
+        }
+    }
+
 
     /**
      * produce a value or fallback to null value if the producer returned empty value or the producer threw an exception,
@@ -144,7 +166,7 @@ public class Functions {
      * @return the producer return value or null if exception was thrown by the producer
      */
     @Nullable
-    public static <T> T safeValue(@NotNull Callable<T> producer) {
+    public static <T> T safeValue(@NotNull Supplier<T> producer) {
         return safeValue(producer, null);
     }
 
@@ -162,7 +184,8 @@ public class Functions {
             action.run();
             return true;
         } catch (Throwable e) {
-            log.info("SafeRun: {}, running fallback action", e.getMessage());
+            if (log.isDebugEnabled())
+                log.info("SafeRun: {}, running fallback action", e.getMessage());
             return safeRun(fallback);
         }
     }

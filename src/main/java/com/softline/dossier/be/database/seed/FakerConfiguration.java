@@ -1,4 +1,4 @@
-package com.softline.dossier.be.database;
+package com.softline.dossier.be.database.seed;
 
 import com.github.javafaker.Faker;
 import org.springframework.context.annotation.Bean;

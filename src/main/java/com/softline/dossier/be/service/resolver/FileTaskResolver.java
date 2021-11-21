@@ -1,11 +1,10 @@
 package com.softline.dossier.be.service.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.FileTask;
 import com.softline.dossier.be.domain.FileTaskSituation;
-import com.softline.dossier.be.repository.FileTaskSituationRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
@@ -13,11 +12,11 @@ import java.time.format.DateTimeFormatter;
 @Component
 @RequiredArgsConstructor
 public class FileTaskResolver implements GraphQLResolver<FileTask> {
-    @Autowired
-    FileTaskSituationRepository fileTaskSituationRepository;
-
     public FileTaskSituation getCurrentFileTaskSituation(FileTask fileTask) {
-        return fileTaskSituationRepository.findFirstByFileTaskAndCurrentIsTrue(fileTask);
+        return Database.query("SELECT fts FROM FileTaskSituation fts where fts.current = true and fts.fileTask.id = :fileTaskId", FileTaskSituation.class)
+                .setParameter("fileTaskId", fileTask.getId())
+                .setMaxResults(1)
+                .getSingleResult();
     }
 
     public String getToStartDate(FileTask fileTask) {
@@ -48,6 +47,5 @@ public class FileTaskResolver implements GraphQLResolver<FileTask> {
             return fileTask.getEndDate().format(DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm"));
         }
         return null;
-
     }
 }

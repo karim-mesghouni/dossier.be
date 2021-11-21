@@ -67,7 +67,7 @@ public class Event<T> implements Serializable {
     }
 
     /**
-     * flush the database and send this event to every channel opened by the user
+     * send this event to every channel opened by the user
      */
     public void fireTo(long userId) {
         EventController.sendForUser(userId, this);
@@ -109,7 +109,8 @@ public class Event<T> implements Serializable {
      * default callable return value is true
      */
     @ForOverride
-    protected Callable<Boolean> getPermissionEvaluator(Channel channel) {
+    protected @NotNull
+    Callable<Boolean> getPermissionEvaluator(Channel channel) {
         return () -> true;
     }
 }

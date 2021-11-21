@@ -1,8 +1,7 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.ActivityField;
-import com.softline.dossier.be.graphql.types.input.ActivityFieldInput;
-import com.softline.dossier.be.repository.ActivityFieldRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,37 +12,25 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 
-public class ActivityFieldService extends IServiceBase<ActivityField, ActivityFieldInput, ActivityFieldRepository> {
+public class ActivityFieldService {
 
 
-    @Override
     public List<ActivityField> getAll() {
-        return repository.findAll();
+        return Database.findAll(ActivityField.class);
     }
 
-    @Override
-    public ActivityField create(ActivityFieldInput entityInput) {
-        return null;
-    }
-
-    @Override
-    public ActivityField update(ActivityFieldInput entityInput) {
-        return null;
-    }
-
-    @Override
     public boolean delete(long id) {
-        repository.deleteById(id);
-        return true;
+        return Database.remove(ActivityField.class, id);
     }
 
-    @Override
     public ActivityField getById(long id) {
-        return repository.findById(id).orElseThrow();
+        return Database.findOrThrow(ActivityField.class, id);
     }
 
     public List<ActivityField> getAllActivityFieldByActivityId(Long activityId) {
-        return getRepository().getActivityFieldByActivity_Id(activityId);
+        return Database.query("SELECT f from ActivityField f where f.activity.id = :activityId", ActivityField.class)
+                .setParameter("activityId", activityId)
+                .getResultList();
     }
 
 }

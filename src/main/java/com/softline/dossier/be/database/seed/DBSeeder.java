@@ -1,4 +1,4 @@
-package com.softline.dossier.be.database;
+package com.softline.dossier.be.database.seed;
 
 import com.github.javafaker.Faker;
 import com.softline.dossier.be.Tools.ListUtils;
@@ -29,7 +29,7 @@ import static com.softline.dossier.be.SSE.EventController.silently;
 import static com.softline.dossier.be.Tools.DateHelpers.*;
 import static com.softline.dossier.be.Tools.Functions.runNTimes;
 import static com.softline.dossier.be.Tools.Functions.safeValue;
-import static com.softline.dossier.be.database.SeederHelper.*;
+import static com.softline.dossier.be.database.seed.SeederHelper.*;
 
 @SuppressWarnings("DanglingJavadoc")
 @Component
@@ -45,13 +45,10 @@ public class DBSeeder implements ApplicationRunner {
     private final ClientRepository clientRepository;
     private final CommuneRepository communeRepository;
     private final AgentRepository agentRepository;
-    private final ReturnedCauseRepository returnedCauseRepository;
     private final ActivityStateRepository activityStateRepository;
     private final ContactRepository contactRepository;
     private final RoleRepository roleRepository;
     private final FileRepository fileRepository;
-    private final FileTaskRepository fileTaskRepository;
-    private final FileStateRepository fileStateRepository;
     private final TaskRepository taskRepository;
     private final TaskStateRepository taskStateRepository;
     private final PasswordEncoder passwordEncoder;
@@ -98,7 +95,7 @@ public class DBSeeder implements ApplicationRunner {
                 fileStateTypeRepository.save(FileStateType.builder().state("Terminé").Final(true).build());
                 fileStateTypeRepository.save(FileStateType.builder().state("Livré").build());
                 fileStateTypeRepository.save(FileStateType.builder().state("À LIVRER").build());
-                fileStateTypeRepository.save(FileStateType.builder().state("RETIRÉ").build());
+                fileStateTypeRepository.save(FileStateType.builder().state("RETIRÉ").Final(true).build());
                 fileStateTypeRepository.save(FileStateType.builder().state("STANDBY").build());
                 fileStateTypeRepository.save(FileStateType.builder().state("À RETIRER").build());
                 fileStateTypeRepository.save(FileStateType.builder().state("STANDBY CLIENT").build());
@@ -205,7 +202,6 @@ public class DBSeeder implements ApplicationRunner {
             }
 
             if (fileRepository.count() == 0) {
-
                 List<Client> clientList = clientRepository.findAll();
                 List<Commune> cities = communeRepository.findAll();
                 var agents = agentRepository.findAll();

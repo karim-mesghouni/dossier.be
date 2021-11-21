@@ -1,17 +1,14 @@
 package com.softline.dossier.be.domain;
 
-import com.softline.dossier.be.events.EntityEvent;
-import com.softline.dossier.be.events.entities.ClientEvent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.*;
 
 import javax.persistence.Entity;
-import javax.persistence.*;
+import javax.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -54,20 +51,5 @@ public class Client extends BaseEntity {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
-    }
-
-    @PostPersist
-    private void afterCreate() {
-        new ClientEvent(EntityEvent.Type.ADDED, this).fireToAll();
-    }
-
-    @PostUpdate
-    private void afterUpdate() {
-        new ClientEvent(EntityEvent.Type.UPDATED, this).fireToAll();
-    }
-
-    @PostRemove
-    private void afterDelete() {
-        new ClientEvent(EntityEvent.Type.DELETED, this).fireToAll();
     }
 }

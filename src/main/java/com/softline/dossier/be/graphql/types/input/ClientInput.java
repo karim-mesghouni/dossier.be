@@ -1,5 +1,6 @@
 package com.softline.dossier.be.graphql.types.input;
 
+import com.softline.dossier.be.domain.Concerns.HasId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClientInput {
+public class ClientInput implements HasId {
 
     List<FileInput> files;
     List<VisAVisInput> visAVis;

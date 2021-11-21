@@ -1,9 +1,9 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.SSE.EventController;
-import com.softline.dossier.be.Tools.Database;
 import com.softline.dossier.be.Tools.FileSystem;
 import com.softline.dossier.be.Tools.TipTap;
+import com.softline.dossier.be.database.Database;
+import com.softline.dossier.be.database.OrderManager;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.events.EntityEvent;
@@ -62,10 +62,8 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     @Override
     @Transactional
     public FileTask create(FileTaskInput input) {
-        var reporter = (Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        var task = taskRepository.findById(input.getTask().getId()).orElseThrow();
-        var fileActivity = fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();
+        var task = Database.findOrThrow(Task.class, input.getTask());
+        var fileActivity = Database.findOrThrow(FileActivity.class, input.getFileActivity());
         var count = getRepository().countFileTaskByFileActivity_File_Id(fileActivity.getFile().getId());
         File file = fileActivity.getFile();
         var fileTask = FileTask.builder()
@@ -74,7 +72,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .toStartDate(LocalDateTime.now())
                 .order((count + 1))
                 .fileTaskSituations(new ArrayList<>())
-                .reporter(reporter)
+                .reporter(Agent.thisAgent())
                 .number(file.getNextFileTaskNumber())
                 .build();
         var fileTaskSituation = FileTaskSituation.builder()
@@ -84,18 +82,19 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .build();
         fileTask.getFileTaskSituations().add(fileTaskSituation);
         file.incrementNextFileTaskNumber();
-        return getRepository().save(fileTask);
+        Database.persist(fileTask);
+        Database.flush();
+        new FileTaskEvent(EntityEvent.Type.ADDED, fileTask).fireToAll();
+        return fileTask;
     }
 
     @Override
     public FileTask update(FileTaskInput input) {
-        var fileTask = getRepository().findById(input.getId()).orElseThrow();
+        var fileTask = Database.findOrThrow(FileTask.class, input);
         fileTask.setToStartDate(input.getToStartDate());
         fileTask.setDueDate(input.getDueDate());
-        //fileTask.setDescription(input.getDescription());
-        // fileTask.setRetour(input.getRetour());
         fileTask.setTitle(input.getTitle());
-        safeRun(() -> fileTask.setState(taskStateRepository.findById(input.getState().getId()).orElseThrow()));
+        safeRun(() -> fileTask.setState(Database.findOrThrow(TaskState.class, input.getState())));
         return fileTask;
     }
 
@@ -106,7 +105,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     @Override
     public FileTask getById(long id) {
-        return repository.findById(id).orElseThrow();
+        return Database.findOrThrow(FileTask.class, id);
     }
 
     public FileTaskSituation getCurrentFilePhaseState(Long fileAgentId) {
@@ -114,13 +113,14 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public List<TaskSituation> getAllTaskSituations(Long taskId) {
-        return taskSituationRepository.findAllByTask_Id(taskId);
+        return Database.query("SELECT tsi FROM TaskSituation tsi where tsi.task.id = :taskId", TaskSituation.class)
+                .setParameter("taskId", taskId)
+                .getResultList();
     }
 
-    @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public Agent changeAssignedTo(Long assignedToId, Long fileTaskId) {
-        var assigned = agentRepository.findById(assignedToId).orElseThrow();
         var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
+        var assigned = agentRepository.findById(assignedToId).orElseThrow();
         fileTask.setAssignedTo(assigned);
         Database.flush();
         new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
@@ -406,45 +406,11 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         });
     }
 
-    /**
-     * change the order of a fileTask,
-     * will be called when the user changes the order of a fileTask in the FilesView
-     * in the case when fileTaskBeforeId is not existent the fileTask will be moved to be the first item in the list
-     *
-     * @param fileTaskId       the fileTask(id) that we want to change its order
-     * @param fileTaskBeforeId the fileTask(id) which should be before the new position of the fileTask, may be non-existent
-     * @return boolean
-     */
-    @Transactional
-    public synchronized boolean changeOrder(long fileTaskId, long fileTaskBeforeId) {
-        EventController.silently(() -> {
-            if (repository.count() < 2) return;// this should not happen
-            var fileTask = repository.findById(fileTaskId).orElseThrow();
-            var fileActivityId = fileTask.getFileActivity().getId();
-            var res = repository.findById(fileTaskBeforeId);
-            // TODO: convert this logic into Mutating queries in JPA
-            if (res.isPresent()) {
-                var fileTaskBefore = res.get();
-                // how many fileTasks will be updated (increment or decrement their order)
-                var levelsChange = repository.countAllByOrderBetween(fileTask.getOrder(), fileTaskBefore.getOrder(), fileActivityId);
-                if (fileTask.getOrder() < fileTaskBefore.getOrder()) {// fileTask is moving down the list
-                    repository.findAllByOrderAfter(fileTask.getOrder(), fileActivityId)
-                            .stream()
-                            .limit(levelsChange + 1)
-                            .forEach(FileTask::decrementOrder);
-                    fileTask.setOrder(fileTaskBefore.getOrder() + 1);
-                } else {// fileTask is moving up the list
-                    var allAfter = repository.findAllByOrderAfter(fileTaskBefore.getOrder(), fileActivityId);
-                    allAfter.stream()
-                            .limit(levelsChange)
-                            .forEach(FileTask::incrementOrder);
-                    fileTask.setOrder(repository.findAllByOrderAfter(fileTaskBefore.getOrder(), fileActivityId).stream().findFirst().get().getOrder() - 1);
-                }
-            } else {// fileTask should be the first item in the list
-                repository.findAllByOrderBefore(fileTask.getOrder(), fileActivityId).forEach(FileTask::incrementOrder);
-                fileTask.setOrder(repository.minOrder(fileActivityId) - 1);
-            }
-        });
+
+    public boolean changeOrder(long fileTaskId, long fileTaskBeforeId) {
+        var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
+        var fileActivityId = fileTask.getFileActivity().getId();
+        OrderManager.changeOrder(fileTask, Database.findOrNull(FileTask.class, fileTaskBeforeId), f -> f.getFileActivity().getId() == fileActivityId);
         return true;
     }
 }

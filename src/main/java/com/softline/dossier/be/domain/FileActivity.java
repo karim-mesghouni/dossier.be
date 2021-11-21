@@ -1,5 +1,6 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.domain.traits.HasOrder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +24,7 @@ import java.util.List;
 @Where(clause = "deleted = false ")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
-public class FileActivity extends BaseEntity {
+public class FileActivity extends BaseEntity implements HasOrder {
     boolean current;
 
     @ManyToOne

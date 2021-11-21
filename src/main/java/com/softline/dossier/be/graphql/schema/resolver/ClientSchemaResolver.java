@@ -1,36 +1,38 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
-import com.softline.dossier.be.Tools.Database;
+import com.coxautodev.graphql.tools.GraphQLMutationResolver;
+import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.Client;
 import com.softline.dossier.be.graphql.types.input.ClientInput;
-import com.softline.dossier.be.repository.ClientRepository;
 import com.softline.dossier.be.service.ClientService;
 import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
-public class ClientSchemaResolver extends SchemaResolverBase<Client, ClientInput, ClientRepository, ClientService> {
-    public Client createClient(ClientInput clientInput) throws IOException, ClientReadableException {
-        return create(clientInput);
+public class ClientSchemaResolver implements GraphQLQueryResolver, GraphQLMutationResolver {
+    private final ClientService service;
+
+    public Client createClient(ClientInput clientInput) {
+        return service.create(clientInput);
     }
 
-    public Client updateClient(ClientInput clientInput) throws ClientReadableException {
-        return update(clientInput);
+    public Client updateClient(ClientInput clientInput) {
+        return service.update(clientInput);
     }
 
     public boolean deleteClient(Long id) throws ClientReadableException {
-        return delete(id);
+        return service.delete(id);
     }
 
     public List<Client> getAllClient() {
-        return getAll();
+        return service.getAll();
     }
 
     public Client getClient(Long id) {

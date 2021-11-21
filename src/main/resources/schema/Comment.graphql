@@ -4,7 +4,7 @@ extend type Query  {
     allCommentByFileId(fileId: ID!):[Comment]
     comment(commentId: ID!):Comment
     allMessagesForThisAgent: [Message!]!
-    messageByIdForThisAgent(messageId: ID!): Message
+    messageById(messageId: ID!): Message
 }
 #mutation
 extend type  Mutation{

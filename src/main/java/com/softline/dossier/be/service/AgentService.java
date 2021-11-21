@@ -1,6 +1,6 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.Tools.Database;
+import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.Activity;
 import com.softline.dossier.be.domain.Job;
 import com.softline.dossier.be.events.EntityEvent;
@@ -30,6 +30,7 @@ public class AgentService extends IServiceBase<Agent, AgentInput, AgentRepositor
     public List<Agent> getAll() {
         return repository.findAll();
     }
+
 
     public boolean changePassword(AgentInput input, String oldPassword) {
         return Database.findOrThrow(Agent.class, input, "CHANGE_PASSWORD", agent -> {
@@ -90,7 +91,7 @@ public class AgentService extends IServiceBase<Agent, AgentInput, AgentRepositor
 
 
     public List<Agent> findBySearch(String search) {
-        return Database.database().createQuery("select a from Agent a where " +
+        return Database.em().createQuery("select a from Agent a where " +
                         ":search is null or a.username like CONCAT('%', :search, '%') " +
                         "or a.name like CONCAT('%', :search, '%') " +
                         "order by a.role.name, a.activity.name", Agent.class)

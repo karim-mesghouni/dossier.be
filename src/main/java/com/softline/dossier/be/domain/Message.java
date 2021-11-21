@@ -43,14 +43,6 @@ public class Message extends BaseEntity {
         new MessageEvent(EntityEvent.Type.ADDED, this).fireTo(getTargetAgent().getId());
     }
 
-    /**
-     * send event to the mentioned user
-     */
-    @PostRemove
-    public void afterDelete() {
-        new MessageEvent(EntityEvent.Type.DELETED, this).fireTo(getTargetAgent().getId());
-    }
-
     @Override
     public String toString() {
         return "Message{" +

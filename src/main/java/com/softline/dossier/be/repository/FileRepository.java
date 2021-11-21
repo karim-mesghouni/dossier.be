@@ -38,7 +38,7 @@ public interface FileRepository extends JpaRepository<File, Long> {
      * get the min order of all files if no files exist then 1 is returned
      */
     @Query("select COALESCE(MIN(f.order), 1) from File f")
-    int minOrder();
+    long minOrder();
 
     /**
      * increments the order of all files by 1

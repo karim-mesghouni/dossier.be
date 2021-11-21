@@ -1,6 +1,6 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
-import com.softline.dossier.be.Tools.Database;
+import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.Comment;
 import com.softline.dossier.be.domain.Message;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
@@ -58,8 +58,8 @@ public class CommentSchemaResolver extends SchemaResolverBase<Comment, CommentIn
         return service.getAllMessagesForThisAgent();
     }
 
-    public Message messageByIdForThisAgent(long messageId) {
-        return service.getMessageByIdForThisAgent(messageId);
+    public Message messageById(long messageId) {
+        return service.getMessageById(messageId);
     }
 
     public boolean readMessage(long messageId) {

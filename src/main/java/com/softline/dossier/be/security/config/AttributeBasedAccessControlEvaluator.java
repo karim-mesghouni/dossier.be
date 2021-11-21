@@ -1,7 +1,7 @@
 package com.softline.dossier.be.security.config;
 
 
-import com.softline.dossier.be.Tools.Database;
+import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.policy.PolicyMatcher;
 import lombok.RequiredArgsConstructor;
@@ -56,16 +56,16 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
     }
 
     public static <T> Stream<T> filter(Stream<T> stream, String action) {
-        var eval = context().getBean(AttributeBasedAccessControlEvaluator.class);
-        return stream.filter(e -> eval.hasPermission(Agent.auth(), e, action));
+        var eval = accessControl();
+        Authentication auth = Agent.authentication();
+        return stream.filter(e -> eval.hasPermission(auth, e, action));
     }
 
     /**
      * return true if the current logged-in user can do the action on the object
      */
     public static boolean can(String action, Object domain) {
-        var eval = context().getBean(AttributeBasedAccessControlEvaluator.class);
-        return eval.hasPermission(Agent.auth(), domain, action);
+        return accessControl().hasPermission(Agent.authentication(), domain, action);
     }
 
     /**
@@ -103,9 +103,7 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
         var ref = new Object() {
             Object target = null;
         };
-        Database.getEntityType(entityType).ifPresent(type -> {
-            safeRun(() -> ref.target = Database.findOrThrow(type.getJavaType(), entityId));
-        });
+        safeRun(() -> ref.target = Database.findOrThrow(Database.getEntityType(entityType).getJavaType(), entityId));
         return hasPermission(authentication, ref.target, action);
     }
 }

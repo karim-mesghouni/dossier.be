@@ -1,9 +1,9 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.Tools.Database;
 import com.softline.dossier.be.Tools.EnvUtil;
 import com.softline.dossier.be.Tools.FileSystem;
 import com.softline.dossier.be.Tools.TipTap;
+import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.events.EntityEvent;
@@ -13,6 +13,7 @@ import com.softline.dossier.be.repository.CommentRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
 import com.softline.dossier.be.repository.FileTaskRepository;
 import com.softline.dossier.be.repository.MessageRepository;
+import com.softline.dossier.be.security.domain.Agent;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,6 @@ import java.nio.file.Files;
 import java.util.List;
 
 import static com.softline.dossier.be.Tools.Functions.safeRun;
-import static com.softline.dossier.be.security.domain.Agent.thisAgent;
 import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 
 
@@ -119,13 +119,13 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
         return getRepository().findAllByFileActivity_File_Id(fileId);
     }
 
-    public Message getMessageByIdForThisAgent(long messageId) {
-        Database.flush();
-        return messageRepository.findByIdAndTargetAgent_Id(messageId, thisAgent().getId());
+    public Message getMessageById(long messageId) {
+        return Database.findOrThrow(Message.class, messageId, "READ_MESSAGE");
     }
 
     public List<Message> getAllMessagesForThisAgent() {
-        Database.flush();
-        return messageRepository.findAllByAgent_IdOrderByCreatedDateDesc(thisAgent().getId());
+        return Database.query("SELECT m FROM Message m where m.targetAgent.id = :agentId order by m.readMessage asc, m.createdDate desc", Message.class)
+                .setParameter("agentId", Agent.thisAgent().getId())
+                .getResultList();
     }
 }

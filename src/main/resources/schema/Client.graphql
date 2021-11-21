@@ -27,4 +27,5 @@ input ClientInput {
     files: [FileInput]
     visAVis:[VisAVisInput]
     contacts: [ContactInput]
+    deleted: Boolean
 }

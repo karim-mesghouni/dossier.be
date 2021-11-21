@@ -1,6 +1,7 @@
 package com.softline.dossier.be.graphql.types.input;
 
 
+import com.softline.dossier.be.domain.Concerns.HasId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,10 +13,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class TaskStateInput {
+public class TaskStateInput implements HasId {
 
 
-    Long id;
+    long id;
     String name;
 
     TaskInput task;

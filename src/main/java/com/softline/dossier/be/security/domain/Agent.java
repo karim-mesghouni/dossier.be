@@ -1,5 +1,6 @@
 package com.softline.dossier.be.security.domain;
 
+import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import static com.softline.dossier.be.Application.context;
@@ -83,10 +83,11 @@ public class Agent extends BaseEntity {
     }
 
     /**
-     * @return the current agent retrieved from the database
+     * @return the current request-token-agent retrieved from the database
+     * @throws EntityNotFoundException if the corresponding agent_id in the request token does not exist in the database
      */
-    public static Agent thisDBAgent() throws NoSuchElementException {
-        return context().getBean(AgentRepository.class).findById(thisAgent().getId()).orElseThrow();
+    public static Agent thisDBAgent() throws EntityNotFoundException {
+        return Database.findOrThrow(Agent.class, thisAgent());
     }
 
 
@@ -107,7 +108,7 @@ public class Agent extends BaseEntity {
     /**
      * @return the authentication extracted from the token
      */
-    public static Authentication auth() {
+    public static Authentication authentication() {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 

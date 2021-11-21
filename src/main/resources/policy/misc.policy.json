@@ -5,9 +5,9 @@
     "condition": "resource != null && resource.agent != null && resource.agent.id > 0 && resource.agent.id == subject.id"
   },
   {
-    "name": "the current logged in agent can only read his messages or messages where he is mentioned",
+    "name": "the current logged in agent can only read his messages where he is mentioned",
     "target": "action == 'READ_MESSAGE'",
-    "condition": "resource.agent.id == subject.id || resource.targetAgent.id == subject.id"
+    "condition": "resource.targetAgent.id == subject.id"
   },
   {
     "name": "the current logged in agent can only update or delete his own comments",

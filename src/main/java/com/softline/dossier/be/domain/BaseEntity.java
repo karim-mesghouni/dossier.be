@@ -31,7 +31,7 @@ import java.time.LocalDateTime;
 })
 @Data
 public class BaseEntity implements HasId {
-    @javax.persistence.Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected long id;
 

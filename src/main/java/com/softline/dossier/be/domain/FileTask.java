@@ -1,5 +1,6 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.domain.traits.HasOrder;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 @Where(clause = "deleted = false ")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
-public class FileTask extends BaseEntity {
+public class FileTask extends BaseEntity implements HasOrder {
     boolean current;
     @Type(type = "text")
     String title;

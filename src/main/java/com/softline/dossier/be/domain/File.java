@@ -1,6 +1,8 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.domain.traits.HasOrder;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -10,6 +12,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,19 +21,30 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Entity
 @Data
-
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE File SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
-public class File extends BaseEntity {
+public class File extends BaseEntity implements HasOrder {
     @Column(name = "`order`")
     long order;
     String project;
+    /**
+     * Date d'attribution
+     */
     LocalDate attributionDate;
+    /**
+     * Date limite de retour
+     */
     LocalDate returnDeadline;
+    /**
+     * Date prévisionnel de livraison
+     */
     LocalDate provisionalDeliveryDate;
+    /**
+     * Date de Livraison
+     */
     LocalDate deliveryDate;
 
     // used to keep track of fileTasks in this file, it will always increment when we add a new fileTask
@@ -48,11 +62,13 @@ public class File extends BaseEntity {
     Commune commune;
 
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<FileState> fileStates;
+    @Builder.Default
+    List<FileState> fileStates = new ArrayList<>();
 
 
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<FileActivity> fileActivities;
+    @Builder.Default
+    List<FileActivity> fileActivities = new ArrayList<>();
     @OneToOne(fetch = FetchType.LAZY)
     Activity baseActivity;
     @ManyToOne

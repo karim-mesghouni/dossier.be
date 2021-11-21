@@ -1,12 +1,13 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
+import com.coxautodev.graphql.tools.GraphQLMutationResolver;
+import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import com.softline.dossier.be.domain.File;
 import com.softline.dossier.be.domain.FileStateType;
 import com.softline.dossier.be.graphql.types.FileFilterInput;
 import com.softline.dossier.be.graphql.types.FileHistoryDTO;
 import com.softline.dossier.be.graphql.types.PageList;
 import com.softline.dossier.be.graphql.types.input.FileInput;
-import com.softline.dossier.be.repository.FileRepository;
 import com.softline.dossier.be.service.FileService;
 import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
@@ -20,28 +21,27 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
-
-public class FileSchemaResolver extends SchemaResolverBase<File, FileInput, FileRepository, FileService> {
-
+public class FileSchemaResolver implements GraphQLMutationResolver, GraphQLQueryResolver {
+    private final FileService service;
 
     public File createFile(FileInput File) throws IOException, ClientReadableException {
-        return create(File);
+        return service.create(File);
     }
 
     public File updateFile(FileInput File) throws ClientReadableException {
-        return update(File);
+        return service.update(File);
     }
 
     public boolean deleteFile(Long id) throws ClientReadableException {
-        return delete(id);
+        return service.delete(id);
     }
 
     public List<File> getAllFile() {
-        return getAll();
+        return service.getAll();
     }
 
     public File getFile(Long id) {
-        return get(id);
+        return service.getById(id);
     }
 
     public PageList<File> getAllFilePageFilter(FileFilterInput input) {

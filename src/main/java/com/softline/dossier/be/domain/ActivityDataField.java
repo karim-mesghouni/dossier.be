@@ -1,8 +1,6 @@
 package com.softline.dossier.be.domain;
 
 import com.softline.dossier.be.domain.enums.FieldType;
-import com.softline.dossier.be.events.EntityEvent;
-import com.softline.dossier.be.events.entities.FileActivityDataFieldEvent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +10,10 @@ import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.ManyToOne;
 
 @SuperBuilder
 @Data
@@ -27,27 +28,10 @@ public class ActivityDataField extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     FieldType fieldType;
-
     String data;
 
     String groupName;
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     FileActivity fileActivity;
-
-
-    @PostPersist
-    private void afterCreate() {
-        new FileActivityDataFieldEvent(EntityEvent.Type.ADDED, this).fireToAll();
-    }
-
-    @PostUpdate
-    private void afterUpdate() {
-        new FileActivityDataFieldEvent(EntityEvent.Type.UPDATED, this).fireToAll();
-    }
-
-    @PostRemove
-    private void afterDelete() {
-        new FileActivityDataFieldEvent(EntityEvent.Type.DELETED, this).fireToAll();
-    }
 }
