@@ -1,18 +1,18 @@
 package com.softline.dossier.be.graphql.types.input;
 
 import com.softline.dossier.be.domain.Concerns.HasId;
+import com.softline.dossier.be.domain.Concerns.HasSoftDelete;
+import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.domain.RoleInput;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Getter;
 
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
-public class AgentInput implements HasId {
+@Getter
+public class AgentInput extends Input<Agent> implements HasId, HasSoftDelete {
+    Class<Agent> mappingTarget = Agent.class;
+
     long id;
+    boolean deleted;
+
     String name;
     String username;
     String password;

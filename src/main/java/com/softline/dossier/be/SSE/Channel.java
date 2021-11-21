@@ -1,17 +1,24 @@
 package com.softline.dossier.be.SSE;
 
 import com.softline.dossier.be.events.Event;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.Objects;
 
-public class Channel {
+/**
+ * an extension to the {@link SseEmitter} Response object,
+ * the channel has a sessionId and a userId, and with some helper methods
+ */
+public class Channel extends SseEmitter {
     public final long sessionId;
     public final long userId;
 
     private Event<?> lastEvent;
 
-    public Channel(long sessionId, long userId) {
+    public Channel(long timeout, long sessionId, long userId) {
+        super(timeout);
         this.sessionId = sessionId;
         this.userId = userId;
     }
@@ -51,6 +58,7 @@ public class Channel {
         return Objects.hash(sessionId, userId);
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "Channel{" +

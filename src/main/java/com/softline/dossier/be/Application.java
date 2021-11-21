@@ -25,4 +25,11 @@ public class Application {
         return context;
     }
 
+    /**
+     * @return the bean instance that uniquely matches the given object
+     */
+    public static <T> T getBean(Class<T> requiredType) {
+        return context().getBean(requiredType);
+    }
+
 }

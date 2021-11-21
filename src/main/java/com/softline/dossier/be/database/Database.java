@@ -1,5 +1,6 @@
 package com.softline.dossier.be.database;
 
+import com.softline.dossier.be.Application;
 import com.softline.dossier.be.domain.Concerns.HasId;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
@@ -22,19 +23,17 @@ import java.util.stream.Collectors;
 import static com.softline.dossier.be.Application.context;
 import static com.softline.dossier.be.Tools.Functions.*;
 import static com.softline.dossier.be.Tools.TextHelper.format;
-import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.throwIfCannot;
+import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.DenyOrProceed;
 
 
 public class Database {
     private Database() {
     }
 
-
     @NotNull
     public static EntityManager em() {
-        return context().getBean(EntityManager.class);
+        return Application.getBean(EntityManager.class);
     }
-
 
     @NotNull
     public static <T> TypedQuery<T> query(@Language("HQL") String query, Class<T> clazz) {
@@ -89,7 +88,7 @@ public class Database {
     @Nullable
     public static EntityManager unsafeEntityManager() {
         if (context() == null) return null;
-        return context().getBean(EntityManager.class);
+        return Application.getBean(EntityManager.class);
     }
 
     public static <T> T findOrDefault(Class<T> clazz, Serializable id, Supplier<T> _default) {
@@ -110,7 +109,7 @@ public class Database {
 
 
     public static <T> T findOrThrow(Class<T> clazz, Serializable id, String action) throws EntityNotFoundException {
-        return findOrThrow(clazz, id, (Consumer<T>) entity -> throwIfCannot(action, entity));
+        return findOrThrow(clazz, id, (Consumer<T>) entity -> DenyOrProceed(action, entity));
     }
 
 
@@ -137,17 +136,21 @@ public class Database {
 
     public static <T, R> R findOrThrow(Class<T> clazz, Serializable id, String permission, Function<T, R> action) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
-        throwIfCannot(permission, entity);
+        DenyOrProceed(permission, entity);
         return action.apply(entity);
     }
 
 
     public static <T, R> R findOrThrow(Class<T> clazz, HasId id, String permission, Function<T, R> action) throws EntityNotFoundException, AccessDeniedException {
         T entity = findOrThrow(clazz, id);
-        throwIfCannot(permission, entity);
+        DenyOrProceed(permission, entity);
         return action.apply(entity);
     }
 
+    public static <T extends HasId, R> R findOrThrow(T entity, String permission, Function<T, R> action) throws EntityNotFoundException, AccessDeniedException {
+        //noinspection unchecked
+        return findOrThrow((Class<T>) entity.getClass(), entity, permission, action);
+    }
 
     public static <T> T findOrThrow(Class<T> clazz, Serializable id, Consumer<T> action) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
@@ -169,6 +172,7 @@ public class Database {
 
     public static void remove(Object entity) throws EntityNotFoundException, IllegalArgumentException {
         em().remove(entity);
+        flush();
     }
 
 
@@ -203,7 +207,7 @@ public class Database {
 
     public static <T> boolean remove(Class<T> clazz, Serializable id, String permission) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
-        throwIfCannot(permission, entity);
+        DenyOrProceed(permission, entity);
         remove(entity);
         return true;
     }

@@ -1,6 +1,7 @@
 package com.softline.dossier.be.security.config;
 
 
+import com.softline.dossier.be.Application;
 import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.policy.PolicyMatcher;
@@ -15,7 +16,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.softline.dossier.be.Application.context;
 import static com.softline.dossier.be.Tools.Functions.safeRun;
 
 /**
@@ -40,7 +40,7 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
     /**
      * throws {@link AccessDeniedException} if the current logged-in user cannot do the action on the object
      */
-    public static void throwIfCannot(String action, Object domain) throws AccessDeniedException {
+    public static void DenyOrProceed(String action, Object domain) throws AccessDeniedException {
         if (cannot(action, domain)) {
             throw new AccessDeniedException("erreur de privilege");
         }
@@ -49,7 +49,7 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
     /**
      * throws {@link AccessDeniedException} if the current logged-in user cannot do the action on the object
      */
-    public static void throwIfCannot(String action, Object domain, String exceptionMessage) throws AccessDeniedException {
+    public static void DenyOrProceed(String action, Object domain, String exceptionMessage) throws AccessDeniedException {
         if (cannot(action, domain)) {
             throw new AccessDeniedException(exceptionMessage);
         }
@@ -82,8 +82,11 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
                 null);
     }
 
+    /**
+     * @return an instance of {@link AttributeBasedAccessControlEvaluator}
+     */
     public static AttributeBasedAccessControlEvaluator accessControl() {
-        return context().getBean(AttributeBasedAccessControlEvaluator.class);
+        return Application.getBean(AttributeBasedAccessControlEvaluator.class);
     }
 
 

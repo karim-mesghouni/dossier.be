@@ -1,10 +1,10 @@
 package com.softline.dossier.be.Tools;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -14,16 +14,17 @@ import java.util.function.Supplier;
 @Slf4j
 public class Functions {
     /**
-     * call the callback(s) with the given value
+     * pass the value to each consumer
      * and then return the value.<br>
      * useful to encapsulate objects that has methods which return void,
      * this allows to chain functions on the value in a single statement
+     *
+     * @return the same value T
      */
     @SafeVarargs
     public static <T> T tap(T value, @NotNull Consumer<T>... callbacks) {
         // apply all callbacks on the object
-        for (var callable : callbacks)
-            callable.accept(value);
+        Arrays.stream(callbacks).forEach(callable -> callable.accept(value));
         // then return the object
         return value;
     }
@@ -54,7 +55,7 @@ public class Functions {
      * @param action    the action to be done
      * @return false is returned if the condition or the action threw an exception otherwise true
      */
-    public static boolean safeRun(@NotNull Callable<Boolean> condition, @NotNull Runnable action) {
+    public static boolean safeRunIf(@NotNull Callable<Boolean> condition, @NotNull Runnable action) {
         try {
             if (condition.call()) {
                 action.run();
@@ -68,8 +69,10 @@ public class Functions {
     }
 
     /**
+     * the value is considered empty if any of these conditions are met<br>
+     * the value (is null) or (is string and length is 0) or (is number and equal to 0) or (is Optional and isEmpty()) or (is boolean and equals false)
      * @return the value passed
-     * @throws RuntimeException if the value (is null) or (is string and empty) or (is number and equal to 0) or (is Optional and isEmpty())
+     * @throws RuntimeException if the value was considered empty
      */
     public static <T> T throwIfEmpty(T value) {
         if (Objects.isNull(value)
@@ -83,26 +86,32 @@ public class Functions {
     }
 
     /**
-     * @param value         the value
-     * @param lazyThrowable the exception producer to be thrown if the value is empty
-     * @return the value passed
-     * @throws E if the value (is null) or (is string and empty) or (is number and equal to 0) or (is Optional and isEmpty())
+     * throws an exception E if the value is {@link Functions#throwIfEmpty(Object) empty} or if the value retrieval failed
      */
     @SuppressWarnings("RedundantThrows")
-    @SneakyThrows
-    public static <T, E extends Throwable> T throwIfEmpty(T value, Supplier<E> lazyThrowable) throws E {
+    public static <T, E extends Throwable> T throwIfSuppliedEmpty(Supplier<T> supplier, Supplier<E> throwable) throws E {
+        try {
+            return throwIfEmpty(supplier.get());
+        } catch (Throwable e) {
+            throw throwable.get();
+        }
+    }
+
+
+    /**
+     * throws an exception E if the value is {@link Functions#throwIfEmpty(Object) empty}
+     */
+    @SuppressWarnings("RedundantThrows")
+    public static <T, E extends Throwable> T throwIfEmpty(T value, Supplier<E> throwable) throws E {
         try {
             return throwIfEmpty(value);
         } catch (Throwable e) {
-            throw lazyThrowable.get();
+            throw throwable.get();
         }
     }
 
     /**
-     * value is considered empty if the value (is null) or (is string and empty) or (is number and equal to 0) or (is Optional and isEmpty())
-     *
-     * @param producer a callback which will produce the value to be tested
-     * @return true if the producer return value is empty or the producer threw an exception, false if the producer's returned value was not empty,
+     * returns false if the producer produced an {@link Functions#throwIfEmpty(Object) empty value}
      */
     public static boolean isEmpty(@NotNull Callable<Object> producer) {
         try {

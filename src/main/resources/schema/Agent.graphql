@@ -34,5 +34,6 @@ input AgentInput{
     activity: ActivityInput
     role: RoleInput
     job: JobInput
+    deleted: Boolean
 }
 
