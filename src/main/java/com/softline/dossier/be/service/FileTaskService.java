@@ -35,10 +35,10 @@ import java.util.stream.Collectors;
 
 import static com.softline.dossier.be.Tools.Functions.safeRun;
 import static com.softline.dossier.be.Tools.Functions.safeRunWithFallback;
+import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.DenyOrProceed;
 import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.cannot;
 import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 
-@Transactional
 @Service
 @RequiredArgsConstructor
 public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileTaskRepository> {
@@ -60,7 +60,6 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     @Override
-    @Transactional
     public FileTask create(FileTaskInput input) {
         var task = Database.findOrThrow(Task.class, input.getTask());
         var fileActivity = Database.findOrThrow(FileActivity.class, input.getFileActivity());
@@ -82,6 +81,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .build();
         fileTask.getFileTaskSituations().add(fileTaskSituation);
         file.incrementNextFileTaskNumber();
+        Database.startTransaction();
         Database.persist(fileTask);
         Database.flush();
         new FileTaskEvent(EntityEvent.Type.ADDED, fileTask).fireToAll();
@@ -91,10 +91,13 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     @Override
     public FileTask update(FileTaskInput input) {
         var fileTask = Database.findOrThrow(FileTask.class, input);
+        Database.startTransaction();
         fileTask.setToStartDate(input.getToStartDate());
         fileTask.setDueDate(input.getDueDate());
         fileTask.setTitle(input.getTitle());
         safeRun(() -> fileTask.setState(Database.findOrThrow(TaskState.class, input.getState())));
+        Database.flush();
+        new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
         return fileTask;
     }
 
@@ -119,6 +122,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public Agent changeAssignedTo(Long assignedToId, Long fileTaskId) {
+        Database.startTransaction();
         var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
         var assigned = agentRepository.findById(assignedToId).orElseThrow();
         fileTask.setAssignedTo(assigned);
@@ -129,6 +133,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     @PreAuthorize("hasPermission(null, 'ADMIN')")
     public Agent changeReporter(Long reporterId, Long fileTaskId) {
+        Database.startTransaction();
         var reporter = agentRepository.findById(reporterId).orElseThrow();
         var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
         fileTask.setReporter(reporter);
@@ -139,6 +144,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'WORK_IN_FILE_TASK') or hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
     public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) throws ClientReadableException {
+        Database.startTransaction();
         var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
         var situation = taskSituationRepository.findById(situationId).orElseThrow();
         if (fileTask.getCurrentState().getSituation().isBlock()) {
@@ -179,6 +185,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     public boolean changeToStartDate(LocalDateTime toStartDate, Long fileTaskId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+            Database.startTransaction();
             fileTask.setToStartDate(toStartDate);
             Database.flush();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
@@ -188,6 +195,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     public boolean changeDueDate(LocalDateTime dueDate, Long fileTaskId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+            Database.startTransaction();
             fileTask.setDueDate(dueDate);
             Database.flush();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
@@ -198,6 +206,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     // permission inside
     public boolean changeTitle(String title, Long fileTaskId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+            Database.startTransaction();
             fileTask.setTitle(title);
             Database.flush();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
@@ -208,6 +217,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     @Transactional
     @PreAuthorize("hasPermission(#commentInput.fileTask.id, 'FileTask', 'UPDATE_FILE_TASK')")
     public DescriptionComment changeDescription(CommentInput commentInput) {
+        Database.startTransaction();
         var fileTask = Database.findOrThrow(FileTask.class, commentInput.getFileTask());
         var description = fileTask.getDescription();
         if (description == null) {
@@ -231,6 +241,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     // permission inside
     public ReturnedComment changeRetour(CommentInput retour) {
+        Database.startTransaction();
         var fileTask = Database.findOrThrow(FileTask.class, retour.getFileTask());
         if (cannot("WORK_IN_FILE_TASK", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
             throw new AccessDeniedException("erreur de privilege");
@@ -266,6 +277,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     public ReturnedCause changeReturnedCause(Long fileTaskId, Long returnedCauseId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
             var returnedCause = Database.findOrThrow(ReturnedCause.class, returnedCauseId);
+            Database.startTransaction();
             fileTask.setReturnedCause(returnedCause);
             Database.flush();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
@@ -280,6 +292,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 throw new AccessDeniedException("erreur de privilege");
             }
             var state = Database.findOrThrow(TaskState.class, taskStateId);
+            Database.startTransaction();
             fileTask.setState(state);
             Database.flush();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
@@ -290,6 +303,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     // permission inside
     public boolean changeReturned(Long fileTaskId, boolean returned) {
         return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+            Database.startTransaction();
             fileTask.setReturned(returned);
             Database.flush();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
@@ -330,6 +344,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     public boolean changeParent(Long fileTaskId, Long parentId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+            Database.startTransaction();
             safeRunWithFallback(
                     () -> fileTask.setParent(Database.findOrThrow(FileTask.class, parentId)),
                     () -> fileTask.setParent(null)
@@ -347,6 +362,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     public boolean recoverFileTaskFromTrash(Long fileTaskId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, "DELETE_FILE_TASK", fileTask -> {
+            Database.startTransaction();
             fileTask.setInTrash(false);
             Database.flush();
             new FileTaskEvent(EntityEvent.Type.RECOVERED, fileTask).fireToAll();
@@ -356,6 +372,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     public boolean sendFileTaskToTrash(Long fileTaskId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, "DELETE_FILE_TASK", fileTask -> {
+            Database.startTransaction();
             fileTask.setInTrash(true);
             Database.flush();
             new FileTaskEvent(EntityEvent.Type.TRASHED, fileTask).fireToAll();
@@ -399,6 +416,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     public boolean updateTitle(String title, long fileTaskId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+            Database.startTransaction();
             fileTask.setTitle(title);
             Database.flush();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();

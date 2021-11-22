@@ -1,16 +1,17 @@
 package com.softline.dossier.be.database;
 
 import com.softline.dossier.be.Application;
+import com.softline.dossier.be.database.tools.Manager;
 import com.softline.dossier.be.domain.Concerns.HasId;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.persistence.metamodel.EntityType;
 import java.io.Serializable;
 import java.util.List;
@@ -25,14 +26,24 @@ import static com.softline.dossier.be.Tools.Functions.*;
 import static com.softline.dossier.be.Tools.TextHelper.format;
 import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.DenyOrProceed;
 
-
+@Component
 public class Database {
     private Database() {
     }
 
+    @Bean(name = "localEntityManager")
+    @Scope("request")
+    public Object localEntityManager(EntityManagerFactory factory){
+        return factory.createEntityManager();// will be called once for each request
+    }
+
+    public static void startTransaction() {
+        em().getTransaction().begin();
+    }
+
     @NotNull
     public static EntityManager em() {
-        return Application.getBean(EntityManager.class);
+        return Application.context().getBean("localEntityManager", EntityManager.class);
     }
 
     @NotNull
@@ -92,15 +103,15 @@ public class Database {
     }
 
     public static <T> T findOrDefault(Class<T> clazz, Serializable id, Supplier<T> _default) {
-        return safeSupplied(() -> Database.findOrThrow(clazz, id), _default);
+        return safeSupplied(() -> findOrThrow(clazz, id), _default);
     }
 
     public static <T> T findOrNull(Class<T> clazz, Serializable id) {
-        return safeValue(() -> Database.findOrThrow(clazz, id));
+        return em().find(clazz, id);
     }
 
     public static <T> T findOrNull(Class<T> clazz, HasId id) {
-        return safeValue(() -> Database.findOrThrow(clazz, id));
+        return findOrNull(clazz, id.getId());
     }
 
     public static <T> T findOrThrow(Class<T> clazz, Serializable id) throws EntityNotFoundException {
@@ -168,13 +179,16 @@ public class Database {
         return em().createQuery("SELECT e FROM " + getEntityType(clazz).getName() + " e", clazz).getResultStream().filter(filter).collect(Collectors.toList());
     }
 
-
-
     public static void remove(Object entity) throws EntityNotFoundException, IllegalArgumentException {
+        if(!em().getTransaction().isActive())
+            startTransaction();
         em().remove(entity);
         flush();
     }
 
+    public static <T> Manager<T> manager(Class<T> managedType){
+        return Manager.ofType(managedType);
+    }
 
     public static <T> boolean remove(T entity, Consumer<T> consumer) throws IllegalArgumentException {
         consumer.accept(entity);
@@ -212,15 +226,22 @@ public class Database {
         return true;
     }
 
-
+    /**
+     * You must call {@link #startTransaction()} first
+     */
     public static <T> T persist(T entity) {
         em().persist(entity);
         return entity;
     }
 
-
+    /**
+     * flush the {@link #em() entity manager} and then commit any active transactions.
+     */
     public static void flush() {
         em().flush();
+        if(em().getTransaction().isActive()){
+            em().getTransaction().commit();
+        }
     }
 
 
