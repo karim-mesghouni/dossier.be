@@ -9,7 +9,6 @@ import com.softline.dossier.be.graphql.types.input.ClientInput;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,13 +27,7 @@ public class ClientService {
     }
 
     @PreAuthorize("hasPermission(null, 'CREATE_CLIENT')")
-    public Client create(ClientInput input) {
-        Client client = Client.builder().name(input.getName()).address(input.getAddress()).build();
-        List<Contact> contacts = new ArrayList<>();
-        for (var contact : input.getContacts()) {
-            contacts.add(Contact.builder().name(contact.getName()).email(contact.getEmail()).phone(contact.getPhone()).client(client).build());
-        }
-        client.setContacts(contacts);
+    public Client create(Client client) {
         Database.startTransaction();
         Database.persist(client);
         Database.commit();

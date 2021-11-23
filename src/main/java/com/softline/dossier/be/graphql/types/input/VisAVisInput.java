@@ -1,15 +1,12 @@
 package com.softline.dossier.be.graphql.types.input;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import com.softline.dossier.be.domain.Concerns.HasId;
+import com.softline.dossier.be.domain.VisAVis;
+import lombok.Getter;
 
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
-public class VisAVisInput {
+@Getter
+public class VisAVisInput extends Input<VisAVis> implements HasId {
+    Class<VisAVis> mappingTarget = VisAVis.class;
 
     long id;
     String name;

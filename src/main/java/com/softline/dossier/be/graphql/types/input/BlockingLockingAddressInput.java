@@ -1,21 +1,16 @@
 package com.softline.dossier.be.graphql.types.input;
 
+import com.softline.dossier.be.domain.BlockingLockingAddress;
 import com.softline.dossier.be.domain.Concerns.HasId;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Getter;
 
 import java.util.List;
 
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
-public class BlockingLockingAddressInput implements HasId {
+@Getter
+public class BlockingLockingAddressInput extends Input<BlockingLockingAddress> implements HasId {
+    Class<BlockingLockingAddress> mappingTarget = BlockingLockingAddress.class;
 
     long id;
-
     List<BlockingInput> blocking;
     List<VisAVisInput> visAVis;
     String address;

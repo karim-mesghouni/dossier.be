@@ -1,17 +1,13 @@
 package com.softline.dossier.be.graphql.types.input;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import com.softline.dossier.be.domain.TaskSituation;
+import lombok.Getter;
 
 import java.util.List;
 
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
-public class TaskSituationInput {
+@Getter
+public class TaskSituationInput extends Input<TaskSituation> {
+    Class<TaskSituation> mappingTarget = TaskSituation.class;
 
     long id;
     String state;

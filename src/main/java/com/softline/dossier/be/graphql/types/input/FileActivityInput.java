@@ -1,18 +1,15 @@
 package com.softline.dossier.be.graphql.types.input;
 
 import com.softline.dossier.be.domain.Concerns.HasId;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import com.softline.dossier.be.domain.FileActivity;
+import lombok.Getter;
 
 import java.util.List;
 
-@SuperBuilder
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class FileActivityInput implements HasId {
+@Getter
+public class FileActivityInput extends Input<FileActivity> implements HasId {
+    Class<FileActivity> mappingTarget = FileActivity.class;
+
     int order;
     ActivityStateInput state;
     boolean current;

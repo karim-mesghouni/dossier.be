@@ -1,13 +1,16 @@
 package com.softline.dossier.be.graphql.types.input;
 
 import com.softline.dossier.be.domain.Concerns.HasId;
+import com.softline.dossier.be.domain.File;
 import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-public class FileInput implements HasId {
+public class FileInput extends Input<File> implements HasId {
+    Class<File> mappingTarget = File.class;
+
     String project;
     LocalDate attributionDate;
     LocalDate returnDeadline;

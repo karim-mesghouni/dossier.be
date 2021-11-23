@@ -20,7 +20,7 @@ public class ClientSchemaResolver implements GraphQLQueryResolver, GraphQLMutati
     private final ClientService service;
 
     public Client createClient(ClientInput clientInput) {
-        return service.create(clientInput);
+        return service.create(clientInput.map());
     }
 
     public Client updateClient(ClientInput clientInput) {

@@ -1,17 +1,14 @@
 package com.softline.dossier.be.graphql.types.input;
 
+import com.softline.dossier.be.domain.Comment;
 import com.softline.dossier.be.domain.Concerns.HasId;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Getter;
 
 
-@SuperBuilder
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class CommentInput implements HasId {
+@Getter
+public class CommentInput extends Input<Comment> implements HasId {
+    Class<Comment> mappingTarget = Comment.class;
+
     long id;
     String content;
     FileActivityInput fileActivity;

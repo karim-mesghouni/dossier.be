@@ -1,18 +1,16 @@
 package com.softline.dossier.be.graphql.types.input;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import com.softline.dossier.be.domain.ActivityState;
+import com.softline.dossier.be.domain.Concerns.HasId;
+import lombok.Getter;
 
 import java.util.List;
 
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
-public class ActivityStateInput {
+@Getter
+public class ActivityStateInput extends Input<ActivityState> implements HasId {
+    Class<ActivityState> mappingTarget = ActivityState.class;
+
     long id;
     String name;
 

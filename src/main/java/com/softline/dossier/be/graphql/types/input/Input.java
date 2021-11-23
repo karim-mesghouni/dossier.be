@@ -14,7 +14,7 @@ public abstract class Input<T> {
      * @return the target class that this input should be mapped to when {@link #map()} is called
      */
     @ForOverride
-    protected abstract Class<T> getMappingTarget();
+    public abstract Class<T> getMappingTarget();
 
     /**
      * uses {@link ModelMapper} to map this input to its Entity type<br>

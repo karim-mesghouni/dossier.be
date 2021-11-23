@@ -1,19 +1,14 @@
 package com.softline.dossier.be.graphql.types.input;
 
+import com.softline.dossier.be.domain.BlockingLabel;
 import com.softline.dossier.be.domain.Concerns.HasId;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Getter;
 
 import java.util.List;
 
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
-public class BlockingLabelInput implements HasId {
-
+@Getter
+public class BlockingLabelInput extends Input<BlockingLabel> implements HasId {
+    Class<BlockingLabel> mappingTarget = BlockingLabel.class;
     long id;
 
     List<BlockingInput> blocking;

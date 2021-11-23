@@ -1,17 +1,14 @@
 package com.softline.dossier.be.graphql.types.input;
 
 
+import com.softline.dossier.be.domain.ActivityField;
+import com.softline.dossier.be.domain.Concerns.HasId;
 import com.softline.dossier.be.graphql.types.input.enums.FieldTypeInput;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Getter;
 
-@SuperBuilder
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class ActivityFieldInput {
+@Getter
+public class ActivityFieldInput extends Input<ActivityField> implements HasId {
+    Class<ActivityField> mappingTarget = ActivityField.class;
 
     long id;
     String fieldName;

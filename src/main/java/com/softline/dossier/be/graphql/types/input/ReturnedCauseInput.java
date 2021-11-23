@@ -1,15 +1,12 @@
 package com.softline.dossier.be.graphql.types.input;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import com.softline.dossier.be.domain.Concerns.HasId;
+import com.softline.dossier.be.domain.ReturnedCause;
+import lombok.Getter;
 
-@SuperBuilder
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ReturnedCauseInput {
+@Getter
+public class ReturnedCauseInput extends Input<ReturnedCause> implements HasId {
+    Class<ReturnedCause> mappingTarget = ReturnedCause.class;
 
     long id;
     String name;
