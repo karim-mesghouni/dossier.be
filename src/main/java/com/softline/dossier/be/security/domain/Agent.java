@@ -25,6 +25,7 @@ import static com.softline.dossier.be.Tools.Functions.notEmpty;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@NamedQuery(name = "Agent.findBySearch", query = "SELECT a FROM Agent a where a.deleted = false and (a.username like CONCAT('%', :search, '%') or a.name like CONCAT('%', :search, '%')) ORDER BY a.createdDate DESC")
 @SQLDelete(sql = "UPDATE agent SET deleted=true WHERE id=?")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected

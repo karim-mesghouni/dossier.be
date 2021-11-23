@@ -13,11 +13,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FileActivityInput implements HasId {
-
     int order;
     ActivityStateInput state;
     boolean current;
-    private long id;
+    long id;
     FileInput file;
     ActivityInput activity;
     List<ActivityDataFieldInput> dataFields;

@@ -18,7 +18,6 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
 import java.io.IOException;
@@ -33,7 +32,6 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.softline.dossier.be.Tools.Functions.*;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class FileService {
     private final FileRepository repository;
@@ -44,8 +42,7 @@ public class FileService {
     }
 
     @PreAuthorize("hasPermission(#input, 'CREATE_FILE')")
-    @Transactional
-    public File create(FileInput input) throws IOException {
+        public File create(FileInput input) throws IOException {
         var file = File.builder()
                 .project(input.getProject())
                 .provisionalDeliveryDate(input.getProvisionalDeliveryDate())
@@ -67,14 +64,17 @@ public class FileService {
                 () -> file.getFileStates().add(stateBuilder.type(Database.getSingle("SELECT t FROM FileStateType t where t.initial = true", FileStateType.class)).build()));
 
         file.setOrder(repository.minOrder());
-        repository.incrementAllOrder();
+        Database.startTransaction();
+        Database.em().createQuery("UPDATE File f set f.order = f.order + 1").executeUpdate();
         Database.persist(file);
+        Database.commit();
         new FileEvent(EntityEvent.Type.ADDED, file).fireToAll();
         return file;
     }
 
     public File update(FileInput input) {
         return Database.findOrThrow(File.class, input, "UPDATE_FILE", file -> {
+            Database.startTransaction();
             if (isEmpty(() -> file.getReprise().getId()) != isEmpty(() -> input.getReprise().getId())) {
                 file.setReprise(safeValue(() -> Database.findOrThrow(File.class, input.getReprise())));
             }
@@ -99,15 +99,10 @@ public class FileService {
                     );
                 }
             }
-            Database.flush();
+            Database.commit();
             new FileEvent(EntityEvent.Type.UPDATED, file).fireToAll();
             return file;
         });
-    }
-
-    public boolean delete(long id) {
-        // files should not be removed (only trashed for now)
-        return false;
     }
 
     public File getById(long id) {
@@ -182,8 +177,9 @@ public class FileService {
     @PreAuthorize("hasPermission(#fileId, 'File', 'DELETE_FILE')")
     public boolean sendFileToTrash(Long fileId) {
         var file = Database.findOrThrow(File.class, fileId);
+        Database.startTransaction();
         file.setInTrash(true);
-        Database.flush();
+        Database.commit();
         new FileEvent(EntityEvent.Type.TRASHED, file).fireToAll();
         return true;
     }
@@ -191,8 +187,9 @@ public class FileService {
     @PreAuthorize("hasPermission(#fileId, 'File', 'DELETE_FILE')")
     public boolean recoverFileFromTrash(Long fileId) {
         var file = Database.findOrThrow(File.class, fileId);
+        Database.startTransaction();
         file.setInTrash(false);
-        Database.flush();
+        Database.commit();
         new FileEvent(EntityEvent.Type.RECOVERED, file).fireToAll();
         return true;
     }

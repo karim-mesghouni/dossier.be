@@ -8,16 +8,23 @@ import com.softline.dossier.be.events.entities.ClientEvent;
 import com.softline.dossier.be.graphql.types.input.ClientInput;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Transactional
 @Service
 public class ClientService {
     public List<Client> getAll() {
         return Database.findAll(Client.class);
+    }
+
+    public Client getById(long id) {
+        return Database.findOrThrow(Client.class, id);
+    }
+
+    public List<Client> getClientsTable(String search) {
+        if (search == null || search.isBlank()) return Database.findAll(Client.class);
+        return Database.findAll(Client.class, (cq, cb, r) -> cq.where(cb.like(r.get("name"), "%" + search + "%")));
     }
 
     @PreAuthorize("hasPermission(null, 'CREATE_CLIENT')")
@@ -28,14 +35,16 @@ public class ClientService {
             contacts.add(Contact.builder().name(contact.getName()).email(contact.getEmail()).phone(contact.getPhone()).client(client).build());
         }
         client.setContacts(contacts);
+        Database.startTransaction();
         Database.persist(client);
-        Database.flush();
+        Database.commit();
         new ClientEvent(EntityEvent.Type.ADDED, client).fireToAll();
         return client;
     }
 
     public Client update(ClientInput input) {
         return Database.findOrThrow(Client.class, input, "UPDATE_CLIENT", client -> {
+            Database.startTransaction();
             client.setAddress(input.getAddress());
             client.setName(input.getName());
             for (var contactInput : input.getContacts()) {
@@ -48,7 +57,7 @@ public class ClientService {
                     contact.setPhone(contactInput.getPhone());
                 }
             }
-            Database.flush();
+            Database.commit();
             new ClientEvent(EntityEvent.Type.UPDATED, client).fireToAll();
             return client;
         });
@@ -56,17 +65,8 @@ public class ClientService {
 
     public boolean delete(long id) {
         return Database.afterRemoving(Client.class, id, "DELETE_CLIENT", client -> {
-            Database.flush();
             new ClientEvent(EntityEvent.Type.DELETED, client).fireToAll();
         });
     }
 
-    public Client getById(long id) {
-        return Database.findOrThrow(Client.class, id);
-    }
-
-    public List<Client> getClientsTable(String search) {
-        if (search == null || search.isBlank()) return Database.findAll(Client.class);
-        return Database.findAll(Client.class, (cq, cb, r) -> cq.where(cb.like(r.get("name"), "%" + search + "%")));
-    }
 }

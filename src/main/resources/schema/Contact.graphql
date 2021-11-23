@@ -14,7 +14,6 @@ input ContactInput{
     client: ClientInput
 }
 extend type Mutation  {
-    createContact(contact: ContactInput): Contact
     updateContact(contact: ContactInput): Contact
     deleteContact(id: ID): Boolean
 }

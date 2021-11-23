@@ -1,14 +1,8 @@
 package com.softline.dossier.be.graphql.types.input;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Getter;
 
-@Data
-@SuperBuilder
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
 public class ContactClientInput {
-    private long id;
+    long id;
 }

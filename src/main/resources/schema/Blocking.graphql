@@ -3,7 +3,7 @@ extend type Query  {
     blocking(id: ID!):Blocking
     blockingByFileTaskId(fileTaskId: ID!):[Blocking]
     allLockingAddress:[BlockingLockingAddress]
-    allLables:[BlockingLabel]
+    allLabels:[BlockingLabel]
     allQualification:[BlockingQualification]
 }
 

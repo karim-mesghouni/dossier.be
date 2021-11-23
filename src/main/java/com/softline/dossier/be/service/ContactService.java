@@ -1,55 +1,33 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.Contact;
 import com.softline.dossier.be.graphql.types.input.ContactInput;
-import com.softline.dossier.be.repository.ClientRepository;
-import com.softline.dossier.be.repository.ContactRepository;
-import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Transactional
-
 @Service
-public class ContactService extends IServiceBase<Contact, ContactInput, ContactRepository> {
-    @Autowired
-    ClientRepository clientRepository;
+public class ContactService {
 
-    @Override
     public List<Contact> getAll() {
-        return repository.findAll();
+        return Database.findAll(Contact.class);
     }
 
-    @Override
-    public Contact create(ContactInput input) {
-//        Client client = clientRepository.findById(input.getClient().getId()).orElseThrow();
-//        return repository.save(Contact.builder().name(input.getName()).email(input.getEmail()).phone(input.getPhone()).client(client).build());
-        return null;
-    }
-
-    @Override
     public Contact update(ContactInput input) {
-        Contact contact = repository.findById(input.getId()).orElseThrow();
+        var contact = Database.findOrThrow(input.map());
+        Database.startTransaction();
         contact.setName(input.getName());
         contact.setEmail(input.getEmail());
         contact.setPhone(input.getPhone());
-        return repository.save(contact);
+        Database.commit();
+        return contact;
     }
 
-    @SneakyThrows
-    @Override
     @PreAuthorize("hasPermission(null, 'DELETE_CONTACT')")
     public boolean delete(long id) {
-        repository.delete(repository.findById(id).orElseThrow());
+        Database.removeNow(Contact.class, id);
         return true;
-    }
-
-    @Override
-    public Contact getById(long id) {
-        return null;
     }
 }

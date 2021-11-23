@@ -36,7 +36,7 @@ public class LogRequestFilter extends BasicAuthenticationFilter {
                 if (req.getServletPath().equals("/graphql")) {
                     var json = new ObjectMapper().readValue(requestWrapper.getBodyInStringFormat().replaceAll("\\\\n", " ").replaceAll("\\.\\.\\.", "\"}"), Map.class);
                     String gql = Functions.tap(Pattern.compile("(.*?)([{(])").matcher(json.get("query").toString().replaceAll("(query|mutation).*?(?=\\{)", "").replaceFirst("\\{", "").trim()), Matcher::find).group().replaceAll("[}{)(]", "");
-                    log.info("[GQL] {}({})", gql, json.get("variables"));
+                    log.info("[GQL] {}[{}]", gql, json.get("variables"));
                 } else {
                     log.info("[POST] {} Authorization:{}", req.getServletPath(), req.getHeader("Authorization").length() > 20);
                 }

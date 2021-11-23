@@ -10,13 +10,14 @@ import org.hibernate.annotations.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.NamedQuery;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @SuperBuilder
 @Data
-
+@NamedQuery(name = "FileActivity.getAllByFileId", query = "SELECT fa FROM FileActivity fa WHERE fa.file.id = :fileId AND fa.inTrash = false ORDER BY fa.order")
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

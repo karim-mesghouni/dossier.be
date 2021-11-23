@@ -11,19 +11,17 @@ import com.softline.dossier.be.events.entities.CommentEvent;
 import com.softline.dossier.be.events.entities.FileTaskEvent;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
-import com.softline.dossier.be.repository.*;
+import com.softline.dossier.be.repository.FileTaskAttachmentRepository;
+import com.softline.dossier.be.repository.FileTaskRepository;
+import com.softline.dossier.be.repository.FileTaskSituationRepository;
 import com.softline.dossier.be.security.domain.Agent;
-import com.softline.dossier.be.security.repository.AgentRepository;
-import com.softline.dossier.be.service.exceptions.ClientReadableException;
+import graphql.GraphQLException;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,34 +34,38 @@ import java.util.stream.Collectors;
 import static com.softline.dossier.be.Tools.Functions.safeRun;
 import static com.softline.dossier.be.Tools.Functions.safeRunWithFallback;
 import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.DenyOrProceed;
-import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.cannot;
 import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 
 @Service
 @RequiredArgsConstructor
-public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileTaskRepository> {
-    private final TaskRepository taskRepository;
+public class FileTaskService {
     private final FileTaskSituationRepository fileTaskSituationRepository;
-    private final TaskSituationRepository taskSituationRepository;
-    private final AgentRepository agentRepository;
-    private final TaskStateRepository taskStateRepository;
-    private final DescriptionCommentRepository descriptionCommentRepository;
-    private final ReturnedCommentRepository returnedCommentRepository;
-    private final FileActivityRepository fileActivityRepository;
-    private final ReturnedCauseRepository returnedCauseRepository;
     private final FileTaskAttachmentRepository fileTaskAttachmentRepository;
+    private final FileTaskRepository repository;
 
-
-    @Override
-    public List<FileTask> getAll() {
-        return repository.findAll();
+    public FileTask getById(long id) {
+        return Database.findOrThrow(FileTask.class, id);
     }
 
-    @Override
+    public List<FileTask> getAll() {
+        return Database.findAll(FileTask.class);
+    }
+
+    public List<TaskSituation> getAllTaskSituations(Long taskId) {
+        return Database.query("SELECT tsi FROM TaskSituation tsi where tsi.task.id = :taskId", TaskSituation.class)
+                .setParameter("taskId", taskId)
+                .getResultList();
+    }
+
+    public List<ReturnedCause> getAllReturnedCause() {
+        return Database.findAll(ReturnedCause.class);
+    }
+
+
     public FileTask create(FileTaskInput input) {
         var task = Database.findOrThrow(Task.class, input.getTask());
         var fileActivity = Database.findOrThrow(FileActivity.class, input.getFileActivity());
-        var count = getRepository().countFileTaskByFileActivity_File_Id(fileActivity.getFile().getId());
+        var count = repository.countFileTaskByFileActivity_File_Id(fileActivity.getFile().getId());
         File file = fileActivity.getFile();
         var fileTask = FileTask.builder()
                 .fileActivity(fileActivity)
@@ -79,16 +81,15 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .fileTask(fileTask)
                 .current(true)
                 .build();
+        Database.startTransaction();
         fileTask.getFileTaskSituations().add(fileTaskSituation);
         file.incrementNextFileTaskNumber();
-        Database.startTransaction();
         Database.persist(fileTask);
-        Database.flush();
+        Database.commit();
         new FileTaskEvent(EntityEvent.Type.ADDED, fileTask).fireToAll();
         return fileTask;
     }
 
-    @Override
     public FileTask update(FileTaskInput input) {
         var fileTask = Database.findOrThrow(FileTask.class, input);
         Database.startTransaction();
@@ -96,98 +97,85 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         fileTask.setDueDate(input.getDueDate());
         fileTask.setTitle(input.getTitle());
         safeRun(() -> fileTask.setState(Database.findOrThrow(TaskState.class, input.getState())));
-        Database.flush();
+        Database.commit();
         new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
         return fileTask;
     }
 
-    @Override
-    public boolean delete(long id) {
-        return false;
-    }
-
-    @Override
-    public FileTask getById(long id) {
-        return Database.findOrThrow(FileTask.class, id);
-    }
 
     public FileTaskSituation getCurrentFilePhaseState(Long fileAgentId) {
         return null; //fileTaskStateRepository.getFilePhaseStateByPhaseAgent_IdAndCurrentIsTrue(fileAgentId);
     }
 
-    public List<TaskSituation> getAllTaskSituations(Long taskId) {
-        return Database.query("SELECT tsi FROM TaskSituation tsi where tsi.task.id = :taskId", TaskSituation.class)
-                .setParameter("taskId", taskId)
-                .getResultList();
-    }
 
     public Agent changeAssignedTo(Long assignedToId, Long fileTaskId) {
-        Database.startTransaction();
         var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
-        var assigned = agentRepository.findById(assignedToId).orElseThrow();
+        var assigned = Database.findOrThrow(Agent.class, assignedToId);
+        Database.startTransaction();
         fileTask.setAssignedTo(assigned);
-        Database.flush();
+        Database.commit();
         new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
         return assigned;
     }
 
     @PreAuthorize("hasPermission(null, 'ADMIN')")
     public Agent changeReporter(Long reporterId, Long fileTaskId) {
-        Database.startTransaction();
-        var reporter = agentRepository.findById(reporterId).orElseThrow();
+        var reporter = Database.findOrThrow(Agent.class, reporterId);
         var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
+        Database.startTransaction();
         fileTask.setReporter(reporter);
-        Database.flush();
+        Database.commit();
         new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
         return reporter;
     }
 
-    @PreAuthorize("hasPermission(#fileTaskId, 'FileTask', 'WORK_IN_FILE_TASK') or hasPermission(#fileTaskId, 'FileTask', 'UPDATE_FILE_TASK')")
-    public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) throws ClientReadableException {
-        Database.startTransaction();
-        var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
-        var situation = taskSituationRepository.findById(situationId).orElseThrow();
-        if (fileTask.getCurrentState().getSituation().isBlock()) {
-            throw new ClientReadableException("vous ne pouvez pas modifier le statut d'une tâche bloquée, veuillez débloquer la tâche et réessayer.");
-        }
-        var oldSituation = fileTaskSituationRepository.findFirstByFileTaskAndCurrentIsTrue(fileTask);
-        if (oldSituation != null) {
-            if (oldSituation.getSituation().getId() == situationId) {
-                return oldSituation;
+    public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) {
+        return Database.findOrThrow(FileTask.class, fileTaskId, fileTask -> {
+            DenyOrProceed("WORK_IN_FILE_TASK", fileTask);
+            Database.startTransaction();
+            var situation = Database.findOrThrow(TaskSituation.class, situationId);
+            if (fileTask.getCurrentState().getSituation().isBlock()) {
+                throw new GraphQLException("vous ne pouvez pas modifier le statut d'une tâche bloquée, veuillez débloquer la tâche et réessayer.");
             }
-            oldSituation.setCurrent(false);
-        }
-        if (situation.isFinal()) {
-            fileTask.setEndDate(LocalDateTime.now());
-        } else {
-            if (!situation.isFinal() && !situation.isInitial()) {
-                fileTask.setStartDate(LocalDateTime.now());
+            var oldSituation = Database.findOrThrow(fileTaskSituationRepository.findFirstByFileTaskAndCurrentIsTrue(fileTask));
+            if (oldSituation != null) {
+                if (oldSituation.getSituation().getId() == situationId) {
+                    return oldSituation;
+                }
+                oldSituation.setCurrent(false);
             }
-        }
+            if (situation.isFinal()) {
+                fileTask.setEndDate(LocalDateTime.now());
+            } else {
+                if (!situation.isFinal() && !situation.isInitial()) {
+                    fileTask.setStartDate(LocalDateTime.now());
+                }
+            }
 
-        var state = fileTaskSituationRepository.save(FileTaskSituation.builder()
-                .situation(situation)
-                .current(true)
-                .fileTask(fileTask).build());
-        Database.flush();
-        new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
-        return state;
+            var state = Database.persist(FileTaskSituation.builder()
+                    .situation(situation)
+                    .current(true)
+                    .fileTask(fileTask).build());
+            Database.commit();
+            new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
+            return state;
+        });
     }
 
     public List<FileTask> getAllFileTaskByFileActivityId(Long fileActivityId) {
 
-        return getRepository().findAllByFileActivity_Id(fileActivityId);
+        return repository.findAllByFileActivity_Id(fileActivityId);
     }
 
     public List<FileTask> getAllFileTaskByAssignedToId(Long assignedToId) {
-        return getRepository().findAllByAssignedTo_Id(assignedToId);
+        return repository.findAllByAssignedTo_Id(assignedToId);
     }
 
     public boolean changeToStartDate(LocalDateTime toStartDate, Long fileTaskId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
             Database.startTransaction();
             fileTask.setToStartDate(toStartDate);
-            Database.flush();
+            Database.commit();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
             return true;
         });
@@ -197,7 +185,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
             Database.startTransaction();
             fileTask.setDueDate(dueDate);
-            Database.flush();
+            Database.commit();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
             return true;
         });
@@ -208,17 +196,16 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
             Database.startTransaction();
             fileTask.setTitle(title);
-            Database.flush();
+            Database.commit();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
             return true;
         });
     }
 
-    @Transactional
-    @PreAuthorize("hasPermission(#commentInput.fileTask.id, 'FileTask', 'UPDATE_FILE_TASK')")
     public DescriptionComment changeDescription(CommentInput commentInput) {
-        Database.startTransaction();
         var fileTask = Database.findOrThrow(FileTask.class, commentInput.getFileTask());
+        DenyOrProceed("UPDATE_FILE_TASK", fileTask);
+        Database.startTransaction();
         var description = fileTask.getDescription();
         if (description == null) {
             description = DescriptionComment.builder()
@@ -228,58 +215,50 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                     .fileActivity(fileTask.getFileActivity())
                     .createdDate(LocalDateTime.now())
                     .build();
+            Database.persist(description);
             fileTask.setDescription(description);
         }
         description.setContent(commentInput.getContent());
-        Database.persist(description);
         TipTap.resolveCommentContent(description);
-        Database.flush();
+        Database.commit();
         new CommentEvent(EntityEvent.Type.UPDATED, description).fireToAll();
         new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
         return description;
     }
 
-    // permission inside
-    public ReturnedComment changeRetour(CommentInput retour) {
-        Database.startTransaction();
-        var fileTask = Database.findOrThrow(FileTask.class, retour.getFileTask());
-        if (cannot("WORK_IN_FILE_TASK", fileTask) && cannot("UPDATE_FILE_ACTIVITY", fileTask.getFileActivity())) {
-            throw new AccessDeniedException("erreur de privilege");
-        }
-        if (retour.getId() != 0) {
-            var retourExist = returnedCommentRepository.findById(retour.getId()).orElseThrow();
-            retourExist.setContent(retour.getContent());
-            return retourExist;
-        } else {
-            var fileActivity = fileActivityRepository.findById(retour.getFileActivity().getId()).orElseThrow();
-
-            var retourNew = returnedCommentRepository.save(ReturnedComment.builder()
-                    .fileActivity(fileActivity)
-                    .content(retour.getContent())
-                    .fileTask(fileTask)
-                    .agent(thisDBAgent())
-                    .build()
-            );
-            fileTask.setRetour(retourNew);
-            retourNew.setType(CommentType.Returned);
-            Database.flush();
+    public ReturnedComment changeRetour(CommentInput input) {
+        return Database.findOrThrow(input.getFileTask().map(), fileTask -> {
+            Database.startTransaction();
+            DenyOrProceed("WORK_IN_FILE_TASK", fileTask);
+            var retour = fileTask.getRetour();
+            if (retour == null) {
+                retour = ReturnedComment.builder()
+                        .fileTask(fileTask)
+                        .agent(thisDBAgent())
+                        .type(CommentType.Returned)
+                        .fileActivity(fileTask.getFileActivity())
+                        .createdDate(LocalDateTime.now())
+                        .build();
+                Database.persist(retour);
+                fileTask.setRetour(retour);
+            }
+            retour.setContent(input.getContent());
+            TipTap.resolveCommentContent(retour);
+            Database.commit();
+            new CommentEvent(EntityEvent.Type.UPDATED, retour).fireToAll();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
-            return retourNew;
-        }
-    }
-
-
-    public List<ReturnedCause> getAllReturnedCause() {
-        return returnedCauseRepository.findAll();
+            return retour;
+        });
     }
 
     // permission inside
     public ReturnedCause changeReturnedCause(Long fileTaskId, Long returnedCauseId) {
-        return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+        return Database.findOrThrow(FileTask.class, fileTaskId, fileTask -> {
+            DenyOrProceed("WORK_IN_FILE_TASK", fileTask);
             var returnedCause = Database.findOrThrow(ReturnedCause.class, returnedCauseId);
             Database.startTransaction();
             fileTask.setReturnedCause(returnedCause);
-            Database.flush();
+            Database.commit();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
             return returnedCause;
         });
@@ -288,13 +267,11 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     // permission inside
     public TaskState changeState(Long fileTaskId, Long taskStateId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, fileTask -> {
-            if (cannot("WORK_IN_FILE_TASK", fileTask) && cannot("UPDATE_FILE_TASK", fileTask.getFileActivity())) {
-                throw new AccessDeniedException("erreur de privilege");
-            }
+            DenyOrProceed("WORK_IN_FILE_TASK", fileTask);
             var state = Database.findOrThrow(TaskState.class, taskStateId);
             Database.startTransaction();
             fileTask.setState(state);
-            Database.flush();
+            Database.commit();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
             return state;
         });
@@ -305,7 +282,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
             Database.startTransaction();
             fileTask.setReturned(returned);
-            Database.flush();
+            Database.commit();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
             return true;
         });
@@ -313,21 +290,18 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
 
     // permission inside
     public FileTask createChildFileTask(FileTaskInput input) {
-        if (cannot("CREATE_FILE_TASK", input)) {
-            throw new AccessDeniedException("erreur de privilege");
-        }
-        var reporter = agentRepository.findByUsername(((Agent) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
-        var parent = getRepository().findById(input.getParent().getId()).orElseThrow();
-        var task = taskRepository.findById(input.getTask().getId()).orElseThrow();
-        var fileActivity = fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();
-        var count = getRepository().countFileTaskByFileActivity_File_Id(fileActivity.getFile().getId());
+        DenyOrProceed("CREATE_FILE_TASK", input);
+        var parent = repository.findById(input.getParent().getId()).orElseThrow();
+        var task = Database.findOrThrow(Task.class, input.getTask());
+        var fileActivity = Database.findOrThrow(FileActivity.class, input.getFileActivity());
+        var count = repository.countFileTaskByFileActivity_File_Id(fileActivity.getFile().getId());
         var fileTask = FileTask.builder()
                 .fileActivity(fileActivity)
                 .task(task)
                 .toStartDate(LocalDateTime.now())
                 .order((count + 1))
                 .parent(parent)
-                .reporter(reporter)
+                .reporter(Agent.thisDBAgent())
                 .returned(true)
                 .fileTaskSituations(new ArrayList<>())
                 .build();
@@ -337,9 +311,9 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                 .current(true)
                 .build();
         fileTask.getFileTaskSituations().add(fileTaskSituation);
-        getRepository().save(fileTask);
+        repository.save(fileTask);
         new FileTaskEvent(EntityEvent.Type.ADDED, fileTask).fireToAll();
-        return getRepository().findById(fileTask.getId()).orElseThrow();
+        return repository.findById(fileTask.getId()).orElseThrow();
     }
 
     public boolean changeParent(Long fileTaskId, Long parentId) {
@@ -349,7 +323,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
                     () -> fileTask.setParent(Database.findOrThrow(FileTask.class, parentId)),
                     () -> fileTask.setParent(null)
             );
-            Database.flush();
+            Database.commit();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
             return true;
         });
@@ -357,14 +331,14 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     }
 
     public List<FileTask> getAllFileTaskByFileActivityIdInTrash(Long fileActivityId) {
-        return getRepository().findAllByFileActivity_Id_In_Trash(fileActivityId);
+        return repository.findAllByFileActivity_Id_In_Trash(fileActivityId);
     }
 
     public boolean recoverFileTaskFromTrash(Long fileTaskId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, "DELETE_FILE_TASK", fileTask -> {
             Database.startTransaction();
             fileTask.setInTrash(false);
-            Database.flush();
+            Database.commit();
             new FileTaskEvent(EntityEvent.Type.RECOVERED, fileTask).fireToAll();
             return true;
         });
@@ -374,7 +348,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return Database.findOrThrow(FileTask.class, fileTaskId, "DELETE_FILE_TASK", fileTask -> {
             Database.startTransaction();
             fileTask.setInTrash(true);
-            Database.flush();
+            Database.commit();
             new FileTaskEvent(EntityEvent.Type.TRASHED, fileTask).fireToAll();
             return true;
         });
@@ -383,7 +357,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
     public List<Attachment> saveAttached(Long fileTaskId, DataFetchingEnvironment environment) throws IOException {
         ArrayList<ApplicationPart> files = environment.getArgument("attachments");
         var filesAttached = new ArrayList<FileTaskAttachment>();
-        var fileTask = getRepository().findById(fileTaskId).orElseThrow();
+        var fileTask = repository.findById(fileTaskId).orElseThrow();
         for (ApplicationPart file : files) {
             String originalName = file.getSubmittedFileName();
             String storageName = FileSystem.randomMD5() + "." + FilenameUtils.getExtension(originalName);
@@ -418,7 +392,7 @@ public class FileTaskService extends IServiceBase<FileTask, FileTaskInput, FileT
         return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
             Database.startTransaction();
             fileTask.setTitle(title);
-            Database.flush();
+            Database.commit();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
             return true;
         });

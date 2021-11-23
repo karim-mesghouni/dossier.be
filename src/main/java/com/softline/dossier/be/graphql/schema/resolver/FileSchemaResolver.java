@@ -32,10 +32,6 @@ public class FileSchemaResolver implements GraphQLMutationResolver, GraphQLQuery
         return service.update(File);
     }
 
-    public boolean deleteFile(Long id) throws ClientReadableException {
-        return service.delete(id);
-    }
-
     public List<File> getAllFile() {
         return service.getAll();
     }

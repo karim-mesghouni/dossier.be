@@ -30,7 +30,7 @@ public class ExceptionsHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public GraphQLError exceptionHandler(AccessDeniedException e) {
         log.error("AccessDeniedException");
-        return new ThrowableGraphQLError(new Throwable("Erreur de privilège"));
+        return new ThrowableGraphQLError(new Throwable("vous n'êtes pas autorisé à faire cette action"));
     }
 
     @ExceptionHandler(EntityNotFoundException.class)

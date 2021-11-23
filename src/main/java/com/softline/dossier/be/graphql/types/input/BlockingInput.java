@@ -1,21 +1,15 @@
 package com.softline.dossier.be.graphql.types.input;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import com.softline.dossier.be.domain.Blocking;
+import com.softline.dossier.be.domain.Concerns.HasId;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
-public class BlockingInput {
-
+@Getter
+public class BlockingInput extends Input<Blocking> implements HasId {
+    Class<Blocking> mappingTarget = Blocking.class;
     long id;
-
-
     FileTaskSituationInput state;
 
     BlockingLockingAddressInput lockingAddress;
@@ -24,6 +18,6 @@ public class BlockingInput {
 
     BlockingLabelInput label;
     LocalDateTime date;
-    private String explication;
-    private LocalDateTime dateUnBlocked;
+    String explication;
+    LocalDateTime dateUnBlocked;
 }

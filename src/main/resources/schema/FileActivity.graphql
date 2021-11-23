@@ -4,13 +4,12 @@ extend type Query  {
     fileActivity(id: ID!):FileActivity
     allFileActivityByFileId(fileId: ID!):[FileActivity]
     allFileActivityByFileIdInTrash(fileId: ID!):[FileActivity]
+    field(fieldId: ID!): ActivityDataField
 }
 
 #mutation
 extend type  Mutation{
     createFileActivity(FileActivity: FileActivityInput!):FileActivity
-    updateFileActivity(FileActivity: FileActivityInput!):FileActivity
-    deleteFileActivity(id: Int!):Boolean
     changeActivityState(activityStateId: ID!, fileActivityId: ID!):ActivityState
     sendFileActivityToTrash(fileActivityId: ID!): Boolean
     recoverFileActivityFromTrash(fileActivityId: ID!): Boolean

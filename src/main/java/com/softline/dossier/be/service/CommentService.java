@@ -12,7 +12,6 @@ import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.repository.CommentRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
 import com.softline.dossier.be.repository.FileTaskRepository;
-import com.softline.dossier.be.repository.MessageRepository;
 import com.softline.dossier.be.security.domain.Agent;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,22 +28,18 @@ import static com.softline.dossier.be.Tools.Functions.safeRun;
 import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 
 
-@Transactional
 @Service
 @RequiredArgsConstructor
 @Slf4j(topic = "CommentService")
-public class CommentService extends IServiceBase<Comment, CommentInput, CommentRepository> {
+public class CommentService {
     private final FileActivityRepository fileActivityRepository;
     private final FileTaskRepository fileTaskRepository;
-    private final MessageRepository messageRepository;
+    private final CommentRepository repository;
 
-
-    @Override
     public List<Comment> getAll() {
-        return repository.findAll();
+        return Database.findAll(Comment.class);
     }
 
-    @Override
     public Comment create(CommentInput input) throws IOException {
         var fileActivity = fileActivityRepository.findById(input.getFileActivity().getId()).orElseThrow();
         var comment = Comment.builder()
@@ -60,27 +54,28 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                 .build();
         safeRun(() -> comment.setFileTask(fileTaskRepository.findById(input.getFileTask().getId()).orElseThrow()));
         comment.setType(CommentType.Comment);
+        Database.startTransaction();
         Database.persist(comment);
         TipTap.resolveCommentContent(comment);
-        Database.flush();
+        Database.commit();
         new CommentEvent(EntityEvent.Type.ADDED, comment).fireToAll();
         return comment;
     }
 
-    @Override
     public Comment update(CommentInput input) {
         return Database.findOrThrow(Comment.class, input, "UPDATE_COMMENT", comment -> {
+            Database.startTransaction();
             comment.setContent(input.getContent());
             TipTap.resolveCommentContent(comment);
-            Database.flush();
+            Database.commit();
             new CommentEvent(EntityEvent.Type.UPDATED, comment).fireToAll();
             return comment;
         });
     }
 
-    @Override
     public boolean delete(long id) {
         return Database.findOrThrow(Comment.class, id, "DELETE_COMMENT", comment -> {
+            Database.startTransaction();
             if (comment.getFileTask() != null) {
                 if (comment.getType() == CommentType.Returned) {
                     comment.getFileTask().setRetour(null);
@@ -91,13 +86,12 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
                 }
             }
             Database.remove(comment);
-            Database.flush();
+            Database.commit();
             new CommentEvent(EntityEvent.Type.DELETED, comment).fireToAll();
             return true;
         });
     }
 
-    @Override
     public Comment getById(long id) {
         return Database.findOrThrow(Comment.class, id);
     }
@@ -116,7 +110,7 @@ public class CommentService extends IServiceBase<Comment, CommentInput, CommentR
     }
 
     public List<Comment> getAllCommentByFileId(Long fileId) {
-        return getRepository().findAllByFileActivity_File_Id(fileId);
+        return repository.findAllByFileActivity_File_Id(fileId);
     }
 
     public Message getMessageById(long messageId) {

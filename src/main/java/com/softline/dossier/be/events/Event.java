@@ -60,7 +60,7 @@ public class Event<T> implements Serializable {
     }
 
     /**
-     * flush the database and send this event to every open channel
+     * send this event to every open channel
      */
     public void fireToAll() {
         EventController.sendForAllChannels(this);

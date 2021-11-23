@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication
 @EnableJpaRepositories
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
-
 public class Application {
     public static ConfigurableApplicationContext context;
 
@@ -19,8 +18,10 @@ public class Application {
 
 
     /**
-     * @return the current spring boot application context (useful for getting beans)
+     * @return the current spring boot application context (useful for getting beans),
+     * until the application boot phase completes this will return null
      */
+    //!! @Nullable (before the application boots-up)
     public static ConfigurableApplicationContext context() {
         return context;
     }

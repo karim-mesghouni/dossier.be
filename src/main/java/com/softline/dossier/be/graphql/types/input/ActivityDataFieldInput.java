@@ -1,20 +1,17 @@
 package com.softline.dossier.be.graphql.types.input;
 
+import com.softline.dossier.be.domain.ActivityDataField;
 import com.softline.dossier.be.domain.Concerns.HasId;
 import com.softline.dossier.be.graphql.types.input.enums.FieldTypeInput;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class ActivityDataFieldInput implements HasId {
+@Getter
+public class ActivityDataFieldInput extends Input<ActivityDataField> implements HasId {
+    Class<ActivityDataField> mappingTarget = ActivityDataField.class;
+
     long id;
     String fieldName;
 

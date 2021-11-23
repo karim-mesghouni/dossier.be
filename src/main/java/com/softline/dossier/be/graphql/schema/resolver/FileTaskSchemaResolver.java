@@ -1,12 +1,12 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
+import com.coxautodev.graphql.tools.GraphQLMutationResolver;
+import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
-import com.softline.dossier.be.repository.FileTaskRepository;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.service.FileTaskService;
-import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,27 +20,23 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
-public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTaskInput, FileTaskRepository, FileTaskService> {
+public class FileTaskSchemaResolver implements GraphQLQueryResolver, GraphQLMutationResolver {
+    private final FileTaskService service;
 
-
-    public FileTask createFileTask(FileTaskInput fileTask) throws IOException, ClientReadableException {
-        return create(fileTask);
+    public FileTask createFileTask(FileTaskInput fileTask) {
+        return service.create(fileTask);
     }
 
-    public FileTask updateFileTask(FileTaskInput fileTask) throws ClientReadableException {
-        return update(fileTask);
-    }
-
-    public boolean deleteFileTask(Long id) throws ClientReadableException {
-        return delete(id);
+    public FileTask updateFileTask(FileTaskInput fileTask) {
+        return service.update(fileTask);
     }
 
     public List<FileTask> getAllFileTask() {
         return getAll();
     }
 
-    public FileTask getFileTask(Long fileTaskId) {
-        return get(fileTaskId);
+    public FileTask getFileTask(long fileTaskId) {
+        return service.getById(fileTaskId);
     }
 
     public List<TaskSituation> getAllTaskSituations(Long taskId) {
@@ -56,7 +52,7 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
 
     }
 
-    public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) throws ClientReadableException {
+    public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) {
         return service.changeFileTaskSituation(situationId, fileTaskId);
 
     }
@@ -137,12 +133,9 @@ public class FileTaskSchemaResolver extends SchemaResolverBase<FileTask, FileTas
         return null;
     }
 
-    public FileTask getFileTask(long fileTaskId) {
-        return super.get(fileTaskId);
-    }
 
     public List<FileTask> getAll() {
-        return super.getAll();
+        return service.getAll();
     }
 
     public boolean changeFileTaskOrder(long fileTaskId, long fileTaskBeforeId) {

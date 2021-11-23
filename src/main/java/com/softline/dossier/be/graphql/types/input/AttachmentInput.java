@@ -1,14 +1,8 @@
 package com.softline.dossier.be.graphql.types.input;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+@Getter
 public class AttachmentInput {
-    private String name;
+    String name;
 }

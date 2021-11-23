@@ -90,34 +90,40 @@ public final class TipTap {
                 imageNames.add(name);
                 return EnvUtil.getServerUrl() + "/attachments/" + name;
             } else {
-                if (src.startsWith("http") && !src.startsWith(EnvUtil.getServerUrl())) {
-                    try {
-                        URL url = new URL(src);
-                        var is = url.openStream();
-                        String extension = null;
-                        ImageInputStream iis = ImageIO.createImageInputStream(is);
-                        Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
-                        if (readers.hasNext()) {
-                            ImageReader reader = readers.next();
-                            extension = reader.getFormatName().toLowerCase(Locale.ROOT);
-                        }
-                        if (extension == null || extension.isEmpty()) {
-                            return src;
-                        }
-                        String name = FileSystem.randomMD5() + "." + extension;
-                        is.close();
-                        is = url.openStream();
-                        Files.copy(is, FileSystem.getAttachmentsPath().resolve(name));
-                        imageNames.add(name);
-                        return EnvUtil.getServerUrl() + "/attachments/" + name;
-                    } catch (IOException e) {
-                        log.error("Failed to store url image locally", e);
+                if(!src.startsWith("http")){
+                    if(log.isErrorEnabled())
+                        log.error("unknown image source [{}], when parsing comment content: {}", src, json);
+                    return src;
+                }
+                if(src.startsWith(EnvUtil.getServerUrl())){
+                    if(log.isDebugEnabled())
+                        log.debug("skipped image source processing [{}] when parsing comment content: {}", src, json);
+                    return src;
+                }
+                try {
+                    URL url = new URL(src);
+                    var is = url.openStream();
+                    String extension = null;
+                    ImageInputStream iis = ImageIO.createImageInputStream(is);
+                    Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
+                    if (readers.hasNext()) {
+                        ImageReader reader = readers.next();
+                        extension = reader.getFormatName().toLowerCase(Locale.ROOT);
                     }
-                } else {
-                    log.error("unknown image source ({}), when parsing comment content: {}", src, json);
+                    if (extension == null || extension.isEmpty()) {
+                        return src;
+                    }
+                    String name = FileSystem.randomMD5() + "." + extension;
+                    is.close();
+                    is = url.openStream();
+                    Files.copy(is, FileSystem.getAttachmentsPath().resolve(name));
+                    imageNames.add(name);
+                    return EnvUtil.getServerUrl() + "/attachments/" + name;
+                } catch (IOException e) {
+                    log.error("Failed to store url image locally", e);
+                    return src;
                 }
             }
-            return src;
         }, json);
         return new Pair<>(newJson, imageNames);
     }

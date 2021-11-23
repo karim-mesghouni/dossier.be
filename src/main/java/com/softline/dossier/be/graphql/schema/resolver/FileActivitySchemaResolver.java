@@ -1,46 +1,41 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
+import com.coxautodev.graphql.tools.GraphQLMutationResolver;
+import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import com.softline.dossier.be.database.Database;
+import com.softline.dossier.be.domain.ActivityDataField;
 import com.softline.dossier.be.domain.ActivityState;
 import com.softline.dossier.be.domain.FileActivity;
 import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
-import com.softline.dossier.be.repository.FileActivityRepository;
 import com.softline.dossier.be.service.FileActivityService;
-import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
-public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity, FileActivityInput, FileActivityRepository, FileActivityService> {
+public class FileActivitySchemaResolver implements GraphQLQueryResolver, GraphQLMutationResolver {
+    private final FileActivityService service;
 
-    public FileActivity createFileActivity(FileActivityInput FileActivity) throws IOException, ClientReadableException {
-        return create(FileActivity);
+    public FileActivity createFileActivity(FileActivityInput FileActivity) {
+        return service.create(FileActivity);
     }
 
-    public boolean changeDataField(ActivityDataFieldInput input) throws ClientReadableException {
+    public boolean changeDataField(ActivityDataFieldInput input) {
         return service.changeDataField(input);
     }
 
-    public FileActivity updateFileActivity(FileActivityInput FileActivity) throws ClientReadableException {
-        return update(FileActivity);
-    }
-
-    public boolean deleteFileActivity(Long id) throws ClientReadableException {
-        return delete(id);
-    }
 
     protected List<FileActivity> getAllFileActivity() {
-        return getAll();
+        return service.getAll();
     }
 
     protected FileActivity getFileActivity(Long id) {
-        return getService().getById(id);
+        return service.getById(id);
     }
 
     public List<FileActivity> getAllFileActivityByFileId(Long fileId) {
@@ -65,5 +60,9 @@ public class FileActivitySchemaResolver extends SchemaResolverBase<FileActivity,
 
     public boolean changeFileActivityOrder(long fileActivityId, long fileActivityBeforeId) {
         return service.changeOrder(fileActivityId, fileActivityBeforeId);
+    }
+
+    public ActivityDataField getField(long fieldId) {
+        return Database.findOrThrow(ActivityDataField.class, fieldId);
     }
 }

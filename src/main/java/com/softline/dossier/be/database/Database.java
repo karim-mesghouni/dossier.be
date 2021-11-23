@@ -1,7 +1,6 @@
 package com.softline.dossier.be.database;
 
 import com.softline.dossier.be.Application;
-import com.softline.dossier.be.database.tools.Manager;
 import com.softline.dossier.be.domain.Concerns.HasId;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +21,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.softline.dossier.be.Application.context;
-import static com.softline.dossier.be.Tools.Functions.*;
+import static com.softline.dossier.be.Tools.Functions.safeSupplied;
+import static com.softline.dossier.be.Tools.Functions.throwIfEmpty;
 import static com.softline.dossier.be.Tools.TextHelper.format;
 import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.DenyOrProceed;
 
@@ -50,7 +50,6 @@ public class Database {
     public static <T> TypedQuery<T> query(@Language("HQL") String query, Class<T> clazz) {
         return em().createQuery(query, clazz);
     }
-
 
     @NotNull
     public static <T> TypedQuery<T> querySingle(@Language("HQL") String query, Class<T> clazz) {
@@ -163,6 +162,11 @@ public class Database {
         return findOrThrow((Class<T>) entity.getClass(), entity, permission, action);
     }
 
+    public static <T extends HasId, R> R findOrThrow(T entity, Function<T, R> action) throws EntityNotFoundException, AccessDeniedException {
+        //noinspection unchecked
+        return findOrThrow((Class<T>) entity.getClass(), entity, action);
+    }
+
     public static <T> T findOrThrow(Class<T> clazz, Serializable id, Consumer<T> action) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
         action.accept(entity);
@@ -180,15 +184,9 @@ public class Database {
     }
 
     public static void remove(Object entity) throws EntityNotFoundException, IllegalArgumentException {
-        if(!em().getTransaction().isActive())
-            startTransaction();
         em().remove(entity);
-        flush();
     }
 
-    public static <T> Manager<T> manager(Class<T> managedType){
-        return Manager.ofType(managedType);
-    }
 
     public static <T> boolean remove(T entity, Consumer<T> consumer) throws IllegalArgumentException {
         consumer.accept(entity);
@@ -206,8 +204,10 @@ public class Database {
 
 
     public static <T> boolean afterRemoving(Class<T> clazz, Serializable id, String action, Consumer<T> consumer) throws EntityNotFoundException {
-        T entity = findOrThrow(clazz, id, action);
-        remove(entity, consumer);
+        var entity = findOrThrow(clazz, id, action);
+        Database.startTransaction();
+        remove(entity);
+        Database.commit();
         consumer.accept(entity);
         return true;
     }
@@ -215,6 +215,13 @@ public class Database {
 
     public static <T> boolean remove(Class<T> clazz, Serializable id) throws EntityNotFoundException {
         remove(findOrThrow(clazz, id));
+        return true;
+    }
+
+    public static <T> boolean removeNow(Class<T> clazz, Serializable id) throws EntityNotFoundException {
+        Database.startTransaction();
+        remove(findOrThrow(clazz, id));
+        Database.commit();
         return true;
     }
 
@@ -237,7 +244,7 @@ public class Database {
     /**
      * flush the {@link #em() entity manager} and then commit any active transactions.
      */
-    public static void flush() {
+    public static void commit() {
         em().flush();
         if(em().getTransaction().isActive()){
             em().getTransaction().commit();

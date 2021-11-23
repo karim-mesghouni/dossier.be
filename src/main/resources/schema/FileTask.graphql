@@ -34,7 +34,7 @@ extend type Mutation{
     sendFileTaskToTrash(fileTaskId: ID!): Boolean
     recoverFileTaskFromTrash(fileTaskId: ID!): Boolean
     uploadAttachments(attachments: [Upload]!,fileTaskId:ID!):[Attachment]
-    deleteFileTask(id: ID!): Boolean
+#    deleteFileTask(id: ID!): Boolean
     changeFileTaskOrder(fileTaskId: ID!, fileTaskBeforeId: ID!): Boolean
 }
 

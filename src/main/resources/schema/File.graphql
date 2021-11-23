@@ -11,7 +11,6 @@ extend type Query  {
 extend type  Mutation{
     createFile(input: FileInput!):File
     updateFile(input: FileInput!):File
-    deleteFile(id: Int!): Boolean
     sendFileToTrash(fileId: ID!): Boolean
     recoverFileFromTrash(fileId: ID!): Boolean
     changeFileOrder(fileId: ID!, fileBeforeId: ID): Boolean # Keep fileBeforeId nullable

@@ -22,7 +22,7 @@ public class JsonPolicyLoader {
     private List<PolicyRule> rules;
 
     /**
-     * load from the resource directory /policy all json policy files that end with *.policy.json,
+     * load from the resource directory "/policy/" all json policy files that end with *.policy.json,
      */
     @PostConstruct // will be called once when the application starts
     private void init() {

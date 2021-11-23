@@ -1,6 +1,5 @@
 package com.softline.dossier.be.domain;
 
-import com.softline.dossier.be.graphql.types.input.BlockingInput;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,19 +40,6 @@ public class Blocking extends BaseEntity {
     private String explication;
     private LocalDateTime date;
     private LocalDateTime dateUnBlocked;
-
-    public static Blocking buildFromInput(BlockingInput input, FileTaskSituation state) {
-        return Blocking.builder()
-                .id(input.getId())
-                .label(BlockingLabel.builder().id(input.getLabel().getId()).build())
-                .lockingAddress(BlockingLockingAddress.builder().id(input.getLockingAddress().getId()).build())
-                .qualification(BlockingQualification.builder().id(input.getQualification().getId()).build())
-                .explication(input.getExplication())
-                .dateUnBlocked(input.getDateUnBlocked())
-                .state(state)
-                .date(input.getDate())
-                .build();
-    }
 
     // can be used to determine if the block is active
     // used by graphql

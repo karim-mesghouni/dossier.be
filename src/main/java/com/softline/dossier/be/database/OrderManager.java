@@ -31,6 +31,7 @@ public final class OrderManager {
         var entityType = Database.getEntityType(type);
         @Language("HQL")
         var select = "SELECT e from " + entityType.getName() + " e ";
+        Database.startTransaction();
         if (entityBefore != null) {
             // how many entities will be updated (increment or decrement their order)
             var levelsChange = Database.query(select + "where ((:a < :b and e.order > :a and e.order < :b) or (:a >= :b and e.order > :b and e.order < :a))", type)
@@ -70,6 +71,6 @@ public final class OrderManager {
                     .forEach(T::incrementOrder);
             entity.setOrder(Database.query(select, type).getResultList().stream().filter(finalFilter).mapToLong(HasOrder::getOrder).min().orElse(1) - 1);
         }
-        Database.flush();
+        Database.commit();
     }
 }

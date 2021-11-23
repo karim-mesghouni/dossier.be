@@ -3,7 +3,6 @@ extend type Query  {
     allCommune:[Commune]
 }
 
-
 type Commune  {
     id:ID
     name: String
@@ -11,12 +10,8 @@ type Commune  {
     INSEECode:String
 }
 input CommuneInput  {
-
     id:ID
-
     name: String
-
     postalCode: String
-
     INSEECode:String
 }

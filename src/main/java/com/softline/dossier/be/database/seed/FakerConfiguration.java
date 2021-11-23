@@ -9,7 +9,7 @@ import java.util.Random;
 
 @Configuration
 public class FakerConfiguration {
-    private static Faker faker;
+    private static Faker faker;// fixed faker instance for persistent results
 
     @Bean
     public static Faker faker() {

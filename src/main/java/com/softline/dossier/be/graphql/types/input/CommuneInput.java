@@ -1,22 +1,16 @@
 package com.softline.dossier.be.graphql.types.input;
 
 import com.softline.dossier.be.domain.Concerns.HasId;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Getter;
 
-@SuperBuilder
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
 public class CommuneInput implements HasId {
 
-    private long id;
+    long id;
 
-    private String name;
+    String name;
 
-    private String postalCode;
+    String postalCode;
 
-    private String INSEECode;
+    String INSEECode;
 }

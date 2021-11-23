@@ -6,6 +6,8 @@ import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.policy.PolicyMatcher;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.softline.dossier.be.Tools.Functions.safeRun;
+import static com.softline.dossier.be.Tools.TextHelper.format;
 
 /**
  * Extension for Expression-Based Access Control
@@ -33,23 +36,23 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
     /**
      * return true if the current logged-in user cannot do the action on the object
      */
-    public static boolean cannot(String action, Object domain) {
+    public static boolean cannot(@NotNull String action, @Nullable Object domain) {
         return !can(action, domain);
     }
 
     /**
-     * throws {@link AccessDeniedException} if the current logged-in user cannot do the action on the object
+     * throws {@link AccessDeniedException} if the current logged-in user cannot do the action on the given object
      */
-    public static void DenyOrProceed(String action, Object domain) throws AccessDeniedException {
+    public static void DenyOrProceed(@NotNull String action, @Nullable Object domain) throws AccessDeniedException {
         if (cannot(action, domain)) {
-            throw new AccessDeniedException("erreur de privilege");
+            throw new AccessDeniedException(format("Denied operation {} on {} of type {}", action, domain, domain != null ? domain.getClass().getName() : "NULL"));
         }
     }
 
     /**
      * throws {@link AccessDeniedException} if the current logged-in user cannot do the action on the object
      */
-    public static void DenyOrProceed(String action, Object domain, String exceptionMessage) throws AccessDeniedException {
+    public static void DenyOrProceed(@NotNull String action, @Nullable Object domain, @Nullable String exceptionMessage) throws AccessDeniedException {
         if (cannot(action, domain)) {
             throw new AccessDeniedException(exceptionMessage);
         }
@@ -64,7 +67,7 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
     /**
      * return true if the current logged-in user can do the action on the object
      */
-    public static boolean can(String action, Object domain) {
+    public static boolean can(@NotNull String action, @Nullable Object domain) {
         return accessControl().hasPermission(Agent.authentication(), domain, action);
     }
 
@@ -75,7 +78,7 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
      * @return true if the user can do the action on the entity
      */
     @Override
-    public boolean hasPermission(Authentication authentication, Object entity, Object action) {
+    public boolean hasPermission(@NotNull Authentication authentication, @Nullable Object entity, @NotNull Object action) {
         return policy.check(authentication.getPrincipal(),
                 entity,
                 action,
@@ -102,7 +105,7 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
      * @return true if the user can do the action on the referenced entity
      */
     @Override
-    public boolean hasPermission(Authentication authentication, Serializable entityId, String entityType, Object action) {
+    public boolean hasPermission(@NotNull Authentication authentication, @NotNull Serializable entityId, @NotNull String entityType, @NotNull Object action) {
         var ref = new Object() {
             Object target = null;
         };

@@ -25,10 +25,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.softline.dossier.be.SSE.EventController.silently;
 import static com.softline.dossier.be.Tools.DateHelpers.*;
-import static com.softline.dossier.be.Tools.Functions.runNTimes;
-import static com.softline.dossier.be.Tools.Functions.safeValue;
+import static com.softline.dossier.be.Tools.Functions.*;
 import static com.softline.dossier.be.database.seed.SeederHelper.*;
 
 @SuppressWarnings("DanglingJavadoc")
@@ -52,8 +50,12 @@ public class DBSeeder implements ApplicationRunner {
     private final TaskRepository taskRepository;
     private final TaskStateRepository taskStateRepository;
     private final PasswordEncoder passwordEncoder;
-
-    private final Faker faker; // used to generate fake(mock) date
+    /**
+     * used to generate fake(mock) date
+     *
+     * @see FakerConfiguration#faker()
+     */
+    private final Faker faker; //
 
     Activity zapa;
     Activity fi;
@@ -63,285 +65,288 @@ public class DBSeeder implements ApplicationRunner {
 
     @Transactional
     public void run(ApplicationArguments args) {
-        silently(() -> {
-            if (activityRepository.count() == 0) {
-                createZapaActivity();
-                createFIActivity();
-                createIPONActivity();
-                createPiquetageActivity();
-                createCDCActivity();
-            }
-            if (clientRepository.count() == 0) {
-                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("RH"))));
-                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("AXIANS"))));
-                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("AXIANS IDF"))));
-                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("COVAGE"))));
-                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("CPCP ROGNAC"))));
-                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("CPCP SUD"))));
-                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("FREE"))));
-                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("NET DESIGNER"))));
-                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("NET GEO"))));
-                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("OPT"))));
-                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("OPTTICOM"))));
-                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("S30"))));
-                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("SCOPELEC"))));
-                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("SPIE"))));
-            }
-            if (communeRepository.count() == 0) {
-                createCommunes();
-            }
-            if (fileStateTypeRepository.count() == 0) {
-                fileStateTypeRepository.save(FileStateType.builder().state("En cours").build());
-                fileStateTypeRepository.save(FileStateType.builder().state("Terminé").Final(true).build());
-                fileStateTypeRepository.save(FileStateType.builder().state("Livré").build());
-                fileStateTypeRepository.save(FileStateType.builder().state("À LIVRER").build());
-                fileStateTypeRepository.save(FileStateType.builder().state("RETIRÉ").Final(true).build());
-                fileStateTypeRepository.save(FileStateType.builder().state("STANDBY").build());
-                fileStateTypeRepository.save(FileStateType.builder().state("À RETIRER").build());
-                fileStateTypeRepository.save(FileStateType.builder().state("STANDBY CLIENT").build());
-                fileStateTypeRepository.save(FileStateType.builder().state("MANQUANT").build());
-                fileStateTypeRepository.save(FileStateType.builder().state("REPRISE PIQUETAGE").build());
-                fileStateTypeRepository.save(FileStateType.builder().state("NON AFFECTÉ").initial(true).build());
-                fileStateTypeRepository.save(FileStateType.builder().state("REPRISE EN COURS D'ETUDE").build());
-                fileStateTypeRepository.save(FileStateType.builder().state("KIZÉO NON ATTRIBUÉ").build());
-                fileStateTypeRepository.save(FileStateType.builder().state("ANNULÉ").Final(true).build());
-            }
-            if (agentRepository.count() == 0) {
-                /**
-                 * after modifying the role names please make sure that {@link Agent#isAdmin()} is valid
-                 * */
-                final Role MANAGER = roleRepository.save(Role.builder().name("MANAGER").displayName("Administrateur").build());
-                final Role REFERENT = roleRepository.save(Role.builder().name("REFERENT").displayName("Référent").build());
-                final Role VALIDATOR = roleRepository.save(Role.builder().name("VALIDATOR").displayName("Valideur").build());
-                final Role ACCOUNTANT = roleRepository.save(Role.builder().name("ACCOUNTANT").displayName("Chargé d'étude").build());
-                List<Role> roles = List.of(MANAGER, REFERENT, VALIDATOR, ACCOUNTANT);
-                for (var role : roles) {
-                    agentRepository.save(Agent.builder()
-                            .name(role.getName().toLowerCase(Locale.ROOT))
-                            .email(faker.internet().emailAddress())
-                            .username(role.getName().toLowerCase(Locale.ROOT))
-                            .password(passwordEncoder.encode("000"))
-                            .enabled(true)
-                            .activity(role.getName().equals("MANAGER") ? null : getOne(activityRepository.findAll()))
-                            .role(role)
-                            .build()
-                    );
-                }
-
-                usersList().forEach(name ->
-                        agentRepository.save(Agent.builder()
-                                .name(name)
-                                .email(faker.internet().emailAddress())
-                                .username(faker.name().username())
-                                .password(passwordEncoder.encode("000"))
-                                .activity(getOne(activityRepository.findAll()))
-                                .role(getOne(roles, r -> !r.getName().equals("MANAGER")))
-                                .enabled(true)
-                                .build()
-                        )
+        if (activityRepository.count() == 0) {
+            createZapaActivity();
+            createFIActivity();
+            createIPONActivity();
+            createPiquetageActivity();
+            createCDCActivity();
+        }
+        if (clientRepository.count() == 0) {
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("RH"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("AXIANS"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("AXIANS IDF"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("COVAGE"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("CPCP ROGNAC"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("CPCP SUD"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("FREE"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("NET DESIGNER"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("NET GEO"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("OPT"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("OPTTICOM"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("S30"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("SCOPELEC"))));
+            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("SPIE"))));
+        }
+        if (communeRepository.count() == 0) {
+            createCommunes();
+        }
+        if (fileStateTypeRepository.count() == 0) {
+            fileStateTypeRepository.save(FileStateType.builder().state("En cours").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("Terminé").Final(true).build());
+            fileStateTypeRepository.save(FileStateType.builder().state("Livré").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("À LIVRER").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("RETIRÉ").Final(true).build());
+            fileStateTypeRepository.save(FileStateType.builder().state("STANDBY").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("À RETIRER").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("STANDBY CLIENT").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("MANQUANT").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("REPRISE PIQUETAGE").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("NON AFFECTÉ").initial(true).build());
+            fileStateTypeRepository.save(FileStateType.builder().state("REPRISE EN COURS D'ETUDE").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("KIZÉO NON ATTRIBUÉ").build());
+            fileStateTypeRepository.save(FileStateType.builder().state("ANNULÉ").Final(true).build());
+        }
+        if (agentRepository.count() == 0) {
+            /**
+             * after modifying the role names please make sure that {@link Agent#isAdmin()} is valid
+             * */
+            final Role MANAGER = roleRepository.save(Role.builder().name("MANAGER").displayName("Administrateur").build());
+            final Role REFERENT = roleRepository.save(Role.builder().name("REFERENT").displayName("Référent").build());
+            final Role VALIDATOR = roleRepository.save(Role.builder().name("VALIDATOR").displayName("Valideur").build());
+            final Role ACCOUNTANT = roleRepository.save(Role.builder().name("ACCOUNTANT").displayName("Chargé d'étude").build());
+            List<Role> roles = List.of(MANAGER, REFERENT, VALIDATOR, ACCOUNTANT);
+            for (var role : roles) {
+                agentRepository.save(Agent.builder()
+                        .name(role.getName().toLowerCase(Locale.ROOT))
+                        .email(faker.internet().emailAddress())
+                        .username(role.getName().toLowerCase(Locale.ROOT))
+                        .password(passwordEncoder.encode("000"))
+                        .enabled(true)
+                        .activity(role.getName().equals("MANAGER") ? null : getOne(activityRepository.findAll()))
+                        .role(role)
+                        .build()
                 );
             }
-            if (blockingLabelRepository.count() == 0) {
-                for (var name : List.of("AUTRE: BLOCAGE INTERNE",
-                        "AUTRE BLOCAGE : GESTOT",
-                        "IPON.SST : BLOCAGE IPON",
-                        "CRIT: IMPLANTATION APPUIS",
-                        "AUTRE: BLOCAGE PARTENAIRE",
-                        "GFI.SST : BLOCAGE GEOFIBRE",
-                        "NEGO: VERIF NBRE EL, IDF FIS",
-                        "NUM POT DOC : DEMANDE DE N° APPUI",
-                        "CAP FT : ETUDE FT À FAIRE OU ENCOURS",
-                        "ENEDIS : ETUDE ENEDIS À FAIRE OU ENCOURS",
-                        "DDE DESAT: DÉSATURATION OU DE MODIF.DE ZONE",
-                        "BLOC.CMS : CRÉATION, MODIFICATION,SUPPRESSION CMS")) {
-                    blockingLabelRepository.save(BlockingLabel.builder().name(name).build());
-                }
-            }
-            if (blockingQualificationRepository.count() == 0) {
-                for (var name : List.of("CMS",
-                        "PIT",
-                        "FLUX",
-                        "NEGO",
-                        "AUTRE",
-                        "CAP FT",
-                        "CONNEXION",
-                        "PIQUETAGE",
-                        "PIT + CMS",
-                        "PIT + NEGO",
-                        "EN ATT CPCP",
-                        "DESATURATION",
-                        "CMS+MODIF ZE",
-                        "EN ATT ORANGE",
-                        "NEGO+MODIF ZE",
-                        "NUMERO D'APPUI",
-                        "PIT + MODIF ZE",
-                        "MODIFICATION ZE",
-                        "DESATURATION + CMS",
-                        "CONNEXION +MODIF ZE",
-                        "SOUS DIMENSIONNEMENT",
-                        "SYNDIC NON IDENTIFIE",
-                        "MODIFICATION NBRE EL",
-                        "CMS+ SYNDIC NON IDENTIFIE")) {
-                    blockingQualificationRepository.save(BlockingQualification.builder().name(name).build());
-                }
-            }
-            if (blockingLockingAddressRepository.count() == 0) {
-                for (var name : List.of("NEGO",
-                        "INTERNE",
-                        "CMS+NEGO",
-                        "SUPPORT BE",
-                        "CMS+PILOTAGE",
-                        "NEGO+PILOTAGE",
-                        "SUPPORT BE+CMS",
-                        "SUPPORT BE+NEGO",
-                        "SUPPORT BE+PILOTAGE",
-                        "PILOTAGE PARTENAIRE",
-                        "PILOTAGE PARTENAIRES: SAMY")) {
-                    blockingLockingAddressRepository.save(BlockingLockingAddress.builder().address(name).build());
-                }
-            }
 
-            if (fileRepository.count() == 0) {
-                List<Client> clientList = clientRepository.findAll();
-                List<Commune> cities = communeRepository.findAll();
-                var agents = agentRepository.findAll();
-                List<FileStateType> fileStateTypes = fileStateTypeRepository.findAll();
-                var activities = activityRepository.findAll();
-                var tasks = taskRepository.findAll();
-                var taskStateList = taskStateRepository.findAll();
-                var now = LocalDateTime.now();
-                var files = new ArrayList<File>();
-                var activityStates = activityStateRepository.findAll();
-                var blockingLabels = blockingLabelRepository.findAll();
-                var blockingQualifications = blockingQualificationRepository.findAll();
-                var blockingLocks = blockingLockingAddressRepository.findAll();
-                var ord = new Object() {
-                    long fileTaskOrder = 0, fileActivityOrder = 0, fileOrder = 0, fileTaskNumber = 0;
-                };
-                ord.fileOrder = 0;
-                for (int i = 0; i < 100; i++) {
-                    ord.fileTaskNumber = 0;
-                    var file = File.builder()
-                            .client(getOne(clientList))
-                            .order(++ord.fileOrder)
-                            .agent(getOne(agents))
-                            .commune(getOne(cities))
-                            .createdDate(now)
-                            .attributionDate(toLocalDate(faker.date().between(toDate(now), toDate(now.plusDays(20)))))
-                            .returnDeadline(toLocalDate(faker.date().between(toDate(now.plusDays(21)), toDate(now.plusDays(40)))))
-                            .provisionalDeliveryDate(toLocalDate(faker.date().between(toDate(now.plusDays(21)), toDate(now.plusDays(40)))))
-                            .deliveryDate(toLocalDate(faker.date().between(toDate(now.plusDays(21)), toDate(now.plusDays(40)))))
-                            .project(faker.app().name())
-                            .build();
-                    var baseActivity = getOne(activities);
-                    var fileStates = new ArrayList<FileState>(Collections.singletonList(FileState.builder()
-                            .file(file)
-                            .agent(getOne(agents))
-                            .type(fileStateTypeRepository.findFirstByInitialIsTrue())
-                            .build()));
-                    fileStates.addAll(ListUtils.createCount(faker.number().numberBetween(0, 12),
-                            () -> FileState.builder().file(file).agent(getOne(agents)).type(getOne(fileStateTypes)).build()));
-                    getOne(fileStates).setCurrent(true);
-                    file.setFileStates(fileStates);
-                    ord.fileActivityOrder = 0;
-                    List<FileActivity> fileActivities = new ArrayList<>(List.of(FileActivity.builder()
-                            .activity(baseActivity)
-                            .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(baseActivity.getId()))
-                            .current(true)
-                            .agent(getOne(agents, a -> safeValue(() -> a.getActivity().getId(), -1L) == baseActivity.getId()))
-                            .file(file)
-                            .order(++ord.fileActivityOrder).build()));
-                    runNTimes(faker.number().numberBetween(0, 7), () -> {
-                        var act = getOne(activities);
-                        if (fileActivities.stream().noneMatch(f -> f.getActivity().getId() == act.getId())) {
-                            fileActivities.add(FileActivity.builder()
-                                    .activity(act)
-                                    .state(getOne(activityStates))
-                                    .agent(getOne(agents, a -> safeValue(() -> a.getActivity().getId(), -1L) == baseActivity.getId()))
-                                    .current(false)
-                                    .file(file)
-                                    .order(++ord.fileActivityOrder)
-                                    .build());
-                        }
-                    });
-                    fileActivities.forEach(fileActivity ->
-                    {
-                        fileActivity.setDocuments(ListUtils.createCount(faker.number().numberBetween(0, 4),
-                                () -> Document.builder().fileActivity(fileActivity).path("\\\\" + faker.internet().privateIpV4Address() + "\\" + faker.file().fileName()).description(faker.file().fileName()).agent(getOne(agents)).build()));
-                        ord.fileTaskOrder = 0;
-                        fileActivity.setFileTasks(new ArrayList<>(ListUtils.createCount(faker.number().numberBetween(0, 6), () ->
-                        {
-                            var createdDate = faker.date().between(toDate(now), toDate(now.plusDays(20)));
-                            var created = toLocalDateTime(createdDate);
-                            var reporter = getOne(agents, a -> a.getRole().getName().equals("REFERENT") && a.getActivity().getId() == fileActivity.getActivity().getId(), () -> getOne(agents));
-                            FileTask task = FileTask.builder()
-                                    .fileActivity(fileActivity)
-                                    .agent(reporter)
-                                    .order(++ord.fileTaskOrder)
-                                    .number(++ord.fileTaskNumber)
-                                    .assignedTo(getOne(agents,
-                                            a -> !a.isAdmin() && a.getActivity().getId() == fileActivity.getActivity().getId() && a.getRole().getName().equals("ACCOUNTANT"),
-                                            () -> getOne(agents)))
-                                    .reporter(reporter)
-                                    .task(getOne(fileActivity.getActivity().getTasks()))
-                                    .state(getOne(taskStateList))
-                                    .createdDate(created)
-                                    .dueDate(toLocalDate(futureDaysFrom(createdDate, 2, 4)).atStartOfDay())
-                                    .endDate(toLocalDate(futureDaysFrom(createdDate, 5, 15)).atStartOfDay())
-                                    .title(faker.job().title())
-                                    .build();
-                            var situations = task.getTask().getSituations();
-                            var blocks = new ArrayList<FileTaskSituation>();
-                            AtomicReference<LocalDateTime> blockDate = new AtomicReference<>(futureDaysFrom(task.getCreatedDate(), 0, 15));
-                            AtomicReference<LocalDateTime> stateDate = new AtomicReference<>(futureDaysFrom(task.getCreatedDate(), 0, 15));
-                            List<FileTaskSituation> thisTaskSituations = ListUtils.createCount(faker.number().numberBetween(1, 6), () ->
-                            {
-                                var situation = getOne(situations);
-                                var fileTaskSituation = FileTaskSituation.builder()
-                                        .situation(situation)
-                                        .agent(getOne(agents))
-                                        .fileTask(task)
-                                        .createdDate(stateDate.get())
-                                        .build();
-                                if (situation.isBlock()) {
-                                    var block = Blocking
-                                            .builder()
-                                            .state(fileTaskSituation)
-                                            .label(getOne(blockingLabels))
-                                            .agent(getOne(agents))
-                                            .lockingAddress(getOne(blockingLocks))
-                                            .qualification(getOne(blockingQualifications))
-                                            .createdDate(blockDate.get())
-                                            .explication(faker.lebowski().quote())
-                                            .build();
-                                    fileTaskSituation.setBlocking(block);
-                                    if (blocks.size() > 0) {
-                                        blocks.stream().reduce((first, second) -> second).get().getBlocking().setDateUnBlocked(toLocalDate(blockDate.get()).atStartOfDay());
-                                    }
-                                    blocks.add(fileTaskSituation);
-                                    blockDate.set(futureDaysFrom(task.getCreatedDate(), 0, 15));
-                                }
-                                stateDate.set(futureDaysFrom(stateDate.get(), 0, 15));
-                                return fileTaskSituation;
-                            });
-                            // set last situation as current
-                            thisTaskSituations.stream().reduce((__, last) -> last).get().setCurrent(true);
-                            task.setFileTaskSituations(thisTaskSituations);
-                            return task;
-                        })));
-                        fakeDataFields(fileActivity).getDataFields().forEach(field -> field.setAgent(getOne(agents)));
-                    });
-                    file.setBaseActivity(baseActivity);
-                    file.setFileActivities(fileActivities);
-                    if (faker.number().numberBetween(1, 10) == 1 && files.size() > 0) {
-                        var toReprise = getOne(files);
-                        file.setReprise(toReprise);
-                    }
-                    file.setNextFileTaskNumber(ord.fileTaskNumber + 1);
-                    files.add(fileRepository.save(file));
-                }
+            usersList().forEach(name ->
+                    agentRepository.save(Agent.builder()
+                            .name(name)
+                            .email(faker.internet().emailAddress())
+                            .username(faker.name().username())
+                            .password(passwordEncoder.encode("000"))
+                            .activity(getOne(activityRepository.findAll()))
+                            .role(getOne(roles, r -> !r.getName().equals("MANAGER")))
+                            .enabled(true)
+                            .build()
+                    )
+            );
+        }
+        if (blockingLabelRepository.count() == 0) {
+            for (var name : List.of("AUTRE: BLOCAGE INTERNE",
+                    "AUTRE BLOCAGE : GESTOT",
+                    "IPON.SST : BLOCAGE IPON",
+                    "CRIT: IMPLANTATION APPUIS",
+                    "AUTRE: BLOCAGE PARTENAIRE",
+                    "GFI.SST : BLOCAGE GEOFIBRE",
+                    "NEGO: VERIF NBRE EL, IDF FIS",
+                    "NUM POT DOC : DEMANDE DE N° APPUI",
+                    "CAP FT : ETUDE FT À FAIRE OU ENCOURS",
+                    "ENEDIS : ETUDE ENEDIS À FAIRE OU ENCOURS",
+                    "DDE DESAT: DÉSATURATION OU DE MODIF.DE ZONE",
+                    "BLOC.CMS : CRÉATION, MODIFICATION,SUPPRESSION CMS")) {
+                blockingLabelRepository.save(BlockingLabel.builder().name(name).build());
             }
-        });
+        }
+        if (blockingQualificationRepository.count() == 0) {
+            for (var name : List.of("CMS",
+                    "PIT",
+                    "FLUX",
+                    "NEGO",
+                    "AUTRE",
+                    "CAP FT",
+                    "CONNEXION",
+                    "PIQUETAGE",
+                    "PIT + CMS",
+                    "PIT + NEGO",
+                    "EN ATT CPCP",
+                    "DESATURATION",
+                    "CMS+MODIF ZE",
+                    "EN ATT ORANGE",
+                    "NEGO+MODIF ZE",
+                    "NUMERO D'APPUI",
+                    "PIT + MODIF ZE",
+                    "MODIFICATION ZE",
+                    "DESATURATION + CMS",
+                    "CONNEXION +MODIF ZE",
+                    "SOUS DIMENSIONNEMENT",
+                    "SYNDIC NON IDENTIFIE",
+                    "MODIFICATION NBRE EL",
+                    "CMS+ SYNDIC NON IDENTIFIE")) {
+                blockingQualificationRepository.save(BlockingQualification.builder().name(name).build());
+            }
+        }
+        if (blockingLockingAddressRepository.count() == 0) {
+            for (var name : List.of("NEGO",
+                    "INTERNE",
+                    "CMS+NEGO",
+                    "SUPPORT BE",
+                    "CMS+PILOTAGE",
+                    "NEGO+PILOTAGE",
+                    "SUPPORT BE+CMS",
+                    "SUPPORT BE+NEGO",
+                    "SUPPORT BE+PILOTAGE",
+                    "PILOTAGE PARTENAIRE",
+                    "PILOTAGE PARTENAIRES: SAMY")) {
+                blockingLockingAddressRepository.save(BlockingLockingAddress.builder().address(name).build());
+            }
+        }
+
+        if (fileRepository.count() == 0) {
+            List<Client> clientList = clientRepository.findAll();
+            List<Commune> cities = communeRepository.findAll();
+            var agents = agentRepository.findAll();
+            List<FileStateType> fileStateTypes = fileStateTypeRepository.findAll();
+            var activities = activityRepository.findAll();
+            var tasks = taskRepository.findAll();
+            var taskStateList = taskStateRepository.findAll();
+            var now = LocalDateTime.now();
+            var files = new ArrayList<File>();
+            var activityStates = activityStateRepository.findAll();
+            var blockingLabels = blockingLabelRepository.findAll();
+            var blockingQualifications = blockingQualificationRepository.findAll();
+            var blockingLocks = blockingLockingAddressRepository.findAll();
+            var ord = new Object() {
+                long fileTaskOrder = 0, fileActivityOrder = 0, fileOrder = 0, fileTaskNumber = 0;
+            };
+            ord.fileOrder = 0;
+            for (int i = 0; i < 100; i++) {
+                ord.fileTaskNumber = 0;
+                var file = File.builder()
+                        .client(getOne(clientList))
+                        .order(++ord.fileOrder)
+                        .agent(getOne(agents))
+                        .commune(getOne(cities))
+                        .createdDate(now)
+                        .attributionDate(toLocalDate(faker.date().between(toDate(now), toDate(now.plusDays(20)))))
+                        .returnDeadline(toLocalDate(faker.date().between(toDate(now.plusDays(21)), toDate(now.plusDays(40)))))
+                        .provisionalDeliveryDate(toLocalDate(faker.date().between(toDate(now.plusDays(21)), toDate(now.plusDays(40)))))
+                        .deliveryDate(toLocalDate(faker.date().between(toDate(now.plusDays(21)), toDate(now.plusDays(40)))))
+                        .project(faker.app().name())
+                        .build();
+                var baseActivity = getOne(activities);
+                var fileStates = new ArrayList<FileState>(Collections.singletonList(FileState.builder()
+                        .file(file)
+                        .agent(getOne(agents))
+                        .type(fileStateTypeRepository.findFirstByInitialIsTrue())
+                        .build()));
+                fileStates.addAll(ListUtils.createCount(faker.number().numberBetween(0, 12),
+                        () -> FileState.builder().file(file).agent(getOne(agents)).type(getOne(fileStateTypes)).build()));
+                getOne(fileStates).setCurrent(true);
+                file.setFileStates(fileStates);
+                ord.fileActivityOrder = 0;
+                List<FileActivity> fileActivities = new ArrayList<>(List.of(FileActivity.builder()
+                        .activity(baseActivity)
+                        .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(baseActivity.getId()))
+                        .current(true)
+                        .agent(getOne(agents, a -> safeValue(() -> a.getActivity().getId(), -1L) == baseActivity.getId()))
+                        .file(file)
+                        .order(++ord.fileActivityOrder).build()));
+                runNTimes(faker.number().numberBetween(0, 7), () -> {
+                    var act = getOne(activities);
+                    if (fileActivities.stream().noneMatch(f -> f.getActivity().getId() == act.getId())) {
+                        fileActivities.add(FileActivity.builder()
+                                .activity(act)
+                                .state(getOne(activityStates))
+                                .agent(getOne(agents, a -> safeValue(() -> a.getActivity().getId(), -1L) == baseActivity.getId()))
+                                .current(false)
+                                .file(file)
+                                .order(++ord.fileActivityOrder)
+                                .build());
+                    }
+                });
+                fileActivities.forEach(fileActivity ->
+                {
+                    fileActivity.setDocuments(ListUtils.createCount(faker.number().numberBetween(0, 4),
+                            () -> Document.builder().fileActivity(fileActivity).path("\\\\" + faker.internet().privateIpV4Address() + "\\" + faker.file().fileName()).description(faker.file().fileName()).agent(getOne(agents)).build()));
+                    ord.fileTaskOrder = 0;
+                    fileActivity.setFileTasks(new ArrayList<>(ListUtils.createCount(faker.number().numberBetween(0, 6), () ->
+                    {
+                        var createdDate = faker.date().between(toDate(now), toDate(now.plusDays(20)));
+                        var created = toLocalDateTime(createdDate);
+                        var reporter = getOne(agents, a -> a.getRole().getName().equals("REFERENT") && a.getActivity().getId() == fileActivity.getActivity().getId(), () -> getOne(agents));
+                        FileTask fileTask = FileTask.builder()
+                                .fileActivity(fileActivity)
+                                .agent(reporter)
+                                .order(++ord.fileTaskOrder)
+                                .number(++ord.fileTaskNumber)
+                                .assignedTo(getOne(agents,
+                                        a -> !a.isAdmin() && a.getActivity().getId() == fileActivity.getActivity().getId() && a.getRole().getName().equals("ACCOUNTANT"),
+                                        () -> getOne(agents)))
+                                .reporter(reporter)
+                                .task(getOne(fileActivity.getActivity().getTasks()))
+                                .state(getOne(taskStateList))
+                                .createdDate(created)
+                                .toStartDate(toLocalDateTime(futureDaysFrom(createdDate, 0, 1)))
+                                .dueDate(toLocalDateTime(futureDaysFrom(createdDate, 2, 4)))
+                                .endDate(toLocalDateTime(futureDaysFrom(createdDate, 5, 15)))
+                                .title(faker.job().title())
+                                .build();
+                        var situations = fileTask.getTask().getSituations();
+                        var blocks = new ArrayList<FileTaskSituation>();
+                        AtomicReference<LocalDateTime> blockDate = new AtomicReference<>(futureDaysFrom(fileTask.getCreatedDate(), 0, 15));
+                        AtomicReference<LocalDateTime> stateDate = new AtomicReference<>(futureDaysFrom(fileTask.getCreatedDate(), 0, 15));
+                        List<FileTaskSituation> thisTaskSituations = ListUtils.createCount(faker.number().numberBetween(1, 6), () ->
+                        {
+                            var situation = getOne(situations);
+                            var fileTaskSituation = FileTaskSituation.builder()
+                                    .situation(situation)
+                                    .agent(getOne(agents))
+                                    .fileTask(fileTask)
+                                    .createdDate(stateDate.get())
+                                    .build();
+                            if (situation.isBlock()) {
+                                var block = Blocking
+                                        .builder()
+                                        .state(fileTaskSituation)
+                                        .label(getOne(blockingLabels))
+                                        .agent(getOne(agents))
+                                        .lockingAddress(getOne(blockingLocks))
+                                        .qualification(getOne(blockingQualifications))
+                                        .createdDate(blockDate.get())
+                                        .dateUnBlocked(LocalDateTime.now())
+                                        .date(LocalDateTime.now())
+                                        .explication(faker.lorem().sentence())
+                                        .build();
+                                fileTaskSituation.setBlocking(block);
+                                if (blocks.size() > 0) {
+                                    blocks.stream().reduce((first, second) -> second).get().getBlocking().setDateUnBlocked(blockDate.get());
+                                }
+                                blocks.add(fileTaskSituation);
+                                blockDate.set(futureDaysFrom(fileTask.getCreatedDate(), 0, 15));
+                            }
+                            stateDate.set(futureDaysFrom(stateDate.get(), 0, 15));
+                            return fileTaskSituation;
+                        });
+                        // set last situation as current
+                        var state = thisTaskSituations.get(thisTaskSituations.size() - 1);
+                        state.setCurrent(true);
+                        safeRun(() -> state.getBlocking().setDateUnBlocked(null));
+                        fileTask.setFileTaskSituations(thisTaskSituations);
+                        return fileTask;
+                    })));
+                    fakeDataFields(fileActivity).getDataFields().forEach(field -> field.setAgent(getOne(agents)));
+                });
+                file.setBaseActivity(baseActivity);
+                file.setFileActivities(fileActivities);
+                if (faker.number().numberBetween(1, 10) == 1 && files.size() > 0) {
+                    var toReprise = getOne(files);
+                    file.setReprise(toReprise);
+                }
+                file.setNextFileTaskNumber(ord.fileTaskNumber + 1);
+                files.add(fileRepository.save(file));
+            }
+        }
     }
 
 

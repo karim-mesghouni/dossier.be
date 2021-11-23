@@ -12,47 +12,43 @@ import com.softline.dossier.be.graphql.types.input.FileActivityInput;
 import com.softline.dossier.be.repository.FileActivityRepository;
 import graphql.GraphQLException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import static com.softline.dossier.be.Tools.Functions.safeValue;
+import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.DenyOrProceed;
 
-@Transactional
 @Service
 @RequiredArgsConstructor
-public class FileActivityService extends IServiceBase<FileActivity, FileActivityInput, FileActivityRepository> {
-    @PersistenceContext
-    private EntityManager entityManager;
+public class FileActivityService {
+    private final FileActivityRepository repository;
 
-    @Override
     public List<FileActivity> getAll() {
-        return repository.findAll();
+        return Database.findAll(FileActivity.class);
+    }
+    public FileActivity getById(long id) {
+        return Database.findOrThrow(FileActivity.class, id);
     }
 
-    @Override
+
     public FileActivity create(FileActivityInput entityInput) {
         return Database.findOrThrow(File.class, entityInput.getFile(), file -> {
             var activity = Database.findOrThrow(Activity.class, entityInput.getActivity());
-            var state = Database.em()
-                    .createQuery("SELECT s from ActivityState s where " +
+            var state = Database.query("SELECT s from ActivityState s where " +
                             "s.initial = true and s.activity.id = :actId", ActivityState.class)
                     .setParameter("actId", entityInput.getActivity().getId())
                     .setMaxResults(1)
                     .getSingleResult();
+            Database.startTransaction();
             var fileActivity = Database.persist(FileActivity.builder()
                     .activity(activity)
                     .file(file)
                     .state(state)
                     .current(true)
-                    .order(getRepository().getNextOrder(file.getId()))
+                    .order(repository.getNextOrder(file.getId()))
                     .build());
-            Database.flush();
             activity.getFields().forEach(field -> {
                 fileActivity.getDataFields().add(
                         ActivityDataField.builder()
@@ -64,60 +60,49 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
                                 .build()
                 );
             });
-            Database.flush();
+            Database.commit();
             new FileActivityEvent(EntityEvent.Type.ADDED, fileActivity).fireToAll();
             return fileActivity;
         });
     }
 
-    @Override
-    @PreAuthorize("hasPermission(#entityInput.id, 'FileActivity', 'UPDATE_FILE_ACTIVITY')")
-    public FileActivity update(FileActivityInput entityInput) {
-        return null;
-    }
-
-    @Override
-    public boolean delete(long id) {
-        repository.deleteById(id);
-        return true;
-    }
-
-    @Override
-    public FileActivity getById(long id) {
-        return Database.findOrThrow(FileActivity.class, id);
-    }
 
     public List<FileActivity> getAllFileActivityByFileId(Long fileId) {
-        return getRepository().findAllByFile_Id(fileId);
+        return Database.em().createNamedQuery("FileActivity.getAllByFileId", FileActivity.class)
+                .setParameter("fileId", fileId)
+                .getResultList();
     }
 
     public ActivityState changeActivityState(Long activityStateId, Long fileActivityId) {
         return Database.findOrThrow(FileActivity.class, fileActivityId, "UPDATE_FILE_ACTIVITY", fileActivity -> {
             var activityState = Database.findOrThrow(ActivityState.class, activityStateId);
+            Database.startTransaction();
             fileActivity.setState(activityState);
-            Database.flush();
+            Database.commit();
             new FileActivityEvent(EntityEvent.Type.UPDATED, fileActivity).fireToAll();
             return activityState;
         });
     }
 
     public boolean changeDataField(ActivityDataFieldInput input) {
-        return Database.findOrThrow(ActivityDataField.class, input, "UPDATE_FILE_ACTIVITY_DATA_FIELD", field -> {
+        return Database.findOrThrow(input.map(), field -> {
+            DenyOrProceed("UPDATE_FILE_ACTIVITY_DATA_FIELD", field.getFileActivity());
+            Database.startTransaction();
             try {
                 input.tryCastData();
             } catch (NumberFormatException | DateTimeParseException e) {
                 // if data is not of the correct type
-                throw new GraphQLException(TextHelper.format("la valeur est malformée({})", field.getFieldType()));
+                throw new GraphQLException(TextHelper.format("la valeur est malformée [{}]", field.getFieldType()));
             }
             field.setData(input.getData());
-            Database.flush();
+            Database.commit();
             new FileActivityDataFieldEvent(EntityEvent.Type.UPDATED, field).fireToAll();
             return true;
         });
     }
 
     public List<FileActivity> getAllFileActivityByFileIdInTrash(long fileId) {
-        return entityManager.createQuery("select distinct fa from FileActivity fa inner join fa.fileTasks ft " +
+        return Database.query("select distinct fa from FileActivity fa left join fa.fileTasks ft " +
                         "where fa.file.id = :fileId " +
                         "and (fa.inTrash = true or ft.inTrash = true or (fa.inTrash = true and size(fa.fileTasks) = 0))", FileActivity.class)
                 .setParameter("fileId", fileId)
@@ -126,8 +111,9 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
 
     public boolean sendFileActivityToTrash(Long fileActivityId) {
         return Database.findOrThrow(FileActivity.class, fileActivityId, "DELETE_FILE_ACTIVITY", fileActivity -> {
+            Database.startTransaction();
             fileActivity.setInTrash(true);
-            Database.flush();
+            Database.commit();
             new FileActivityEvent(EntityEvent.Type.TRASHED, fileActivity).fireToAll();
             return true;
         });
@@ -135,8 +121,9 @@ public class FileActivityService extends IServiceBase<FileActivity, FileActivity
 
     public boolean recoverFileActivityFromTrash(Long fileActivityId) {
         return Database.findOrThrow(FileActivity.class, fileActivityId, "DELETE_FILE_ACTIVITY", fileActivity -> {
+            Database.startTransaction();
             fileActivity.setInTrash(false);
-            Database.flush();
+            Database.commit();
             new FileActivityEvent(EntityEvent.Type.RECOVERED, fileActivity).fireToAll();
             return true;
         });
