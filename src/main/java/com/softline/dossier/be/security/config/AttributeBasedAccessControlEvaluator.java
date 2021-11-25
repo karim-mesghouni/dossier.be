@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.softline.dossier.be.Tools.Functions.safeRun;
+import static com.softline.dossier.be.Tools.Functions.safeSupplied;
 import static com.softline.dossier.be.Tools.TextHelper.format;
 
 /**
@@ -43,9 +44,10 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
     /**
      * throws {@link AccessDeniedException} if the current logged-in user cannot do the action on the given object
      */
+    @SuppressWarnings({"Convert2MethodRef", "ConstantConditions"})
     public static void DenyOrProceed(@NotNull String action, @Nullable Object domain) throws AccessDeniedException {
         if (cannot(action, domain)) {
-            throw new AccessDeniedException(format("Denied operation {} on {} of type {}", action, domain, domain != null ? domain.getClass().getName() : "NULL"));
+            throw new AccessDeniedException(format("Denied operation {} on {} of type {} with authentication {}", action, safeSupplied(() -> domain.toString(), () -> "<failed to call toString>"), domain != null ? domain.getClass().getName() : "NULL", safeSupplied(() -> Agent.authentication().getPrincipal(), () -> "None")));
         }
     }
 

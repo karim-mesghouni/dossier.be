@@ -86,7 +86,7 @@ public class FileActivityService {
 
     public boolean changeDataField(ActivityDataFieldInput input) {
         return Database.findOrThrow(input.map(), field -> {
-            DenyOrProceed("UPDATE_FILE_ACTIVITY_DATA_FIELD", field.getFileActivity());
+            DenyOrProceed("UPDATE_FILE_ACTIVITY_DATA_FIELD", field);
             Database.startTransaction();
             try {
                 input.tryCastData();

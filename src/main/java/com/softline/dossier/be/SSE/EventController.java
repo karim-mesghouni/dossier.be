@@ -5,6 +5,7 @@ import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.events.Event;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,21 +19,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.softline.dossier.be.Tools.Functions.tap;
 
 @RestController
 @RequestMapping("/events")
 @Slf4j(topic = "SSE")
 public class EventController {
+    // !! SET LOGGING MODE TO DEBUG TO SEE ALL DEBUGGING MESSAGES FROM THIS CLASS !!
     // we keep track of registered channels so that later we can send events to these channels
+
     private static final List<Channel> channels = Collections.synchronizedList(new ArrayList<>());
     // sometimes the SseEmitter.complete() action does not get executed,
     // so we will manually clean the channel in such case by putting it in this removal queue
     // and the ping thread will clean this queue after sending the ping events
-    private static final ConcurrentLinkedDeque<Channel> scheduledForRemoval = new ConcurrentLinkedDeque<>();
+    private static final List<Channel> scheduledForRemoval = Collections.synchronizedList(new ArrayList<>());
     // all event send operations during when silent mode is active should be discarded and dismissed
     private static final AtomicBoolean silentModeActive = new AtomicBoolean();// initialValue: false
 
@@ -50,25 +50,21 @@ public class EventController {
             log.debug("starting ping thread");
         scheduler.scheduleAtFixedRate(() ->
         {
-            synchronized (channels) {// obtain lock
-                // remove any scheduled for removal channels
-                synchronized (scheduledForRemoval) {// obtain lock
-                    if (scheduledForRemoval.size() > 0) {
-                        scheduledForRemoval.forEach(ch -> {
-                            if (channels.contains(ch)) {
-                                if (log.isDebugEnabled())
-                                    log.debug("Removing scheduled channel removal {}", ch);
-                                channels.remove(ch);
-                            }
-                        });
-                        scheduledForRemoval.clear();
+            // remove any scheduled for removal channels
+            if (scheduledForRemoval.size() > 0) {
+                scheduledForRemoval.forEach(ch -> {
+                    if (channels.contains(ch)) {
+                        if (log.isDebugEnabled())
+                            log.debug("Removing scheduled channel removal {}", ch);
+                        channels.remove(ch);
                     }
-                }
-                if (channels.isEmpty()) {
-                    if (log.isDebugEnabled())
-                        log.debug("didnt send heart-beat signal, no channel is connected");
-                    return;
-                }
+                });
+                scheduledForRemoval.clear();
+            }
+            if (channels.isEmpty()) {
+                if (log.isDebugEnabled())
+                    log.debug("didnt send heart-beat signal, no channel is connected");
+                return;
             }
             if (log.isDebugEnabled())
                 log.debug("Sending heart-beat signal for all channels");
@@ -79,27 +75,23 @@ public class EventController {
     /**
      * used internally to send an event to a single channel
      */
-    private static void internalSendForEmitter(Channel channel, Event<?> event) {
-        synchronized (channels) {// obtain lock
-            try {
-                channel.setLastEvent(event);
-                channel.send(SseEmitter.event().name(event.getType()).data(event.getData()));
-                if (!Event.pingEvent().equals(event))
-                    log.info("sent {} to {}", event, channel);
-            } catch (Throwable e) {
-                if (!Event.pingEvent().equals(event)) {
-                    log.error("{} was not sent to {} because of [{}], adding the channel to the clean queue", event, channel, e.getMessage());
-                } else if (log.isDebugEnabled()) {
-                    log.debug("{} was not sent to {} because of [{}], adding the channel to the clean queue", event, channel, e.getMessage());
-                }
-                channel.complete();
-                // calling channel.complete() after "event send failure" (not a network error) has no effect,
-                // so we will ensure that the channel gets removed from the list and no further events will be sent to it
-                // the channel will be auto-cleaned after the timeout reaches (because we will stop sending events to it)
-                synchronized (scheduledForRemoval) {// obtain lock
-                    scheduledForRemoval.add(channel);
-                }
+    private static void sendForChannel(Channel channel, Event<?> event) {
+        try {
+            channel.setLastEvent(event);
+            channel.send(SseEmitter.event().name(event.getType()).data(event.getData()));
+            if (!Event.pingEvent().equals(event) && log.isDebugEnabled())
+                log.debug("sent {} to {}", event, channel);
+        } catch (Throwable e) {
+            if (!Event.pingEvent().equals(event)) {
+                log.error("{} was not sent to {} because of [{}], adding the channel to the clean queue", event, channel, e.getMessage());
+            } else if (log.isDebugEnabled()) {
+                log.debug("{} was not sent to {} because of [{}], adding the channel to the clean queue", event, channel, e.getMessage());
             }
+            channel.complete();
+            // calling channel.complete() after "event send failure" (not a network error) has no effect,
+            // so we will ensure that the channel gets removed from the list and no further events will be sent to it
+            // the channel will be auto-cleaned after the timeout reaches (because we will stop sending events to it)
+            scheduledForRemoval.add(channel);
         }
     }
 
@@ -109,17 +101,15 @@ public class EventController {
     public static void sendForAllChannels(Event<?> event) {
         if (silentModeActive.get() && !Event.pingEvent().equals(event)) {
             if (log.isDebugEnabled())
-                log.debug("silent mode is active {}, send to [all] was discarded", event);
+                log.debug("silent mode is active {} was discarded", event);
             return;
         }
-        synchronized (channels) {// obtain lock
-            if (!event.equals(Event.pingEvent()) && log.isInfoEnabled())
-                log.info("sendEventForAll: {}", event);
-            channels.forEach(channel -> {
-                if (channel.canRead(event))
-                    internalSendForEmitter(channel, event);
-            });
-        }
+        if (!event.equals(Event.pingEvent()) && log.isInfoEnabled())
+            log.info("Sending {} for {} channel{}", event, channels.size(), channels.size() == 1 ? "" : 's');
+        channels.forEach(channel -> {
+            if (channel.canRead(event))
+                sendForChannel(channel, event);
+        });
     }
 
     /**
@@ -130,16 +120,16 @@ public class EventController {
     public static void sendForUser(long userId, Event<?> event) {
         if (silentModeActive.get()) {
             if (log.isDebugEnabled())
-                log.debug("silent mode is active, send {} to [user:{}] was discarded", event, userId);
+                log.debug("silent mode is active, send {} to user {} was discarded", event, userId);
             return;
         }
-        synchronized (channels) {// obtain lock
-            channels.forEach(channel -> {
-                if (channel.userId == userId && channel.canRead(event)) {
-                    internalSendForEmitter(channel, event);
-                }
-            });
-        }
+        if (log.isDebugEnabled())
+            log.debug("Sending {} to user {}", event, userId);
+        channels.forEach(channel -> {
+            if (channel.userId == userId && channel.canRead(event)) {
+                sendForChannel(channel, event);
+            }
+        });
     }
 
     private static void activateSilentMode() {
@@ -168,17 +158,6 @@ public class EventController {
     /**
      * Run the action and discard any events that fired inside the action<br>
      * will force database flush before returning
-     */
-    public static void silently(Runnable action) {
-        activateSilentMode();
-        action.run();
-        flushPendingDatabaseChanges();
-        deactivateSilentMode();
-    }
-
-    /**
-     * Run the action and discard any events that fired inside the action<br>
-     * will force database flush before returning
      *
      * @return the value returned from the action
      * @throws RuntimeException if the action failed to perform
@@ -199,6 +178,17 @@ public class EventController {
     }
 
     /**
+     * Run the action and discard any events that fired inside the action<br>
+     * will force database flush before returning
+     */
+    public static void silently(@NotNull Runnable action) {
+        activateSilentMode();
+        action.run();
+        deactivateSilentMode();
+        flushPendingDatabaseChanges();
+    }
+
+    /**
      * subscribe the request to a sse channel and keep the connection open
      */
     @GetMapping(value = "/")
@@ -212,33 +202,28 @@ public class EventController {
         // this will delete the channel after 1 hour
         // and force the client to reconnect again
         // !! DO NOT OPEN AN SSE CHANNEL WITHOUT SETTING A TIMEOUT, IT IS VERY IMPORTANT FOR AUTO-CLEANING
-        return tap(new Channel(1000 * 60 * 60L, (long) Math.floor(Math.random() * Long.MAX_VALUE), Agent.thisAgent().getId()),
-                ch -> ch.onCompletion(() -> {
-                    // will be called if the client closed the connection (browser tap closed)
-                    // or if channel timeout was reached
-                    if (log.isDebugEnabled())
-                        log.debug("channel complete was called, removing {}", ch);
-                    synchronized (channels) {// obtain lock
-                        channels.remove(ch);
-                    }
-                }),
-                // will only happen if the channel was opened for more than 1 hour (previous timeout value)
-                ch -> ch.onTimeout(() -> {
-                    if (log.isDebugEnabled())
-                        log.debug("channel timeout for {}", ch);
-                }),
-                // called on event send error
-                ch -> ch.onError(err -> {
-                    if (!Objects.equals(ch.getLastEvent(), Event.pingEvent()) && log.isErrorEnabled()) {
-                        log.error("channel error for {} last {} [{}]", ch, ch.getLastEvent(), err.toString());
-                    }
-                }),
-                ch -> {
-                    synchronized (channels) {
-                        if (!channels.contains(ch)) {
-                            channels.add(ch);
-                        }
-                    }
-                });
+        var ch = new Channel(1000 * 60 * 60L, (long) Math.floor(Math.random() * Long.MAX_VALUE), Agent.thisAgent().getId());
+        ch.onCompletion(() -> {
+            // will be called if the client closed the connection (browser tap closed)
+            // or if channel timeout was reached
+            if (log.isDebugEnabled())
+                log.debug("channel complete was called, removing {}", ch);
+            channels.remove(ch);
+        });
+        // will only happen if the channel was opened for more than 1 hour (previous timeout value)
+        ch.onTimeout(() -> {
+            if (log.isDebugEnabled())
+                log.debug("timeout reached for {}", ch);
+        });
+        // called on event send error
+        ch.onError(err -> {
+            if (!Objects.equals(ch.getLastEvent(), Event.pingEvent()) && log.isErrorEnabled()) {
+                log.error("channel error for {} last {} [{}]", ch, ch.getLastEvent(), err.toString());
+            }
+        });
+        if (!channels.contains(ch)) {
+            channels.add(ch);
+        }
+        return ch;
     }
 }

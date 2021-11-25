@@ -25,7 +25,7 @@ public class PolicyMatcher {
                     return true;// if false check other rules in the loop
                 }
             } catch (Exception ex) {
-                log.error("An error occurred while evaluating {}", rule, ex);
+                log.error("An error occurred while evaluating {} {}", rule, ex.toString());
             }
         }
         return false;

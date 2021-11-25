@@ -8,6 +8,7 @@ import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.CommentType;
 import com.softline.dossier.be.events.EntityEvent;
 import com.softline.dossier.be.events.entities.CommentEvent;
+import com.softline.dossier.be.events.entities.MessageEvent;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.repository.CommentRepository;
 import com.softline.dossier.be.repository.FileActivityRepository;
@@ -59,6 +60,11 @@ public class CommentService {
         TipTap.resolveCommentContent(comment);
         Database.commit();
         new CommentEvent(EntityEvent.Type.ADDED, comment).fireToAll();
+        comment.getMessages().forEach(m -> {
+            if (m.isParsedNow()) {
+                new MessageEvent(EntityEvent.Type.ADDED, m).fireTo(m.getTargetAgent().getId());
+            }
+        });
         return comment;
     }
 
@@ -69,6 +75,11 @@ public class CommentService {
             TipTap.resolveCommentContent(comment);
             Database.commit();
             new CommentEvent(EntityEvent.Type.UPDATED, comment).fireToAll();
+            comment.getMessages().forEach(m -> {
+                if (m.isParsedNow()) {
+                    new MessageEvent(EntityEvent.Type.ADDED, m).fireTo(m.getTargetAgent().getId());
+                }
+            });
             return comment;
         });
     }
@@ -77,7 +88,7 @@ public class CommentService {
         return Database.findOrThrow(Comment.class, id, "DELETE_COMMENT", comment -> {
             Database.startTransaction();
             if (comment.getFileTask() != null) {
-                if (comment.getType() == CommentType.Returned) {
+                if (comment.getType() == CommentType.Retour) {
                     comment.getFileTask().setRetour(null);
                 } else {
                     if (comment.getType() == CommentType.Description) {

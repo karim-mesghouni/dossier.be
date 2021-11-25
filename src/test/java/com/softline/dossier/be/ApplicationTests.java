@@ -14,7 +14,7 @@ class ApplicationTests
 	{
 		SpelExpressionParser parser = new SpelExpressionParser();
 		var res = parser.parseRaw("{'a', 'b'}.contains('a')");
-		assertThat(res).isEqualTo(true);
+		assertThat(res.getValue()).isEqualTo(true);
 	}
 
 	@Test

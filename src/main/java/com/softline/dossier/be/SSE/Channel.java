@@ -9,7 +9,7 @@ import java.util.Objects;
 
 /**
  * an extension to the {@link SseEmitter} Response object,
- * the channel has a sessionId and a userId, and with some helper methods
+ * the channel has a sessionId and a userId, and other helper methods
  */
 public class Channel extends SseEmitter {
     public final long sessionId;
@@ -17,6 +17,16 @@ public class Channel extends SseEmitter {
 
     private Event<?> lastEvent;
 
+    /**
+     * create a new SSE channel with unique combination of
+     * (sessionId, userId) and with a defined timeout<br>
+     * if no successful events were sent to this channel during
+     * &lt;timeout&gt; amount of time the channel will be force closed
+     *
+     * @param timeout   timeout in milliseconds
+     * @param sessionId the first unique identifier for this channel
+     * @param userId    the second unique identifier for this channel
+     */
     public Channel(long timeout, long sessionId, long userId) {
         super(timeout);
         this.sessionId = sessionId;
@@ -68,7 +78,7 @@ public class Channel extends SseEmitter {
     }
 
     /**
-     * @return boolean value which tells if this channel can read the event
+     * @return boolean value which tells if this channel has permission to read the given event
      */
     public boolean canRead(Event<?> event) {
         return event.isReadableByChannel(this);

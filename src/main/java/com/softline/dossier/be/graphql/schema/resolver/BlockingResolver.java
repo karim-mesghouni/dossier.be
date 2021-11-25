@@ -25,7 +25,7 @@ public class BlockingResolver implements GraphQLQueryResolver, GraphQLMutationRe
     }
 
     public Blocking updateBlocking(BlockingInput blockingInput) {
-        return service.update(blockingInput);
+        return service.update(blockingInput.map());
     }
 
     public boolean deleteBlocking(Long id) {

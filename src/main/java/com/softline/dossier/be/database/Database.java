@@ -241,6 +241,7 @@ public class Database {
         return entity;
     }
 
+
     /**
      * flush the {@link #em() entity manager} and then commit any active transactions.
      */

@@ -80,10 +80,10 @@ public class Event<T> implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) return true;// if same reference
+        if (o == null || getClass() != o.getClass()) return false;// if not same class
         Event<?> event = (Event<?>) o;
-        return type.equals(event.type) && Objects.equals(payload, event.payload);
+        return Objects.equals(type, event.type) && Objects.equals(payload, event.payload);// same type and same payload
     }
 
     @Override
@@ -98,7 +98,8 @@ public class Event<T> implements Serializable {
         try {
             return Boolean.TRUE.equals(getPermissionEvaluator(channel).call());// convert null to false
         } catch (Exception e) {
-            log.error("Event.getPermission() failed to get permissionEvaluator result", e);
+            if (log.isErrorEnabled())
+                log.error("Event.getPermission() failed to get permissionEvaluator result", e);
             return false;
         }
     }
@@ -108,9 +109,10 @@ public class Event<T> implements Serializable {
      * a boolean which tells if the channel has permission to read this event according to the passed channel.
      * default callable return value is true
      */
+    @SuppressWarnings("RedundantThrows")
     @ForOverride
-    protected @NotNull
-    Callable<Boolean> getPermissionEvaluator(Channel channel) {
+    @NotNull
+    protected Callable<Boolean> getPermissionEvaluator(Channel channel) throws Exception {
         return () -> true;
     }
 }

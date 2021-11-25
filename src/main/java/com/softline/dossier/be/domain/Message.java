@@ -34,13 +34,16 @@ public class Message extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     Agent targetAgent;
 
-
     /**
-     * send event to the mentioned user
+     * will be set to true when the message is first created, and value will be false for messages pulled from the database
+     * this will tell if we need to send an event or not
      */
-    @PostPersist
-    public void afterCreate() {
-        new MessageEvent(EntityEvent.Type.ADDED, this).fireTo(getTargetAgent().getId());
+    @Transient
+    boolean parsedNow;
+
+    @PostRemove
+    public void afterRemove() {
+        new MessageEvent(EntityEvent.Type.DELETED, this).fireTo(getTargetAgent().getId());
     }
 
     @Override

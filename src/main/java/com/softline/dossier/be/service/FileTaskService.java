@@ -235,7 +235,7 @@ public class FileTaskService {
                 retour = ReturnedComment.builder()
                         .fileTask(fileTask)
                         .agent(thisDBAgent())
-                        .type(CommentType.Returned)
+                        .type(CommentType.Retour)
                         .fileActivity(fileTask.getFileActivity())
                         .createdDate(LocalDateTime.now())
                         .build();

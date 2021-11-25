@@ -11,5 +11,5 @@ public interface TaskSituationRepository extends JpaRepository<TaskSituation, Lo
 
     List<TaskSituation> findAllByTask_Id(Long taskId);
 
-    TaskSituation findAllByTask_IdAndBlockIsTrue(Long taskId);
+    TaskSituation findByTask_IdAndBlockIsTrue(Long taskId);
 }

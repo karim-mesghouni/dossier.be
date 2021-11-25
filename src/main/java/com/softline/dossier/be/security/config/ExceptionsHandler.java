@@ -5,14 +5,13 @@ import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import graphql.GraphQLError;
 import graphql.GraphQLException;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.persistence.EntityNotFoundException;
 
-@Component
 @Slf4j
 @ControllerAdvice
 public class ExceptionsHandler {
@@ -22,7 +21,7 @@ public class ExceptionsHandler {
      * we will send it to the client to give a feedback message.
      */
     @ExceptionHandler(ClientReadableException.class)
-    public GraphQLError exceptionHandler(ClientReadableException e) {
+    public GraphQLError exceptionHandler(@NotNull ClientReadableException e) {
         log.error("ClientReadableException: {}", e.getMessage());
         return new ThrowableGraphQLError(e);
     }
@@ -40,13 +39,13 @@ public class ExceptionsHandler {
     }
 
     @ExceptionHandler(GraphQLException.class)
-    public GraphQLError exceptionHandler(GraphQLException e) {
+    public GraphQLError exceptionHandler(@NotNull GraphQLException e) {
         log.error("GraphQLException: {}", e.getMessage());
         return new ThrowableGraphQLError(new Throwable(e.getMessage()));
     }
 
     @ExceptionHandler(Throwable.class)
-    public GraphQLError exceptionHandler(Throwable e) {
+    public GraphQLError exceptionHandler(@NotNull Throwable e) {
         log.error("Throwable: {}", e.getMessage());
         return new ThrowableGraphQLError(new Throwable("server error"));
     }

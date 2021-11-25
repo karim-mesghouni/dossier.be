@@ -4,7 +4,6 @@ import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.events.EntityEvent;
 import com.softline.dossier.be.events.entities.FileTaskEvent;
-import com.softline.dossier.be.graphql.types.input.BlockingInput;
 import com.softline.dossier.be.repository.BlockingRepository;
 import com.softline.dossier.be.repository.FileTaskSituationRepository;
 import com.softline.dossier.be.repository.TaskSituationRepository;
@@ -12,6 +11,7 @@ import graphql.GraphQLException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 import static com.softline.dossier.be.Tools.Functions.safeRun;
@@ -48,64 +48,64 @@ public class BlockingService {
         return repository.findAllByState_FileTask_Id(fileTaskId);
     }
 
-    public Blocking create(Blocking input) {
-        var currentFileTask = Database.findOrThrow(input.getState().getFileTask());
-        DenyOrProceed("WORK_IN_FILE_TASK", currentFileTask);
+    public Blocking create(Blocking block) {
+        var fileTask = Database.findOrThrow(block.getState().getFileTask());
+        DenyOrProceed("WORK_IN_FILE_TASK", fileTask);
         Database.startTransaction();
-        var oldSituation = Database.findOrThrow(fileTaskSituationRepository.findFirstByFileTaskAndCurrentIsTrue(currentFileTask));
-        var blockState = Database.findOrThrow(taskSituationRepository.findAllByTask_IdAndBlockIsTrue(currentFileTask.getTask().getId()));
+        Database.findOrThrow(fileTaskSituationRepository.findFirstByFileTaskAndCurrentIsTrue(fileTask))
+                .setCurrent(false);
+        var blockState = fileTask.getTask().getSituations()
+                .stream().filter(TaskSituation::isBlock).findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Task does not have a block situation"));
         var fileSituation = Database.persist(FileTaskSituation.builder()
-                .fileTask(FileTask.builder().id(input.getState().getFileTask().getId()).build())
+                .fileTask(block.getState().getFileTask())
                 .situation(blockState)
                 .current(true)
                 .build());
-        oldSituation.setCurrent(false);
-        var block = Database.persist(Blocking.builder()
-                .id(input.getId())
-                .label(BlockingLabel.builder().id(input.getLabel().getId()).build())
-                .lockingAddress(BlockingLockingAddress.builder().id(input.getLockingAddress().getId()).build())
-                .qualification(BlockingQualification.builder().id(input.getQualification().getId()).build())
-                .explication(input.getExplication())
-                .dateUnBlocked(input.getDateUnBlocked())
-                .state(fileSituation)
-                .date(input.getDate())
-                .build());
+        block.setState(fileSituation);
+        Database.persist(block);
+        fileSituation.setBlocking(block);
         Database.commit();
-        new FileTaskEvent(EntityEvent.Type.UPDATED, currentFileTask).fireToAll();
+        new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
         return block;
     }
 
-    public Blocking update(BlockingInput input) {
-        var blocking = Database.findOrThrow(Blocking.class, input);
+    public Blocking update(Blocking input) {
+        var blocking = Database.findOrThrow(input);
         boolean wasBlocked = blocking.getBlock();
         Database.startTransaction();
         var fileTask = blocking.getState().getFileTask();
         DenyOrProceed("WORK_IN_FILE_TASK", fileTask);
 
-        safeRun(() -> blocking.setLabel(Database.findOrThrow(BlockingLabel.class, input.getLabel())));
-        safeRun(() -> blocking.setQualification(Database.findOrThrow(BlockingQualification.class, input.getQualification())));
-        safeRun(() -> blocking.setLockingAddress(Database.findOrThrow(BlockingLockingAddress.class, input.getLockingAddress())));
-        FileTaskSituation oldState = fileTask.getFileTaskSituations().stream().filter(e -> !e.getSituation().isBlock()).min((a, b) -> (int) (a.getId() - b.getId())).get();
+        safeRun(() -> blocking.setLabel(Database.findOrThrow(input.getLabel())));
+        safeRun(() -> blocking.setQualification(Database.findOrThrow(input.getQualification())));
+        safeRun(() -> blocking.setLockingAddress(Database.findOrThrow(input.getLockingAddress())));
 
         blocking.setExplication(input.getExplication());
         blocking.setDateUnBlocked(input.getDateUnBlocked());
         blocking.setDate(input.getDate());
 
-        if (wasBlocked && !blocking.getBlock()) {
-            var currentState = fileTask.getCurrentState();
-            currentState.setCurrent(false);
-            fileTaskSituationRepository.save(FileTaskSituation.builder().blocking(oldState.getBlocking()).fileTask(oldState.getFileTask()).current(true).situation(oldState.getSituation()).build());
+        if (wasBlocked && !blocking.getBlock()) {// it was blocked, and now he wants to "deBlock" the blocking
+            // get the last non-blocking fileState
+            FileTaskSituation oldNonBlockingSituation = fileTask.getFileTaskSituations().stream().filter(e -> !e.getSituation().isBlock()).min((b, a) -> (int) (a.getId() - b.getId())).get();
+            blocking.getState().setCurrent(false);
+            Database.persist(FileTaskSituation.builder()
+                    .fileTask(oldNonBlockingSituation.getFileTask())
+                    .current(true)
+                    .situation(oldNonBlockingSituation.getSituation())
+                    .build());
         } else {
-            if (!wasBlocked && blocking.getBlock()) {
+            if (!wasBlocked && blocking.getBlock()) {// the block is "deBlocked", and now he wants to activate it again
+                // situation that is not blocked
                 var oldSituation = Database.findOrThrow(fileTaskSituationRepository.findFirstByFileTaskAndCurrentIsTrue(fileTask));
-                TaskSituation blockState = Database.findOrThrow(taskSituationRepository.findAllByTask_IdAndBlockIsTrue(fileTask.getTask().getId()));
-                var fileSituation = Database.persist(FileTaskSituation.builder()
-                        .fileTask(FileTask.builder().id(fileTask.getId()).build())
-                        .situation(blockState)
+                oldSituation.setCurrent(false);
+                var newBlockingFileTaskSituation = Database.persist(FileTaskSituation.builder()
+                        .fileTask(fileTask)
+                        .blocking(blocking)
+                        .situation(blocking.getState().getSituation())
                         .current(true)
                         .build());
-                blocking.setState(fileSituation);
-                oldSituation.setCurrent(false);
+                blocking.setState(newBlockingFileTaskSituation);
             }
         }
         Database.commit();
