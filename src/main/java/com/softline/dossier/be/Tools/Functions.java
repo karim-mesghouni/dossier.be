@@ -7,7 +7,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -30,7 +29,8 @@ public class Functions {
     }
 
     /**
-     * will encapsulate the action in a try-catch block
+     * will encapsulate the action in a try-catch block<br>
+     * useful to avoid null pointer exception
      *
      * @param action the action to be done
      * @return true if the action has run successfully otherwise false is returned
@@ -48,16 +48,37 @@ public class Functions {
 
     /**
      * will encapsulate the action in a try-catch block,
+     * if the action fails the fallback action will be run with encapsulation
+     *
+     * @param action   the action to be done
+     * @param fallback the fallback action to be run if the first action threw an exception
+     * @return true if the action or the fallback has run successfully
+     * if both the action and fallback failed false is returned
+     */
+    public static boolean safeRunWithFallback(@NotNull Runnable action, @NotNull Runnable fallback) {
+        try {
+            action.run();
+            return true;
+        } catch (Throwable e) {
+            if (log.isDebugEnabled())
+                log.info("SafeRun: {}, running fallback action", e.getMessage());
+            return safeRun(fallback);
+        }
+    }
+
+    /**
+     * will encapsulate the action in a try-catch block,
      * runs the action only if the condition is met,
-     * the condition call is also encapsulated with the action
+     * the condition call is also encapsulated with the action<br>
+     * useful to avoid null pointer exception
      *
      * @param condition if it returned true the action will be called
      * @param action    the action to be done
      * @return false is returned if the condition or the action threw an exception otherwise true
      */
-    public static boolean safeRunIf(@NotNull Callable<Boolean> condition, @NotNull Runnable action) {
+    public static boolean safeRunIf(@NotNull Supplier<Boolean> condition, @NotNull Runnable action) {
         try {
-            if (condition.call()) {
+            if (condition.get()) {
                 action.run();
             }
             return true;
@@ -113,9 +134,9 @@ public class Functions {
     /**
      * returns false if the producer produced an {@link Functions#throwIfEmpty(Object) empty value}
      */
-    public static boolean isEmpty(@NotNull Callable<Object> producer) {
+    public static boolean isEmpty(@NotNull Supplier<?> producer) {
         try {
-            throwIfEmpty(producer.call());
+            throwIfEmpty(producer.get());
             return false;
         } catch (Throwable e) {
             if (log.isDebugEnabled())
@@ -130,12 +151,13 @@ public class Functions {
      * @param producer a callback which will produce the value to be tested
      * @return true if the producer return value is not empty, false if the producer threw and exception or the returned value was empty,
      */
-    public static boolean notEmpty(@NotNull Callable<Object> producer) {
+    public static boolean notEmpty(@NotNull Supplier<?> producer) {
         return !isEmpty(producer);
     }
 
     /**
-     * produce a value or use fallback value if the producer returned empty value or the producer threw an exception,
+     * produce a value or use fallback value if the producer returned empty value or the producer threw an exception,<br>
+     * useful to avoid null pointer exception
      *
      * @param producer the value producer
      * @param fallback fallback value to be returned if the producer threw an exception or the producer return value was an empty value
@@ -177,26 +199,6 @@ public class Functions {
     @Nullable
     public static <T> T safeValue(@NotNull Supplier<T> producer) {
         return safeValue(producer, null);
-    }
-
-    /**
-     * will encapsulate the action in a try-catch block,
-     * if the action fails the fallback action will be run with encapsulation
-     *
-     * @param action   the action to be done
-     * @param fallback the fallback action to be run if the first action threw an exception
-     * @return true if the action or the fallback has run successfully
-     * if both the action and fallback failed false is returned
-     */
-    public static boolean safeRunWithFallback(@NotNull Runnable action, @NotNull Runnable fallback) {
-        try {
-            action.run();
-            return true;
-        } catch (Throwable e) {
-            if (log.isDebugEnabled())
-                log.info("SafeRun: {}, running fallback action", e.getMessage());
-            return safeRun(fallback);
-        }
     }
 
     /**

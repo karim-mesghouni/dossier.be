@@ -39,20 +39,20 @@ public class FileTaskSchemaResolver implements GraphQLQueryResolver, GraphQLMuta
         return service.getById(fileTaskId);
     }
 
-    public List<TaskSituation> getAllTaskSituations(Long taskId) {
+    public List<TaskSituation> getAllTaskSituations(long taskId) {
         return service.getAllTaskSituations(taskId);
     }
 
-    public Agent changeAssignedTo(Long assignedToId, Long fileTaskId) {
+    public Agent changeAssignedTo(long assignedToId, long fileTaskId) {
         return service.changeAssignedTo(assignedToId, fileTaskId);
     }
 
-    public Agent changeReporter(Long reporterId, Long fileTaskId) {
+    public Agent changeReporter(long reporterId, Long fileTaskId) {
         return service.changeReporter(reporterId, fileTaskId);
 
     }
 
-    public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) {
+    public FileTaskSituation changeFileTaskSituation(long situationId, long fileTaskId) {
         return service.changeFileTaskSituation(situationId, fileTaskId);
 
     }
@@ -71,8 +71,8 @@ public class FileTaskSchemaResolver implements GraphQLQueryResolver, GraphQLMuta
         return service.getAllFileTaskByAssignedToId(assignedToId);
     }
 
-    public boolean changeToStartDate(LocalDateTime toStartDate, Long fileTaskId) {
-        return service.changeToStartDate(toStartDate, fileTaskId);
+    public boolean changeStartDate(LocalDateTime startDate, Long fileTaskId) {
+        return service.changeStartDate(startDate, fileTaskId);
     }
 
     public boolean changeDueDate(LocalDateTime dueDate, Long fileTaskId) {

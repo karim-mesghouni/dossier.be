@@ -2,6 +2,7 @@ package com.softline.dossier.be.Tools;
 
 import org.apache.logging.log4j.message.ParameterizedMessage;
 import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
@@ -12,6 +13,10 @@ public final class TextHelper {
     private TextHelper() {
     }
 
+    /**
+     * find the first pattern-match on a given search-string
+     */
+    @Contract(pure = true)
     public static String search(@Language("RegExp") String pattern, String haystack) {
         Matcher m = Pattern.compile(pattern).matcher(haystack);
         if (m.find()) {
@@ -42,6 +47,7 @@ public final class TextHelper {
      * Format the given text with the given arguments,
      * argument format in text is {} like in Slf4j logger
      */
+    @Contract(value = "_,_ -> new", pure = true)
     public static String format(String format, Object... args) {
         var sb = new StringBuilder();
         new ParameterizedMessage(format, args).formatTo(sb);

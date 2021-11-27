@@ -15,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Objects;
 
 import static com.softline.dossier.be.Application.context;
 import static com.softline.dossier.be.Tools.Functions.notEmpty;
@@ -69,7 +68,7 @@ public class Agent extends BaseEntity {
     }
 
     public boolean isAdmin() {
-        return getRole() != null && Objects.equals(getRole().getName(), "MANAGER");
+        return getRole() != null && this.getRole().is(Role.Type.MANAGER);
     }
 
     /**
@@ -125,5 +124,9 @@ public class Agent extends BaseEntity {
      */
     public static boolean notLoggedIn() {
         return !isLoggedIn();
+    }
+
+    public boolean is(Role.Type type) {
+        return getRole() != null && getRole().is(type);
     }
 }

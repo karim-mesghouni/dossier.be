@@ -1,7 +1,6 @@
 package com.softline.dossier.be.SSE;
 
 import com.softline.dossier.be.config.Beans;
-import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.events.Event;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.extern.slf4j.Slf4j;
@@ -145,19 +144,7 @@ public class EventController {
     }
 
     /**
-     * force any pending changes on this hibernate session (current request)
-     */
-    private static void flushPendingDatabaseChanges() {
-        var ch = Database.unsafeEntityManager();
-        if (ch != null) {
-            ch.flush();
-            ch.clear();
-        }
-    }
-
-    /**
-     * Run the action and discard any events that fired inside the action<br>
-     * will force database flush before returning
+     * Run the action and discard any events that fired inside the action<br>*
      *
      * @return the value returned from the action
      * @throws RuntimeException if the action failed to perform
@@ -173,19 +160,22 @@ public class EventController {
             deactivateSilentMode();
             throw new RuntimeException(e);
         }
-        flushPendingDatabaseChanges();
+        deactivateSilentMode();
         return returning;
     }
 
     /**
      * Run the action and discard any events that fired inside the action<br>
-     * will force database flush before returning
      */
     public static void silently(@NotNull Runnable action) {
         activateSilentMode();
-        action.run();
+        try {
+            action.run();
+        } catch (Throwable e) {
+            deactivateSilentMode();
+            throw new RuntimeException(e);
+        }
         deactivateSilentMode();
-        flushPendingDatabaseChanges();
     }
 
     /**

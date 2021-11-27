@@ -1,5 +1,6 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.domain.Concerns.HasCreator;
 import com.softline.dossier.be.domain.Concerns.HasId;
 import com.softline.dossier.be.security.domain.Agent;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
@@ -30,7 +31,7 @@ import java.time.LocalDateTime;
         @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 })
 @Data
-public class BaseEntity implements HasId {
+public class BaseEntity implements HasId, HasCreator {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected long id;
@@ -47,4 +48,9 @@ public class BaseEntity implements HasId {
     @Column()
     @LastModifiedDate
     private LocalDateTime modifiedDate;
+
+    @Override
+    public Agent getCreator() {
+        return getAgent();
+    }
 }

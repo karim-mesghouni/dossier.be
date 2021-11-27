@@ -20,4 +20,12 @@ public class DateRangeInput {
         return Optional.ofNullable(from)
                 .orElse(MIN_DATE);
     }
+
+    @Override
+    public String toString() {
+        return "DateRangeInput{" +
+                "from=" + from +
+                ", to=" + to +
+                '}';
+    }
 }

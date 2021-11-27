@@ -11,9 +11,9 @@ import com.softline.dossier.be.security.repository.AgentRepository;
 import com.softline.dossier.be.security.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,11 +30,10 @@ import static com.softline.dossier.be.Tools.Functions.*;
 import static com.softline.dossier.be.database.seed.SeederHelper.*;
 
 @SuppressWarnings("DanglingJavadoc")
-@Component
 @RequiredArgsConstructor
+@Component
 @Slf4j(topic = "DBSeeder")
-@Order(1)
-public class DBSeeder implements ApplicationRunner {
+public class DatabaseSeeder implements ApplicationRunner {
     private final ActivityRepository activityRepository;
     private final FileStateTypeRepository fileStateTypeRepository;
     private final BlockingLockingAddressRepository blockingLockingAddressRepository;
@@ -55,13 +54,21 @@ public class DBSeeder implements ApplicationRunner {
      *
      * @see FakerConfiguration#faker()
      */
-    private final Faker faker; //
+    private final Faker faker;
 
     Activity zapa;
     Activity fi;
     Activity ipon;
     Activity piquetage;
     Activity cdc;
+
+    @Value("${database.seeder.seed-files:false}")
+    private boolean seedFiles;
+    @Value("${database.seeder.seed-agents:false}")
+    private boolean seedAgents;
+    @Value("${database.seeder.seed-clients:false}")
+    private boolean seedClients;
+
 
     @Transactional
     public void run(ApplicationArguments args) {
@@ -72,7 +79,7 @@ public class DBSeeder implements ApplicationRunner {
             createPiquetageActivity();
             createCDCActivity();
         }
-        if (clientRepository.count() == 0) {
+        if (seedClients && clientRepository.count() == 0) {
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("RH"))));
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("AXIANS"))));
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("AXIANS IDF"))));
@@ -108,39 +115,41 @@ public class DBSeeder implements ApplicationRunner {
             fileStateTypeRepository.save(FileStateType.builder().state("ANNULÉ").Final(true).build());
         }
         if (agentRepository.count() == 0) {
-            /**
-             * after modifying the role names please make sure that {@link Agent#isAdmin()} is valid
-             * */
-            final Role MANAGER = roleRepository.save(Role.builder().name("MANAGER").displayName("Administrateur").build());
-            final Role REFERENT = roleRepository.save(Role.builder().name("REFERENT").displayName("Référent").build());
-            final Role VALIDATOR = roleRepository.save(Role.builder().name("VALIDATOR").displayName("Valideur").build());
-            final Role ACCOUNTANT = roleRepository.save(Role.builder().name("ACCOUNTANT").displayName("Chargé d'étude").build());
-            List<Role> roles = List.of(MANAGER, REFERENT, VALIDATOR, ACCOUNTANT);
+
+            List<Role> roles = roleRepository.saveAll(List.of(
+                    Role.builder().type(Role.Type.MANAGER).displayName("Administrateur").build(),
+                    Role.builder().type(Role.Type.REFERENT).displayName("Référent").build(),
+                    Role.builder().type(Role.Type.VALIDATOR).displayName("Valideur").build(),
+                    Role.builder().type(Role.Type.ACCOUNTANT).displayName("Chargé d'étude").build())
+            );
             for (var role : roles) {
-                agentRepository.save(Agent.builder()
-                        .name(role.getName().toLowerCase(Locale.ROOT))
-                        .email(faker.internet().emailAddress())
-                        .username(role.getName().toLowerCase(Locale.ROOT))
-                        .password(passwordEncoder.encode("000"))
-                        .enabled(true)
-                        .activity(role.getName().equals("MANAGER") ? null : getOne(activityRepository.findAll()))
-                        .role(role)
-                        .build()
+                if (role.isAdmin() || seedAgents) {
+                    agentRepository.save(Agent.builder()
+                            .name(role.getName().toLowerCase(Locale.ROOT))
+                            .email(faker.internet().emailAddress())
+                            .username(role.getName().toLowerCase(Locale.ROOT))
+                            .password(passwordEncoder.encode("000"))
+                            .enabled(true)
+                            .activity(role.is(Role.Type.MANAGER) ? null : getOne(activityRepository.findAll()))
+                            .role(role)
+                            .build()
+                    );
+                }
+            }
+            if (seedAgents) {
+                usersList().forEach(name ->
+                        agentRepository.save(Agent.builder()
+                                .name(name)
+                                .email(faker.internet().emailAddress())
+                                .username(faker.name().username())
+                                .password(passwordEncoder.encode("000"))
+                                .activity(getOne(activityRepository.findAll()))
+                                .role(getOne(roles, r -> !r.is(Role.Type.MANAGER)))
+                                .enabled(true)
+                                .build()
+                        )
                 );
             }
-
-            usersList().forEach(name ->
-                    agentRepository.save(Agent.builder()
-                            .name(name)
-                            .email(faker.internet().emailAddress())
-                            .username(faker.name().username())
-                            .password(passwordEncoder.encode("000"))
-                            .activity(getOne(activityRepository.findAll()))
-                            .role(getOne(roles, r -> !r.getName().equals("MANAGER")))
-                            .enabled(true)
-                            .build()
-                    )
-            );
         }
         if (blockingLabelRepository.count() == 0) {
             for (var name : List.of("AUTRE: BLOCAGE INTERNE",
@@ -202,7 +211,7 @@ public class DBSeeder implements ApplicationRunner {
             }
         }
 
-        if (fileRepository.count() == 0) {
+        if (seedFiles && fileRepository.count() == 0) {
             List<Client> clientList = clientRepository.findAll();
             List<Commune> cities = communeRepository.findAll();
             var agents = agentRepository.findAll();
@@ -274,20 +283,20 @@ public class DBSeeder implements ApplicationRunner {
                     {
                         var createdDate = faker.date().between(toDate(now), toDate(now.plusDays(20)));
                         var created = toLocalDateTime(createdDate);
-                        var reporter = getOne(agents, a -> a.getRole().getName().equals("REFERENT") && a.getActivity().getId() == fileActivity.getActivity().getId(), () -> getOne(agents));
+                        var reporter = getOne(agents, a -> a.is(Role.Type.REFERENT) && a.getActivity().getId() == fileActivity.getActivity().getId(), () -> getOne(agents));
                         FileTask fileTask = FileTask.builder()
                                 .fileActivity(fileActivity)
                                 .agent(reporter)
                                 .order(++ord.fileTaskOrder)
                                 .number(++ord.fileTaskNumber)
                                 .assignedTo(getOne(agents,
-                                        a -> !a.isAdmin() && a.getActivity().getId() == fileActivity.getActivity().getId() && a.getRole().getName().equals("ACCOUNTANT"),
+                                        a -> !a.isAdmin() && a.getActivity().getId() == fileActivity.getActivity().getId() && a.is(Role.Type.ACCOUNTANT),
                                         () -> getOne(agents)))
                                 .reporter(reporter)
                                 .task(getOne(fileActivity.getActivity().getTasks()))
                                 .state(getOne(taskStateList))
                                 .createdDate(created)
-                                .toStartDate(toLocalDateTime(futureDaysFrom(createdDate, 0, 1)))
+                                .startDate(toLocalDateTime(futureDaysFrom(createdDate, 0, 1)))
                                 .dueDate(toLocalDateTime(futureDaysFrom(createdDate, 2, 4)))
                                 .endDate(toLocalDateTime(futureDaysFrom(createdDate, 5, 15)))
                                 .title(faker.job().title())

@@ -21,7 +21,7 @@ import static com.softline.dossier.be.Tools.DateHelpers.*;
 import static com.softline.dossier.be.Tools.Functions.safeValue;
 
 /**
- * used by {@link DBSeeder} class
+ * used by {@link DatabaseSeeder} class
  */
 @Slf4j(topic = "DBSeeder")
 final class SeederHelper {

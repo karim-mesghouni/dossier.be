@@ -32,7 +32,9 @@ dependencies {
     implementation("com.graphql-java-kickstart:graphql-spring-boot-starter:5.10.0")
 	implementation("com.graphql-java-kickstart:playground-spring-boot-starter:5.10.0")
     implementation 'org.modelmapper:modelmapper:2.4.4'
-    compileOnly 'org.projectlombok:lombok'
+	implementation 'org.zalando:logbook-core:2.14.0'
+
+	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'mysql:mysql-connector-java'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'

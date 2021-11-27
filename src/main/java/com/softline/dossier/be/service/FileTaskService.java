@@ -20,7 +20,6 @@ import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -92,6 +91,7 @@ public class FileTaskService {
 
     public FileTask update(FileTaskInput input) {
         var fileTask = Database.findOrThrow(FileTask.class, input);
+        DenyOrProceed("UPDATE_FILE_TASK", fileTask);
         Database.startTransaction();
         fileTask.setToStartDate(input.getToStartDate());
         fileTask.setDueDate(input.getDueDate());
@@ -108,9 +108,10 @@ public class FileTaskService {
     }
 
 
-    public Agent changeAssignedTo(Long assignedToId, Long fileTaskId) {
+    public Agent changeAssignedTo(long assignedToId, long fileTaskId) {
         var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
-        var assigned = Database.findOrThrow(Agent.class, assignedToId);
+        DenyOrProceed("UPDATE_FILE_TASK", fileTask);
+        var assigned = Database.findOrNull(Agent.class, assignedToId);
         Database.startTransaction();
         fileTask.setAssignedTo(assigned);
         Database.commit();
@@ -118,10 +119,10 @@ public class FileTaskService {
         return assigned;
     }
 
-    @PreAuthorize("hasPermission(null, 'ADMIN')")
-    public Agent changeReporter(Long reporterId, Long fileTaskId) {
-        var reporter = Database.findOrThrow(Agent.class, reporterId);
+    public Agent changeReporter(long reporterId, long fileTaskId) {
         var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
+        DenyOrProceed("ADMIN", fileTask);
+        var reporter = Database.findOrNull(Agent.class, reporterId);
         Database.startTransaction();
         fileTask.setReporter(reporter);
         Database.commit();
@@ -171,10 +172,11 @@ public class FileTaskService {
         return repository.findAllByAssignedTo_Id(assignedToId);
     }
 
-    public boolean changeToStartDate(LocalDateTime toStartDate, Long fileTaskId) {
-        return Database.findOrThrow(FileTask.class, fileTaskId, "UPDATE_FILE_TASK", fileTask -> {
+    public boolean changeStartDate(LocalDateTime startDate, Long fileTaskId) {
+        return Database.findOrThrow(FileTask.class, fileTaskId, fileTask -> {
+            DenyOrProceed("UPDATE_FILE_TASK", fileTask);
             Database.startTransaction();
-            fileTask.setToStartDate(toStartDate);
+            fileTask.setStartDate(startDate);
             Database.commit();
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
             return true;

@@ -10,7 +10,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity
-@DiscriminatorValue("Returned")
+@DiscriminatorValue("Retour")
 @SuperBuilder
 @AllArgsConstructor
 @Data

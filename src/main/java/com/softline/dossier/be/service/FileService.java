@@ -219,7 +219,6 @@ public class FileService {
                 "where (f.project like CONCAT('%', :project, '%') or :project='') " +
                 "and :activityId in(0, f.baseActivity.id) " +
                 "and :clientId in(0, f.client.id) " +
-                "and :isAdmin = true " +
                 "and (fs.current = true and :stateId in(0, fs.type.id) or size(f.fileStates) = 0) ";
         var dates = new HashMap<String, LocalDate>();
         if (filter.attributionDate.from != null || filter.attributionDate.to != null) {
@@ -249,7 +248,7 @@ public class FileService {
         if (filter.onlyTrashed) {
             query += "and (f.inTrash = true or fa.inTrash = true or ft.inTrash = true) ";
         } else {
-            query += "and f.inTrash = false and (fa.inTrash = false or size(f.fileActivities) = 0) and (ft.inTrash = false or size(fa.fileTasks) = 0 or size(f.fileActivities) = 0) ";
+            query += "and f.inTrash = false ";
         }
         if (type == File.class) {
             query += "order by f.order";
@@ -260,8 +259,7 @@ public class FileService {
                 .setParameter("activityId", firstNonNull(filter.activity.getId(), 0))
                 .setParameter("stateId", firstNonNull(filter.state.getType().getId(), 0))
                 .setParameter("isReprise", filter.reprise)
-                .setParameter("isNotReprise", filter.notReprise)
-                .setParameter("isAdmin", Agent.thisAgent().isAdmin() || Agent.thisAgent().getRole().getName().equals("REFERENT"));
+                .setParameter("isNotReprise", filter.notReprise);
         dates.forEach(q::setParameter);
         return q;
     }

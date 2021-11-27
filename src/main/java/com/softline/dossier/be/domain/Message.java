@@ -15,7 +15,6 @@ import javax.persistence.*;
 @SuperBuilder
 @Entity
 @Data
-
 @NoArgsConstructor
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE Message SET deleted=true WHERE id=?")
@@ -36,7 +35,7 @@ public class Message extends BaseEntity {
 
     /**
      * will be set to true when the message is first created, and value will be false for messages pulled from the database
-     * this will tell if we need to send an event or not
+     * this will tell if we need to send an event or not when we update the related comment
      */
     @Transient
     boolean parsedNow;

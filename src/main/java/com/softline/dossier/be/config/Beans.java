@@ -25,7 +25,6 @@ import java.util.Optional;
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 public class Beans {
-
 //    @Value("${pool.size:4}")
 //    private int poolSize;;
 //

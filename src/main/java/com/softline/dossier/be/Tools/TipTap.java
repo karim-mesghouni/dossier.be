@@ -58,10 +58,18 @@ public final class TipTap {
         comment.setContent(changes.getFirst());
     }
 
+    /**
+     * parse the comment content and create a new {@link Message}(mention) if there is a mention block in the content
+     */
     private static String resolveMentions(@NotNull Comment comment) {
         return TextHelper.replace(Pattern.compile("(?<=\\{\"type\":\"mention\",\"attrs\":\\{\"id\":\")[^!]*?(?=\")"), agentId -> {
             Agent targetAgent = Agent.getByIdentifier(agentId);
-            Message message = Message.builder().parsedNow(true).comment(comment).targetAgent(targetAgent).agent(Agent.thisAgent()).build();
+            Message message = Message.builder()
+                    .parsedNow(true)
+                    .comment(comment)
+                    .targetAgent(targetAgent)
+                    .agent(Agent.thisAgent())
+                    .build();
             comment.getMessages().add(message);
             // add "!" to indicate that the mention has been handled
             // so next time it will not be captured by the above regex matcher (in the case where the comment was updated we won't re-create the resolved Messages again)

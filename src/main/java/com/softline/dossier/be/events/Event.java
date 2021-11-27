@@ -6,6 +6,7 @@ import com.softline.dossier.be.SSE.EventController;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -38,17 +39,21 @@ public class Event<T> implements Serializable {
     @NotNull
     public static Event<Long> pingEvent() {
         if (pingEvent != null) return pingEvent;
-        pingEvent = new Event<>("ping", System.currentTimeMillis());
+        pingEvent = new Event<>("ping", null);
         return pingEvent;
     }
 
     /**
+     * get the payload data as string (call {@link Object#toString()} method)<br>
+     * if the payload is of type {@link JSONObject} it will be parsed into a json string
+     *
      * @return payload converted to string, if payload is null empty string is returned
      */
     @NotNull
     public String getData() {
-        // if the payload is of type JSONObject it will be parsed into a json string
-        return payload != null ? payload.toString() : "";
+        return payload != null
+                ? payload.toString()
+                : "";
     }
 
     @Override
