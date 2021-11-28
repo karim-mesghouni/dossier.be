@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -92,6 +93,7 @@ public class Functions {
     /**
      * the value is considered empty if any of these conditions are met<br>
      * the value (is null) or (is string and length is 0) or (is number and equal to 0) or (is Optional and isEmpty()) or (is boolean and equals false)
+     *
      * @return the value passed
      * @throws RuntimeException if the value was considered empty
      */
@@ -207,5 +209,27 @@ public class Functions {
     public static void runNTimes(int n, @NotNull Runnable action) {
         for (int i = 0; i < n; i++)
             action.run();
+    }
+
+    /**
+     * run the action and catch any exception and convert them into RuntimeException
+     */
+    public static void wrap(Runnable action) throws RuntimeException {
+        try {
+            action.run();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * return the value of the callback or catch any exception and convert them into RuntimeException
+     */
+    public static <T> T wrap(Callable<T> action) throws RuntimeException {
+        try {
+            return action.call();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 }

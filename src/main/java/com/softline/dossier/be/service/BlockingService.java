@@ -95,6 +95,7 @@ public class BlockingService {
 
         if (wasBlocked && !blockingShadow.getBlock()) {// it was blocked, and now he wants to "deBlock" the blocking
             // get all active blocks
+            @SuppressWarnings("Convert2MethodRef")
             var blocks = fileTask.getFileTaskSituations().stream().map(fts -> fts.getBlocking()).filter(Objects::nonNull).filter(Blocking::getBlock).collect(Collectors.toList());
             if (blocks.size() == 1) {// if there is only one active block (which is the current block)
                 // get the last non-blocking fileState
@@ -105,7 +106,7 @@ public class BlockingService {
                         .current(true)
                         .situation(oldNonBlockingSituation.getSituation())
                         .build());
-            } else {// there are more than one block, so we will keep the current block fileTaskState
+            } else {// there are more than one block, so we will keep the current "block fileTaskState"
                 // just do nothing
             }
         } else {

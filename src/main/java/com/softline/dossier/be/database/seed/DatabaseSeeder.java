@@ -11,18 +11,19 @@ import com.softline.dossier.be.security.repository.AgentRepository;
 import com.softline.dossier.be.security.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.softline.dossier.be.Tools.DateHelpers.*;
@@ -68,7 +69,10 @@ public class DatabaseSeeder implements ApplicationRunner {
     private boolean seedAgents;
     @Value("${database.seeder.seed-clients:false}")
     private boolean seedClients;
-
+    @Autowired
+    ResourceLoader resources;
+    @Value("${database.seeder.seed-communes:false}")
+    private boolean seedCommunes;
 
     @Transactional
     public void run(ApplicationArguments args) {
@@ -95,7 +99,7 @@ public class DatabaseSeeder implements ApplicationRunner {
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("SCOPELEC"))));
             contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("SPIE"))));
         }
-        if (communeRepository.count() == 0) {
+        if (communeRepository.count() == 0 && seedCommunes) {
             createCommunes();
         }
         if (fileStateTypeRepository.count() == 0) {
@@ -360,14 +364,26 @@ public class DatabaseSeeder implements ApplicationRunner {
 
 
     private void createCommunes() {
-        communeRepository.save(Commune.builder().name("BOURG EN BRESSE").INSEECode("01053").postalCode("1000").build());
-        communeRepository.save(Commune.builder().name("SAINT DENIS LES BOURG").INSEECode("01344").postalCode("1000").build());
-        communeRepository.save(Commune.builder().name("BROU").INSEECode("01914").postalCode("1000").build());
-        communeRepository.save(Commune.builder().name("AMAREINS").INSEECode("01003").postalCode("1090").build());
-        communeRepository.save(Commune.builder().name("CESSEINS").INSEECode("01070").postalCode("1090").build());
-        communeRepository.save(Commune.builder().name("AMAREINS FRANCHELEINS CES").INSEECode("01165").postalCode("1090").build());
-        communeRepository.save(Commune.builder().name("GENOUILLEUX").INSEECode("01169").postalCode("1090").build());
-        communeRepository.save(Commune.builder().name("GUEREINS").INSEECode("01183").postalCode("1090").build());
+        var xlsxResource = resources.getResource("classpath:communes.xlsx");
+        var sheet = wrap(() -> new XSSFWorkbook(xlsxResource.getInputStream()))
+                .getSheetAt(0);
+
+        List<Commune> communes = new ArrayList<>();
+        var errors = new HashMap<Integer, Throwable>();
+        for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
+            try {
+                var row = sheet.getRow(i);
+                var commune = new Commune();
+                commune.setPostalCode(StringUtils.leftPad("" + (int) row.getCell(0).getNumericCellValue(), 5, '0'));
+                commune.setName(row.getCell(1).getStringCellValue());
+                commune.setINSEECode(StringUtils.leftPad("" + (int) row.getCell(2).getNumericCellValue(), 5, '0'));
+                commune.setDepartment(row.getCell(4).getStringCellValue());
+                communes.add(commune);
+            } catch (Throwable e) {
+                errors.put(i, e);
+            }
+        }
+        communeRepository.saveAll(communes);
     }
 
     private void createZapaActivity() {
