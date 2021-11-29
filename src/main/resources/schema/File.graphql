@@ -1,4 +1,4 @@
-directive @can(action: String!) on FIELD_DEFINITION
+directive @can(action: String!, entity: String!) on FIELD_DEFINITION
 # Query
 extend type Query  {
     allFile:[File!]!
@@ -11,7 +11,7 @@ extend type Query  {
 #mutation
 extend type Mutation{
     createFile(input: FileInput!):File
-    updateFile(input: FileInput!):File @can(action: "UPDATE_FILE")
+    updateFile(input: FileInput!):File @can(action: "UPDATE_FILE", entity: "File")
     sendFileToTrash(fileId: ID!): Boolean
     recoverFileFromTrash(fileId: ID!): Boolean
     changeFileOrder(fileId: ID!, fileBeforeId: ID): Boolean # Keep fileBeforeId nullable
