@@ -3,8 +3,10 @@ package com.softline.dossier.be.database;
 import com.softline.dossier.be.Application;
 import com.softline.dossier.be.domain.Concerns.HasId;
 import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.AccessDeniedException;
@@ -28,13 +30,15 @@ import static com.softline.dossier.be.security.config.AttributeBasedAccessContro
 
 @Component
 public class Database {
-    private Database() {
+    static ConfigurableApplicationContext context;
+
+    private Database(ConfigurableApplicationContext __cnx) {
+        context = __cnx;
     }
 
-    @Bean(name = "localEntityManager")
-    @Scope("request")
-    public Object localEntityManager(EntityManagerFactory factory){
-        return factory.createEntityManager();// will be called once for each request
+    @NotNull
+    public static EntityManager em() {
+        return context.getBean("localEntityManager", EntityManager.class);
     }
 
     public static void startTransaction() {
@@ -42,8 +46,8 @@ public class Database {
     }
 
     @NotNull
-    public static EntityManager em() {
-        return Application.context().getBean("localEntityManager", EntityManager.class);
+    public static <T> T getSingle(@NotNull @Language("HQL") String query, @NotNull Class<T> clazz) throws NoResultException {
+        return em().createQuery(query, clazz).setMaxResults(1).getSingleResult();
     }
 
     @NotNull
@@ -65,13 +69,8 @@ public class Database {
         return predicate.predicate(cb, r);
     }
 
-
     @NotNull
-    public static <T> T getSingle(@Language("HQL") String query, Class<T> clazz) {
-        return em().createQuery(query, clazz).setMaxResults(1).getSingleResult();
-    }
-
-    private static <T> TypedQuery<T> criteria(Class<T> clazz, QueryFilter<T> filter) {
+    private static <T> TypedQuery<T> criteria(@NotNull Class<T> clazz, @NotNull QueryFilter<T> filter) {
         var cb = em().getCriteriaBuilder();
         var cq = cb.createQuery(clazz);
         var r = cq.from(clazz);
@@ -79,20 +78,27 @@ public class Database {
         return em().createQuery(cq);
     }
 
-    public static <T> int count(Class<T> clazz, QueryFilter<T> filter) {
+    public static <T> int count(@NotNull Class<T> clazz, @NotNull QueryFilter<T> filter) {
         return criteria(clazz, filter).getResultList().size();
     }
 
-    public static <T> List<T> findAll(Class<T> clazz, int maxResults, QueryFilter<T> filter) {
+    @NotNull
+    public static <T> List<T> findAll(@NotNull Class<T> clazz, int maxResults, @NotNull QueryFilter<T> filter) {
         return criteria(clazz, filter).setMaxResults(maxResults).getResultList();
     }
 
-    public static <T> List<T> findAll(Class<T> clazz, QueryFilter<T> filter) {
+    @NotNull
+    public static <T> List<T> findAll(@NotNull Class<T> clazz, @NotNull QueryFilter<T> filter) {
         return criteria(clazz, filter).getResultList();
     }
 
-    public static <T> T findOne(Class<T> clazz, QueryFilter<T> filter) throws NoResultException {
+    @NotNull
+    public static <T> T findOne(@NotNull Class<T> clazz, @NotNull QueryFilter<T> filter) throws NoResultException {
         return criteria(clazz, filter).setMaxResults(1).getSingleResult();
+    }
+
+    public static <T> T findOrDefault(@NotNull Class<T> clazz, @Nullable Serializable id, Supplier<T> _default) {
+        return safeSupplied(() -> findOrThrow(clazz, id), _default);
     }
 
     @Nullable
@@ -101,109 +107,113 @@ public class Database {
         return Application.getBean(EntityManager.class);
     }
 
-    public static <T> T findOrDefault(Class<T> clazz, Serializable id, Supplier<T> _default) {
-        return safeSupplied(() -> findOrThrow(clazz, id), _default);
-    }
-
-    public static <T> T findOrNull(Class<T> clazz, Serializable id) {
+    @Nullable
+    @Contract(value = "_, null -> null")
+    public static <T> T findOrNull(@NotNull Class<T> clazz, @Nullable Serializable id) {
         return em().find(clazz, id);
     }
 
-    public static <T> T findOrNull(Class<T> clazz, HasId id) {
-        return findOrNull(clazz, id.getId());
+    @Nullable
+    @Contract(value = "_, null -> null")
+    public static <T> T findOrNull(@NotNull Class<T> clazz, @Nullable HasId id) {
+        return findOrNull(clazz, id != null ? id.getId() : null);
     }
 
-    public static <T> T findOrThrow(Class<T> clazz, Serializable id) throws EntityNotFoundException {
+    @NotNull
+    public static <T> T findOrThrow(@NotNull Class<T> clazz, @Nullable Serializable id) throws EntityNotFoundException {
         return throwIfEmpty(em().find(clazz, id), () -> new EntityNotFoundException(format("No entity of type {} with id {} was found", clazz, id)));
     }
 
-
-    public static <T> T findOrThrow(Class<T> clazz, Serializable id, String action) throws EntityNotFoundException {
+    @NotNull
+    public static <T> T findOrThrow(@NotNull Class<T> clazz, @Nullable Serializable id, @NotNull String action) throws EntityNotFoundException {
         return findOrThrow(clazz, id, (Consumer<T>) entity -> DenyOrProceed(action, entity));
     }
 
-
-    public static <T> T findOrThrow(Class<T> clazz, HasId id) throws EntityNotFoundException {
-        return throwIfEmpty(em().find(clazz, id.getId()), () -> new EntityNotFoundException(format("No entity of type {} with id {} was found", clazz, id.getId())));
+    @NotNull
+    public static <T> T findOrThrow(@NotNull Class<T> clazz, @Nullable HasId id) throws EntityNotFoundException {
+        return throwIfEmpty(em().find(clazz, id == null ? null : id.getId()), () -> new EntityNotFoundException(format("No entity of type {} with id {} was found", clazz, id == null ? null : id.getId())));
     }
 
-
-    public static <T extends HasId> T findOrThrow(T input) throws EntityNotFoundException {
+    @NotNull
+    public static <T extends HasId> T findOrThrow(@Nullable T input) throws EntityNotFoundException {
+        if (input == null) throw new EntityNotFoundException("could not find null entity");
         //noinspection unchecked
         return findOrThrow((Class<T>) input.getClass(), input.getId());
     }
 
-
-    public static <T, R> R findOrThrow(Class<T> clazz, Serializable id, Function<T, R> action) throws EntityNotFoundException {
+    @NotNull
+    public static <T, R> R findOrThrow(@NotNull Class<T> clazz, @Nullable Serializable id, @NotNull Function<T, R> action) throws EntityNotFoundException {
         return action.apply(findOrThrow(clazz, id));
     }
 
-
-    public static <T, R> R findOrThrow(Class<T> clazz, HasId id, Function<T, R> action) throws EntityNotFoundException {
+    @NotNull
+    public static <T, R> R findOrThrow(@NotNull Class<T> clazz, @Nullable HasId id, @NotNull Function<T, R> action) throws EntityNotFoundException {
         return action.apply(findOrThrow(clazz, id));
     }
 
-
-    public static <T, R> R findOrThrow(Class<T> clazz, Serializable id, String permission, Function<T, R> action) throws EntityNotFoundException {
+    @NotNull
+    public static <T, R> R findOrThrow(@NotNull Class<T> clazz, @Nullable Serializable id, @NotNull String permission, @NotNull Function<T, R> action) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
         DenyOrProceed(permission, entity);
         return action.apply(entity);
     }
 
-
-    public static <T, R> R findOrThrow(Class<T> clazz, HasId id, String permission, Function<T, R> action) throws EntityNotFoundException, AccessDeniedException {
+    @NotNull
+    public static <T, R> R findOrThrow(@NotNull Class<T> clazz, @Nullable HasId id, @NotNull String permission, @NotNull Function<T, R> action) throws EntityNotFoundException, AccessDeniedException {
         T entity = findOrThrow(clazz, id);
         DenyOrProceed(permission, entity);
         return action.apply(entity);
     }
 
-    public static <T extends HasId, R> R findOrThrow(T entity, String permission, Function<T, R> action) throws EntityNotFoundException, AccessDeniedException {
+    @NotNull
+    public static <T extends HasId, R> R findOrThrow(@Nullable T entity, @NotNull String permission, @NotNull Function<T, R> action) throws EntityNotFoundException, AccessDeniedException {
+        if (entity == null) throw new EntityNotFoundException("could not find null entity");
         //noinspection unchecked
         return findOrThrow((Class<T>) entity.getClass(), entity, permission, action);
     }
 
-    public static <T extends HasId, R> R findOrThrow(T entity, Function<T, R> action) throws EntityNotFoundException, AccessDeniedException {
+    @NotNull
+    public static <T extends HasId, R> R findOrThrow(@Nullable T entity, @NotNull Function<T, R> action) throws EntityNotFoundException, AccessDeniedException {
+        if (entity == null) throw new EntityNotFoundException("could not find null entity");
         //noinspection unchecked
         return findOrThrow((Class<T>) entity.getClass(), entity, action);
     }
 
-    public static <T> T findOrThrow(Class<T> clazz, Serializable id, Consumer<T> action) throws EntityNotFoundException {
+    @NotNull
+    public static <T> T findOrThrow(@NotNull Class<T> clazz, @Nullable Serializable id, @NotNull Consumer<T> action) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
         action.accept(entity);
         return entity;
     }
 
-
-    public static <T> List<T> findAll(Class<T> clazz) {
+    @NotNull
+    public static <T> List<T> findAll(@NotNull Class<T> clazz) {
         return em().createQuery("SELECT e FROM " + getEntityType(clazz).getName() + " e", clazz).getResultList();
     }
 
-
-    public static <T> List<T> findAll(Class<T> clazz, Predicate<T> filter) {
+    @NotNull
+    public static <T> List<T> findAll(@NotNull Class<T> clazz, @NotNull Predicate<T> filter) {
         return em().createQuery("SELECT e FROM " + getEntityType(clazz).getName() + " e", clazz).getResultStream().filter(filter).collect(Collectors.toList());
     }
 
-    public static void remove(Object entity) throws EntityNotFoundException, IllegalArgumentException {
+    public static void remove(@NotNull Object entity) throws EntityNotFoundException, IllegalArgumentException {
         em().remove(entity);
     }
 
-
-    public static <T> boolean remove(T entity, Consumer<T> consumer) throws IllegalArgumentException {
+    public static <T> boolean remove(@NotNull T entity, @NotNull Consumer<T> consumer) throws IllegalArgumentException {
         consumer.accept(entity);
         em().remove(entity);
         return true;
     }
 
-
-    public static <T> boolean remove(Class<T> clazz, Serializable id, Consumer<T> consumer) throws EntityNotFoundException {
+    public static <T> boolean remove(@NotNull Class<T> clazz, @NotNull Serializable id, @NotNull Consumer<T> consumer) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
         consumer.accept(entity);
         remove(entity);
         return true;
     }
 
-
-    public static <T> boolean afterRemoving(Class<T> clazz, Serializable id, String action, Consumer<T> consumer) throws EntityNotFoundException {
+    public static <T> boolean afterRemoving(@NotNull Class<T> clazz, @NotNull Serializable id, @NotNull String action, @NotNull Consumer<T> consumer) throws EntityNotFoundException {
         var entity = findOrThrow(clazz, id, action);
         Database.startTransaction();
         remove(entity);
@@ -212,21 +222,19 @@ public class Database {
         return true;
     }
 
-
-    public static <T> boolean remove(Class<T> clazz, Serializable id) throws EntityNotFoundException {
+    public static <T> boolean remove(@NotNull Class<T> clazz, @NotNull Serializable id) throws EntityNotFoundException {
         remove(findOrThrow(clazz, id));
         return true;
     }
 
-    public static <T> boolean removeNow(Class<T> clazz, Serializable id) throws EntityNotFoundException {
+    public static <T> boolean removeNow(@NotNull Class<T> clazz, @NotNull Serializable id) throws EntityNotFoundException {
         Database.startTransaction();
         remove(findOrThrow(clazz, id));
         Database.commit();
         return true;
     }
 
-
-    public static <T> boolean remove(Class<T> clazz, Serializable id, String permission) throws EntityNotFoundException {
+    public static <T> boolean remove(@NotNull Class<T> clazz, @NotNull Serializable id, @NotNull String permission) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
         DenyOrProceed(permission, entity);
         remove(entity);
@@ -236,20 +244,25 @@ public class Database {
     /**
      * You must call {@link #startTransaction()} first
      */
-    public static <T> T persist(T entity) {
+    public static <T> T persist(@NotNull T entity) {
         em().persist(entity);
         return entity;
     }
-
 
     /**
      * flush the {@link #em() entity manager} and then commit any active transactions.
      */
     public static void commit() {
         em().flush();
-        if(em().getTransaction().isActive()){
+        if (em().getTransaction().isActive()) {
             em().getTransaction().commit();
         }
+    }
+
+    @Bean(name = "localEntityManager")
+    @Scope("request")
+    public Object localEntityManager(EntityManagerFactory factory) {
+        return factory.createEntityManager();// will be called once for each request
     }
 
 

@@ -24,12 +24,12 @@ import java.util.List;
 public class FileSchemaResolver implements GraphQLMutationResolver, GraphQLQueryResolver {
     private final FileService service;
 
-    public File createFile(FileInput File) throws IOException, ClientReadableException {
-        return service.create(File);
+    public File createFile(FileInput input) throws IOException, ClientReadableException {
+        return service.create(input);
     }
 
-    public File updateFile(FileInput File) throws ClientReadableException {
-        return service.update(File);
+    public File updateFile(FileInput input) throws ClientReadableException {
+        return service.update(input);
     }
 
     public List<File> getAllFile() {

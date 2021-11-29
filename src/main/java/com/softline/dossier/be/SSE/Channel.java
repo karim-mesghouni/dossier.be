@@ -1,5 +1,6 @@
 package com.softline.dossier.be.SSE;
 
+import com.softline.dossier.be.domain.Concerns.HasId;
 import com.softline.dossier.be.events.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +14,7 @@ import java.util.Objects;
  */
 public class Channel extends SseEmitter {
     public final long sessionId;
-    public final long userId;
+    public final HasId user;
 
     private Event<?> lastEvent;
 
@@ -25,12 +26,12 @@ public class Channel extends SseEmitter {
      *
      * @param timeout   timeout in milliseconds
      * @param sessionId the first unique identifier for this channel
-     * @param userId    the second unique identifier for this channel
+     * @param user      the second unique identifier for this channel
      */
-    public Channel(long timeout, long sessionId, long userId) {
+    public Channel(long timeout, long sessionId, @NotNull HasId user) {
         super(timeout);
         this.sessionId = sessionId;
-        this.userId = userId;
+        this.user = user;
     }
 
     /**
@@ -60,12 +61,12 @@ public class Channel extends SseEmitter {
             return false;
         }
         Channel channel = (Channel) o;
-        return sessionId == channel.sessionId && userId == channel.userId;
+        return sessionId == channel.sessionId && user.getId() == channel.user.getId();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(sessionId, userId);
+        return Objects.hash(sessionId, user.getId());
     }
 
     @NotNull
@@ -73,7 +74,7 @@ public class Channel extends SseEmitter {
     public String toString() {
         return "Channel{" +
                 "sessionId=" + sessionId +
-                ", agentId=" + userId +
+                ", userId=" + user.getId() +
                 '}';
     }
 

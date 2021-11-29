@@ -18,6 +18,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import javax.servlet.Filter;
 import java.util.Optional;
 
+import static com.softline.dossier.be.Tools.Functions.tap;
+
 /**
  * All the custom beans are registered here
  * we can use @AutoWire annotation to invoke these methods with the corresponding method return type
@@ -76,9 +78,6 @@ public class Beans {
 
     @Bean
     public ThreadPoolTaskScheduler scheduler() {
-        var scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(30);
-        scheduler.setThreadNamePrefix("ThreadPoolTaskScheduler");
-        return scheduler;
+        return tap(new ThreadPoolTaskScheduler(), sh -> sh.setThreadNamePrefix("ThreadPoolTaskScheduler"));
     }
 }

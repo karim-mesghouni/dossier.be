@@ -62,7 +62,7 @@ public class CommentService {
         new CommentEvent(EntityEvent.Type.ADDED, comment).fireToAll();
         comment.getMessages().forEach(m -> {
             if (m.isParsedNow()) {
-                new MessageEvent(EntityEvent.Type.ADDED, m).fireTo(m.getTargetAgent().getId());
+                new MessageEvent(EntityEvent.Type.ADDED, m).fireTo(m.getTargetAgent());
             }
         });
         return comment;
@@ -77,7 +77,7 @@ public class CommentService {
             new CommentEvent(EntityEvent.Type.UPDATED, comment).fireToAll();
             comment.getMessages().forEach(m -> {
                 if (m.isParsedNow()) {
-                    new MessageEvent(EntityEvent.Type.ADDED, m).fireTo(m.getTargetAgent().getId());
+                    new MessageEvent(EntityEvent.Type.ADDED, m).fireTo(m.getTargetAgent());
                 }
             });
             return comment;

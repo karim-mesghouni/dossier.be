@@ -13,9 +13,7 @@ import javax.persistence.Entity;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @SuperBuilder
 @AllArgsConstructor
@@ -48,10 +46,11 @@ public class File extends BaseEntity implements HasOrder {
     LocalDate deliveryDate;
 
     // used to keep track of fileTasks in this file, it will always increment when we add a new fileTask
-    // also useful in the case where the file has fileTasks before but they was removed,
-    // so this is a replacement for using the count method on fileTasks
+    // also useful in the case where the file has fileTasks before, but they were removed,
+    // so this is a replacement for using the count method on fileTaskRepository which won't count deleted fileTasks
     @Column(columnDefinition = "integer default 1")
-    long nextFileTaskNumber;
+    @Builder.Default
+    long nextFileTaskNumber = 1;
 
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
@@ -64,7 +63,6 @@ public class File extends BaseEntity implements HasOrder {
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     List<FileState> fileStates = new ArrayList<>();
-
 
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
@@ -80,11 +78,6 @@ public class File extends BaseEntity implements HasOrder {
     FileState currentFileState;
     @Transient()
     FileActivity currentFileActivity;
-
-
-    List<Document> getDocuments() {
-        return getFileActivities().stream().map(FileActivity::getDocuments).flatMap(Collection::stream).collect(Collectors.toList());
-    }
 
     public void incrementOrder() {
         this.setOrder(this.getOrder() + 1);

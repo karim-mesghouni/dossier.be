@@ -1,6 +1,7 @@
 package com.softline.dossier.be.SSE;
 
 import com.softline.dossier.be.config.Beans;
+import com.softline.dossier.be.domain.Concerns.HasId;
 import com.softline.dossier.be.events.Event;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RequestMapping("/events")
 @Slf4j(topic = "SSE")
 public class EventController {
-    // !! SET LOGGING MODE TO DEBUG TO SEE ALL DEBUGGING MESSAGES FROM THIS CLASS !!
+    // !! SET LOGGING MODE TO DEBUG TO SEE ALL DEBUGGING MESSAGES FROM THIS CONTROLLER !!
     // we keep track of registered channels so that later we can send events to these channels
 
     private static final List<Channel> channels = Collections.synchronizedList(new ArrayList<>());
@@ -104,7 +105,7 @@ public class EventController {
             return;
         }
         if (!event.equals(Event.pingEvent()) && log.isInfoEnabled())
-            log.info("Sending {} for {} channel{}", event, channels.size(), channels.size() == 1 ? "" : 's');
+            log.info("Sending {} to {} channel{}", event, channels.size(), channels.size() == 1 ? "" : 's');
         channels.forEach(channel -> {
             if (channel.canRead(event))
                 sendForChannel(channel, event);
@@ -125,10 +126,17 @@ public class EventController {
         if (log.isDebugEnabled())
             log.debug("Sending {} to user {}", event, userId);
         channels.forEach(channel -> {
-            if (channel.userId == userId && channel.canRead(event)) {
+            if (channel.user.getId() == userId && channel.canRead(event)) {
                 sendForChannel(channel, event);
             }
         });
+    }
+
+    /**
+     * send an event to all channels opened by the user
+     */
+    public static void sendForUser(HasId user, Event<?> event) {
+        sendForUser(user.getId(), event);
     }
 
     private static void activateSilentMode() {
@@ -192,7 +200,7 @@ public class EventController {
         // this will delete the channel after 1 hour
         // and force the client to reconnect again
         // !! DO NOT OPEN AN SSE CHANNEL WITHOUT SETTING A TIMEOUT, IT IS VERY IMPORTANT FOR AUTO-CLEANING
-        var ch = new Channel(1000 * 60 * 60L, (long) Math.floor(Math.random() * Long.MAX_VALUE), Agent.thisAgent().getId());
+        var ch = new Channel(1000 * 60 * 60L, (long) Math.floor(Math.random() * Long.MAX_VALUE), Agent.thisAgent());
         ch.onCompletion(() -> {
             // will be called if the client closed the connection (browser tap closed)
             // or if channel timeout was reached

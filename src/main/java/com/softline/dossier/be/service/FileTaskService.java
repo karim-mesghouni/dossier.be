@@ -139,12 +139,10 @@ public class FileTaskService {
                 throw new GraphQLException("vous ne pouvez pas modifier le statut d'une tâche bloquée, veuillez débloquer la tâche et réessayer.");
             }
             var oldSituation = Database.findOrThrow(fileTaskSituationRepository.findFirstByFileTaskAndCurrentIsTrue(fileTask));
-            if (oldSituation != null) {
-                if (oldSituation.getSituation().getId() == situationId) {
-                    return oldSituation;
-                }
-                oldSituation.setCurrent(false);
+            if (oldSituation.getSituation().getId() == situationId) {
+                return oldSituation;
             }
+            oldSituation.setCurrent(false);
             if (situation.isFinal()) {
                 fileTask.setEndDate(LocalDateTime.now());
             } else {

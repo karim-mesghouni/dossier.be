@@ -14,19 +14,19 @@ import java.util.function.Supplier;
 @Slf4j
 public class Functions {
     /**
-     * pass the value to each consumer
-     * and then return the value.<br>
+     * pass the object to each consumer
+     * and then return the object.<br>
      * useful to encapsulate objects that has methods which return void,
-     * this allows to chain functions on the value in a single statement
+     * this allows to chain functions on the object in a single statement
      *
-     * @return the same value T
+     * @return the same object T
      */
     @SafeVarargs
-    public static <T> T tap(T value, @NotNull Consumer<T>... callbacks) {
+    public static <T> T tap(T object, @NotNull Consumer<T>... callbacks) {
         // apply all callbacks on the object
-        Arrays.stream(callbacks).forEach(callable -> callable.accept(value));
+        Arrays.stream(callbacks).forEach(callable -> callable.accept(object));
         // then return the object
-        return value;
+        return object;
     }
 
     /**

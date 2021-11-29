@@ -3,10 +3,9 @@ package com.softline.dossier.be.security.domain;
 import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.security.repository.AgentRepository;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SelectBeforeUpdate;
@@ -15,15 +14,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 
 import static com.softline.dossier.be.Application.context;
 import static com.softline.dossier.be.Tools.Functions.notEmpty;
 
 @SuperBuilder
 @Entity
-@NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
+@RequiredArgsConstructor
 @NamedQuery(name = "Agent.findBySearch", query = "SELECT a FROM Agent a where a.deleted = false and (a.username like CONCAT('%', :search, '%') or a.name like CONCAT('%', :search, '%')) ORDER BY a.createdDate DESC")
 @SQLDelete(sql = "UPDATE agent SET deleted=true WHERE id=?")
 @DynamicUpdate// only generate sql statement for changed columns
@@ -54,6 +55,7 @@ public class Agent extends BaseEntity {
     private Activity activity;
 
     @OneToMany(mappedBy = "agent")
+    @ToString.Exclude
     private List<File> createdFiles;
 
     @Override
@@ -128,5 +130,18 @@ public class Agent extends BaseEntity {
 
     public boolean is(Role.Type type) {
         return getRole() != null && getRole().is(type);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Agent agent = (Agent) o;
+        return Objects.equals(id, agent.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

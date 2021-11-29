@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -57,6 +56,8 @@ public class DatabaseSeeder implements ApplicationRunner {
      */
     private final Faker faker;
 
+    private final ResourceLoader resources;
+
     Activity zapa;
     Activity fi;
     Activity ipon;
@@ -64,18 +65,19 @@ public class DatabaseSeeder implements ApplicationRunner {
     Activity cdc;
 
     @Value("${database.seeder.seed-files:false}")
-    private boolean seedFiles;
+    boolean seedFiles;
     @Value("${database.seeder.seed-agents:false}")
-    private boolean seedAgents;
+    boolean seedAgents;
     @Value("${database.seeder.seed-clients:false}")
-    private boolean seedClients;
-    @Autowired
-    ResourceLoader resources;
+    boolean seedClients;
+    @Value("${database.seeder.seed-role-users:false}")
+    boolean seedRoleUsers;
     @Value("${database.seeder.seed-communes:false}")
-    private boolean seedCommunes;
+    boolean seedCommunes;
 
     @Transactional
     public void run(ApplicationArguments args) {
+        log.info("Waiting for database seeder...");
         if (activityRepository.count() == 0) {
             createZapaActivity();
             createFIActivity();
@@ -84,39 +86,38 @@ public class DatabaseSeeder implements ApplicationRunner {
             createCDCActivity();
         }
         if (seedClients && clientRepository.count() == 0) {
-            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("RH"))));
-            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("AXIANS"))));
-            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("AXIANS IDF"))));
-            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("COVAGE"))));
-            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("CPCP ROGNAC"))));
-            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("CPCP SUD"))));
-            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("FREE"))));
-            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("NET DESIGNER"))));
-            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("NET GEO"))));
-            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("OPT"))));
-            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("OPTTICOM"))));
-            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("S30"))));
-            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("SCOPELEC"))));
-            contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient("SPIE"))));
+            for (var cname : List.of("RH",
+                    "AXIANS",
+                    "AXIANS IDF",
+                    "COVAGE",
+                    "CPCP ROGNAC",
+                    "CPCP SUD",
+                    "FREE",
+                    "NET DESIGNER",
+                    "NET GEO",
+                    "OPT",
+                    "OPTTICOM",
+                    "S30",
+                    "SCOPELEC",
+                    "SPIE")) {
+                contactRepository.saveAll(fakeContacts(clientRepository.save(fakeClient(cname))));
+            }
         }
         if (communeRepository.count() == 0 && seedCommunes) {
             createCommunes();
         }
         if (fileStateTypeRepository.count() == 0) {
-            fileStateTypeRepository.save(FileStateType.builder().state("En cours").build());
-            fileStateTypeRepository.save(FileStateType.builder().state("Terminé").Final(true).build());
-            fileStateTypeRepository.save(FileStateType.builder().state("Livré").build());
-            fileStateTypeRepository.save(FileStateType.builder().state("À LIVRER").build());
-            fileStateTypeRepository.save(FileStateType.builder().state("RETIRÉ").Final(true).build());
-            fileStateTypeRepository.save(FileStateType.builder().state("STANDBY").build());
-            fileStateTypeRepository.save(FileStateType.builder().state("À RETIRER").build());
-            fileStateTypeRepository.save(FileStateType.builder().state("STANDBY CLIENT").build());
-            fileStateTypeRepository.save(FileStateType.builder().state("MANQUANT").build());
-            fileStateTypeRepository.save(FileStateType.builder().state("REPRISE PIQUETAGE").build());
-            fileStateTypeRepository.save(FileStateType.builder().state("NON AFFECTÉ").initial(true).build());
-            fileStateTypeRepository.save(FileStateType.builder().state("REPRISE EN COURS D'ETUDE").build());
-            fileStateTypeRepository.save(FileStateType.builder().state("KIZÉO NON ATTRIBUÉ").build());
-            fileStateTypeRepository.save(FileStateType.builder().state("ANNULÉ").Final(true).build());
+            for (var fstname : List.of("Terminé", "RETIRÉ", "ANNULÉ")) {
+                fileStateTypeRepository.save(FileStateType.builder().state(fstname).Final(true).build());
+            }
+            for (var fstname : List.of("NON AFFECTÉ")) {
+                fileStateTypeRepository.save(FileStateType.builder().state(fstname).initial(true).build());
+            }
+            for (var fstname : List.of("En cours", "Livré", "À LIVRER",
+                    "STANDBY", "À RETIRER", "STANDBY CLIENT", "MANQUANT",
+                    "REPRISE PIQUETAGE", "REPRISE EN COURS D'ETUDE", "KIZÉO NON ATTRIBUÉ")) {
+                fileStateTypeRepository.save(FileStateType.builder().state(fstname).build());
+            }
         }
         if (agentRepository.count() == 0) {
 
@@ -127,7 +128,7 @@ public class DatabaseSeeder implements ApplicationRunner {
                     Role.builder().type(Role.Type.ACCOUNTANT).displayName("Chargé d'étude").build())
             );
             for (var role : roles) {
-                if (role.isAdmin() || seedAgents) {
+                if (role.isAdmin() || seedRoleUsers) {
                     agentRepository.save(Agent.builder()
                             .name(role.getName().toLowerCase(Locale.ROOT))
                             .email(faker.internet().emailAddress())
@@ -360,6 +361,7 @@ public class DatabaseSeeder implements ApplicationRunner {
                 files.add(fileRepository.save(file));
             }
         }
+        log.info("database seeder finished");
     }
 
 

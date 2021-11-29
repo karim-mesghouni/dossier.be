@@ -27,7 +27,7 @@ public class StorageController {
     private final FileTaskAttachmentRepository fileTaskAttachmentRepository;
     private final CommentAttachmentRepository commentAttachmentRepository;
 
-    @GetMapping("/attachments/{storageName}")
+    @GetMapping("attachments/{storageName}")
     public ResponseEntity<InputStreamResource> getAttachmentByStorageName(@PathVariable String storageName) throws IOException {
         Attachment attachment;
         attachment = fileTaskAttachmentRepository.findByStorageName(storageName);
@@ -48,7 +48,7 @@ public class StorageController {
                 .body(new InputStreamResource(Files.newInputStream(FileSystem.getAttachmentsPath().resolve(attachment.getStorageName()))));
     }
 
-    @GetMapping("/assets/{asset}")
+    @GetMapping("assets/{asset}")
     public ResponseEntity<InputStreamResource> getAsset(@PathVariable String asset) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         var path = FileSystem.getAssetsPath().resolve(asset);

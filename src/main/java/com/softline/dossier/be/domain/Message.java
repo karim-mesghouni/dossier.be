@@ -42,7 +42,7 @@ public class Message extends BaseEntity {
 
     @PostRemove
     public void afterRemove() {
-        new MessageEvent(EntityEvent.Type.DELETED, this).fireTo(getTargetAgent().getId());
+        new MessageEvent(EntityEvent.Type.DELETED, this).fireTo(getTargetAgent());
     }
 
     @Override

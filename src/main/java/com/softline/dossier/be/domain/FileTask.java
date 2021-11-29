@@ -93,8 +93,8 @@ public class FileTask extends BaseEntity implements HasOrder {
     }
 
     @NonNull
-    public FileTaskSituation getCurrentState() {
-        return getFileTaskSituations().stream().filter(FileTaskSituation::isCurrent).findFirst().get();
+    public FileTaskSituation getCurrentState() throws RuntimeException {
+        return getFileTaskSituations().stream().filter(FileTaskSituation::isCurrent).findFirst().orElseThrow(() -> new RuntimeException("FileTask " + getId() + " has no active situation"));
     }
 
     public void incrementOrder() {

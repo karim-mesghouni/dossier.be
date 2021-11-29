@@ -3,6 +3,7 @@ package com.softline.dossier.be.events;
 import com.google.errorprone.annotations.ForOverride;
 import com.softline.dossier.be.SSE.Channel;
 import com.softline.dossier.be.SSE.EventController;
+import com.softline.dossier.be.domain.Concerns.HasId;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -73,6 +74,15 @@ public class Event<T> implements Serializable {
 
     /**
      * send this event to every channel opened by the user
+     */
+    public void fireTo(HasId user) {
+        EventController.sendForUser(user, this);
+    }
+
+    /**
+     * send this event to every channel opened by the user
+     *
+     * @param userId the id of the user
      */
     public void fireTo(long userId) {
         EventController.sendForUser(userId, this);
