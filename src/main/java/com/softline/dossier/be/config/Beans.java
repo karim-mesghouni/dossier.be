@@ -14,6 +14,8 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.servlet.Filter;
 import java.util.Optional;
@@ -80,4 +82,10 @@ public class Beans {
     public ThreadPoolTaskScheduler scheduler() {
         return tap(new ThreadPoolTaskScheduler(), sh -> sh.setThreadNamePrefix("ThreadPoolTaskScheduler"));
     }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
 }

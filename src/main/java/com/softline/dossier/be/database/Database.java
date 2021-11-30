@@ -1,10 +1,12 @@
 package com.softline.dossier.be.database;
 
+import com.softline.dossier.be.Application;
 import com.softline.dossier.be.domain.Concerns.HasId;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,7 +23,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.softline.dossier.be.Application.context;
-import static com.softline.dossier.be.Application.getBean;
 import static com.softline.dossier.be.Tools.Functions.safeSupplied;
 import static com.softline.dossier.be.Tools.Functions.throwIfEmpty;
 import static com.softline.dossier.be.Tools.TextHelper.format;
@@ -29,10 +30,15 @@ import static com.softline.dossier.be.security.config.AttributeBasedAccessContro
 
 @Component
 public class Database {
+    static ConfigurableApplicationContext context;
+
+    private Database(ConfigurableApplicationContext __cnx) {
+        context = __cnx;
+    }
 
     @NotNull
     public static EntityManager em() {
-        return context().getBean("localEntityManager", EntityManager.class);
+        return context.getBean("localEntityManager", EntityManager.class);
     }
 
     public static void startTransaction() {
@@ -98,7 +104,7 @@ public class Database {
     @Nullable
     public static EntityManager unsafeEntityManager() {
         if (context() == null) return null;
-        return getBean(EntityManager.class);
+        return Application.getBean(EntityManager.class);
     }
 
     @Nullable

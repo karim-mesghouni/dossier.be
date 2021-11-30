@@ -142,18 +142,23 @@ public class DatabaseSeeder implements ApplicationRunner {
                 }
             }
             if (seedAgents) {
-                usersList().forEach(name ->
-                        agentRepository.save(Agent.builder()
-                                .name(name)
-                                .email(faker.internet().emailAddress())
-                                .username(faker.name().username())
-                                .password(passwordEncoder.encode("000"))
-                                .activity(getOne(activityRepository.findAll()))
-                                .role(getOne(roles, r -> !r.is(Role.Type.MANAGER)))
-                                .enabled(true)
-                                .build()
-                        )
-                );
+                usersList().forEach(name -> {
+                    var uname = name.toLowerCase(Locale.ROOT).replaceAll("\\s", ".").replaceAll("\\.\\.", ".");
+                    var split = uname.indexOf(".ep.");
+                    if (split != -1) {
+                        uname = uname.substring(0, split);
+                    }
+                    agentRepository.save(Agent.builder()
+                            .name(name)
+                            .email(faker.internet().emailAddress())
+                            .username(uname)
+                            .password(passwordEncoder.encode("000"))
+                            .activity(getOne(activityRepository.findAll()))
+                            .role(getOne(roles, r -> !r.is(Role.Type.MANAGER)))
+                            .enabled(true)
+                            .build()
+                    );
+                });
             }
         }
         if (blockingLabelRepository.count() == 0) {

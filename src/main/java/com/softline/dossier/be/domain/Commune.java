@@ -26,6 +26,7 @@ public class Commune implements HasId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     private String name;
     private String department;
     private String postalCode;

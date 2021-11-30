@@ -82,11 +82,16 @@ public class EventController {
             if (!Event.pingEvent().equals(event) && log.isDebugEnabled())
                 log.debug("sent {} to {}", event, channel);
         } catch (Throwable e) {
-            if (!Event.pingEvent().equals(event)) {
+            if (e.getMessage().contains("An established connection was aborted by the software in your host machine")) {
+                if (!Event.pingEvent().equals(event)) {
+                    log.error("{} was not sent to {} because of [{}](This probably means the client's browser was closed), adding the channel to the clean queue", event, channel, e.getMessage());
+                } else if (log.isDebugEnabled()) {
+                    log.debug("{} was not sent to {} because of [{}](This probably means the client's browser was closed), adding the channel to the clean queue", event, channel, e.getMessage());
+                }
+            } else {
                 log.error("{} was not sent to {} because of [{}], adding the channel to the clean queue", event, channel, e.getMessage());
-            } else if (log.isDebugEnabled()) {
-                log.debug("{} was not sent to {} because of [{}], adding the channel to the clean queue", event, channel, e.getMessage());
             }
+
             channel.complete();
             // calling channel.complete() after "event send failure" (not a network error) has no effect,
             // so we will ensure that the channel gets removed from the list and no further events will be sent to it
