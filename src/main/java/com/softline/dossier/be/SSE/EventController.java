@@ -79,19 +79,17 @@ public class EventController {
         try {
             channel.setLastEvent(event);
             channel.send(SseEmitter.event().name(event.getType()).data(event.getData()));
-            if (!Event.pingEvent().equals(event) && log.isDebugEnabled())
+            if (!Event.pingEvent().equals(event) || log.isDebugEnabled())
                 log.debug("sent {} to {}", event, channel);
         } catch (Throwable e) {
-            if (e.getMessage().contains("An established connection was aborted by the software in your host machine")) {
-                if (!Event.pingEvent().equals(event)) {
-                    log.error("{} was not sent to {} because of [{}](This probably means the client's browser was closed), adding the channel to the clean queue", event, channel, e.getMessage());
-                } else if (log.isDebugEnabled()) {
-                    log.debug("{} was not sent to {} because of [{}](This probably means the client's browser was closed), adding the channel to the clean queue", event, channel, e.getMessage());
-                }
+            if (e.getMessage().contains("An established connection was aborted by the software in your host machine")// browser tap closed
+                    && (!Event.pingEvent().equals(event) || log.isDebugEnabled())) {
+                log.warn("{} was not sent to {} because of [{}](This probably means the client's browser or tap was closed)", event, channel, e.getMessage());
             } else {
-                log.error("{} was not sent to {} because of [{}], adding the channel to the clean queue", event, channel, e.getMessage());
+                log.error("{} was not sent to {} because of [{}]", event, channel, e.getMessage());
             }
-
+            if (log.isDebugEnabled())
+                log.debug("adding {} to the clean queue", channel);
             channel.complete();
             // calling channel.complete() after "event send failure" (not a network error) has no effect,
             // so we will ensure that the channel gets removed from the list and no further events will be sent to it
@@ -109,7 +107,7 @@ public class EventController {
                 log.debug("silent mode is active {} was discarded", event);
             return;
         }
-        if (!event.equals(Event.pingEvent()) && log.isInfoEnabled())
+        if (!event.equals(Event.pingEvent()) || log.isInfoEnabled())
             log.info("Sending {} to {} channel{}", event, channels.size(), channels.size() == 1 ? "" : 's');
         channels.forEach(channel -> {
             if (channel.canRead(event))
@@ -205,7 +203,7 @@ public class EventController {
         // this will delete the channel after 1 hour
         // and force the client to reconnect again
         // !! DO NOT OPEN AN SSE CHANNEL WITHOUT SETTING A TIMEOUT, IT IS VERY IMPORTANT FOR AUTO-CLEANING
-        var ch = new Channel(1000 * 60 * 60L, (long) Math.floor(Math.random() * Long.MAX_VALUE), Agent.thisAgent());
+        var ch = new Channel(Agent.thisAgent());
         ch.onCompletion(() -> {
             // will be called if the client closed the connection (browser tap closed)
             // or if channel timeout was reached

@@ -20,7 +20,7 @@ public class EnvUtil {
 
     public static Integer getPort() {
         if (port == null) {
-            Environment environment = Application.context.getEnvironment();
+            Environment environment = Application.context().getEnvironment();
             var portString = environment.getProperty("local.server.port");
             if (portString == null) {
                 log.error("could not find env value local.server.port using default 80");
@@ -48,7 +48,7 @@ public class EnvUtil {
 
     public static Path getStoragePath() {
         if (storagePath == null) {
-            Environment environment = Application.context.getEnvironment();
+            Environment environment = Application.context().getEnvironment();
             storagePath = Paths.get(Objects.requireNonNull(environment.getProperty("filesystem.storage.absolute-path")));
         }
         return storagePath;

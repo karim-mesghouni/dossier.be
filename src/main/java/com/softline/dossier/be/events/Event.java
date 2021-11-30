@@ -21,7 +21,6 @@ import java.util.concurrent.Callable;
 @Slf4j(topic = "EventObject")
 public class Event<T> implements Serializable {
     private static final long serialVersionUID = 5689867320034832774L;
-
     @NotNull
     protected String type;
     @Nullable

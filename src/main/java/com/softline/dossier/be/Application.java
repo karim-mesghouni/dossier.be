@@ -10,12 +10,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
 public class Application {
-    public static ConfigurableApplicationContext context;
+    private static ConfigurableApplicationContext context;
 
     public static void main(String[] args) {
         context = SpringApplication.run(Application.class, args);
     }
-
 
     /**
      * @return the current spring boot application context (useful for getting beans),

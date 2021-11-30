@@ -2,8 +2,9 @@ package com.softline.dossier.be.SSE;
 
 import com.softline.dossier.be.domain.Concerns.HasId;
 import com.softline.dossier.be.events.Event;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.Objects;
@@ -16,6 +17,7 @@ public class Channel extends SseEmitter {
     public final long sessionId;
     public final HasId user;
 
+    @Getter(AccessLevel.PROTECTED)
     private Event<?> lastEvent;
 
     /**
@@ -35,11 +37,17 @@ public class Channel extends SseEmitter {
     }
 
     /**
-     * @return the last attempted event send to this channel
+     * generate a random sessionId pass it to {@link #Channel(long, long, HasId)}
      */
-    @Nullable
-    public Event<?> getLastEvent() {
-        return lastEvent;
+    public Channel(long timeout, @NotNull HasId user) {
+        this(timeout, (long) Math.floor(Math.random() * Long.MAX_VALUE), user);
+    }
+
+    /**
+     * generate a random sessionId pass it to {@link #Channel(long, long, HasId)} with timeout of 1 hour
+     */
+    public Channel(@NotNull HasId user) {
+        this(1000 * 60 * 60L, (long) Math.floor(Math.random() * Long.MAX_VALUE), user);
     }
 
     /**

@@ -16,7 +16,7 @@ import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
-import static com.softline.dossier.be.Application.context;
+import static com.softline.dossier.be.Application.getBean;
 import static com.softline.dossier.be.Tools.Functions.notEmpty;
 
 @SuperBuilder
@@ -97,7 +97,7 @@ public class Agent extends BaseEntity {
      * @return the agent loaded from the database
      */
     public static Agent getByIdentifier(long id) {
-        return context.getBean(AgentRepository.class).findById(id).orElseThrow();
+        return getBean(AgentRepository.class).findById(id).orElseThrow();
     }
 
     /**
