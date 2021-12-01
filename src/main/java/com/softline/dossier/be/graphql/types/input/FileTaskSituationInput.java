@@ -15,4 +15,5 @@ public class FileTaskSituationInput extends Input<FileTaskSituation> implements 
     FileTaskInput fileTask;
     TaskSituationInput situation;
     List<BlockingInput> blockings;
+    BlockingInput blocking;
 }

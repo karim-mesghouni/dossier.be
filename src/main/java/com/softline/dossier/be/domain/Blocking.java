@@ -1,23 +1,26 @@
 package com.softline.dossier.be.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @SuperBuilder
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-
-@SQLDelete(sql = "UPDATE Blocking SET deleted=true WHERE id=?")
+@Getter
+@Setter
+@SQLDelete(sql = "UPDATE `blocking` SET `deleted`=true WHERE `id`=?")
 @Where(clause = "deleted = false")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
@@ -45,5 +48,27 @@ public class Blocking extends BaseEntity {
     // used by graphql
     public boolean getBlock() {
         return this.dateUnBlocked == null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Blocking blocking = (Blocking) o;
+        return Objects.equals(id, blocking.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Blocking{" +
+                "id=" + id +
+                ", date=" + date +
+                ", block=" + getBlock() +
+                '}';
     }
 }

@@ -1,6 +1,5 @@
 package com.softline.dossier.be.graphql.schema.resolver;
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import com.softline.dossier.be.domain.ActivityField;
 import com.softline.dossier.be.service.ActivityFieldService;
@@ -13,7 +12,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
-public class ActivityFieldSchemaResolver implements GraphQLMutationResolver, GraphQLQueryResolver {
+public class ActivityFieldSchemaResolver implements GraphQLQueryResolver {
     private final ActivityFieldService service;
 
     protected List<ActivityField> getAllActivityField() {

@@ -77,27 +77,11 @@ input FileFilterInput{
     notReprise: Boolean
     onlyTrashed: Boolean
 }
-enum FileType{
-    Attribution
-    Reprise
-}
 type PageList{
     page: [File!]!
     count: Int
 }
 
-type FileDTO{
-    idFile: Int
-    project:String
-    attributionDate:String
-    returnDeadline:String
-    provisionalDeliveryDate:String
-    deliveryDate:String
-    cem:String
-    activityName:String
-    fileActivityId:Int
-    fileStateId:Int
-}
 type HistoryDTO{
     id: Int
     who: String

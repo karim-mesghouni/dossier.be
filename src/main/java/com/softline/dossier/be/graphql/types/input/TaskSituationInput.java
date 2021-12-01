@@ -16,5 +16,6 @@ public class TaskSituationInput extends Input<TaskSituation> {
 
     TaskInput task;
 
-    List<FileTaskSituationInput> fileTaskStates;
+    List<FileTaskSituationInput> fileTaskSituations;
+    FileTaskSituationInput fileTaskSituation;
 }

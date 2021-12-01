@@ -2,8 +2,8 @@ package com.softline.dossier.be.events;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;

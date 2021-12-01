@@ -1,7 +1,5 @@
 package com.softline.dossier.be.config;
 
-import com.coxautodev.graphql.tools.SchemaParserDictionary;
-import com.softline.dossier.be.graphql.types.FileDTO;
 import com.softline.dossier.be.security.config.SecurityAuditorAware;
 import com.softline.dossier.be.security.domain.Agent;
 import graphql.schema.GraphQLScalarType;
@@ -50,11 +48,6 @@ public class Beans {
 //        mm.getConfiguration().setAmbiguityIgnored(true);
         mm.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         return mm;
-    }
-
-    @Bean
-    public SchemaParserDictionary schemaParserDictionary() {
-        return new SchemaParserDictionary().add(FileDTO.class);
     }
 
     @Bean

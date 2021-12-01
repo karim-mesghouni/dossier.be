@@ -68,7 +68,3 @@ enum CommentType{
     Description,
     Retour
 }
-input  NotifyMessageInput {
-    idComment:ID!
-    agentIds:[ID!]
-}

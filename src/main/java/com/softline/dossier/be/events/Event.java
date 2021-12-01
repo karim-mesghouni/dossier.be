@@ -7,7 +7,6 @@ import com.softline.dossier.be.domain.Concerns.HasId;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -45,7 +44,7 @@ public class Event<T> implements Serializable {
 
     /**
      * get the payload data as string (call {@link Object#toString()} method)<br>
-     * if the payload is of type {@link JSONObject} it will be parsed into a json string
+     * if the payload is of type {@link org.json.JSONObject} it will be parsed into a json string
      *
      * @return payload converted to string, if payload is null empty string is returned
      */

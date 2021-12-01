@@ -1,5 +1,5 @@
 # Query
-type Query  {
+type Query {
 
 }
 
@@ -9,8 +9,7 @@ type Query  {
 
 #mutation
 
-type  Mutation{
+type Mutation{
 
 }
 scalar Upload
-scalar LocalDate

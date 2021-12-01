@@ -20,7 +20,7 @@ public class FileTaskInput extends Input<FileTask> implements HasId {
     LocalDateTime endDate;
     AgentInput reporter;
     AgentInput assignedTo;
-    List<FileTaskSituationInput> fileTaskStates;
+    List<FileTaskSituationInput> fileTaskSituations;
     TaskStateInput state;
     FileTaskSituationInput currentFileTaskSituation;
     String title;

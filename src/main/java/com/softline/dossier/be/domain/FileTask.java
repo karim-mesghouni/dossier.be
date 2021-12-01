@@ -4,6 +4,7 @@ import com.softline.dossier.be.domain.traits.HasOrder;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.*;
 
 import javax.persistence.CascadeType;
@@ -12,14 +13,15 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @SuperBuilder
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-
+@Getter
+@Setter
 @SQLDelete(sql = "UPDATE file_task SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false ")
 @DynamicUpdate// only generate sql statement for changed columns
@@ -103,5 +105,18 @@ public class FileTask extends BaseEntity implements HasOrder {
 
     public void decrementOrder() {
         this.setOrder(this.getOrder() - 1);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        FileTask fileTask = (FileTask) o;
+        return Objects.equals(id, fileTask.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

@@ -11,4 +11,5 @@ public class ContactInput extends Input<Contact> implements HasId {
     String name;
     String phone;
     String email;
+    ClientInput client;
 }
