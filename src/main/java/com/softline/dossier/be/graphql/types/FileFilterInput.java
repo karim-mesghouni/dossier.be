@@ -11,10 +11,10 @@ public class FileFilterInput {
     public ClientInput client;
     public ActivityInput activity;
     public FileStateInput state;
-    public DateRangeInput attributionDate;
-    public DateRangeInput returnDeadline;
-    public DateRangeInput provisionalDeliveryDate;
-    public DateRangeInput deliveryDate;
+    public DateRangeInput attributionDate = DateRangeInput.FULL_RANGE;
+    public DateRangeInput returnDeadline = DateRangeInput.FULL_RANGE;
+    public DateRangeInput provisionalDeliveryDate = DateRangeInput.FULL_RANGE;
+    public DateRangeInput deliveryDate = DateRangeInput.FULL_RANGE;
     public boolean reprise;
     public boolean notReprise;
     public boolean onlyTrashed;

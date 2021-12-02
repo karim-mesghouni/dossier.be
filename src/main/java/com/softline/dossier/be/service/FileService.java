@@ -11,6 +11,7 @@ import com.softline.dossier.be.graphql.types.PageList;
 import com.softline.dossier.be.graphql.types.input.FileInput;
 import com.softline.dossier.be.repository.FileRepository;
 import com.softline.dossier.be.security.domain.Agent;
+import graphql.GraphQLException;
 import lombok.RequiredArgsConstructor;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
@@ -200,6 +201,7 @@ public class FileService {
     }
 
     public PageList<File> getAllFilesByFilter(FileFilterInput filter) {
+        throwIfEmpty(filter, () -> new GraphQLException("Provide a valid full filter"));
         var q = buildQuery("f", filter, File.class);
         if (filter.pageSize > 1 && filter.pageNumber > 0) {
             q.setMaxResults(filter.pageSize).setFirstResult((filter.pageNumber - 1) * filter.pageSize);
@@ -222,7 +224,7 @@ public class FileService {
                 "and (fs.current = true and :stateId in(0, fs.type.id) or size(f.fileStates) = 0) ";
         var dates = new HashMap<String, LocalDate>();
         if (filter.attributionDate.from != null || filter.attributionDate.to != null) {
-            query += "and f.attributionDate between :adf and :adt ";
+            query += "and f.attributionDate > between :adf and :adt ";
             dates.put("adf", filter.attributionDate.getFrom());
             dates.put("adt", filter.attributionDate.getTo());
         }

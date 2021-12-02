@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.softline'
-version = '0.0.11-SNAPSHOT'
+version = '0.0.12-SNAPSHOT'
 sourceCompatibility = '11'
 configurations {
     compileOnly {
@@ -23,6 +23,7 @@ dependencies {
     implementation 'com.github.javafaker:javafaker:1.0.2'
     implementation 'org.apache.poi:poi-ooxml:5.0.0'
     implementation("com.graphql-java-kickstart:playground-spring-boot-starter:5.10.0")
+    implementation 'junit:junit:4.13.1'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     // --
@@ -41,4 +42,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     runtimeOnly 'mysql:mysql-connector-java:8.0.25'
+}
+test {
+    useJUnitPlatform()
 }

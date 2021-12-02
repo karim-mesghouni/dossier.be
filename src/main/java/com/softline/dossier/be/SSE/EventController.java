@@ -1,6 +1,5 @@
 package com.softline.dossier.be.SSE;
 
-import com.softline.dossier.be.config.Beans;
 import com.softline.dossier.be.domain.Concerns.HasId;
 import com.softline.dossier.be.events.Event;
 import com.softline.dossier.be.security.domain.Agent;
@@ -39,7 +38,7 @@ public class EventController {
     /**
      * start this controller and start the ping scheduler
      *
-     * @see Beans#scheduler()
+     * @see com.softline.dossier.be.config.Beans#scheduler()
      */
     public EventController(ThreadPoolTaskScheduler scheduler) {
         // to keep the connection alive in the client side
