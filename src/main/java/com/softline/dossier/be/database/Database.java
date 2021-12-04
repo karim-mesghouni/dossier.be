@@ -119,6 +119,14 @@ public class Database {
         return findOrNull(clazz, id != null ? id.getId() : null);
     }
 
+    @Nullable
+    public static <T extends HasId> T findOrNull(@Nullable T input) {
+        if (input == null) return null;
+        //noinspection unchecked
+        return findOrNull((Class<T>) input.getClass(), input.getId());
+    }
+
+
     @NotNull
     public static <T> T findOrThrow(@NotNull Class<T> clazz, @Nullable Serializable id) throws EntityNotFoundException {
         return throwIfEmpty(em().find(clazz, id), () -> new EntityNotFoundException(format("No entity of type {} with id {} was found", clazz, id)));

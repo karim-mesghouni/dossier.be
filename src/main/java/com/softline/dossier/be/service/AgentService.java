@@ -73,7 +73,7 @@ public class AgentService {
             Database.startTransaction();
             agent.setUsername(throwIfEmpty(input.getUsername(), () -> new GraphQLException("le nom d'utilisateur ne peut pas être vide")));
             agent.setName(throwIfEmpty(input.getName(), () -> new GraphQLException("le nom ne peut pas être vide")));
-            safeRun(() -> agent.setActivity(Database.findOrThrow(input.getActivity())));
+            safeRun(() -> agent.setActivity(Database.findOrNull(input.getActivity())));
             safeRun(() -> agent.setJob(Database.findOrThrow(input.getJob())));
             safeRun(() -> agent.setRole(Database.findOrThrow(input.getRole())));
             safeRunIf(() -> input.getPassword().length() > 0,
