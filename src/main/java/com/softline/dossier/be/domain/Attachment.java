@@ -1,11 +1,9 @@
 package com.softline.dossier.be.domain;
 
-import com.softline.dossier.be.Tools.EnvUtil;
 import com.softline.dossier.be.Tools.FileSystem;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -26,13 +24,12 @@ public class Attachment extends BaseEntity {
     private String storageName;
     private String contentType;
 
-    @SneakyThrows
     // used by graphql
     public String getUrl() {
-        return EnvUtil.getServerUrl() + "/attachments/" + getStorageName();
+        return "/attachments/" + getStorageName();
     }
 
-    public Path getPath(FileSystem fileSystem) {
+    public Path getPath() {
         return FileSystem.getAttachmentsPath().resolve(getStorageName());
     }
 }

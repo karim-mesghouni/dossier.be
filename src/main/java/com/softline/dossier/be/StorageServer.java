@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.io.File;
 import java.nio.file.Paths;
 
 /**
@@ -24,9 +25,9 @@ public class StorageServer implements WebMvcConfigurer {
 //                        "/resources/**"
                 )
                 .addResourceLocations(
-                        "file:" + Paths.get(storagePath, "/assets/") + "\\",
-                        "file:" + Paths.get(storagePath, "/attachments/" + "\\")
-//                        "classpath:/"
+                        //                        "classpath:/assets"
+                        "file:" + Paths.get(storagePath, "/assets/") + File.separator,
+                        "file:" + Paths.get(storagePath, "/attachments/") + File.separator
                 );
     }
 }

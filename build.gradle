@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.softline'
-version = '0.0.12-SNAPSHOT'
+version = '0.0.16-SNAPSHOT'
 sourceCompatibility = '11'
 configurations {
     compileOnly {
@@ -17,7 +17,7 @@ configurations {
 repositories {
     mavenCentral()
 }
-def dev = !project.property("production")
+def dev = true
 if (dev) {
     println('Running in development')
 } else {
@@ -47,23 +47,13 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     runtimeOnly 'mysql:mysql-connector-java:8.0.25'
 }
-
-sourceSets {
-    main {
-        java {
-            if (!dev) {
-                exclude('**/database/seed/**')
-                exclude('test/**')
-            }
-        }
-        resources {
-            if (!dev) {
-                exclude('config/**')
-            }
-        }
+if (!dev) {
+    sourceSets.main {
+        java.exclude('**/database/seed/**')
+        java.exclude('test/**')
+        resources.exclude('config/**')
     }
 }
-
 
 test {
     useJUnitPlatform()

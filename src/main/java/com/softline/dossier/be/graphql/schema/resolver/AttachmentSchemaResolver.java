@@ -2,7 +2,6 @@ package com.softline.dossier.be.graphql.schema.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import com.softline.dossier.be.Tools.FileSystem;
 import com.softline.dossier.be.domain.Attachment;
 import com.softline.dossier.be.domain.FileTaskAttachment;
 import com.softline.dossier.be.repository.CommentAttachmentRepository;
@@ -10,7 +9,6 @@ import com.softline.dossier.be.repository.FileTaskAttachmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityManager;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,8 +18,6 @@ import java.util.stream.Collectors;
 public class AttachmentSchemaResolver implements GraphQLMutationResolver, GraphQLQueryResolver {
     private final FileTaskAttachmentRepository fileTaskAttachmentRepository;
     private final CommentAttachmentRepository commentAttachmentRepository;
-    private final FileSystem fileSystem;
-    private final EntityManager entityManager;
 
     public List<Attachment> getAllForFileTask(Long fileTaskId) {
         return fileTaskAttachmentRepository.getAllForFileTask(fileTaskId)
@@ -43,7 +39,7 @@ public class AttachmentSchemaResolver implements GraphQLMutationResolver, GraphQ
             FileTaskAttachment attachment = res.get();
             fileTaskAttachmentRepository.delete(attachment);
             try {
-                if (!attachment.getPath(fileSystem).toFile().delete()) {
+                if (!attachment.getPath().toFile().delete()) {
                     throw new FileNotFoundException();
                 }
             } catch (Exception e) {

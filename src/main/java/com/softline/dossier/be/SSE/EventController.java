@@ -78,14 +78,18 @@ public class EventController {
         try {
             channel.setLastEvent(event);
             channel.send(SseEmitter.event().name(event.getType()).data(event.getData()));
-            if (!Event.pingEvent().equals(event) || log.isDebugEnabled())
+            if (log.isDebugEnabled())
                 log.debug("sent {} to {}", event, channel);
         } catch (Throwable e) {
-            if (e.getMessage().contains("An established connection was aborted by the software in your host machine")// browser tap closed
-                    && (!Event.pingEvent().equals(event) || log.isDebugEnabled())) {
-                log.warn("{} was not sent to {} because of [{}](This probably means the client's browser or tap was closed)", event, channel, e.getMessage());
-            } else {
-                log.error("{} was not sent to {} because of [{}]", event, channel, e.getMessage());
+            if (log.isDebugEnabled()) {
+                log.debug("{} was not sent to {} because of [{}]", event, channel, e.getMessage());
+            } else if (!Event.pingEvent().equals(event)
+                    && (e.getMessage().contains("An established connection was aborted by the software in your host machine") || e.getMessage().contains("Broken pipe"))) {
+                if (log.isWarnEnabled())
+                    log.warn("{} was not sent to {} because of [{}]", event, channel, e.getMessage());
+            } else if (!Event.pingEvent().equals(event)) {
+                if (log.isErrorEnabled())
+                    log.error("{} was not sent to {} because of [{}]", event, channel, e.getMessage());
             }
             if (log.isDebugEnabled())
                 log.debug("adding {} to the clean queue", channel);
