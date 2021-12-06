@@ -96,15 +96,15 @@ public final class TipTap {
                 String base64 = search("(?<=;base64,).*", src);
                 String name = save64Image(base64, extension);
                 imageNames.add(name);
-                return EnvUtil.getServerUrl() + "/attachments/" + name;
+                return "http@\\$%!SERVER_URL!%\\$@/attachments/" + name;
             } else {
-                if(!src.startsWith("http")){
-                    if(log.isErrorEnabled())
+                if (!src.startsWith("http")) {// http or https
+                    if (log.isErrorEnabled())
                         log.error("unknown image source [{}], when parsing comment content: {}", src, json);
                     return src;
                 }
-                if(src.startsWith(EnvUtil.getServerUrl())){
-                    if(log.isDebugEnabled())
+                if (src.startsWith(EnvUtil.getServerUrl())) {
+                    if (log.isDebugEnabled())
                         log.debug("skipped image source processing [{}] when parsing comment content: {}", src, json);
                     return src;
                 }
@@ -126,7 +126,7 @@ public final class TipTap {
                     is = url.openStream();
                     Files.copy(is, FileSystem.getAttachmentsPath().resolve(name));
                     imageNames.add(name);
-                    return EnvUtil.getServerUrl() + "/attachments/" + name;
+                    return "http@\\$%!SERVER_URL!%\\$@/attachments/" + name;
                 } catch (IOException e) {
                     log.error("Failed to store url image locally", e);
                     return src;

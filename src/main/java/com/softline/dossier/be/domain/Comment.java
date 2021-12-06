@@ -1,5 +1,6 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.Tools.EnvUtil;
 import com.softline.dossier.be.domain.enums.CommentType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -61,5 +62,9 @@ public class Comment extends BaseEntity {
                 ", id=" + id +
                 ", content='" + content + '\'' +
                 '}';
+    }
+
+    public String getContent() {
+        return content.replaceAll("http@\\$%!SERVER_URL!%\\$@", EnvUtil.getServerUrl());
     }
 }

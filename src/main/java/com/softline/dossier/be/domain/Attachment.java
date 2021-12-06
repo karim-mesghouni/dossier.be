@@ -1,5 +1,6 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.Tools.EnvUtil;
 import com.softline.dossier.be.Tools.FileSystem;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,7 +27,7 @@ public class Attachment extends BaseEntity {
 
     // used by graphql
     public String getUrl() {
-        return "/attachments/" + getStorageName();
+        return EnvUtil.getServerUrl() + "/attachments/" + getStorageName();
     }
 
     public Path getPath() {
