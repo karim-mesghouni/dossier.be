@@ -17,7 +17,7 @@ configurations {
 repositories {
     mavenCentral()
 }
-def dev = true // make sure you run the application with gradle "bootRun" if dev is false
+def dev = false // make sure you run the application with gradle "bootRun" if dev is false
 if (dev) {
     println('Running in development')
 } else {
