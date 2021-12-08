@@ -17,7 +17,7 @@ configurations {
 repositories {
     mavenCentral()
 }
-def dev = false
+def dev = true // make sure you run the application with gradle "bootRun" if dev is false
 if (dev) {
     println('Running in development')
 } else {
@@ -47,7 +47,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     runtimeOnly 'mysql:mysql-connector-java:8.0.25'
 }
-if (!dev) {
+if (!dev) {// in production remove [database seeder, and local configuration, and tests]
     sourceSets.main {
         java.exclude('**/database/seed/**')
         java.exclude('test/**')
