@@ -30,6 +30,7 @@ type FileActivity {
     order:Int
     createdDate: String
     comments: [Comment]
+    agent: Agent
 }
 input FileActivityInput  {
     id :ID

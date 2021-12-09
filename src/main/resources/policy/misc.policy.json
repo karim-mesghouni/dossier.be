@@ -27,6 +27,6 @@
   {
     "name": "anyone can work in file task if he is assigned to it",
     "target": "'WORK_IN_FILE_TASK' == action",
-    "condition": "resource.fileActivity.activity.id == subject.activity.id"
+    "condition": "resource.assignedTo.id == subject.id"
   }
 ]

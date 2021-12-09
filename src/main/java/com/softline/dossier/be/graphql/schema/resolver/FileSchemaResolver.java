@@ -9,7 +9,6 @@ import com.softline.dossier.be.graphql.types.FileHistoryDTO;
 import com.softline.dossier.be.graphql.types.PageList;
 import com.softline.dossier.be.graphql.types.input.FileInput;
 import com.softline.dossier.be.service.FileService;
-import com.softline.dossier.be.service.exceptions.ClientReadableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -17,18 +16,17 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.List;
 
-@SuppressWarnings("ALL")
 @Component
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class FileSchemaResolver implements GraphQLMutationResolver, GraphQLQueryResolver {
     private final FileService service;
 
-    public File createFile(FileInput input) throws IOException, ClientReadableException {
+    public File createFile(FileInput input) throws IOException {
         return service.create(input);
     }
 
-    public File updateFile(FileInput input) throws ClientReadableException {
+    public File updateFile(FileInput input) {
         return service.update(input);
     }
 
@@ -40,9 +38,8 @@ public class FileSchemaResolver implements GraphQLMutationResolver, GraphQLQuery
         return service.getById(id);
     }
 
-    public PageList<File> getAllFilePageFilter(FileFilterInput input) {
-
-        return service.getAllFilesByFilter(input);
+    public PageList<File> getAllFilePageFilter(FileFilterInput input, int pageNumber, int pageSize) {
+        return service.getAllFilesByFilter(input, pageNumber, pageSize);
     }
 
     public List<FileHistoryDTO> getFileHistory(Long id) {
@@ -64,5 +61,4 @@ public class FileSchemaResolver implements GraphQLMutationResolver, GraphQLQuery
     public boolean changeFileOrder(Long fileId, Long fileBeforeId) {
         return service.changeOrder(fileId, fileBeforeId);
     }
-
 }

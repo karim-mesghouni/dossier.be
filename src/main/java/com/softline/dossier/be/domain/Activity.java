@@ -1,13 +1,10 @@
 package com.softline.dossier.be.domain;
 
 
-import com.softline.dossier.be.security.domain.Agent;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
 import javax.persistence.CascadeType;
@@ -41,10 +38,6 @@ public class Activity extends BaseEntity {
 
     @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL)
     List<ActivityState> states;
-
-    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL)
-    @NotFound(action = NotFoundAction.IGNORE)
-    List<Agent> agents;
 
     @Override
     public String toString() {

@@ -54,11 +54,6 @@ public class AgentService {
         throwIfEmpty(agent.getName(), () -> new GraphQLException("le nom ne peut pas être vide"));
         throwIfSuppliedEmpty(() -> agent.getRole().getId(), () -> new GraphQLException("veuillez spécifier une fonction"));
         agent.setRole(Database.findOrThrow(agent.getRole()));
-        if (!Database.findOrThrow(agent.getRole()).isAdmin()) {
-            throwIfSuppliedEmpty(() -> agent.getActivity().getId(), () -> new GraphQLException("veuillez spécifier une activité"));
-            agent.setActivity(Database.findOrThrow(agent.getActivity()));
-        }
-
         agent.setEnabled(true);
         agent.setPassword(Application.getBean(PasswordEncoder.class).encode(agent.getPassword()));
         Database.startTransaction();
@@ -73,7 +68,6 @@ public class AgentService {
             Database.startTransaction();
             agent.setUsername(throwIfEmpty(input.getUsername(), () -> new GraphQLException("le nom d'utilisateur ne peut pas être vide")));
             agent.setName(throwIfEmpty(input.getName(), () -> new GraphQLException("le nom ne peut pas être vide")));
-            safeRun(() -> agent.setActivity(Database.findOrNull(input.getActivity())));
             safeRun(() -> agent.setJob(Database.findOrThrow(input.getJob())));
             safeRun(() -> agent.setRole(Database.findOrThrow(input.getRole())));
             safeRunIf(() -> input.getPassword().length() > 0,

@@ -61,11 +61,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private String createToken(String name, Authentication auth) {
         Agent agent = ((CustomAgentDetails) auth.getPrincipal()).getAgent();
-        var actId = agent.getActivity() != null ? agent.getActivity().getId() : -1;
         return JWT.create()
                 .withSubject(name)
                 .withClaim("role", agent.getRole().getName())
-                .withClaim("activityId", actId)
                 .withClaim("id", agent.getId())
                 .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .sign(HMAC512(SECRET.getBytes()));

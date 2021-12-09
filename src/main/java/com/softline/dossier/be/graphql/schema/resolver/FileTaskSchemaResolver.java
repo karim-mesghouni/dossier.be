@@ -47,11 +47,6 @@ public class FileTaskSchemaResolver implements GraphQLQueryResolver, GraphQLMuta
         return service.changeAssignedTo(assignedToId, fileTaskId);
     }
 
-    public Agent changeReporter(long reporterId, Long fileTaskId) {
-        return service.changeReporter(reporterId, fileTaskId);
-
-    }
-
     public FileTaskSituation changeFileTaskSituation(long situationId, long fileTaskId) {
         return service.changeFileTaskSituation(situationId, fileTaskId);
 
@@ -59,7 +54,6 @@ public class FileTaskSchemaResolver implements GraphQLQueryResolver, GraphQLMuta
 
     public List<FileTask> getAllFileTaskByFileActivityId(Long fileActivityId) {
         return service.getAllFileTaskByFileActivityId(fileActivityId);
-
     }
 
     public List<FileTask> getAllFileTaskByFileActivityIdInTrash(Long fileActivityId) {

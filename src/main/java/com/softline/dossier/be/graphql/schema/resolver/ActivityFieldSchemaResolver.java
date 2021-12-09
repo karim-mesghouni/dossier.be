@@ -23,7 +23,7 @@ public class ActivityFieldSchemaResolver implements GraphQLQueryResolver {
         return service.getById(id);
     }
 
-    public List<ActivityField> getAllActivityFieldByActivityId(Long activityId) {
-        return service.getAllActivityFieldByActivityId(activityId);
+    public List<ActivityField> getAllActivityFieldByActivityId(Long id) {
+        return service.getAllActivityFieldByActivityId(id);
     }
 }

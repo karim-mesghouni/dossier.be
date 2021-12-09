@@ -1,5 +1,6 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.Tools.ListUtils;
 import com.softline.dossier.be.domain.traits.HasOrder;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.*;
@@ -95,8 +96,9 @@ public class FileTask extends BaseEntity implements HasOrder {
     }
 
     @NonNull
-    public FileTaskSituation getCurrentState() throws RuntimeException {
-        return getFileTaskSituations().stream().filter(FileTaskSituation::isCurrent).findFirst().orElseThrow(() -> new RuntimeException("FileTask " + getId() + " has no active situation"));
+    public FileTaskSituation getCurrentFileTaskSituation() throws RuntimeException {
+        return ListUtils.filterFirst(getFileTaskSituations(), FileTaskSituation::isCurrent)
+                .orElseThrow(() -> new RuntimeException("FileTask " + getId() + " has no active situation"));
     }
 
     public void incrementOrder() {

@@ -1,6 +1,6 @@
 # Query
 extend type Query  {
-    allActivityFieldByActivityId(activityId: ID!):[ActivityField]
+    allActivityFieldByActivityId(id: ID!):[ActivityField]
 }
 
 

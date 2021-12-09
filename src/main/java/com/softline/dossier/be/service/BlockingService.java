@@ -1,5 +1,6 @@
 package com.softline.dossier.be.service;
 
+import com.softline.dossier.be.Tools.ListUtils;
 import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.events.EntityEvent;
@@ -56,8 +57,7 @@ public class BlockingService {
         Database.startTransaction();
         Database.findOrThrow(fileTaskSituationRepository.findFirstByFileTaskAndCurrentIsTrue(fileTask))
                 .setCurrent(false);
-        var blockState = fileTask.getTask().getSituations()
-                .stream().filter(TaskSituation::isBlock).findFirst()
+        var blockState = ListUtils.filterFirst(fileTask.getTask().getSituations(), TaskSituation::isBlock)
                 .orElseThrow(() -> new EntityNotFoundException("Task does not have a block situation"));
         var fileSituation = Database.persist(FileTaskSituation.builder()
                 .fileTask(block.getState().getFileTask())

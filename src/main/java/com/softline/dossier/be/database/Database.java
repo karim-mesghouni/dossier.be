@@ -45,6 +45,16 @@ public class Database {
         em().getTransaction().begin();
     }
 
+    /**
+     * Opens a transaction and do the action then commit the transaction
+     */
+    public static void inTransaction(Runnable action) {
+        em().getTransaction().begin();
+        action.run();
+        em().flush();
+        em().getTransaction().commit();
+    }
+
     @NotNull
     public static <T> T getSingle(@NotNull @Language("HQL") String query, @NotNull Class<T> clazz) throws NoResultException {
         return em().createQuery(query, clazz).setMaxResults(1).getSingleResult();
@@ -150,8 +160,8 @@ public class Database {
     }
 
     @NotNull
-    public static <T, R> R findOrThrow(@NotNull Class<T> clazz, @Nullable Serializable id, @NotNull Function<T, R> action) throws EntityNotFoundException {
-        return action.apply(findOrThrow(clazz, id));
+    public static <T, R> R findOrThrow(@NotNull Class<T> clazz, @Nullable Serializable id, @NotNull Function<T, R> action) throws EntityNotFoundException, NullPointerException {
+        return throwIfEmpty(action.apply(findOrThrow(clazz, id)), NullPointerException::new);
     }
 
     @NotNull
@@ -160,7 +170,7 @@ public class Database {
     }
 
     @NotNull
-    public static <T, R> R findOrThrow(@NotNull Class<T> clazz, @Nullable Serializable id, @NotNull String permission, @NotNull Function<T, R> action) throws EntityNotFoundException {
+    public static <T, R> R findOrThrow(@NotNull Class<T> clazz, @Nullable Serializable id, @NotNull String permission, @NotNull Function<T, R> action) throws EntityNotFoundException, AccessDeniedException {
         T entity = findOrThrow(clazz, id);
         DenyOrProceed(permission, entity);
         return action.apply(entity);

@@ -1,12 +1,11 @@
 type TaskState{
-
     id:ID
     name:String
     task:Task
+    valid: Boolean
     fileTasks:[FileTask]
 }
 input TaskStateInput{
-
     id:ID
     name:String
     task:TaskInput

@@ -15,7 +15,6 @@ extend type Query  {
 extend type Mutation{
     createFileTask(input: FileTaskInput!):FileTask
     changeAssignedTo(assignedToId: ID,fileTaskId: ID!):Agent
-    changeReporter(reporterId: ID,fileTaskId: ID!):Agent
     changeFileTaskSituation(situationId: ID!,fileTaskId: ID!):FileTaskSituation
     changeStartDate(startDate: String!,fileTaskId: ID!):Boolean
     changeDueDate(dueDate: String!,fileTaskId: ID!):Boolean
@@ -34,7 +33,7 @@ extend type Mutation{
     sendFileTaskToTrash(fileTaskId: ID!): Boolean
     recoverFileTaskFromTrash(fileTaskId: ID!): Boolean
     uploadAttachments(attachments: [Upload]!,fileTaskId:ID!):[Attachment]
-#    deleteFileTask(id: ID!): Boolean
+    #    deleteFileTask(id: ID!): Boolean
     changeFileTaskOrder(fileTaskId: ID!, fileTaskBeforeId: ID!): Boolean
 }
 
@@ -52,7 +51,7 @@ type FileTask{
     reporter:Agent
     assignedTo:Agent
     fileTaskSituations:[FileTaskSituation]
-    state:TaskState
+    state: TaskState
     currentFileTaskSituation:FileTaskSituation
     title: String
     description: DescriptionComment
@@ -62,7 +61,6 @@ type FileTask{
     inTrash:Boolean
     parent: FileTask
     attachments: [Attachment]
-    currentState: FileTaskSituation
     number: Int
 }
 input FileTaskInput {

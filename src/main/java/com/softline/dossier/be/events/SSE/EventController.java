@@ -1,4 +1,4 @@
-package com.softline.dossier.be.SSE;
+package com.softline.dossier.be.events.SSE;
 
 import com.softline.dossier.be.domain.Concerns.HasId;
 import com.softline.dossier.be.events.Event;
@@ -30,7 +30,7 @@ public class EventController {
     private static final List<Channel> channels = Collections.synchronizedList(new ArrayList<>());
     // sometimes the SseEmitter.complete() action does not get executed,
     // so we will manually clean the channel in such case by putting it in this removal queue
-    // and the ping thread will clean this queue after sending the ping events
+    // and the ping task will clean this queue after sending the ping events
     private static final List<Channel> scheduledForRemoval = Collections.synchronizedList(new ArrayList<>());
     // all event send operations during when silent mode is active should be discarded and dismissed
     private static final AtomicBoolean silentModeActive = new AtomicBoolean();// initialValue: false
@@ -43,10 +43,10 @@ public class EventController {
     public EventController(ThreadPoolTaskScheduler scheduler) {
         // to keep the connection alive in the client side
         // we must send at least 1 event every 45 seconds,
-        // so we create a single thread which will send a ping(heart-beat) event
-        // to all open channels every 30 seconds
+        // so we create a scheduled task which will be executed every 30 seconds to
+        // send a ping(heart-beat) event to all channels
         if (log.isDebugEnabled())
-            log.debug("starting ping thread");
+            log.debug("creating ping schedule");
         scheduler.scheduleAtFixedRate(() ->
         {
             // remove any scheduled for removal channels

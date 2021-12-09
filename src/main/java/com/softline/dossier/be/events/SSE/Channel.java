@@ -1,4 +1,4 @@
-package com.softline.dossier.be.SSE;
+package com.softline.dossier.be.events.SSE;
 
 import com.softline.dossier.be.domain.Concerns.HasId;
 import com.softline.dossier.be.events.Event;

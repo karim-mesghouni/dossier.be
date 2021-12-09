@@ -1,0 +1,25 @@
+# Rename this file to resources/config/application.properties and any
+# properties put here will override the main /application.properties file
+# such as database password and logging levels ..etc
+
+# uncomment to activate graphql playground route in /playground
+#graphql.playground.cdn.enabled=true
+#graphql.playground.mapping=/playground
+#graphql.playground.endpoint=/graphql
+
+#spring.devtools.restart.enabled=false
+#spring.devtools.livereload.enabled=false
+
+database.seeder.seed-files=true
+database.seeder.seed-communes=true
+database.seeder.seed-agents=true
+database.seeder.seed-role-users=false
+database.seeder.seed-clients=true
+
+server-real-url=http://localhost:8092
+filesystem.storage.absolute-path=dossier
+logging.level.root=INFO
+spring.datasource.url=jdbc:mysql://localhost:2206/task2_manger?createDatabaseIfNotExist=true
+#spring.jpa.show-sql=true
+spring.datasource.password=toor
+

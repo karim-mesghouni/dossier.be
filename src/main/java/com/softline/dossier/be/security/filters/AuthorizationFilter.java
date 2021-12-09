@@ -3,7 +3,6 @@ package com.softline.dossier.be.security.filters;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.softline.dossier.be.domain.Activity;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.security.domain.Role;
 import com.softline.dossier.be.security.policy.PolicyMatcher;
@@ -67,7 +66,6 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
             agent.setId(decoded.getClaim("id").asLong());
             agent.setUsername(decoded.getSubject());
             agent.setRole(Role.builder().type(Role.Type.valueOf(role)).build());
-            agent.setActivity(Activity.builder().id(decoded.getClaim("activityId").as(Long.class)).build());
             return new UsernamePasswordAuthenticationToken(agent, null, List.of(new SimpleGrantedAuthority(role)));
         }
         return null;

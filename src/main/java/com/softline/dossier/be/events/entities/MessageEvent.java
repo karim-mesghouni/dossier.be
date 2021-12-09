@@ -1,11 +1,11 @@
 package com.softline.dossier.be.events.entities;
 
-import com.softline.dossier.be.SSE.Channel;
 import com.softline.dossier.be.domain.Message;
 import com.softline.dossier.be.events.EntityEvent;
+import com.softline.dossier.be.events.SSE.Channel;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 import static com.softline.dossier.be.Tools.Functions.safeValue;
 import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.can;
@@ -24,7 +24,7 @@ public class MessageEvent extends EntityEvent<Message> {
 
     @NotNull
     @Override
-    public Callable<Boolean> getPermissionEvaluator(Channel channel) {
+    public Supplier<Boolean> getPermissionEvaluator(Channel channel) {
         return () -> can("READ_MESSAGE", entity);
     }
 }

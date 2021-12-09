@@ -19,7 +19,6 @@ type Activity {
     fileActivities:[FileActivity]
     tasks: [Task]
     states:[ActivityState]
-    agents: [Agent]
 }
 
 input ActivityInput {

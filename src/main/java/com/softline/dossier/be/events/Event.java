@@ -1,16 +1,16 @@
 package com.softline.dossier.be.events;
 
 import com.google.errorprone.annotations.ForOverride;
-import com.softline.dossier.be.SSE.Channel;
-import com.softline.dossier.be.SSE.EventController;
 import com.softline.dossier.be.domain.Concerns.HasId;
+import com.softline.dossier.be.events.SSE.Channel;
+import com.softline.dossier.be.events.SSE.EventController;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 /**
  * A wrapper class for any events that will happen during the request cycle
@@ -109,7 +109,7 @@ public class Event<T> implements Serializable {
      */
     public boolean isReadableByChannel(Channel channel) {
         try {
-            return Boolean.TRUE.equals(getPermissionEvaluator(channel).call());// convert null to false
+            return Boolean.TRUE.equals(getPermissionEvaluator(channel).get());// convert null to false
         } catch (Exception e) {
             if (log.isErrorEnabled())
                 log.error("Event.getPermission() failed to get permissionEvaluator result", e);
@@ -118,14 +118,15 @@ public class Event<T> implements Serializable {
     }
 
     /**
-     * returns a callback which  when called should produce
+     * returns a supplier which when called should produce
      * a boolean which tells if the channel has permission to read this event according to the passed channel.
-     * default callable return value is true
+     * <p>
+     * default supplier return value is true
      */
     @SuppressWarnings("RedundantThrows")
     @ForOverride
     @NotNull
-    protected Callable<Boolean> getPermissionEvaluator(Channel channel) throws Exception {
+    protected Supplier<Boolean> getPermissionEvaluator(Channel channel) throws Exception {
         return () -> true;
     }
 }

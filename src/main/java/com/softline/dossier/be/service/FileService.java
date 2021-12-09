@@ -200,11 +200,11 @@ public class FileService {
         return true;
     }
 
-    public PageList<File> getAllFilesByFilter(FileFilterInput filter) {
+    public PageList<File> getAllFilesByFilter(FileFilterInput filter, int pageNumber, int pageSize) {
         throwIfEmpty(filter, () -> new GraphQLException("Provide a valid full filter"));
         var q = buildQuery("f", filter, File.class);
-        if (filter.pageSize > 1 && filter.pageNumber > 0) {
-            q.setMaxResults(filter.pageSize).setFirstResult((filter.pageNumber - 1) * filter.pageSize);
+        if (pageSize > 1 && pageNumber > 0) {
+            q.setMaxResults(pageSize).setFirstResult((pageNumber - 1) * pageSize);
         }
         return new PageList<>(
                 q.getResultList(),

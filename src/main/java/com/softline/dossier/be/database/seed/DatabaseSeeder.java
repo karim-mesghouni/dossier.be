@@ -135,7 +135,6 @@ public class DatabaseSeeder implements ApplicationRunner {
                             .username(role.getName().toLowerCase(Locale.ROOT))
                             .password(passwordEncoder.encode("000"))
                             .enabled(true)
-                            .activity(role.is(Role.Type.MANAGER) ? null : getOne(activityRepository.findAll()))
                             .role(role)
                             .build()
                     );
@@ -153,7 +152,6 @@ public class DatabaseSeeder implements ApplicationRunner {
                             .email(faker.internet().emailAddress())
                             .username(uname)
                             .password(passwordEncoder.encode("000"))
-                            .activity(getOne(activityRepository.findAll()))
                             .role(getOne(roles, r -> !r.is(Role.Type.MANAGER)))
                             .enabled(true)
                             .build()
@@ -268,7 +266,7 @@ public class DatabaseSeeder implements ApplicationRunner {
                         .activity(baseActivity)
                         .state(activityStateRepository.findFirstByInitialIsTrueAndActivity_Id(baseActivity.getId()))
                         .current(true)
-                        .agent(getOne(agents, a -> safeValue(() -> a.getActivity().getId(), -1L) == baseActivity.getId()))
+                        .agent(getOne(agents))
                         .file(file)
                         .order(++ord.fileActivityOrder).build()));
                 runNTimes(faker.number().numberBetween(0, 7), () -> {
@@ -277,7 +275,7 @@ public class DatabaseSeeder implements ApplicationRunner {
                         fileActivities.add(FileActivity.builder()
                                 .activity(act)
                                 .state(getOne(activityStates))
-                                .agent(getOne(agents, a -> safeValue(() -> a.getActivity().getId(), -1L) == baseActivity.getId()))
+                                .agent(getOne(agents))
                                 .current(false)
                                 .file(file)
                                 .order(++ord.fileActivityOrder)
@@ -293,24 +291,26 @@ public class DatabaseSeeder implements ApplicationRunner {
                     {
                         var createdDate = faker.date().between(toDate(now), toDate(now.plusDays(20)));
                         var created = toLocalDateTime(createdDate);
-                        var reporter = getOne(agents, a -> a.is(Role.Type.REFERENT) && a.getActivity().getId() == fileActivity.getActivity().getId(), () -> getOne(agents));
+                        var reporter = getOne(agents, a -> a.is(Role.Type.REFERENT), () -> getOne(agents));
                         FileTask fileTask = FileTask.builder()
                                 .fileActivity(fileActivity)
                                 .agent(reporter)
                                 .order(++ord.fileTaskOrder)
                                 .number(++ord.fileTaskNumber)
                                 .assignedTo(getOne(agents,
-                                        a -> !a.isAdmin() && a.getActivity().getId() == fileActivity.getActivity().getId() && a.is(Role.Type.ACCOUNTANT),
+                                        a -> !a.isAdmin() && a.is(Role.Type.ACCOUNTANT),
                                         () -> getOne(agents)))
                                 .reporter(reporter)
                                 .task(getOne(fileActivity.getActivity().getTasks()))
-                                .state(getOne(taskStateList))
                                 .createdDate(created)
                                 .startDate(toLocalDateTime(futureDaysFrom(createdDate, 0, 1)))
                                 .dueDate(toLocalDateTime(futureDaysFrom(createdDate, 2, 4)))
                                 .endDate(toLocalDateTime(futureDaysFrom(createdDate, 5, 15)))
                                 .title(faker.job().title())
                                 .build();
+                        if (faker.random().nextInt(0, 100) > 70) {
+                            fileTask.setState(getOne(fileTask.getTask().getStates()));
+                        }
                         var situations = fileTask.getTask().getSituations();
                         var blocks = new ArrayList<FileTaskSituation>();
                         AtomicReference<LocalDateTime> blockDate = new AtomicReference<>(futureDaysFrom(fileTask.getCreatedDate(), 0, 15));

@@ -51,9 +51,6 @@ public class Agent extends BaseEntity {
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private Job job;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Activity activity;
-
     @OneToMany(mappedBy = "agent")
     @ToString.Exclude
     private List<File> createdFiles;
@@ -65,7 +62,6 @@ public class Agent extends BaseEntity {
                 ", name='" + name + '\'' +
                 ", username='" + username + '\'' +
                 ", role=" + role +
-                ", activity=" + activity +
                 '}';
     }
 

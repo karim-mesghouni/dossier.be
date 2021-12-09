@@ -22,6 +22,12 @@ public abstract class EntityEvent<E> extends Event<JSONObject> implements Serial
         this.entity = entity;
     }
 
+    /**
+     * Add a single attribute to the event payload
+     *
+     * @param attribute attribute name
+     * @param value     attribute value
+     */
     public void addData(@NotNull String attribute, @Nullable Object value) {
         if (!Objects.requireNonNull(payload).has(attribute)) {
             try {

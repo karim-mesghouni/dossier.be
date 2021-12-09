@@ -20,7 +20,6 @@ type Agent {
     name:String
     username: String
     password: String
-    activity: Activity
     role: Role
     job: Job
     deleted: Boolean
@@ -31,7 +30,6 @@ input AgentInput{
     name:String
     username: String
     password: String
-    activity: ActivityInput
     role: RoleInput
     job: JobInput
     deleted: Boolean

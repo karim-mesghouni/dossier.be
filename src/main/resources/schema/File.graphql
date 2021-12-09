@@ -3,7 +3,7 @@ directive @can(action: String!, entity: String!) on FIELD_DEFINITION
 extend type Query  {
     allFile:[File!]!
     file(id: ID!): File
-    allFilePageFilter(filter: FileFilterInput!):PageList
+    allFilePageFilter(filter: FileFilterInput!, pageNumber: Int!, pageSize: Int!):PageList
     fileHistory(id: ID!):[HistoryDTO]
     allFileStateType:[FileStateType]
 }
@@ -63,8 +63,6 @@ input DateRangeInput{
     to: String
 }
 input FileFilterInput{
-    pageNumber:Int
-    pageSize:Int
     project: String
     client: ClientInput
     activity: ActivityInput
