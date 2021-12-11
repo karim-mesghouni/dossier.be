@@ -25,7 +25,7 @@ public class FileActivitySchemaResolver implements GraphQLQueryResolver, GraphQL
         return service.create(FileActivity);
     }
 
-    public boolean changeDataField(ActivityDataFieldInput input) {
+    public ActivityDataField changeDataField(ActivityDataFieldInput input) {
         return service.changeDataField(input);
     }
 

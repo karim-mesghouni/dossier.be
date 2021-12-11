@@ -127,7 +127,7 @@ public class BlockingService {
         blocking.setDateUnBlocked(input.getDateUnBlocked());
         Database.commit();
         new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
-        return blockingShadow;
+        return blocking;
     }
 
     public boolean delete(long id) {

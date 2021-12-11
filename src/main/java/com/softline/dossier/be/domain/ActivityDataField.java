@@ -1,6 +1,7 @@
 package com.softline.dossier.be.domain;
 
 import com.softline.dossier.be.domain.enums.FieldType;
+import com.softline.dossier.be.security.domain.Agent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,4 +35,14 @@ public class ActivityDataField extends BaseEntity {
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     FileActivity fileActivity;
+
+    @ManyToOne
+    @NotFound(action = NotFoundAction.IGNORE)
+    Agent lastModifiedBy;
+
+    // used by graphql
+    public Agent getLastModifiedBy() {
+        if (lastModifiedBy == null) return getCreator();
+        return lastModifiedBy;
+    }
 }

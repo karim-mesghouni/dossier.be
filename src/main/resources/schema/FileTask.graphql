@@ -21,7 +21,7 @@ extend type Mutation{
     changeTitle(title: String,fileTaskId: ID!):Boolean
     changeDescription(input: CommentInput):DescriptionComment
     changeRetour(input: CommentInput):ReturnedComment
-    changeDataField(input: ActivityDataFieldInput):Boolean
+    changeDataField(input: ActivityDataFieldInput): ActivityDataField
     # changeAgent(agentId: ID!,phaseFileAgentId: ID!):FilePhaseAgent
     # changePhaseState(stateId: ID!,phaseFileAgentId: ID!):FilePhaseState
     updateFileTask(input: FileTaskInput!):FileTask

@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.softline.dossier.be.Tools.DateHelpers.*;
+import static com.softline.dossier.be.Tools.DateHelpers.toDate;
 import static com.softline.dossier.be.Tools.Functions.*;
 import static com.softline.dossier.be.database.seed.SeederHelper.*;
 
@@ -315,37 +315,43 @@ public class DatabaseSeeder implements ApplicationRunner {
                         var blocks = new ArrayList<FileTaskSituation>();
                         AtomicReference<LocalDateTime> blockDate = new AtomicReference<>(futureDaysFrom(fileTask.getCreatedDate(), 0, 15));
                         AtomicReference<LocalDateTime> stateDate = new AtomicReference<>(futureDaysFrom(fileTask.getCreatedDate(), 0, 15));
+                        final int[] count = {0};
                         List<FileTaskSituation> thisTaskSituations = ListUtils.createCount(faker.number().numberBetween(1, 6), () ->
                         {
-                            var situation = getOne(situations);
-                            var fileTaskSituation = FileTaskSituation.builder()
-                                    .situation(situation)
-                                    .agent(getOne(agents))
-                                    .fileTask(fileTask)
-                                    .createdDate(stateDate.get())
-                                    .build();
-                            if (situation.isBlock()) {
-                                var block = Blocking
-                                        .builder()
-                                        .state(fileTaskSituation)
-                                        .label(getOne(blockingLabels))
+                            while (true) {// used to continue if the first element was a block
+                                var situation = getOne(situations);
+                                var fileTaskSituation = FileTaskSituation.builder()
+                                        .situation(situation)
                                         .agent(getOne(agents))
-                                        .lockingAddress(getOne(blockingLocks))
-                                        .qualification(getOne(blockingQualifications))
-                                        .createdDate(blockDate.get())
-                                        .dateUnBlocked(LocalDateTime.now())
-                                        .date(LocalDateTime.now())
-                                        .explication(faker.lorem().sentence())
+                                        .fileTask(fileTask)
+                                        .createdDate(stateDate.get())
                                         .build();
-                                fileTaskSituation.setBlocking(block);
-                                if (blocks.size() > 0) {
-                                    blocks.stream().reduce((first, second) -> second).get().getBlocking().setDateUnBlocked(blockDate.get());
+                                if (situation.isBlock()) {
+                                    if (count[0] == 0)
+                                        continue;
+                                    var block = Blocking
+                                            .builder()
+                                            .state(fileTaskSituation)
+                                            .label(getOne(blockingLabels))
+                                            .agent(getOne(agents))
+                                            .lockingAddress(getOne(blockingLocks))
+                                            .qualification(getOne(blockingQualifications))
+                                            .createdDate(blockDate.get())
+                                            .dateUnBlocked(LocalDateTime.now())
+                                            .date(LocalDateTime.now())
+                                            .explication(faker.lorem().sentence())
+                                            .build();
+                                    fileTaskSituation.setBlocking(block);
+                                    if (blocks.size() > 0) {
+                                        blocks.stream().reduce((first, second) -> second).get().getBlocking().setDateUnBlocked(blockDate.get());
+                                    }
+                                    blocks.add(fileTaskSituation);
+                                    blockDate.set(futureDaysFrom(fileTask.getCreatedDate(), 0, 15));
                                 }
-                                blocks.add(fileTaskSituation);
-                                blockDate.set(futureDaysFrom(fileTask.getCreatedDate(), 0, 15));
+                                count[0]++;
+                                stateDate.set(futureDaysFrom(stateDate.get(), 0, 15));
+                                return fileTaskSituation;
                             }
-                            stateDate.set(futureDaysFrom(stateDate.get(), 0, 15));
-                            return fileTaskSituation;
                         });
                         // set last situation as current
                         var state = thisTaskSituations.get(thisTaskSituations.size() - 1);

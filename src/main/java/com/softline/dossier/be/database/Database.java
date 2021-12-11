@@ -277,6 +277,15 @@ public class Database {
         }
     }
 
+    /**
+     * rollback any active transactions.
+     */
+    public static void rollback() {
+        if (em().getTransaction().isActive()) {
+            em().getTransaction().rollback();
+        }
+    }
+
     @Bean(name = "localEntityManager")
     @Scope("request")
     public Object localEntityManager(EntityManagerFactory factory) {

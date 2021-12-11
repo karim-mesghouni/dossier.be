@@ -5,7 +5,8 @@ type ActivityDataField {
     data: String
     fileActivity: FileActivity
     groupName: String
-
+    lastModifiedBy: Agent
+    modifiedDate: String
 }
 enum FieldType
 {

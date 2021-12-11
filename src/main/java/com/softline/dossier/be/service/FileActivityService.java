@@ -9,7 +9,9 @@ import com.softline.dossier.be.events.entities.FileActivityDataFieldEvent;
 import com.softline.dossier.be.events.entities.FileActivityEvent;
 import com.softline.dossier.be.graphql.types.input.ActivityDataFieldInput;
 import com.softline.dossier.be.graphql.types.input.FileActivityInput;
+import com.softline.dossier.be.graphql.types.input.enums.FieldTypeInput;
 import com.softline.dossier.be.repository.FileActivityRepository;
+import com.softline.dossier.be.security.domain.Agent;
 import graphql.GraphQLException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -84,20 +86,23 @@ public class FileActivityService {
         });
     }
 
-    public boolean changeDataField(ActivityDataFieldInput input) {
+    public ActivityDataField changeDataField(ActivityDataFieldInput input) {
         return Database.findOrThrow(input.map(), field -> {
             DenyOrProceed("UPDATE_FILE_ACTIVITY_DATA_FIELD", field);
             Database.startTransaction();
             try {
+                input.setFieldType(FieldTypeInput.valueOf(field.getFieldType().toString()));
                 input.tryCastData();
             } catch (NumberFormatException | DateTimeParseException e) {
                 // if data is not of the correct type
+                Database.rollback();
                 throw new GraphQLException(TextHelper.format("la valeur est malformée [{}]", field.getFieldType()));
             }
             field.setData(input.getData());
+            field.setLastModifiedBy(Agent.thisDBAgent());
             Database.commit();
             new FileActivityDataFieldEvent(EntityEvent.Type.UPDATED, field).fireToAll();
-            return true;
+            return field;
         });
     }
 
