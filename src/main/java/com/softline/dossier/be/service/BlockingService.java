@@ -7,7 +7,6 @@ import com.softline.dossier.be.events.EntityEvent;
 import com.softline.dossier.be.events.entities.FileTaskEvent;
 import com.softline.dossier.be.repository.BlockingRepository;
 import com.softline.dossier.be.repository.FileTaskSituationRepository;
-import com.softline.dossier.be.repository.TaskSituationRepository;
 import graphql.GraphQLException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,6 @@ import static com.softline.dossier.be.security.config.AttributeBasedAccessContro
 @RequiredArgsConstructor
 public class BlockingService {
     private final FileTaskSituationRepository fileTaskSituationRepository;
-    private final TaskSituationRepository taskSituationRepository;
     private final BlockingRepository repository;
 
     public List<Blocking> getAll() {

@@ -20,7 +20,10 @@ public class AgentDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var agent = agentRepository.findByUsername(username);
         if (agent == null) {
-            throw new UsernameNotFoundException(username);
+            throw new UsernameNotFoundException("Could not find any user with username: " + username);
+        }
+        if (agent.getRole() == null) {
+            throw new NullPointerException("Agent has no role");
         }
         return new CustomAgentDetails(agent, List.of(new SimpleGrantedAuthority(agent.getRole().getName())));
     }

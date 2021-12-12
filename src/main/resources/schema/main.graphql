@@ -12,4 +12,9 @@ type Query {
 type Mutation{
 
 }
+
+#
+# see /main/java/graphql/ScalarBean
+#
 scalar Upload
+scalar Void

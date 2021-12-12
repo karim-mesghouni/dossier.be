@@ -3,9 +3,11 @@ package com.softline.dossier.be.events.SSE;
 import com.softline.dossier.be.domain.Concerns.HasId;
 import com.softline.dossier.be.events.Event;
 import com.softline.dossier.be.security.domain.Agent;
+import com.softline.dossier.be.security.repository.AgentRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,11 +42,20 @@ public class EventController {
      *
      * @see com.softline.dossier.be.config.Beans#scheduler()
      */
-    public EventController(ThreadPoolTaskScheduler scheduler) {
+    public EventController(ThreadPoolTaskScheduler scheduler, AgentRepository repo, PasswordEncoder encoder) {
         // to keep the connection alive in the client side
         // we must send at least 1 event every 45 seconds,
         // so we create a scheduled task which will be executed every 30 seconds to
         // send a ping(heart-beat) event to all channels
+        if (log.isInfoEnabled()) {// was added for testing the remote server database connectivity
+            log.info("Attempting to retrieve users count");
+            log.info("Users count: {}", repo.count());
+            log.info("Attempting to retrieve user manager by username");
+            var man = repo.findByUsername("manager");
+            log.info("findByUsername(\"manager\"): {}", man);
+            if (man != null)
+                log.info("manager:000 -> {}", encoder.matches("000", man.getPassword()));
+        }
         if (log.isDebugEnabled())
             log.debug("creating ping schedule");
         scheduler.scheduleAtFixedRate(() ->

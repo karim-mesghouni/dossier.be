@@ -78,10 +78,9 @@ public class AgentService {
         });
     }
 
-    public boolean delete(long id) {
-        return Database.afterRemoving(Agent.class, id, "DELETE_AGENT", agent -> {
-            new AgentEvent(EntityEvent.Type.DELETED, agent).fireToAll();
-        });
+    public void delete(long id) {
+        Database.afterRemoving(Agent.class, id, "DELETE_AGENT",
+                agent -> new AgentEvent(EntityEvent.Type.DELETED, agent).fireToAll());
     }
 
 

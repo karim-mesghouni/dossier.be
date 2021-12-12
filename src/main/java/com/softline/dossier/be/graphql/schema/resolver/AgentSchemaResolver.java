@@ -41,9 +41,6 @@ public class AgentSchemaResolver implements GraphQLMutationResolver, GraphQLQuer
         return Database.findAll(Job.class);
     }
 
-    public boolean deleteAgent(Long id) {
-        return service.delete(id);
-    }
 
     public Agent updateAgent(AgentInput input) {
         return service.update(input.map());
@@ -57,8 +54,8 @@ public class AgentSchemaResolver implements GraphQLMutationResolver, GraphQLQuer
         return service.create(input.map());
     }
 
-    public boolean deleteAgent(long id) {
-        return service.delete(id);
+    public void deleteAgent(long id) {
+        service.delete(id);
     }
 
     public List<Agent> findAgentBySearch(@Nullable String search) {

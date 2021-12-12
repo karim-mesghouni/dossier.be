@@ -14,7 +14,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -26,7 +25,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     public AuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
-
     }
 
     @Override
@@ -43,9 +41,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                             List.of())
             );
         } catch (AuthenticationException e) {
-            throw new GraphQLException("Les informations d'identification invalides");
-        } catch (IOException e) {
-            throw new GraphQLException("Failed to verify authentication");
+            throw new GraphQLException("Les informations d'identification invalides", e);
+        } catch (Throwable e) {
+            throw new GraphQLException("Failed to verify authentication", e);
         }
     }
 

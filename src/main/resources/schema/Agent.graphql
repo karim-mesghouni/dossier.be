@@ -9,10 +9,10 @@ extend type Query  {
 }
 
 extend type Mutation  {
-    deleteAgent(id: ID!): Boolean
+    deleteAgent(id: ID!): Void
     updateAgent(input: AgentInput): Agent
     createAgent(input: AgentInput): Agent
-    changePassword(input: AgentInput!, oldPassword: String!): Boolean
+    changePassword(input: AgentInput!, oldPassword: String!): Void
 }
 
 type Agent {

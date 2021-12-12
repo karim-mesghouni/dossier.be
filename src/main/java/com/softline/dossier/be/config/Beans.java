@@ -2,8 +2,6 @@ package com.softline.dossier.be.config;
 
 import com.softline.dossier.be.security.config.SecurityAuditorAware;
 import com.softline.dossier.be.security.domain.Agent;
-import graphql.schema.GraphQLScalarType;
-import graphql.servlet.core.ApolloScalars;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
@@ -60,10 +58,6 @@ public class Beans {
         return new OpenEntityManagerInViewFilter();
     }
 
-    @Bean
-    public GraphQLScalarType uploadScalar() {
-        return ApolloScalars.Upload;
-    }
 
     @Bean
     public AuditorAware<Agent> auditorAware() {

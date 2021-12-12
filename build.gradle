@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.softline'
-version = '0.0.23-SNAPSHOT'
+version = '0.0.26-SNAPSHOT'
 sourceCompatibility = '11'
 configurations {
     compileOnly {
@@ -17,7 +17,8 @@ configurations {
 repositories {
     mavenCentral()
 }
-def dev = false // make sure you run the application with gradle "bootRun" if dev is false
+
+def dev = true // make sure you run the application with gradle "bootRun" if dev is false
 if (dev) {
     println('Running in development')
 } else {
