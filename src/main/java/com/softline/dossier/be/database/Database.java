@@ -49,10 +49,9 @@ public class Database {
      * Opens a transaction and do the action then commit the transaction
      */
     public static void inTransaction(Runnable action) {
-        em().getTransaction().begin();
+        startTransaction();
         action.run();
-        em().flush();
-        em().getTransaction().commit();
+        commit();
     }
 
     @NotNull
@@ -218,20 +217,20 @@ public class Database {
         em().remove(entity);
     }
 
-    public static <T> boolean remove(@NotNull T entity, @NotNull Consumer<T> consumer) throws IllegalArgumentException {
+    public static <T> Boolean remove(@NotNull T entity, @NotNull Consumer<T> consumer) throws IllegalArgumentException {
         consumer.accept(entity);
         em().remove(entity);
         return true;
     }
 
-    public static <T> boolean remove(@NotNull Class<T> clazz, @NotNull Serializable id, @NotNull Consumer<T> consumer) throws EntityNotFoundException {
+    public static <T> Boolean remove(@NotNull Class<T> clazz, @NotNull Serializable id, @NotNull Consumer<T> consumer) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
         consumer.accept(entity);
         remove(entity);
         return true;
     }
 
-    public static <T> boolean afterRemoving(@NotNull Class<T> clazz, @NotNull Serializable id, @NotNull String action, @NotNull Consumer<T> consumer) throws EntityNotFoundException {
+    public static <T> Boolean afterRemoving(@NotNull Class<T> clazz, @NotNull Serializable id, @NotNull String action, @NotNull Consumer<T> consumer) throws EntityNotFoundException {
         var entity = findOrThrow(clazz, id, action);
         Database.startTransaction();
         remove(entity);
@@ -240,19 +239,26 @@ public class Database {
         return true;
     }
 
-    public static <T> boolean remove(@NotNull Class<T> clazz, @NotNull Serializable id) throws EntityNotFoundException {
+    public static <T> Boolean remove(@NotNull Class<T> clazz, @NotNull Serializable id) throws EntityNotFoundException {
         remove(findOrThrow(clazz, id));
         return true;
     }
 
-    public static <T> boolean removeNow(@NotNull Class<T> clazz, @NotNull Serializable id) throws EntityNotFoundException {
-        Database.startTransaction();
-        remove(findOrThrow(clazz, id));
-        Database.commit();
+    public static <T> Boolean removeNow(@NotNull Class<T> clazz, @NotNull Serializable id) throws EntityNotFoundException {
+        Database.inTransaction(() -> {
+            remove(findOrThrow(clazz, id));
+        });
         return true;
     }
 
-    public static <T> boolean remove(@NotNull Class<T> clazz, @NotNull Serializable id, @NotNull String permission) throws EntityNotFoundException {
+    public static <T extends HasId> Boolean removeNow(T entity) throws EntityNotFoundException {
+        Database.inTransaction(() -> {
+            em().remove(entity);
+        });
+        return true;
+    }
+
+    public static <T> Boolean remove(@NotNull Class<T> clazz, @NotNull Serializable id, @NotNull String permission) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
         DenyOrProceed(permission, entity);
         remove(entity);

@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.softline.dossier.be.Tools.DateHelpers.toDate;
+import static com.softline.dossier.be.Tools.DateHelpers.*;
 import static com.softline.dossier.be.Tools.Functions.*;
 import static com.softline.dossier.be.database.seed.SeederHelper.*;
 

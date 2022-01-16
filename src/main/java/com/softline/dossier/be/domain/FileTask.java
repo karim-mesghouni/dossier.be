@@ -121,4 +121,7 @@ public class FileTask extends BaseEntity implements HasOrder {
     public int hashCode() {
         return getClass().hashCode();
     }
+
+    @OneToOne
+    private CheckSheet checkSheet;
 }

@@ -2,6 +2,7 @@ package com.softline.dossier.be.service;
 
 import com.softline.dossier.be.Tools.FileSystem;
 import com.softline.dossier.be.Tools.ListUtils;
+import com.softline.dossier.be.Tools.TextHelper;
 import com.softline.dossier.be.Tools.TipTap;
 import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.database.OrderManager;
@@ -20,19 +21,18 @@ import graphql.GraphQLException;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.core.ApplicationPart;
-import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static com.softline.dossier.be.Tools.Functions.safeRun;
-import static com.softline.dossier.be.Tools.Functions.safeRunWithFallback;
+import static com.softline.dossier.be.Tools.Functions.*;
 import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.DenyOrProceed;
 import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 
@@ -331,27 +331,80 @@ public class FileTaskService {
         });
     }
 
-    public List<Attachment> saveAttached(Long fileTaskId, DataFetchingEnvironment environment) throws IOException {
+    public List<Attachment> saveAttached(Long fileTaskId, DataFetchingEnvironment environment) {
         ArrayList<ApplicationPart> files = environment.getArgument("attachments");
         var filesAttached = new ArrayList<FileTaskAttachment>();
-        var fileTask = repository.findById(fileTaskId).orElseThrow();
-        for (ApplicationPart file : files) {
-            String originalName = file.getSubmittedFileName();
-            String storageName = FileSystem.randomMD5() + "." + FilenameUtils.getExtension(originalName);
-            Path newPath = FileSystem.getAttachmentsPath().resolve(storageName);
-            Files.copy(file.getInputStream(), newPath);
-            // remove the temp file
-            file.delete();
-            filesAttached.add(FileTaskAttachment.builder()
-                    .storageName(storageName)
-                    .realName(originalName)
-                    .contentType(file.getContentType())
-                    .fileTask(fileTask)
-                    .build());
-            fileTaskAttachmentRepository.saveAll(filesAttached);
+        Database.startTransaction();
+        var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
+        if (new Random().nextInt(100) > 80) {
+            // TODO: check for unlinked files and remove them (files that exist on disk but not on database, due to failure)
         }
-
+        for (ApplicationPart requestFile : files) {
+            var fta = new FileTaskAttachment();
+            fta.setFileTask(fileTask);
+            fta.resolveFromApplicationPart(requestFile);
+            filesAttached.add(fta);
+            Database.persist(fta);
+        }
+        Database.commit();
         return filesAttached.stream().map(e -> (Attachment) e).collect(Collectors.toList());
+    }
+
+    public void removeCheckSheet(Long checkSheetId) {
+        Database.remove(CheckSheet.class, checkSheetId, checkSheet -> {
+            if (!checkSheet.createdByThisAgent()) {
+                DenyOrProceed("UPDATE_FILE_TASK", checkSheet.getFileTask());
+            }
+            Database.removeNow(checkSheet);
+        });
+    }
+
+    public void setCheckSheet(Long fileTaskId, DataFetchingEnvironment environment) {
+        var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
+        if (fileTask.getCheckSheet() != null) {
+            throw new GraphQLException("Cette tâche a déjà une fiche de contrôle");
+        }
+        ApplicationPart fileSheet = environment.getArgument("file");
+        var sheet = wrap(() -> new XSSFWorkbook(fileSheet.getInputStream()), (e) -> new RuntimeException("Impossible de charger le fichier en tant que document XSSF"))
+                .getSheetAt(0);
+        var errors = new HashMap<Integer, Throwable>();
+        var invalide = new ArrayList<String[]>();
+        var currentGroup = "";
+        for (int i = 16; i < sheet.getPhysicalNumberOfRows(); i++) {
+            try {
+                var row = sheet.getRow(i);
+                var NON_OK_CELL = row.getCell(29);
+                if (NON_OK_CELL == null) {
+                    break;
+                } else if (Objects.equals(NON_OK_CELL.getCellType(), CellType.BOOLEAN)) {
+                    if (NON_OK_CELL.getBooleanCellValue()) {
+                        invalide.add(new String[]{currentGroup, row.getCell(1).getStringCellValue(), row.getCell(12).getStringCellValue()});
+                    }
+                } else if (Objects.equals(NON_OK_CELL.getCellType(), CellType.FORMULA)) {
+                    currentGroup = row.getCell(0).getStringCellValue();
+                    //noinspection UnnecessaryContinue
+                    continue;// This is the %percentage text of the sum of this group
+                } else {
+                    // This is an error
+                    throw new IOException(TextHelper.format("Expected cell type FORMULA or BOOLEAN got: {}", NON_OK_CELL.getCellType()));
+                }
+            } catch (Throwable e) {
+                errors.put(i + 1, e);
+            }
+        }
+        AtomicBoolean sendEvent = new AtomicBoolean(false);
+        Database.startTransaction();
+        fileTask.setCheckSheet(new CheckSheet(fileTask, new ArrayList<>()));
+        invalide.forEach(i -> {
+            sendEvent.set(true);
+            fileTask.getCheckSheet()
+                    .getInvalidItems()
+                    .add(new CheckItem(i[0], i[1], i[2]));
+        });
+        Database.commit();
+        if (sendEvent.get()) {
+            new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
+        }
     }
 
     public boolean deleteAttached(Long attachedId) {

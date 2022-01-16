@@ -13,8 +13,8 @@ type Mutation{
 
 }
 
-#
-# see /main/java/graphql/ScalarBean
-#
+# see /main/java/graphql/ScalarBean#uploadScalar
 scalar Upload
+
+# see /main/java/graphql/ScalarBean#voidScalar
 scalar Void

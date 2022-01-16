@@ -47,15 +47,6 @@ public class EventController {
         // we must send at least 1 event every 45 seconds,
         // so we create a scheduled task which will be executed every 30 seconds to
         // send a ping(heart-beat) event to all channels
-        if (log.isInfoEnabled()) {// was added for testing the remote server database connectivity
-            log.info("Attempting to retrieve users count");
-            log.info("Users count: {}", repo.count());
-            log.info("Attempting to retrieve user manager by username");
-            var man = repo.findByUsername("manager");
-            log.info("findByUsername(\"manager\"): {}", man);
-            if (man != null)
-                log.info("manager:000 -> {}", encoder.matches("000", man.getPassword()));
-        }
         if (log.isDebugEnabled())
             log.debug("creating ping schedule");
         scheduler.scheduleAtFixedRate(() ->

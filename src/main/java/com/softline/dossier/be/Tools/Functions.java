@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -223,7 +224,8 @@ public class Functions {
     }
 
     /**
-     * return the value of the callback or catch any exception and convert them into RuntimeException
+     * return the value of the callback or catch any exception and convert them into RuntimeException<br>
+     * can be used to ignore Exceptions
      */
     public static <T> T wrap(Callable<T> action) throws RuntimeException {
         try {
@@ -233,4 +235,32 @@ public class Functions {
         }
     }
 
+    /**
+     * return the value of the callback or catch any exception and convert them into a new Exception with a custom message<br>
+     * can be used to change the exception message
+     */
+    public static <T, E extends Throwable> T wrap(Callable<T> action, @NotNull Function<Throwable, E> exception) throws E {
+        try {
+            return action.call();
+        } catch (Throwable e) {
+            throw exception.apply(e);
+        }
+    }
+
+    /**
+     * converts Exceptions into RuntimeExceptions
+     */
+    public static void wrap(UnsafeRunnable action) throws RuntimeException {
+        try {
+            action.run();
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @FunctionalInterface
+    public interface UnsafeRunnable {
+        void run() throws Throwable;
+    }
 }
+

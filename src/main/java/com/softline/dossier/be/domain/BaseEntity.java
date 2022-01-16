@@ -70,4 +70,18 @@ public class BaseEntity implements HasId, HasCreator {
     public int hashCode() {
         return getClass().hashCode();
     }
+
+    /**
+     * @return true if this entity was created by the given user
+     */
+    public boolean createdBy(Agent agent) {
+        return agent != null && agent.equals(getCreator());
+    }
+
+    /**
+     * @return true if this entity was created by the user who sent this request
+     */
+    public boolean createdByThisAgent() {
+        return Agent.thisDBAgent().equals(getCreator());
+    }
 }
