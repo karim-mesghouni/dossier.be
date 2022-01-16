@@ -17,7 +17,7 @@ import java.util.List;
 public class BlockingLockingAddress implements HasId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    Long id;
     @OneToMany(mappedBy = "lockingAddress")
     List<Blocking> blocking;
     @OneToMany(mappedBy = "lockingAddress")

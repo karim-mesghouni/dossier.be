@@ -21,7 +21,7 @@ public class Role implements HasId {
     List<Agent> agents;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
 
     @Override
     public String toString() {

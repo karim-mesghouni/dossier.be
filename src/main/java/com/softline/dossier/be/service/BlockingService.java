@@ -29,7 +29,7 @@ public class BlockingService {
         return Database.findAll(Blocking.class);
     }
 
-    public Blocking getById(long id) {
+    public Blocking getById(Long id) {
         return Database.findOrThrow(Blocking.class, id);
     }
 
@@ -128,7 +128,7 @@ public class BlockingService {
         return blocking;
     }
 
-    public boolean delete(long id) {
+    public boolean delete(Long id) {
         var block = Database.findOrThrow(Blocking.class, id);
         if (block.getBlock()) {
             throw new GraphQLException("veuillez débloquer le blocage avant de le supprimer");

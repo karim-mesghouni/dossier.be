@@ -31,7 +31,7 @@ public class Contact implements HasId {
             name = "native",
             strategy = "native"
     )
-    private long id;
+    private Long id;
     private String name;
     private String phone;
     private String email;

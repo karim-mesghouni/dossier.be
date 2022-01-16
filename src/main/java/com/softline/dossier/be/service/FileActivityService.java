@@ -30,7 +30,8 @@ public class FileActivityService {
     public List<FileActivity> getAll() {
         return Database.findAll(FileActivity.class);
     }
-    public FileActivity getById(long id) {
+
+    public FileActivity getById(Long id) {
         return Database.findOrThrow(FileActivity.class, id);
     }
 

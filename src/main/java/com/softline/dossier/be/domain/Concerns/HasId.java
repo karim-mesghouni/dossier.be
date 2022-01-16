@@ -7,5 +7,5 @@ public interface HasId {
     /**
      * @return the id of this entity
      */
-    long getId();
+    Long getId();
 }

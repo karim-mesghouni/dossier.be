@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public class ContactInput extends Input<Contact> implements HasId {
     Class<Contact> mappingTarget = Contact.class;
-    long id;
+    Long id;
     String name;
     String phone;
     String email;

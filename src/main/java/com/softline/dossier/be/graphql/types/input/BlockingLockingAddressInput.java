@@ -10,7 +10,7 @@ import java.util.List;
 public class BlockingLockingAddressInput extends Input<BlockingLockingAddress> implements HasId {
     Class<BlockingLockingAddress> mappingTarget = BlockingLockingAddress.class;
 
-    long id;
+    Long id;
     List<BlockingInput> blocking;
     List<VisAVisInput> visAVis;
     String address;

@@ -19,7 +19,7 @@ import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 @PreAuthorize("isAuthenticated()")
 public class DocumentSchemaResolver implements GraphQLMutationResolver, GraphQLQueryResolver {
 
-    public Document getDocument(long id) {
+    public Document getDocument(Long id) {
         return Database.findOrThrow(Document.class, id);
     }
 
@@ -59,7 +59,7 @@ public class DocumentSchemaResolver implements GraphQLMutationResolver, GraphQLQ
         });
     }
 
-    public boolean deleteDocument(long id) {
+    public boolean deleteDocument(Long id) {
         return Database.afterRemoving(Document.class, id, "DELETE_DOCUMENT", doc -> new DocumentEvent(EntityEvent.Type.DELETED, doc).fireToAll());
     }
 

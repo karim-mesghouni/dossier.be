@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoleInput implements HasId {
-    long id;
+    Long id;
     String name;
     String displayName;
 }

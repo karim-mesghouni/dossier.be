@@ -13,7 +13,7 @@ import java.time.format.DateTimeParseException;
 public class ActivityDataFieldInput extends Input<ActivityDataField> implements HasId {
     Class<ActivityDataField> mappingTarget = ActivityDataField.class;
 
-    long id;
+    Long id;
     String fieldName;
     @Setter
     FieldTypeInput fieldType;

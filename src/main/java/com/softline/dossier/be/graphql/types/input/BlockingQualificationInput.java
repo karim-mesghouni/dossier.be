@@ -10,7 +10,7 @@ import java.util.List;
 public class BlockingQualificationInput extends Input<BlockingQualification> implements HasId {
     Class<BlockingQualification> mappingTarget = BlockingQualification.class;
 
-    long id;
+    Long id;
     List<BlockingInput> blocking;
     String name;
 }

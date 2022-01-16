@@ -10,7 +10,7 @@ import lombok.Getter;
 public class CommentInput extends Input<Comment> implements HasId {
     Class<Comment> mappingTarget = Comment.class;
 
-    long id;
+    Long id;
     String content;
     FileActivityInput fileActivity;
     FileTaskInput fileTask;

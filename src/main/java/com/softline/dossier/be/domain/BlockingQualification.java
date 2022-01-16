@@ -21,7 +21,7 @@ import java.util.List;
 public class BlockingQualification implements HasId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    Long id;
     @OneToMany(mappedBy = "qualification")
     List<Blocking> blocking;
     String name;

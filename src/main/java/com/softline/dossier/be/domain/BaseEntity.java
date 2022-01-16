@@ -38,7 +38,7 @@ import java.util.Objects;
 public class BaseEntity implements HasId, HasCreator {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected long id;
+    protected Long id;
 
     @Column(columnDefinition = "boolean default false")
     boolean deleted;
@@ -63,7 +63,7 @@ public class BaseEntity implements HasId, HasCreator {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         BaseEntity that = (BaseEntity) o;
-        return Objects.equals(id, that.id);
+        return id != null && Objects.equals(that.id, id);
     }
 
     @Override

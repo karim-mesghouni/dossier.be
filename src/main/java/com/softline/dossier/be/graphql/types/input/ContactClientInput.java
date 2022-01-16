@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class ContactClientInput {
-    long id;
+    Long id;
 }

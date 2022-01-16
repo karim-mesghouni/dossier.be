@@ -2,7 +2,6 @@ package com.softline.dossier.be.graphql.schema.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
@@ -137,16 +136,11 @@ public class FileTaskSchemaResolver implements GraphQLQueryResolver, GraphQLMuta
         return service.changeOrder(fileTaskId, fileTaskBeforeId);
     }
 
-    public void setCheckSheet(Long fileTaskId, DataFetchingEnvironment environment) {
-        service.setCheckSheet(fileTaskId, environment);
+    public CheckSheet setCheckSheet(Part file, long fileTaskId, DataFetchingEnvironment environment) {
+        return service.setCheckSheet(fileTaskId, environment);
     }
 
     public void removeCheckSheet(Long checkSheetId) {
         service.removeCheckSheet(checkSheetId);
-    }
-
-    public CheckSheet getCheckSheetByFileTaskId(long fileTaskId) {
-        return Database.querySingle("SELECT sh from CheckSheet sh where sh.fileTask.id = " + fileTaskId + " limit 1", CheckSheet.class)
-                .getSingleResult();
     }
 }

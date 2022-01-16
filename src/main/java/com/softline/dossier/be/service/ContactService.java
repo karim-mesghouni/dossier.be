@@ -26,7 +26,7 @@ public class ContactService {
     }
 
     @PreAuthorize("hasPermission(null, 'DELETE_CONTACT')")
-    public boolean delete(long id) {
+    public boolean delete(Long id) {
         Database.removeNow(Contact.class, id);
         return true;
     }

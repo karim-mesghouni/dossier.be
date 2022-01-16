@@ -7,6 +7,6 @@ public class DocumentInput {
     FileActivityInput fileActivity;
     AgentInput agent;
     String description;
-    long id;
+    Long id;
     String path;
 }

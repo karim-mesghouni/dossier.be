@@ -7,7 +7,6 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -17,7 +16,6 @@ import javax.persistence.PostRemove;
 import javax.persistence.Transient;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 
 @SuperBuilder
 @AllArgsConstructor
@@ -54,14 +52,6 @@ public class Attachment extends BaseEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Attachment that = (Attachment) o;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
     public int hashCode() {
         return getClass().hashCode();
     }
@@ -80,6 +70,8 @@ public class Attachment extends BaseEntity {
 
     @PostPersist
     public void afterCreating() {
-        Functions.wrap(this.afterCreate);
+        if (this.afterCreate != null) {
+            Functions.wrap(this.afterCreate);
+        }
     }
 }

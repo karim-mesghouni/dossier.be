@@ -5,7 +5,6 @@ import com.softline.dossier.be.domain.traits.HasOrder;
 import com.softline.dossier.be.security.domain.Agent;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.*;
 
 import javax.persistence.CascadeType;
@@ -14,7 +13,6 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @SuperBuilder
@@ -110,18 +108,10 @@ public class FileTask extends BaseEntity implements HasOrder {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        FileTask fileTask = (FileTask) o;
-        return Objects.equals(id, fileTask.id);
-    }
-
-    @Override
     public int hashCode() {
         return getClass().hashCode();
     }
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private CheckSheet checkSheet;
 }

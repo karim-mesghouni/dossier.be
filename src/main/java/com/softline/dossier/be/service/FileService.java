@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.softline.dossier.be.Tools.Functions.*;
@@ -112,7 +112,7 @@ public class FileService {
 
     @PreAuthorize("hasPermission(#id, 'File', 'READ_FILE')")
     public List<FileHistoryDTO> getFileHistory(long id) {
-        AtomicInteger i = new AtomicInteger();
+        AtomicLong i = new AtomicLong();
         var history = new ArrayList<FileHistoryDTO>();
         var file = Database.findOrThrow(File.class, id);
         history.add(FileHistoryDTO.builder().id(i.incrementAndGet())

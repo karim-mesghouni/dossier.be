@@ -8,7 +8,7 @@ import lombok.Getter;
 public class ReturnedCauseInput extends Input<ReturnedCause> implements HasId {
     Class<ReturnedCause> mappingTarget = ReturnedCause.class;
 
-    long id;
+    Long id;
     String name;
 
 }

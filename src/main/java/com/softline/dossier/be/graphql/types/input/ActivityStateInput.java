@@ -11,7 +11,7 @@ import java.util.List;
 public class ActivityStateInput extends Input<ActivityState> implements HasId {
     Class<ActivityState> mappingTarget = ActivityState.class;
 
-    long id;
+    Long id;
     String name;
 
     boolean initial;

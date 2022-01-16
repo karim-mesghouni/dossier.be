@@ -54,7 +54,7 @@ public class AgentSchemaResolver implements GraphQLMutationResolver, GraphQLQuer
         return service.create(input.map());
     }
 
-    public void deleteAgent(long id) {
+    public void deleteAgent(Long id) {
         service.delete(id);
     }
 

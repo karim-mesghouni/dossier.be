@@ -11,5 +11,5 @@ public class FileStateInput extends Input<FileStateType> implements HasId {
     boolean current;
     FileStateTypeInput type;
     FileInput file;
-    long id;
+    Long id;
 }

@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @SuperBuilder
 public class FileHistoryDTO {
-    long id;
+    Long id;
     String who;
     LocalDateTime date;
     String message;

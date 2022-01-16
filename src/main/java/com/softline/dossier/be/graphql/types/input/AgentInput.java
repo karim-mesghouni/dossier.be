@@ -10,7 +10,7 @@ import lombok.Getter;
 public class AgentInput extends Input<Agent> implements HasId, HasSoftDelete {
     Class<Agent> mappingTarget = Agent.class;
 
-    long id;
+    Long id;
     boolean deleted;
 
     String name;

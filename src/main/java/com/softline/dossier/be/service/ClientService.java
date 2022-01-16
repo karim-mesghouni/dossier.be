@@ -17,7 +17,7 @@ public class ClientService {
         return Database.findAll(Client.class);
     }
 
-    public Client getById(long id) {
+    public Client getById(Long id) {
         return Database.findOrThrow(Client.class, id);
     }
 
@@ -56,7 +56,7 @@ public class ClientService {
         });
     }
 
-    public boolean delete(long id) {
+    public boolean delete(Long id) {
         return Database.afterRemoving(Client.class, id, "DELETE_CLIENT", client -> {
             new ClientEvent(EntityEvent.Type.DELETED, client).fireToAll();
         });

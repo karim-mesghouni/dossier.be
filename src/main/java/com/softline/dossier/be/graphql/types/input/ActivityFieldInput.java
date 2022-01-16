@@ -10,7 +10,7 @@ import lombok.Getter;
 public class ActivityFieldInput extends Input<ActivityField> implements HasId {
     Class<ActivityField> mappingTarget = ActivityField.class;
 
-    long id;
+    Long id;
     String fieldName;
 
     FieldTypeInput fieldType;

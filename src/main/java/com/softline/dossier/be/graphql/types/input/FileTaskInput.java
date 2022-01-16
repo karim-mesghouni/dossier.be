@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 public class FileTaskInput extends Input<FileTask> implements HasId {
     Class<FileTask> mappingTarget = FileTask.class;
-    long id;
+    Long id;
     boolean current;
     FileActivityInput fileActivity;
     TaskInput task;

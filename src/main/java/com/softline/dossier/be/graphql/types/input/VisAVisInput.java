@@ -8,7 +8,7 @@ import lombok.Getter;
 public class VisAVisInput extends Input<VisAVis> implements HasId {
     Class<VisAVis> mappingTarget = VisAVis.class;
 
-    long id;
+    Long id;
     String name;
     String email;
     String phone;

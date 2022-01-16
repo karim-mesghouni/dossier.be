@@ -19,9 +19,9 @@ public abstract class IServiceBase<IEntity, IEntityInput, IRepository extends Jp
 
     public abstract IEntity update(IEntityInput entityInput) throws ClientReadableException;
 
-    public abstract boolean delete(long id) throws ClientReadableException;
+    public abstract boolean delete(Long id) throws ClientReadableException;
 
-    public abstract IEntity getById(long id);
+    public abstract IEntity getById(Long id);
 
     public IRepository getRepository() {
         return repository;

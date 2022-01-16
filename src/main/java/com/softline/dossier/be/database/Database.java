@@ -46,7 +46,7 @@ public class Database {
     }
 
     /**
-     * Opens a transaction and do the action then commit the transaction
+     * Run something inside a transaction
      */
     public static void inTransaction(Runnable action) {
         startTransaction();
@@ -244,17 +244,15 @@ public class Database {
         return true;
     }
 
-    public static <T> Boolean removeNow(@NotNull Class<T> clazz, @NotNull Serializable id) throws EntityNotFoundException {
-        Database.inTransaction(() -> {
-            remove(findOrThrow(clazz, id));
-        });
-        return true;
+    public static <T> T removeNow(@NotNull Class<T> clazz, @NotNull Serializable id) throws EntityNotFoundException {
+        var e = findOrThrow(clazz, id);
+        Database.inTransaction(() -> em().remove(e));
+        return e;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public static <T extends HasId> Boolean removeNow(T entity) throws EntityNotFoundException {
-        Database.inTransaction(() -> {
-            em().remove(entity);
-        });
+        Database.inTransaction(() -> em().remove(entity));
         return true;
     }
 

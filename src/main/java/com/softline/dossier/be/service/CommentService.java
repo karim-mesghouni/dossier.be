@@ -84,7 +84,7 @@ public class CommentService {
         });
     }
 
-    public boolean delete(long id) {
+    public boolean delete(Long id) {
         return Database.findOrThrow(Comment.class, id, "DELETE_COMMENT", comment -> {
             Database.startTransaction();
             if (comment.getFileTask() != null) {
@@ -103,7 +103,7 @@ public class CommentService {
         });
     }
 
-    public Comment getById(long id) {
+    public Comment getById(Long id) {
         return Database.findOrThrow(Comment.class, id);
     }
 

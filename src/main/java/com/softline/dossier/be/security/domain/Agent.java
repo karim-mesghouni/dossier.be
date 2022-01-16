@@ -5,7 +5,6 @@ import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.security.repository.AgentRepository;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SelectBeforeUpdate;
@@ -14,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Objects;
 
 import static com.softline.dossier.be.Application.getBean;
 import static com.softline.dossier.be.Tools.Functions.notEmpty;
@@ -92,7 +90,7 @@ public class Agent extends BaseEntity {
     /**
      * @return the agent loaded from the database
      */
-    public static Agent getByIdentifier(long id) {
+    public static Agent getByIdentifier(Long id) {
         return getBean(AgentRepository.class).findById(id).orElseThrow();
     }
 
@@ -126,18 +124,5 @@ public class Agent extends BaseEntity {
 
     public boolean is(Role.Type type) {
         return getRole() != null && getRole().is(type);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Agent agent = (Agent) o;
-        return Objects.equals(id, agent.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
     }
 }

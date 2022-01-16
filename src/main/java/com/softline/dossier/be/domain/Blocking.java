@@ -5,14 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @SuperBuilder
 @Entity
@@ -48,14 +46,6 @@ public class Blocking extends BaseEntity {
     // used by graphql
     public boolean getBlock() {
         return this.dateUnBlocked == null;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Blocking blocking = (Blocking) o;
-        return Objects.equals(id, blocking.id);
     }
 
     @Override

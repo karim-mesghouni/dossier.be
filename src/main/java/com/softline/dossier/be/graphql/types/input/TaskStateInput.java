@@ -11,7 +11,7 @@ import java.util.List;
 public class TaskStateInput extends Input<TaskState> implements HasId {
     Class<TaskState> mappingTarget = TaskState.class;
 
-    long id;
+    Long id;
     String name;
 
     TaskInput task;

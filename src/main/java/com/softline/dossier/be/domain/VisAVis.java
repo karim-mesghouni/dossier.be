@@ -21,7 +21,7 @@ import javax.persistence.*;
 public class VisAVis {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    Long id;
     String name;
     String email;
     String phone;

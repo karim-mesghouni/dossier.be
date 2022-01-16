@@ -12,7 +12,7 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     List<Client> findAllWithContactsByNameContaining(String search);
 
-    Client findWithFilesById(long id);
+    Client findWithFilesById(Long id);
 
     @Query("select client from Client  client where :search is null or client.name like concat('%', :search ,'%')")
     List<Client> getClientsTable(String search);

@@ -18,21 +18,21 @@ public class ScalarBeans {
     public GraphQLScalarType voidScalar() {
         return GraphQLScalarType.newScalar()
                 .name("Void")
-                .description("Void java return type(always treated as null)")
+                .description("Void is always transformed into true boolean value")
                 .coercing(new Coercing<>() {
                     @Override
                     public Object serialize(Object dataFetcherResult) {
-                        return null;
+                        return true;
                     }
 
                     @Override
                     public Object parseValue(Object input) {
-                        return null;
+                        return true;
                     }
 
                     @Override
                     public Object parseLiteral(Object input) {
-                        return null;
+                        return true;
                     }
                 }).build();
     }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class RepriseInput {
 
-    long id;
+    Long id;
     int number;
     String cause;
     FileActivityInput fileActivity;

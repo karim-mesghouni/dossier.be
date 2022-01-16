@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public class CommuneInput implements HasId {
 
-    long id;
+    Long id;
 
     String name;
 

@@ -22,7 +22,7 @@ public class AgentService {
         return Database.query("SELECT a FROM Agent a where a.deleted = false", Agent.class).getResultList();
     }
 
-    public Agent getById(long id) {
+    public Agent getById(Long id) {
         return Database.findOrThrow(Agent.class, id);
     }
 
@@ -78,7 +78,7 @@ public class AgentService {
         });
     }
 
-    public void delete(long id) {
+    public void delete(Long id) {
         Database.afterRemoving(Agent.class, id, "DELETE_AGENT",
                 agent -> new AgentEvent(EntityEvent.Type.DELETED, agent).fireToAll());
     }

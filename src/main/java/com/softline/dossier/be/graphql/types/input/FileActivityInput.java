@@ -13,7 +13,7 @@ public class FileActivityInput extends Input<FileActivity> implements HasId {
     int order;
     ActivityStateInput state;
     boolean current;
-    long id;
+    Long id;
     FileInput file;
     ActivityInput activity;
     List<ActivityDataFieldInput> dataFields;

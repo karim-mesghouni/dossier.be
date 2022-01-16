@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 public class BlockingInput extends Input<Blocking> implements HasId {
     Class<Blocking> mappingTarget = Blocking.class;
-    long id;
+    Long id;
     FileTaskSituationInput state;
 
     BlockingLockingAddressInput lockingAddress;

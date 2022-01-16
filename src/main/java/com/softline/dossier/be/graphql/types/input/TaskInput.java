@@ -10,7 +10,7 @@ import java.util.List;
 public class TaskInput extends Input<Task> implements HasId {
     Class<Task> mappingTarget = Task.class;
 
-    long id;
+    Long id;
     String name;
     String description;
 

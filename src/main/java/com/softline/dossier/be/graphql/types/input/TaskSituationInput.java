@@ -9,7 +9,7 @@ import java.util.List;
 public class TaskSituationInput extends Input<TaskSituation> {
     Class<TaskSituation> mappingTarget = TaskSituation.class;
 
-    long id;
+    Long id;
     String state;
     boolean initial;
     boolean Final;

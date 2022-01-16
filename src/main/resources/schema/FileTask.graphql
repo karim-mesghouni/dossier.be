@@ -1,6 +1,5 @@
 # Query
 extend type Query  {
-    getCheckSheetByFileTaskId(fileTaskId: ID!): CheckSheet!
     getFileTask(fileTaskId: ID!): FileTask
     allFileTaskByAssignedToId(assignedToId: ID!):[FileTask]
     all: [FileTask]
@@ -15,7 +14,7 @@ extend type Query  {
 
 extend type Mutation{
     removeCheckSheet(checkSheetId: ID!): Void
-    setCheckSheet(fileTaskId: ID!, file: Upload): Void
+    setCheckSheet(file: Upload, fileTaskId: ID!): CheckSheet
     createFileTask(input: FileTaskInput!):FileTask
     changeAssignedTo(assignedToId: ID,fileTaskId: ID!):Agent
     changeFileTaskSituation(situationId: ID!,fileTaskId: ID!):FileTaskSituation
@@ -67,10 +66,14 @@ type FileTask{
     number: Int
     checkSheet: CheckSheet
 }
-type CheckSheet{
+type CheckSheet implements IAttachment{
     id: ID
     fileTask: FileTask
     invalidItems: [CheckItem]
+
+    realName:String
+    storageName:String
+    url: String
 }
 type CheckItem{
     id: ID

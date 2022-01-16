@@ -27,6 +27,6 @@ public class FileInput extends Input<File> implements HasId {
     FileInput reprise;
     boolean inTrash;
     long order;
-    long id;
+    Long id;
     AgentInput agent;
 }

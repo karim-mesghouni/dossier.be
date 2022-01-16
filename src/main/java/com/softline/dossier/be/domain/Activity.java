@@ -3,7 +3,6 @@ package com.softline.dossier.be.domain;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
 
@@ -12,7 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @SuperBuilder
 @Getter
@@ -45,14 +43,6 @@ public class Activity extends BaseEntity {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Activity activity = (Activity) o;
-        return Objects.equals(id, activity.id);
     }
 
     @Override

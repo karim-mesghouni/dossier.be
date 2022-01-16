@@ -43,7 +43,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         } catch (AuthenticationException e) {
             throw new GraphQLException("Les informations d'identification invalides", e);
         } catch (Throwable e) {
-            throw new GraphQLException("Failed to verify authentication", e);
+            throw new GraphQLException("Failed to verify authentication check cause", e);
         }
     }
 

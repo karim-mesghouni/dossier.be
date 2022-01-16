@@ -13,7 +13,8 @@ public class ActivityFieldService {
     public List<ActivityField> getAll() {
         return Database.findAll(ActivityField.class);
     }
-    public ActivityField getById(long id) {
+
+    public ActivityField getById(Long id) {
         return Database.findOrThrow(ActivityField.class, id);
     }
 
@@ -23,10 +24,10 @@ public class ActivityFieldService {
                 .getResultList();
     }
 
-    public boolean delete(long id) {
-        return Database.removeNow(ActivityField.class, id);
+    public boolean delete(Long id) {
+        Database.removeNow(ActivityField.class, id);
+        return true;
     }
-
 
 
 }

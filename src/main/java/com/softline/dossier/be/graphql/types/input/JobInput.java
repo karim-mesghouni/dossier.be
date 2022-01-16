@@ -11,6 +11,6 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JobInput implements HasId {
-    long id;
+    Long id;
     String name;
 }

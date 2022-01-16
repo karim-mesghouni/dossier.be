@@ -17,7 +17,7 @@ import java.util.List;
 public class BlockingLabel implements HasId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    Long id;
     @OneToMany(mappedBy = "label")
     List<Blocking> blocking;
     String name;

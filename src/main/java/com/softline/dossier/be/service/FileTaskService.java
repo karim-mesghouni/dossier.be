@@ -1,6 +1,5 @@
 package com.softline.dossier.be.service;
 
-import com.softline.dossier.be.Tools.FileSystem;
 import com.softline.dossier.be.Tools.ListUtils;
 import com.softline.dossier.be.Tools.TextHelper;
 import com.softline.dossier.be.Tools.TipTap;
@@ -26,7 +25,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -43,7 +41,7 @@ public class FileTaskService {
     private final FileTaskAttachmentRepository fileTaskAttachmentRepository;
     private final FileTaskRepository repository;
 
-    public FileTask getById(long id) {
+    public FileTask getById(Long id) {
         return Database.findOrThrow(FileTask.class, id);
     }
 
@@ -356,10 +354,12 @@ public class FileTaskService {
                 DenyOrProceed("UPDATE_FILE_TASK", checkSheet.getFileTask());
             }
             Database.removeNow(checkSheet);
+            new FileTaskEvent(EntityEvent.Type.UPDATED, checkSheet.getFileTask()).fireToAll();
         });
     }
 
-    public void setCheckSheet(Long fileTaskId, DataFetchingEnvironment environment) {
+    public CheckSheet setCheckSheet(Long fileTaskId, DataFetchingEnvironment environment) {
+        Database.startTransaction();
         var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
         if (fileTask.getCheckSheet() != null) {
             throw new GraphQLException("Cette tâche a déjà une fiche de contrôle");
@@ -392,30 +392,29 @@ public class FileTaskService {
                 errors.put(i + 1, e);
             }
         }
+        if (!errors.isEmpty()) {
+            throw new GraphQLException(TextHelper.format("Il y a une erreur à la ligne {} ({})", errors.keySet().stream().findFirst().get(), errors.values().stream().findFirst().get()));
+        }
         AtomicBoolean sendEvent = new AtomicBoolean(false);
-        Database.startTransaction();
         fileTask.setCheckSheet(new CheckSheet(fileTask, new ArrayList<>()));
+        fileTask.getCheckSheet().resolveFromApplicationPart(fileSheet);
         invalide.forEach(i -> {
             sendEvent.set(true);
             fileTask.getCheckSheet()
                     .getInvalidItems()
-                    .add(new CheckItem(i[0], i[1], i[2]));
+                    .add(new CheckItem(fileTask.getCheckSheet(), i[0], i[1], i[2]));
         });
         Database.commit();
         if (sendEvent.get()) {
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
         }
+        return fileTask.getCheckSheet();
     }
 
     public boolean deleteAttached(Long attachedId) {
-        var attached = fileTaskAttachmentRepository.findById(attachedId).orElseThrow();
-        try {
-            Files.deleteIfExists(FileSystem.getAttachmentsPath().resolve(attached.getStorageName()));
-            fileTaskAttachmentRepository.delete(attached);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+        Database.removeNow(FileTaskAttachment.class, attachedId);
+
+        return true;
     }
 
     public boolean updateTitle(String title, long fileTaskId) {

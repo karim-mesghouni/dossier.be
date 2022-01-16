@@ -13,7 +13,7 @@ public class ClientInput extends Input<Client> implements HasId {
     List<FileInput> files;
     List<VisAVisInput> visAVis;
     List<ContactInput> contacts;
-    long id;
+    Long id;
     String name;
     String address;
 

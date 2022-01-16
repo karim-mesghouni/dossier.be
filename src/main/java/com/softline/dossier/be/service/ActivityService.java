@@ -29,13 +29,13 @@ public class ActivityService extends IServiceBase<Activity, ActivityInput, Activ
     }
 
     @Override
-    public boolean delete(long id) {
+    public boolean delete(Long id) {
         repository.deleteById(id);
         return true;
     }
 
     @Override
-    public Activity getById(long id) {
+    public Activity getById(Long id) {
         return repository.findById(id).orElseThrow();
     }
 }

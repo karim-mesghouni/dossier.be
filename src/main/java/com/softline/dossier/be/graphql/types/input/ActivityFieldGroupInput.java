@@ -8,6 +8,6 @@ import lombok.Getter;
 public class ActivityFieldGroupInput extends Input<ActivityFieldGroup> implements HasId {
     Class<ActivityFieldGroup> mappingTarget = ActivityFieldGroup.class;
 
-    long id;
+    Long id;
     String group;
 }

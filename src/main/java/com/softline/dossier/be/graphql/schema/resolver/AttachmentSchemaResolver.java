@@ -2,6 +2,7 @@ package com.softline.dossier.be.graphql.schema.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.Attachment;
 import com.softline.dossier.be.domain.FileTaskAttachment;
 import com.softline.dossier.be.repository.CommentAttachmentRepository;
@@ -9,7 +10,6 @@ import com.softline.dossier.be.repository.FileTaskAttachmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,24 +32,13 @@ public class AttachmentSchemaResolver implements GraphQLMutationResolver, GraphQ
     }
 
     public Boolean deleteFileTaskAttachment(Long attachmentId) {
-        var res = fileTaskAttachmentRepository.findById(attachmentId);
-        if (res.isEmpty()) {
-            return false;
-        } else {
-            FileTaskAttachment attachment = res.get();
-            fileTaskAttachmentRepository.delete(attachment);
-            try {
-                if (!attachment.getPath().toFile().delete()) {
-                    throw new FileNotFoundException();
-                }
-            } catch (Exception e) {
-                attachment.setDeleted(false);
-                fileTaskAttachmentRepository.save(attachment);
-                e.printStackTrace();
-                return false;
-            }
-            return true;
+        var fta = Database.findOrThrow(FileTaskAttachment.class, attachmentId);
+        Database.removeNow(fta);
+        if (fta.getPath().toFile().exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            fta.getPath().toFile().delete();
         }
+        return true;
     }
 
     public Boolean deleteCommentAttachment(Long attachmentId) {

@@ -9,5 +9,5 @@ public class FileStateTypeInput extends Input<FileStateType> implements HasId {
     Class<FileStateType> mappingTarget = FileStateType.class;
 
     String state;
-    long id;
+    Long id;
 }
