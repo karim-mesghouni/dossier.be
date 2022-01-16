@@ -8,10 +8,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.util.List;
 
 @SuperBuilder
@@ -20,6 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@Table(name = "attachment")
 public class CheckSheet extends Attachment {
     @OneToOne
     @NotFound(action = NotFoundAction.IGNORE)

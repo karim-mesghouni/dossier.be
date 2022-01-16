@@ -349,13 +349,9 @@ public class FileTaskService {
     }
 
     public void removeCheckSheet(Long checkSheetId) {
-        Database.remove(CheckSheet.class, checkSheetId, checkSheet -> {
-            if (!checkSheet.createdByThisAgent()) {
-                DenyOrProceed("UPDATE_FILE_TASK", checkSheet.getFileTask());
-            }
-            Database.removeNow(checkSheet);
-            new FileTaskEvent(EntityEvent.Type.UPDATED, checkSheet.getFileTask()).fireToAll();
-        });
+        var em = Database.em();
+        var ch = em.find(CheckSheet.class, checkSheetId);
+        em.remove(ch);
     }
 
     public CheckSheet setCheckSheet(Long fileTaskId, DataFetchingEnvironment environment) {

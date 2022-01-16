@@ -41,17 +41,17 @@ public class BaseEntity implements HasId, HasCreator {
     protected Long id;
 
     @Column(columnDefinition = "boolean default false")
-    boolean deleted;
+    protected boolean deleted;
     @CreatedBy
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     Agent agent;
     @Column(nullable = false, updatable = false)
     @CreatedDate
-    private LocalDateTime createdDate;
+    protected LocalDateTime createdDate;
     @Column()
     @LastModifiedDate
-    private LocalDateTime modifiedDate;
+    protected LocalDateTime modifiedDate;
 
     @Override
     public Agent getCreator() {
