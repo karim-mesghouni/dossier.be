@@ -4,21 +4,17 @@ extend type Mutation {
 }
 
 extend type Query {
-    getAllForFileTask(fileTaskId: ID): [Attachment]
+    getAllForFileTask(fileTaskId: ID): [FileTaskAttachment]
 }
 
-type Attachment implements IAttachment{
+type FileTaskAttachment implements IAttachment{
     id: ID
     storageName:String
     realName:String
     url: String
 }
-input AttachmentInput {
-    name:String
-}
 
 interface IAttachment{
-    id: ID
     storageName:String
     realName:String
     url: String

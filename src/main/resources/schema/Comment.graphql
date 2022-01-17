@@ -7,7 +7,7 @@ extend type Query  {
     messageById(messageId: ID!): Message
 }
 #mutation
-extend type  Mutation{
+extend type Mutation{
     readMessage(messageId: ID!): Boolean
     createComment(input: CommentInput!):Comment
     updateComment(input: CommentInput!):Comment

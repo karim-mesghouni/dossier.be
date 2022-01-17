@@ -25,6 +25,7 @@ public class CheckItem implements HasId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne
     @ToString.Exclude
     private CheckSheet checkSheet;

@@ -1,6 +1,7 @@
 package com.softline.dossier.be.database.seed;
 
 import com.github.javafaker.Faker;
+import com.softline.dossier.be.ApplicationContextProvider;
 import com.softline.dossier.be.Tools.ListUtils;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.domain.enums.FieldType;
@@ -21,6 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManagerFactory;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -49,6 +52,7 @@ public class DatabaseSeeder implements ApplicationRunner {
     private final TaskRepository taskRepository;
     private final TaskStateRepository taskStateRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationContextProvider app;
     /**
      * used to generate fake(mock) date
      *
@@ -377,6 +381,19 @@ public class DatabaseSeeder implements ApplicationRunner {
 
 
     private void createCommunes() {
+        if (true) {
+            try {
+                var manager = app.context().getBean(EntityManagerFactory.class).createEntityManager();
+                manager.getTransaction().begin();
+                manager.createNativeQuery(
+                        Files.readString(resources.getResource("classpath:commune.sql").getFile().toPath())
+                ).executeUpdate();
+                manager.getTransaction().commit();
+                return;
+            } catch (Exception e) {
+                log.error("ERROR: Loading sqlScript failed", e);
+            }
+        }
         var xlsxResource = resources.getResource("classpath:communes.xlsx");
         var sheet = wrap(() -> new XSSFWorkbook(xlsxResource.getInputStream()))
                 .getSheetAt(0);

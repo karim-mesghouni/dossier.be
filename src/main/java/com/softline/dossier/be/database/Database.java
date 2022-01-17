@@ -239,6 +239,15 @@ public class Database {
         return true;
     }
 
+    public static <T> Boolean afterRemoving(@NotNull Class<T> clazz, @NotNull Serializable id, @NotNull Consumer<T> consumer) throws EntityNotFoundException {
+        var entity = findOrThrow(clazz, id);
+        Database.startTransaction();
+        remove(entity);
+        Database.commit();
+        consumer.accept(entity);
+        return true;
+    }
+
     public static <T> Boolean remove(@NotNull Class<T> clazz, @NotNull Serializable id) throws EntityNotFoundException {
         remove(findOrThrow(clazz, id));
         return true;

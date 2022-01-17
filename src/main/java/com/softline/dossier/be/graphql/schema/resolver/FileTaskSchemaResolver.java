@@ -119,14 +119,9 @@ public class FileTaskSchemaResolver implements GraphQLQueryResolver, GraphQLMuta
         return service.sendFileTaskToTrash(fileTaskId);
     }
 
-    public List<Attachment> uploadAttachments(List<Part> part, Long fileTaskId, DataFetchingEnvironment environment) throws IOException {
+    public List<FileTaskAttachment> uploadAttachments(List<Part> part, Long fileTaskId, DataFetchingEnvironment environment) throws IOException {
         return service.saveAttached(fileTaskId, environment);
     }
-
-    public List<Attachment> getAttachedFile(Long idFileTAsk) {
-        return null;
-    }
-
 
     public List<FileTask> getAll() {
         return service.getAll();

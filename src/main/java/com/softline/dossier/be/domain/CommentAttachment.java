@@ -1,5 +1,6 @@
 package com.softline.dossier.be.domain;
 
+import com.softline.dossier.be.Tools.Functions;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 @SuperBuilder
 @AllArgsConstructor
@@ -17,13 +19,15 @@ import javax.persistence.ManyToOne;
 @Setter
 @NoArgsConstructor
 @Entity
-public class CommentAttachment extends Attachment {
+public class CommentAttachment extends BaseEntity implements Attachment {
+    @Transient
+    Functions.UnsafeRunnable afterCreate;
+    private String storageName;
+    private String contentType;
+    private String realName;
+
+
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     private Comment comment;
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }

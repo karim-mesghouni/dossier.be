@@ -29,5 +29,4 @@ public class FileTaskInput extends Input<FileTask> implements HasId {
     ReturnedCauseInput returnedCause;
     boolean returned;
     FileTaskInput parent;
-    List<AttachmentInput> attachments;
 }

@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import static com.softline.dossier.be.Tools.Functions.*;
 import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.DenyOrProceed;
@@ -329,7 +328,7 @@ public class FileTaskService {
         });
     }
 
-    public List<Attachment> saveAttached(Long fileTaskId, DataFetchingEnvironment environment) {
+    public List<FileTaskAttachment> saveAttached(Long fileTaskId, DataFetchingEnvironment environment) {
         ArrayList<ApplicationPart> files = environment.getArgument("attachments");
         var filesAttached = new ArrayList<FileTaskAttachment>();
         Database.startTransaction();
@@ -345,13 +344,18 @@ public class FileTaskService {
             Database.persist(fta);
         }
         Database.commit();
-        return filesAttached.stream().map(e -> (Attachment) e).collect(Collectors.toList());
+        return filesAttached;
     }
 
     public void removeCheckSheet(Long checkSheetId) {
-        var em = Database.em();
-        var ch = em.find(CheckSheet.class, checkSheetId);
-        em.remove(ch);
+        // TODO: check permissions
+        Database.afterRemoving(CheckSheet.class, checkSheetId, sh -> {
+            new FileTaskEvent(EntityEvent.Type.UPDATED, sh.getFileTask()).fireToAll();
+        });
+//        Database.findOrThrow(CheckSheet.class, checkSheetId, checkSheet -> {
+//            Database.inTransaction(() -> checkSheet.setDeleted(true));
+//            new FileTaskEvent(EntityEvent.Type.UPDATED, checkSheet.getFileTask()).fireToAll();
+//        });
     }
 
     public CheckSheet setCheckSheet(Long fileTaskId, DataFetchingEnvironment environment) {
@@ -374,7 +378,7 @@ public class FileTaskService {
                     break;
                 } else if (Objects.equals(NON_OK_CELL.getCellType(), CellType.BOOLEAN)) {
                     if (NON_OK_CELL.getBooleanCellValue()) {
-                        invalide.add(new String[]{currentGroup, row.getCell(1).getStringCellValue(), row.getCell(12).getStringCellValue()});
+                        invalide.add(new String[]{currentGroup, row.getCell(1).getStringCellValue(), row.getCell(18).getStringCellValue()});
                     }
                 } else if (Objects.equals(NON_OK_CELL.getCellType(), CellType.FORMULA)) {
                     currentGroup = row.getCell(0).getStringCellValue();
@@ -392,22 +396,23 @@ public class FileTaskService {
             throw new GraphQLException(TextHelper.format("Il y a une erreur à la ligne {} ({})", errors.keySet().stream().findFirst().get(), errors.values().stream().findFirst().get()));
         }
         AtomicBoolean sendEvent = new AtomicBoolean(false);
-        fileTask.setCheckSheet(new CheckSheet(fileTask, new ArrayList<>()));
-        fileTask.getCheckSheet().resolveFromApplicationPart(fileSheet);
+        var sh = new CheckSheet(fileTask, new ArrayList<>());
+        sh.resolveFromApplicationPart(fileSheet);
         invalide.forEach(i -> {
             sendEvent.set(true);
-            fileTask.getCheckSheet()
-                    .getInvalidItems()
-                    .add(new CheckItem(fileTask.getCheckSheet(), i[0], i[1], i[2]));
+            var ch = new CheckItem(sh, i[0], i[1], i[2]);
+            Database.persist(ch);
         });
+        Database.persist(sh);
         Database.commit();
         if (sendEvent.get()) {
             new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
         }
-        return fileTask.getCheckSheet();
+        return sh;
     }
 
     public boolean deleteAttached(Long attachedId) {
+        // TODO: check permissions
         Database.removeNow(FileTaskAttachment.class, attachedId);
 
         return true;

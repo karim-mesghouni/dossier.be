@@ -34,7 +34,7 @@ extend type Mutation{
     changeParent(fileTaskId:ID!,parentId:ID):Boolean
     sendFileTaskToTrash(fileTaskId: ID!): Boolean
     recoverFileTaskFromTrash(fileTaskId: ID!): Boolean
-    uploadAttachments(attachments: [Upload]!,fileTaskId:ID!):[Attachment]
+    uploadAttachments(attachments: [Upload]!,fileTaskId:ID!):[FileTaskAttachment]
     #    deleteFileTask(id: ID!): Boolean
     changeFileTaskOrder(fileTaskId: ID!, fileTaskBeforeId: ID!): Boolean
 }
@@ -62,7 +62,7 @@ type FileTask{
     returned:Boolean
     inTrash:Boolean
     parent: FileTask
-    attachments: [Attachment]
+    attachments: [FileTaskAttachment]
     number: Int
     checkSheet: CheckSheet
 }
@@ -100,7 +100,6 @@ input FileTaskInput {
     returnedCause:ReturnedCauseInput
     returned:Boolean
     parent: FileTaskInput
-    attachments: [AttachmentInput]
     task:TaskInput
     order:Int
 }

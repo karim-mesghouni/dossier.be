@@ -13,7 +13,6 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @SuperBuilder
 @Entity
@@ -78,13 +77,6 @@ public class FileTask extends BaseEntity implements HasOrder {
     @Builder.Default
     private List<FileTaskAttachment> attachments = new ArrayList<>();
 
-    public List<Attachment> getAttachments() {
-        if (attachments == null) {
-            return null;
-        }
-        return attachments.stream().map(e -> (Attachment) e).collect(Collectors.toList());
-    }
-
     @Override
     public String toString() {
         return "FileTask{" +
@@ -112,6 +104,7 @@ public class FileTask extends BaseEntity implements HasOrder {
         return getClass().hashCode();
     }
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "fileTask", orphanRemoval = true)
+    @NotFound(action = NotFoundAction.IGNORE)
     private CheckSheet checkSheet;
 }
