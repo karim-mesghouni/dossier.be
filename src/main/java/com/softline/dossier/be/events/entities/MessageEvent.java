@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 import static com.softline.dossier.be.Tools.Functions.safeValue;
-import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.can;
+import static com.softline.dossier.be.security.config.Gate.can;
 
 public class MessageEvent extends EntityEvent<Message> {
 

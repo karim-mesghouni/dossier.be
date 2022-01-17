@@ -3,7 +3,7 @@ package com.softline.dossier.be.graphql.directivies;
 
 import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.domain.Concerns.HasId;
-import com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator;
+import com.softline.dossier.be.security.config.Gate;
 import graphql.Scalars;
 import graphql.schema.*;
 import graphql.schema.idl.SchemaDirectiveWiring;
@@ -25,7 +25,7 @@ public class CanDirective implements SchemaDirectiveWiring {
         DataFetcher dataFetcher = dataFetchingEnvironment -> {
             var in = getBean(ModelMapper.class).map(dataFetchingEnvironment.getArguments().values().stream().findFirst().orElseThrow(), Database.getEntityType(entity).getJavaType());
             var out = Database.findOrThrow(Database.getEntityType(entity).getJavaType(), ((HasId) in).getId());
-            AttributeBasedAccessControlEvaluator.DenyOrProceed(action, out);
+            Gate.check(action, out);
             return out;
         };
         //

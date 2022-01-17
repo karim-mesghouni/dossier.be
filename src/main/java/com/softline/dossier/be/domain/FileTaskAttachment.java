@@ -6,9 +6,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 @SuperBuilder
 @AllArgsConstructor
@@ -28,4 +26,20 @@ public class FileTaskAttachment extends BaseEntity implements Attachment {
     @NotFound(action = NotFoundAction.IGNORE)
     @ToString.Exclude
     private FileTask fileTask;
+
+
+    @PostRemove
+    public void afterRemove() {
+        if (getPath().toFile().exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            getPath().toFile().delete();
+        }
+    }
+
+    @PostPersist
+    public void afterCreating() {
+        if (getAfterCreate() != null) {
+            Functions.wrap(getAfterCreate());
+        }
+    }
 }

@@ -11,6 +11,7 @@ import com.softline.dossier.be.events.EntityEvent;
 import com.softline.dossier.be.events.entities.CommentEvent;
 import com.softline.dossier.be.events.entities.FileTaskEvent;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
+import com.softline.dossier.be.graphql.types.input.ControlSheetInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
 import com.softline.dossier.be.repository.FileTaskAttachmentRepository;
 import com.softline.dossier.be.repository.FileTaskRepository;
@@ -30,7 +31,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.softline.dossier.be.Tools.Functions.*;
-import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.DenyOrProceed;
+import static com.softline.dossier.be.security.config.Gate.check;
 import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 
 @Service
@@ -89,7 +90,7 @@ public class FileTaskService {
 
     public FileTask update(FileTaskInput input) {
         var fileTask = Database.findOrThrow(FileTask.class, input);
-        DenyOrProceed("UPDATE_FILE_TASK", fileTask);
+        check("UPDATE_FILE_TASK", fileTask);
         Database.startTransaction();
         fileTask.setToStartDate(input.getToStartDate());
         fileTask.setDueDate(input.getDueDate());
@@ -108,7 +109,7 @@ public class FileTaskService {
 
     public Agent changeAssignedTo(long assignedToId, long fileTaskId) {
         var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
-        DenyOrProceed("UPDATE_FILE_TASK", fileTask);
+        check("UPDATE_FILE_TASK", fileTask);
         var assigned = Database.findOrNull(Agent.class, assignedToId);
         Database.startTransaction();
         fileTask.setAssignedTo(assigned);
@@ -119,7 +120,7 @@ public class FileTaskService {
 
     public FileTaskSituation changeFileTaskSituation(Long situationId, Long fileTaskId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, fileTask -> {
-            DenyOrProceed("WORK_IN_FILE_TASK", fileTask);
+            check("WORK_IN_FILE_TASK", fileTask);
             Database.startTransaction();
             var situation = Database.findOrThrow(TaskSituation.class, situationId);
             if (fileTask.getCurrentFileTaskSituation().getSituation().isBlock()) {
@@ -159,7 +160,7 @@ public class FileTaskService {
 
     public boolean changeStartDate(LocalDateTime startDate, Long fileTaskId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, fileTask -> {
-            DenyOrProceed("UPDATE_FILE_TASK", fileTask);
+            check("UPDATE_FILE_TASK", fileTask);
             Database.startTransaction();
             fileTask.setStartDate(startDate);
             Database.commit();
@@ -190,7 +191,7 @@ public class FileTaskService {
 
     public DescriptionComment changeDescription(CommentInput commentInput) {
         var fileTask = Database.findOrThrow(FileTask.class, commentInput.getFileTask());
-        DenyOrProceed("UPDATE_FILE_TASK", fileTask);
+        check("UPDATE_FILE_TASK", fileTask);
         Database.startTransaction();
         var description = fileTask.getDescription();
         if (description == null) {
@@ -215,7 +216,7 @@ public class FileTaskService {
     public ReturnedComment changeRetour(CommentInput input) {
         return Database.findOrThrow(input.getFileTask().map(), fileTask -> {
             Database.startTransaction();
-            DenyOrProceed("WORK_IN_FILE_TASK", fileTask);
+            check("WORK_IN_FILE_TASK", fileTask);
             var retour = fileTask.getRetour();
             if (retour == null) {
                 retour = ReturnedComment.builder()
@@ -239,7 +240,7 @@ public class FileTaskService {
 
     public ReturnedCause changeReturnedCause(Long fileTaskId, Long returnedCauseId) {
         return Database.findOrThrow(FileTask.class, fileTaskId, fileTask -> {
-            DenyOrProceed("WORK_IN_FILE_TASK", fileTask);
+            check("WORK_IN_FILE_TASK", fileTask);
             var returnedCause = Database.findOrThrow(ReturnedCause.class, returnedCauseId);
             Database.startTransaction();
             fileTask.setReturnedCause(returnedCause);
@@ -251,7 +252,7 @@ public class FileTaskService {
 
     public TaskState changeState(Long fileTaskId, Long taskStateId) {
         var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
-        DenyOrProceed("WORK_IN_FILE_TASK", fileTask);
+        check("WORK_IN_FILE_TASK", fileTask);
         var state = Database.findOrNull(TaskState.class, taskStateId);
         if (state != null && !fileTask.getTask().getStates().contains(state)) {
             throw new GraphQLException("The given state does not belong to this fileTask");
@@ -270,7 +271,7 @@ public class FileTaskService {
     }
 
     public FileTask createChildFileTask(FileTaskInput input) {
-        DenyOrProceed("CREATE_FILE_TASK", input);
+        check("CREATE_FILE_TASK", input);
         var parent = repository.findById(input.getParent().getId()).orElseThrow();
         var task = Database.findOrThrow(Task.class, input.getTask());
         var fileActivity = Database.findOrThrow(FileActivity.class, input.getFileActivity());
@@ -347,21 +348,23 @@ public class FileTaskService {
         return filesAttached;
     }
 
-    public void removeCheckSheet(Long checkSheetId) {
-        // TODO: check permissions
-        Database.afterRemoving(CheckSheet.class, checkSheetId, sh -> {
-            new FileTaskEvent(EntityEvent.Type.UPDATED, sh.getFileTask()).fireToAll();
+    public void removeControlSheet(ControlSheetInput input) {
+        var sh = Database.findOrThrow(input.map());
+        if (!sh.createdByThisAgent()) {
+            check("UPDATE_FILE_TASK", sh.getFileTask());
+        }
+        Database.inTransaction(() -> {
+            Database.remove(sh);
+            sh.setDeleted(true);
+            sh.getFileTask().setState(null);
         });
-//        Database.findOrThrow(CheckSheet.class, checkSheetId, checkSheet -> {
-//            Database.inTransaction(() -> checkSheet.setDeleted(true));
-//            new FileTaskEvent(EntityEvent.Type.UPDATED, checkSheet.getFileTask()).fireToAll();
-//        });
+        new FileTaskEvent(EntityEvent.Type.UPDATED, sh.getFileTask()).fireToAll();
     }
 
-    public CheckSheet setCheckSheet(Long fileTaskId, DataFetchingEnvironment environment) {
+    public ControlSheet setControlSheet(Long fileTaskId, DataFetchingEnvironment environment) {
         Database.startTransaction();
         var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
-        if (fileTask.getCheckSheet() != null) {
+        if (fileTask.getControlSheet() != null) {
             throw new GraphQLException("Cette tâche a déjà une fiche de contrôle");
         }
         ApplicationPart fileSheet = environment.getArgument("file");
@@ -396,18 +399,18 @@ public class FileTaskService {
             throw new GraphQLException(TextHelper.format("Il y a une erreur à la ligne {} ({})", errors.keySet().stream().findFirst().get(), errors.values().stream().findFirst().get()));
         }
         AtomicBoolean sendEvent = new AtomicBoolean(false);
-        var sh = new CheckSheet(fileTask, new ArrayList<>());
+        var sh = new ControlSheet(fileTask, new ArrayList<>());
         sh.resolveFromApplicationPart(fileSheet);
         invalide.forEach(i -> {
-            sendEvent.set(true);
-            var ch = new CheckItem(sh, i[0], i[1], i[2]);
-            Database.persist(ch);
+            Database.persist(new CheckItem(sh, i[0], i[1], i[2]));
         });
         Database.persist(sh);
-        Database.commit();
-        if (sendEvent.get()) {
-            new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
+        if (!invalide.isEmpty()) {
+            fileTask.setState(fileTask.getTask().getStates().stream().filter(s -> !s.isValid()).findFirst().orElse(null));
         }
+        Database.commit();
+        new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
+        Database.em().refresh(sh);
         return sh;
     }
 

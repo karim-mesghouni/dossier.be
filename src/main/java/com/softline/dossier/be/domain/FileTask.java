@@ -106,5 +106,5 @@ public class FileTask extends BaseEntity implements HasOrder {
 
     @OneToOne(mappedBy = "fileTask", orphanRemoval = true)
     @NotFound(action = NotFoundAction.IGNORE)
-    private CheckSheet checkSheet;
+    private ControlSheet controlSheet;
 }

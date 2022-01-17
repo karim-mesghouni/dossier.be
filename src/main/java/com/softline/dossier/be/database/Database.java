@@ -26,7 +26,7 @@ import static com.softline.dossier.be.Application.context;
 import static com.softline.dossier.be.Tools.Functions.safeSupplied;
 import static com.softline.dossier.be.Tools.Functions.throwIfEmpty;
 import static com.softline.dossier.be.Tools.TextHelper.format;
-import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.DenyOrProceed;
+import static com.softline.dossier.be.security.config.Gate.check;
 
 @Component
 public class Database {
@@ -143,7 +143,7 @@ public class Database {
 
     @NotNull
     public static <T> T findOrThrow(@NotNull Class<T> clazz, @Nullable Serializable id, @NotNull String action) throws EntityNotFoundException {
-        return findOrThrow(clazz, id, (Consumer<T>) entity -> DenyOrProceed(action, entity));
+        return findOrThrow(clazz, id, (Consumer<T>) entity -> check(action, entity));
     }
 
     @NotNull
@@ -171,14 +171,14 @@ public class Database {
     @NotNull
     public static <T, R> R findOrThrow(@NotNull Class<T> clazz, @Nullable Serializable id, @NotNull String permission, @NotNull Function<T, R> action) throws EntityNotFoundException, AccessDeniedException {
         T entity = findOrThrow(clazz, id);
-        DenyOrProceed(permission, entity);
+        check(permission, entity);
         return action.apply(entity);
     }
 
     @NotNull
     public static <T, R> R findOrThrow(@NotNull Class<T> clazz, @Nullable HasId id, @NotNull String permission, @NotNull Function<T, R> action) throws EntityNotFoundException, AccessDeniedException {
         T entity = findOrThrow(clazz, id);
-        DenyOrProceed(permission, entity);
+        check(permission, entity);
         return action.apply(entity);
     }
 
@@ -267,7 +267,7 @@ public class Database {
 
     public static <T> Boolean remove(@NotNull Class<T> clazz, @NotNull Serializable id, @NotNull String permission) throws EntityNotFoundException {
         T entity = findOrThrow(clazz, id);
-        DenyOrProceed(permission, entity);
+        check(permission, entity);
         remove(entity);
         return true;
     }

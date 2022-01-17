@@ -6,8 +6,6 @@ import com.softline.dossier.be.Tools.Functions;
 import org.apache.catalina.core.ApplicationPart;
 import org.apache.commons.io.FilenameUtils;
 
-import javax.persistence.PostPersist;
-import javax.persistence.PostRemove;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -50,18 +48,7 @@ public interface Attachment {
         });
     }
 
-    @PostRemove
-    default void afterRemove() {
-        if (getPath().toFile().exists()) {
-            //noinspection ResultOfMethodCallIgnored
-            getPath().toFile().delete();
-        }
-    }
+    void afterRemove();
 
-    @PostPersist
-    default void afterCreating() {
-        if (getAfterCreate() != null) {
-            Functions.wrap(getAfterCreate());
-        }
-    }
+    void afterCreating();
 }

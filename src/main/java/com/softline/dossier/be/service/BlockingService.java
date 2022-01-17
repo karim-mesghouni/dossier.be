@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.softline.dossier.be.Tools.Functions.safeRun;
-import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.DenyOrProceed;
+import static com.softline.dossier.be.security.config.Gate.check;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +51,7 @@ public class BlockingService {
 
     public Blocking create(Blocking block) {
         var fileTask = Database.findOrThrow(block.getState().getFileTask());
-        DenyOrProceed("WORK_IN_FILE_TASK", fileTask);
+        check("WORK_IN_FILE_TASK", fileTask);
         Database.startTransaction();
         Database.findOrThrow(fileTaskSituationRepository.findFirstByFileTaskAndCurrentIsTrue(fileTask))
                 .setCurrent(false);
@@ -81,7 +81,7 @@ public class BlockingService {
         boolean wasBlocked = blockingShadow.getBlock();
         Database.startTransaction();
         var fileTask = blockingShadow.getState().getFileTask();
-        DenyOrProceed("WORK_IN_FILE_TASK", fileTask);
+        check("WORK_IN_FILE_TASK", fileTask);
 
         safeRun(() -> blocking.setLabel(Database.findOrThrow(input.getLabel())));
         safeRun(() -> blocking.setQualification(Database.findOrThrow(input.getQualification())));
@@ -133,7 +133,7 @@ public class BlockingService {
         if (block.getBlock()) {
             throw new GraphQLException("veuillez débloquer le blocage avant de le supprimer");
         }
-        DenyOrProceed("WORK_IN_FILE_TASK", block.getState().getFileTask());
+        check("WORK_IN_FILE_TASK", block.getState().getFileTask());
         Database.removeNow(Blocking.class, block.getId());
         new FileTaskEvent(EntityEvent.Type.UPDATED, block.getState().getFileTask()).fireToAll();
         return true;

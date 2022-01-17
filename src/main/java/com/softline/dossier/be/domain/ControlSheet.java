@@ -11,10 +11,7 @@ import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.List;
 
 @SuperBuilder
@@ -23,24 +20,30 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@SQLDelete(sql = "UPDATE check_sheet SET deleted=true WHERE id=?")
+@SQLDelete(sql = "UPDATE control_sheet SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
-public class CheckSheet extends BaseEntity implements Attachment {
+public class ControlSheet extends BaseEntity implements Attachment {
     @Transient
     Functions.UnsafeRunnable afterCreate;
     private String storageName;
     private String contentType;
     private String realName;
-    @OneToMany(mappedBy = "checkSheet")
+    @OneToMany(mappedBy = "controlSheet")
     private List<CheckItem> invalidItems;
 
     @OneToOne
     @NotFound(action = NotFoundAction.IGNORE)
     private FileTask fileTask;
 
-    public CheckSheet(FileTask fileTask, List<CheckItem> invalidItems) {
+    public ControlSheet(FileTask fileTask, List<CheckItem> invalidItems) {
         this.fileTask = fileTask;
         this.invalidItems = invalidItems;
+    }
+
+    // used by graphql
+    @SuppressWarnings("unused")
+    public boolean isValid() {
+        return invalidItems.isEmpty();
     }
 
     @Override
@@ -49,5 +52,20 @@ public class CheckSheet extends BaseEntity implements Attachment {
                 "id=" + id +
                 ", invalidItems=" + invalidItems +
                 '}';
+    }
+
+    @PostRemove
+    public void afterRemove() {
+        if (getPath().toFile().exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            getPath().toFile().delete();
+        }
+    }
+
+    @PostPersist
+    public void afterCreating() {
+        if (getAfterCreate() != null) {
+            Functions.wrap(getAfterCreate());
+        }
     }
 }

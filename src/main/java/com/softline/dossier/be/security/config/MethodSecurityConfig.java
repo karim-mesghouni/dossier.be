@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 @RequiredArgsConstructor
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
-    private final AttributeBasedAccessControlEvaluator ABAC;
+    private final Gate ABAC;
 
     @Override
     protected MethodSecurityExpressionHandler createExpressionHandler() {

@@ -7,6 +7,12 @@ extend type Query {
     getAllForFileTask(fileTaskId: ID): [FileTaskAttachment]
 }
 
+interface IAttachment{
+    storageName:String
+    realName:String
+    url: String
+}
+
 type FileTaskAttachment implements IAttachment{
     id: ID
     storageName:String
@@ -14,8 +20,24 @@ type FileTaskAttachment implements IAttachment{
     url: String
 }
 
-interface IAttachment{
-    storageName:String
+type ControlSheet implements IAttachment{
+    id: ID
+    fileTask: FileTask
+    invalidItems: [CheckItem]
+    valid: Boolean
+
     realName:String
+    storageName:String
     url: String
 }
+type CheckItem{
+    id: ID
+    groupName: String
+    text: String
+    description: String
+}
+
+input ControlSheetInput {
+    id: ID
+}
+

@@ -28,13 +28,13 @@ public class CheckItem implements HasId {
 
     @ManyToOne
     @ToString.Exclude
-    private CheckSheet checkSheet;
+    private ControlSheet controlSheet;
 
-    public CheckItem(CheckSheet checkSheet, String groupName, String text, String description) {
+    public CheckItem(ControlSheet controlSheet, String groupName, String text, String description) {
         this.groupName = groupName;
         this.text = text;
         this.description = description;
-        this.checkSheet = checkSheet;
+        this.controlSheet = controlSheet;
     }
 
     @Override

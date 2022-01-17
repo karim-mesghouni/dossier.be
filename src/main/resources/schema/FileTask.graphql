@@ -13,8 +13,8 @@ extend type Query  {
 }
 
 extend type Mutation{
-    removeCheckSheet(checkSheetId: ID!): Void
-    setCheckSheet(file: Upload, fileTaskId: ID!): CheckSheet
+    removeControlSheet(controlSheet: ControlSheetInput!): Void
+    setControlSheet(file: Upload, fileTaskId: ID!): ControlSheet
     createFileTask(input: FileTaskInput!):FileTask
     changeAssignedTo(assignedToId: ID,fileTaskId: ID!):Agent
     changeFileTaskSituation(situationId: ID!,fileTaskId: ID!):FileTaskSituation
@@ -64,23 +64,9 @@ type FileTask{
     parent: FileTask
     attachments: [FileTaskAttachment]
     number: Int
-    checkSheet: CheckSheet
+    controlSheet: ControlSheet
 }
-type CheckSheet implements IAttachment{
-    id: ID
-    fileTask: FileTask
-    invalidItems: [CheckItem]
 
-    realName:String
-    storageName:String
-    url: String
-}
-type CheckItem{
-    id: ID
-    groupName: String
-    text: String
-    description: String
-}
 input FileTaskInput {
     id:ID
     current:Boolean

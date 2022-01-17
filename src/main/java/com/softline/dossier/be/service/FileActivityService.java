@@ -20,7 +20,7 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import static com.softline.dossier.be.Tools.Functions.safeValue;
-import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.DenyOrProceed;
+import static com.softline.dossier.be.security.config.Gate.check;
 
 @Service
 @RequiredArgsConstructor
@@ -89,7 +89,7 @@ public class FileActivityService {
 
     public ActivityDataField changeDataField(ActivityDataFieldInput input) {
         return Database.findOrThrow(input.map(), field -> {
-            DenyOrProceed("UPDATE_FILE_ACTIVITY_DATA_FIELD", field);
+            check("UPDATE_FILE_ACTIVITY_DATA_FIELD", field);
             Database.startTransaction();
             try {
                 input.setFieldType(FieldTypeInput.valueOf(field.getFieldType().toString()));

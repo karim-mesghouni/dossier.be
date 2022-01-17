@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static com.softline.dossier.be.Tools.Functions.*;
-import static com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator.DenyOrProceed;
+import static com.softline.dossier.be.security.config.Gate.check;
 
 @Service
 public class AgentService {
@@ -49,7 +49,7 @@ public class AgentService {
     }
 
     public Agent create(Agent agent) {
-        DenyOrProceed("CREATE_AGENT", agent);
+        check("CREATE_AGENT", agent);
         throwIfEmpty(agent.getUsername(), () -> new GraphQLException("le nom d'utilisateur ne peut pas être vide"));
         throwIfEmpty(agent.getName(), () -> new GraphQLException("le nom ne peut pas être vide"));
         throwIfSuppliedEmpty(() -> agent.getRole().getId(), () -> new GraphQLException("veuillez spécifier une fonction"));

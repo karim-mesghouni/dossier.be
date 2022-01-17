@@ -23,6 +23,8 @@ import static com.softline.dossier.be.Tools.Functions.safeSupplied;
 import static com.softline.dossier.be.Tools.TextHelper.format;
 
 /**
+ * Attribute-Based-Access-Control Documentation
+ * <p>
  * Extension for Expression-Based Access Control
  * this class allows to pass an entity to be handled along with the permission evaluation
  *
@@ -31,7 +33,7 @@ import static com.softline.dossier.be.Tools.TextHelper.format;
  */
 @Component
 @RequiredArgsConstructor
-public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator {
+public class Gate implements PermissionEvaluator {
     private final PolicyMatcher policy;
 
     /**
@@ -45,7 +47,7 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
      * throws {@link AccessDeniedException} if the current logged-in user cannot do the action on the given object
      */
     @SuppressWarnings({"Convert2MethodRef", "ConstantConditions"})
-    public static void DenyOrProceed(@NotNull String action, @Nullable Object domain) throws AccessDeniedException {
+    public static void check(@NotNull String action, @Nullable Object domain) throws AccessDeniedException {
         if (cannot(action, domain)) {
             throw new AccessDeniedException(format("Denied operation {} on {} of type {} with authentication {}", action, safeSupplied(() -> domain.toString(), () -> "<failed to call toString>"), domain != null ? domain.getClass().getName() : "NULL", safeSupplied(() -> Agent.authentication().getPrincipal(), () -> "None")));
         }
@@ -54,7 +56,7 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
     /**
      * throws {@link AccessDeniedException} if the current logged-in user cannot do the action on the object
      */
-    public static void DenyOrProceed(@NotNull String action, @Nullable Object domain, @Nullable String exceptionMessage) throws AccessDeniedException {
+    public static void check(@NotNull String action, @Nullable Object domain, @Nullable String exceptionMessage) throws AccessDeniedException {
         if (cannot(action, domain)) {
             throw new AccessDeniedException(exceptionMessage);
         }
@@ -88,10 +90,10 @@ public class AttributeBasedAccessControlEvaluator implements PermissionEvaluator
     }
 
     /**
-     * @return an instance of {@link AttributeBasedAccessControlEvaluator}
+     * @return an instance of {@link Gate}
      */
-    public static AttributeBasedAccessControlEvaluator accessControl() {
-        return Application.getBean(AttributeBasedAccessControlEvaluator.class);
+    public static Gate accessControl() {
+        return Application.getBean(Gate.class);
     }
 
 

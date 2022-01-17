@@ -1,7 +1,7 @@
 package com.softline.dossier.be.security.domain;
 
 import com.softline.dossier.be.domain.Concerns.HasId;
-import com.softline.dossier.be.security.config.AttributeBasedAccessControlEvaluator;
+import com.softline.dossier.be.security.config.Gate;
 import lombok.*;
 
 import javax.persistence.*;
@@ -50,7 +50,7 @@ public class Role implements HasId {
 
     /**
      * if you will modify these role names make sure that {@link Agent#isAdmin()} is valid
-     * and check all defined json policies, and all calls to @PreAuthorize and {@link AttributeBasedAccessControlEvaluator#DenyOrProceed(String, Object)}
+     * and check all defined json policies, and all calls to @PreAuthorize and {@link Gate#check(String, Object)}
      */
     public enum Type {
         MANAGER,

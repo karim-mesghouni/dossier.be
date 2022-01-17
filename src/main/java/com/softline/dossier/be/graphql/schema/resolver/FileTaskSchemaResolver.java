@@ -4,6 +4,7 @@ import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
+import com.softline.dossier.be.graphql.types.input.ControlSheetInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.service.FileTaskService;
@@ -131,11 +132,11 @@ public class FileTaskSchemaResolver implements GraphQLQueryResolver, GraphQLMuta
         return service.changeOrder(fileTaskId, fileTaskBeforeId);
     }
 
-    public CheckSheet setCheckSheet(Part file, long fileTaskId, DataFetchingEnvironment environment) {
-        return service.setCheckSheet(fileTaskId, environment);
+    public ControlSheet setControlSheet(Part file, long fileTaskId, DataFetchingEnvironment environment) {
+        return service.setControlSheet(fileTaskId, environment);
     }
 
-    public void removeCheckSheet(Long checkSheetId) {
-        service.removeCheckSheet(checkSheetId);
+    public void removeControlSheet(ControlSheetInput input) {
+        service.removeControlSheet(input);
     }
 }
