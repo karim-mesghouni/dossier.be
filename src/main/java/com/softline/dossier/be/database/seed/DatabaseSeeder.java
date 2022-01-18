@@ -312,9 +312,9 @@ public class DatabaseSeeder implements ApplicationRunner {
                                 .endDate(toLocalDateTime(futureDaysFrom(createdDate, 5, 15)))
                                 .title(faker.job().title())
                                 .build();
-                        if (faker.random().nextInt(0, 100) > 70) {
-                            fileTask.setState(getOne(fileTask.getTask().getStates()));
-                        }
+//                        if (faker.random().nextInt(0, 100) > 70) {
+//                            fileTask.setState(getOne(fileTask.getTask().getStates()));
+//                        }
                         var situations = fileTask.getTask().getSituations();
                         var blocks = new ArrayList<FileTaskSituation>();
                         AtomicReference<LocalDateTime> blockDate = new AtomicReference<>(futureDaysFrom(fileTask.getCreatedDate(), 0, 15));

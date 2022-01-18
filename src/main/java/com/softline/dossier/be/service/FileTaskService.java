@@ -345,6 +345,8 @@ public class FileTaskService {
             Database.persist(fta);
         }
         Database.commit();
+        new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();
+        filesAttached.forEach(Database.em()::refresh);
         return filesAttached;
     }
 
@@ -364,6 +366,7 @@ public class FileTaskService {
     public ControlSheet setControlSheet(Long fileTaskId, DataFetchingEnvironment environment) {
         Database.startTransaction();
         var fileTask = Database.findOrThrow(FileTask.class, fileTaskId);
+        check("WORK_IN_FILE_TASK", fileTask);
         if (fileTask.getControlSheet() != null) {
             throw new GraphQLException("Cette tâche a déjà une fiche de contrôle");
         }
@@ -373,30 +376,31 @@ public class FileTaskService {
         var errors = new HashMap<Integer, Throwable>();
         var invalide = new ArrayList<String[]>();
         var currentGroup = "";
-        for (int i = 16; i < sheet.getPhysicalNumberOfRows(); i++) {
+        int start = 16;
+        for (int i = start; i < sheet.getPhysicalNumberOfRows(); i++) {
             try {
                 var row = sheet.getRow(i);
                 var NON_OK_CELL = row.getCell(29);
-                if (NON_OK_CELL == null) {
+                if (NON_OK_CELL == null && i != start) {
                     break;
-                } else if (Objects.equals(NON_OK_CELL.getCellType(), CellType.BOOLEAN)) {
+                } else if (NON_OK_CELL != null && Objects.equals(NON_OK_CELL.getCellType(), CellType.BOOLEAN)) {
                     if (NON_OK_CELL.getBooleanCellValue()) {
                         invalide.add(new String[]{currentGroup, row.getCell(1).getStringCellValue(), row.getCell(18).getStringCellValue()});
                     }
-                } else if (Objects.equals(NON_OK_CELL.getCellType(), CellType.FORMULA)) {
+                } else if (NON_OK_CELL != null && Objects.equals(NON_OK_CELL.getCellType(), CellType.FORMULA)) {
                     currentGroup = row.getCell(0).getStringCellValue();
                     //noinspection UnnecessaryContinue
                     continue;// This is the %percentage text of the sum of this group
                 } else {
                     // This is an error
-                    throw new IOException(TextHelper.format("Expected cell type FORMULA or BOOLEAN got: {}", NON_OK_CELL.getCellType()));
+                    throw new IOException(TextHelper.format("Expected cell type FORMULA or BOOLEAN found: {}", NON_OK_CELL != null ? NON_OK_CELL.getCellType() : null));
                 }
             } catch (Throwable e) {
                 errors.put(i + 1, e);
             }
         }
         if (!errors.isEmpty()) {
-            throw new GraphQLException(TextHelper.format("Il y a une erreur à la ligne {} ({})", errors.keySet().stream().findFirst().get(), errors.values().stream().findFirst().get()));
+            throw new GraphQLException(TextHelper.format("Il y a une erreur à la ligne {} ({})", errors.keySet().stream().findFirst().get(), errors.values().stream().findFirst().get().getMessage()));
         }
         AtomicBoolean sendEvent = new AtomicBoolean(false);
         var sh = new ControlSheet(fileTask, new ArrayList<>());
@@ -407,6 +411,8 @@ public class FileTaskService {
         Database.persist(sh);
         if (!invalide.isEmpty()) {
             fileTask.setState(fileTask.getTask().getStates().stream().filter(s -> !s.isValid()).findFirst().orElse(null));
+        } else {
+            fileTask.setState(fileTask.getTask().getStates().stream().filter(TaskState::isValid).findFirst().orElse(null));
         }
         Database.commit();
         new FileTaskEvent(EntityEvent.Type.UPDATED, fileTask).fireToAll();

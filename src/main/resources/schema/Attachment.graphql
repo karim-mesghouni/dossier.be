@@ -11,6 +11,8 @@ interface IAttachment{
     storageName:String
     realName:String
     url: String
+    creator: Agent
+    createdDate: String
 }
 
 type FileTaskAttachment implements IAttachment{
@@ -18,6 +20,8 @@ type FileTaskAttachment implements IAttachment{
     storageName:String
     realName:String
     url: String
+    creator: Agent
+    createdDate: String
 }
 
 type ControlSheet implements IAttachment{
@@ -29,6 +33,8 @@ type ControlSheet implements IAttachment{
     realName:String
     storageName:String
     url: String
+    creator: Agent
+    createdDate: String
 }
 type CheckItem{
     id: ID

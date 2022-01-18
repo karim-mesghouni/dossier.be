@@ -8,8 +8,13 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 
 public interface Attachment {
+    LocalDateTime getCreatedDate();
+
+    void setCreatedDate(LocalDateTime createdDate);
+
     String getRealName();
 
     void setRealName(String realName);

@@ -112,7 +112,7 @@ public class Event<T> implements Serializable {
             return Boolean.TRUE.equals(getPermissionEvaluator(channel).get());// convert null to false
         } catch (Exception e) {
             if (log.isErrorEnabled())
-                log.error("Event.getPermission() failed to get permissionEvaluator result", e);
+                log.error("Event.getPermissionEvaluator() failed to get permissionEvaluator result", e);
             return false;
         }
     }
