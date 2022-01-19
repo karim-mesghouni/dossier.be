@@ -27,7 +27,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.softline.dossier.be.Tools.Functions.*;
@@ -373,14 +376,14 @@ public class FileTaskService {
         ApplicationPart fileSheet = environment.getArgument("file");
         var sheet = wrap(() -> new XSSFWorkbook(fileSheet.getInputStream()), (e) -> new RuntimeException("Impossible de charger le fichier en tant que document XSSF"))
                 .getSheetAt(0);
-        var errors = new HashMap<Integer, Throwable>();
         var invalide = new ArrayList<String[]>();
         var currentGroup = "";
         int start = 16;
+        int checkCell = 29;
         for (int i = start; i < sheet.getPhysicalNumberOfRows(); i++) {
             try {
                 var row = sheet.getRow(i);
-                var NON_OK_CELL = row.getCell(29);
+                var NON_OK_CELL = row.getCell(checkCell);
                 if (NON_OK_CELL == null && i != start) {
                     break;
                 } else if (NON_OK_CELL != null && Objects.equals(NON_OK_CELL.getCellType(), CellType.BOOLEAN)) {
@@ -393,21 +396,16 @@ public class FileTaskService {
                     continue;// This is the %percentage text of the sum of this group
                 } else {
                     // This is an error
-                    throw new IOException(TextHelper.format("Expected cell type FORMULA or BOOLEAN found: {}", NON_OK_CELL != null ? NON_OK_CELL.getCellType() : null));
+                    throw new IOException(TextHelper.format("Expected cell type FORMULA or BOOLEAN in cell {} found: {}", checkCell + 1, NON_OK_CELL != null ? NON_OK_CELL.getCellType() : null));
                 }
             } catch (Throwable e) {
-                errors.put(i + 1, e);
+                throw new GraphQLException(TextHelper.format("Il y a une erreur à la ligne {} ({})", i + 1, e.getMessage()));
             }
-        }
-        if (!errors.isEmpty()) {
-            throw new GraphQLException(TextHelper.format("Il y a une erreur à la ligne {} ({})", errors.keySet().stream().findFirst().get(), errors.values().stream().findFirst().get().getMessage()));
         }
         AtomicBoolean sendEvent = new AtomicBoolean(false);
         var sh = new ControlSheet(fileTask, new ArrayList<>());
         sh.resolveFromApplicationPart(fileSheet);
-        invalide.forEach(i -> {
-            Database.persist(new CheckItem(sh, i[0], i[1], i[2]));
-        });
+        invalide.forEach(i -> Database.persist(new CheckItem(sh, i[0], i[1], i[2])));
         Database.persist(sh);
         if (!invalide.isEmpty()) {
             fileTask.setState(fileTask.getTask().getStates().stream().filter(s -> !s.isValid()).findFirst().orElse(null));
