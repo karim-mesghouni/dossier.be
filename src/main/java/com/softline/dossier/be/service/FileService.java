@@ -224,7 +224,7 @@ public class FileService {
                 "and (fs.current = true and :stateId in(0, fs.type.id) or size(f.fileStates) = 0) ";
         var dates = new HashMap<String, LocalDate>();
         if (filter.attributionDate.from != null || filter.attributionDate.to != null) {
-            query += "and f.attributionDate > between :adf and :adt ";
+            query += "and f.attributionDate between :adf and :adt ";
             dates.put("adf", filter.attributionDate.getFrom());
             dates.put("adt", filter.attributionDate.getTo());
         }
