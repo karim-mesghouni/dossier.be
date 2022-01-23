@@ -9,7 +9,8 @@ import java.util.function.Supplier;
 public class ListUtils {
     /**
      * calls the builder {count} times and returns the returned results of the builder as a collection
-     * @param <R>     type of list items
+     *
+     * @param <R> type of list items
      * @return a list of {count} number of elements returned by the builder
      */
     @NotNull

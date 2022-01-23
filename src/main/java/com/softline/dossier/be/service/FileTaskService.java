@@ -13,7 +13,6 @@ import com.softline.dossier.be.events.entities.FileTaskEvent;
 import com.softline.dossier.be.graphql.types.input.CommentInput;
 import com.softline.dossier.be.graphql.types.input.ControlSheetInput;
 import com.softline.dossier.be.graphql.types.input.FileTaskInput;
-import com.softline.dossier.be.repository.FileTaskAttachmentRepository;
 import com.softline.dossier.be.repository.FileTaskRepository;
 import com.softline.dossier.be.repository.FileTaskSituationRepository;
 import com.softline.dossier.be.security.domain.Agent;
@@ -31,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.softline.dossier.be.Tools.Functions.*;
 import static com.softline.dossier.be.security.config.Gate.check;
@@ -41,7 +39,6 @@ import static com.softline.dossier.be.security.domain.Agent.thisDBAgent;
 @RequiredArgsConstructor
 public class FileTaskService {
     private final FileTaskSituationRepository fileTaskSituationRepository;
-    private final FileTaskAttachmentRepository fileTaskAttachmentRepository;
     private final FileTaskRepository repository;
 
     public FileTask getById(Long id) {
@@ -53,7 +50,7 @@ public class FileTaskService {
     }
 
     public List<TaskSituation> getAllTaskSituations(Long taskId) {
-        return Database.query("SELECT tsi FROM TaskSituation tsi where tsi.task.id = :taskId", TaskSituation.class)
+        return Database.query("SELECT ts FROM TaskSituation ts where ts.task.id = :taskId", TaskSituation.class)
                 .setParameter("taskId", taskId)
                 .getResultList();
     }
@@ -374,7 +371,7 @@ public class FileTaskService {
             throw new GraphQLException("Cette tâche a déjà une fiche de contrôle");
         }
         ApplicationPart fileSheet = environment.getArgument("file");
-        var sheet = wrap(() -> new XSSFWorkbook(fileSheet.getInputStream()), (e) -> new RuntimeException("Impossible de charger le fichier en tant que document XSSF"))
+        var sheet = wrap(() -> new XSSFWorkbook(fileSheet.getInputStream()), (e) -> new GraphQLException("Impossible de charger le fichier en tant que document XSSF"))
                 .getSheetAt(0);
         var invalide = new ArrayList<String[]>();
         var currentGroup = "";
@@ -402,7 +399,6 @@ public class FileTaskService {
                 throw new GraphQLException(TextHelper.format("Il y a une erreur à la ligne {} ({})", i + 1, e.getMessage()));
             }
         }
-        AtomicBoolean sendEvent = new AtomicBoolean(false);
         var sh = new ControlSheet(fileTask, new ArrayList<>());
         sh.resolveFromApplicationPart(fileSheet);
         invalide.forEach(i -> Database.persist(new CheckItem(sh, i[0], i[1], i[2])));

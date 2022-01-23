@@ -76,6 +76,9 @@ public class FileTask extends BaseEntity implements HasOrder {
     @OneToMany(mappedBy = "fileTask", orphanRemoval = true, cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @Builder.Default
     private List<FileTaskAttachment> attachments = new ArrayList<>();
+    @OneToOne(mappedBy = "fileTask", orphanRemoval = true)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private ControlSheet controlSheet;
 
     @Override
     public String toString() {
@@ -103,8 +106,4 @@ public class FileTask extends BaseEntity implements HasOrder {
     public int hashCode() {
         return getClass().hashCode();
     }
-
-    @OneToOne(mappedBy = "fileTask", orphanRemoval = true)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private ControlSheet controlSheet;
 }

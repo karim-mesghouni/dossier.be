@@ -20,12 +20,11 @@ import java.util.function.Supplier;
 @Slf4j(topic = "EventObject")
 public class Event<T> implements Serializable {
     private static final long serialVersionUID = 5689867320034832774L;
+    private static Event<Long> pingEvent;
     @NotNull
     protected String type;
     @Nullable
     protected T payload;
-
-    private static Event<Long> pingEvent;
 
     public Event(@NotNull String type, @Nullable T payload) {
         this.type = type;

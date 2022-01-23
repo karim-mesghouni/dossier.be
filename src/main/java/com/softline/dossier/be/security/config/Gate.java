@@ -76,6 +76,17 @@ public class Gate implements PermissionEvaluator {
     }
 
     /**
+     * @return an instance of {@link Gate}
+     */
+    public static Gate accessControl() {
+        return Application.getBean(Gate.class);
+    }
+
+    public static <T> List<T> filter(List<T> list, String action) {
+        return filter(list.stream(), action).collect(Collectors.toList());
+    }
+
+    /**
      * @param authentication user
      * @param entity         entity object
      * @param action         action name in string
@@ -87,18 +98,6 @@ public class Gate implements PermissionEvaluator {
                 entity,
                 action,
                 null);
-    }
-
-    /**
-     * @return an instance of {@link Gate}
-     */
-    public static Gate accessControl() {
-        return Application.getBean(Gate.class);
-    }
-
-
-    public static <T> List<T> filter(List<T> list, String action) {
-        return filter(list.stream(), action).collect(Collectors.toList());
     }
 
     /**

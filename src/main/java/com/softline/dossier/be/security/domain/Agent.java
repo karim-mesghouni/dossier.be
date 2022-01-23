@@ -53,20 +53,6 @@ public class Agent extends BaseEntity {
     @ToString.Exclude
     private List<File> createdFiles;
 
-    @Override
-    public String toString() {
-        return "Agent{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", username='" + username + '\'' +
-                ", role=" + role +
-                '}';
-    }
-
-    public boolean isAdmin() {
-        return getRole() != null && this.getRole().is(Role.Type.MANAGER);
-    }
-
     /**
      * return the current request agent, the agent returned is detached and might not have any relations connected
      * if you want the database agent then use {@link Agent#thisDBAgent() }
@@ -85,7 +71,6 @@ public class Agent extends BaseEntity {
     public static Agent thisDBAgent() throws EntityNotFoundException {
         return Database.findOrThrow(Agent.class, thisAgent());
     }
-
 
     /**
      * @return the agent loaded from the database
@@ -120,6 +105,20 @@ public class Agent extends BaseEntity {
      */
     public static boolean notLoggedIn() {
         return !isLoggedIn();
+    }
+
+    @Override
+    public String toString() {
+        return "Agent{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", username='" + username + '\'' +
+                ", role=" + role +
+                '}';
+    }
+
+    public boolean isAdmin() {
+        return getRole() != null && this.getRole().is(Role.Type.MANAGER);
     }
 
     public boolean is(Role.Type type) {

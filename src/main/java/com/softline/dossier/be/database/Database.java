@@ -299,13 +299,6 @@ public class Database {
         }
     }
 
-    @Bean(name = "localEntityManager")
-    @Scope("request")
-    public Object localEntityManager(EntityManagerFactory factory) {
-        return factory.createEntityManager();// will be called once for each request
-    }
-
-
     public static EntityType<?> getEntityType(String name) {
         return em()
                 .getMetamodel()
@@ -316,7 +309,6 @@ public class Database {
                 .orElseThrow();
     }
 
-
     public static <T> EntityType<?> getEntityType(Class<T> clazz) {
         return em()
                 .getMetamodel()
@@ -325,5 +317,11 @@ public class Database {
                 .filter(t -> t.getJavaType().getName().equals(clazz.getName()))
                 .findFirst()
                 .orElseThrow();
+    }
+
+    @Bean(name = "localEntityManager")
+    @Scope("request")
+    public Object localEntityManager(EntityManagerFactory factory) {
+        return factory.createEntityManager();// will be called once for each request
     }
 }

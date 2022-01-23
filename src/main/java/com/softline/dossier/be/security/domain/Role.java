@@ -14,14 +14,14 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class Role implements HasId {
-    @Column(name = "name", nullable = false)
-    private Type type;
-
     @OneToMany(mappedBy = "role")
     List<Agent> agents;
+    @Column(name = "name", nullable = false)
+    private Type type;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private String displayName;
 
     @Override
     public String toString() {
@@ -30,8 +30,6 @@ public class Role implements HasId {
                 ", name='" + type + '\'' +
                 '}';
     }
-
-    private String displayName;
 
     public String getName() {
         return getType().toString();

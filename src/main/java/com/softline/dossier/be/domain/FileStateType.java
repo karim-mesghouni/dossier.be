@@ -20,6 +20,7 @@ public class FileStateType extends BaseEntity {
     String state;
     boolean initial;
     boolean Final;
+
     @Override
     public String toString() {
         return "FileStateType{" +
