@@ -67,4 +67,7 @@ public class Comment extends BaseEntity {
     public String getContent() {
         return content.replaceAll("http@\\$%!SERVER_URL!%\\$@", EnvUtil.getServerUrl());
     }
+    public String getRawContent() {
+        return content;
+    }
 }

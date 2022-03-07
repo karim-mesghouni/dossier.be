@@ -74,7 +74,7 @@ public final class TipTap {
             // add "!" to indicate that the mention has been handled
             // so next time it will not be captured by the above regex matcher (in the case where the comment was updated we won't re-create the resolved Messages again)
             return agentId + "!";
-        }, comment.getContent());
+        }, comment.getRawContent());
     }
 
     /**
