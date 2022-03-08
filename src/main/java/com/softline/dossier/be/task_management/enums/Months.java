@@ -1,4 +1,4 @@
-package com.softline.dossier.be.task_managment.enums;
+package com.softline.dossier.be.task_management.enums;
 
 public enum Months {
     January,
