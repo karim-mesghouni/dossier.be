@@ -22,8 +22,8 @@ public class GenericTaskInput extends Input<GenericTask> implements HasId {
     LocalDateTime startDate;
     LocalDateTime endDate;
     TaskCategory category;
-    List<DaysOfWeek> daysOfWeek;
-    List<Months> months;
+//    List<DaysOfWeek> daysOfWeek;
+//    List<Months> months;
     @Override
     public Long getId() {
         return id;

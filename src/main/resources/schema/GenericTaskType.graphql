@@ -1,0 +1,27 @@
+
+
+type GenericTask{
+    id:ID
+    name: String
+    category: Category
+    #periodicity: Periodicity
+    #periodicityType: PeriodicityType
+    description: String
+    toStartDate: String
+    dueDate: String
+    startDate:String
+    endDate:String
+    }
+
+input GenericTaskInput{
+        id:ID
+        name: String
+        category: Category
+        #periodicity: Periodicity
+        #periodicityType: PeriodicityType
+        description: String
+        toStartDate: String
+        dueDate: String
+        startDate:String
+        endDate:String
+}

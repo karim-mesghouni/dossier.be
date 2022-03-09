@@ -4,7 +4,9 @@ import com.softline.dossier.be.domain.*;
 import com.softline.dossier.be.security.domain.Agent;
 import com.softline.dossier.be.task_management.enums.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.*;
 
@@ -17,6 +19,8 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
 @Entity
 @SQLDelete(sql = "UPDATE GenericTask SET deleted=true WHERE id=?")
 @Where(clause = "deleted = false")
@@ -32,20 +36,20 @@ public class GenericTask extends BaseEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     TaskCategory category;
 
-    @NotFound(action = NotFoundAction.IGNORE)
-    @Enumerated(EnumType.STRING)
-    PeriodicityType periodicityType;
+//    @NotFound(action = NotFoundAction.IGNORE)
+//    @Enumerated(EnumType.STRING)
+//    PeriodicityType periodicityType;
+//
+//    @NotFound(action = NotFoundAction.IGNORE)
+//    @Enumerated(EnumType.STRING)
+//    List<Months> months;
 
-    @NotFound(action = NotFoundAction.IGNORE)
-    @Enumerated(EnumType.STRING)
-    List<Months> months;
+//    @NotFound(action = NotFoundAction.IGNORE)
+//    @Enumerated(EnumType.STRING)
+//    List<DaysOfWeek> daysOfWeek;
 
-    @NotFound(action = NotFoundAction.IGNORE)
-    @Enumerated(EnumType.STRING)
-    List<DaysOfWeek> daysOfWeek;
-
-    @NotFound(action = NotFoundAction.IGNORE)
-    List<Integer> daysOfMonth;
+//    @NotFound(action = NotFoundAction.IGNORE)
+//    List<Integer> daysOfMonth;
 
     LocalDateTime toStartDate;
     LocalDateTime dueDate;
