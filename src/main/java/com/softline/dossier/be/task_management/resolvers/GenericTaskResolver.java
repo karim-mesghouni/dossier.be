@@ -1,5 +1,6 @@
 package com.softline.dossier.be.task_management.resolvers;
 
+import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import com.softline.dossier.be.database.Database;
 import com.softline.dossier.be.task_management.domain.GenericTask;
@@ -8,15 +9,17 @@ import com.softline.dossier.be.task_management.enums.Periodicity;
 import com.softline.dossier.be.task_management.repository.GenericTaskRepository;
 import com.softline.dossier.be.task_management.types.input.GenericTaskInput;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-
-public class GenericTaskResolver implements GraphQLResolver<GenericTask> {
+import java.util.List;
+@Component
+public class GenericTaskResolver implements GraphQLQueryResolver {
 
     @Autowired
     public GenericTaskRepository genericTaskRepository;
 
-    public Iterable<GenericTask> findAllGenericTask(){
+    public List<GenericTask> findAllGenericTask(){
         return genericTaskRepository.findAll();
     }
 

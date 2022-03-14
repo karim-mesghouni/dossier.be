@@ -49,14 +49,13 @@ public class DocumentSchemaResolver implements GraphQLMutationResolver, GraphQLQ
     }
 
     public Document updateDocument(DocumentInput documentInput) {
-        return Database.findOrThrow(Document.class, documentInput.getId(), "UPDATE_DOCUMENT", document -> {
-            Database.startTransaction();
-            document.setPath(documentInput.getPath());
-            document.setDescription(documentInput.getDescription());
-            Database.commit();
-            new DocumentEvent(EntityEvent.Type.UPDATED, document).fireToAll();
-            return document;
-        });
+        var d = Database.findOrThrow(Document.class, documentInput.getId(), "UPDATE_DOCUMENT");
+        Database.startTransaction();
+        d.setPath(documentInput.getPath());
+        d.setDescription(documentInput.getDescription());
+        Database.commit();
+        new DocumentEvent(EntityEvent.Type.UPDATED, d).fireToAll();
+        return d;
     }
 
     public boolean deleteDocument(Long id) {

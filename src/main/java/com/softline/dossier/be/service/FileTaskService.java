@@ -23,6 +23,7 @@ import org.apache.catalina.core.ApplicationPart;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -58,7 +59,6 @@ public class FileTaskService {
     public List<ReturnedCause> getAllReturnedCause() {
         return Database.findAll(ReturnedCause.class);
     }
-
 
     public FileTask create(FileTaskInput input) {
         var task = Database.findOrThrow(input.getTask().map());

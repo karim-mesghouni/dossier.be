@@ -1,27 +1,74 @@
-
+extend type Query  {
+    findAllGenericTask:[GenericTask]!
+}
 
 type GenericTask{
     id:ID
     name: String
     category: Category
-    #periodicity: Periodicity
-    #periodicityType: PeriodicityType
+    periodicity: Periodicity
+    periodicityType: PeriodicityType
     description: String
     toStartDate: String
     dueDate: String
     startDate:String
     endDate:String
-    }
+}
+
+enum DaysOfWeek {
+    Sunday,
+    Monday,
+    Tuesday,
+    Wednesday,
+    Thursday,
+    Friday,
+    Saturday
+}
+
+enum Months {
+    January,
+    February,
+    March,
+    April,
+    May,
+    June,
+    July,
+    August,
+    September,
+    October,
+    November,
+    December
+}
+
+enum Periodicity {
+    OneTime,
+    Periodic
+}
+
+enum PeriodicityType {
+    Daily,
+    Weekly,
+    Monthly
+}
+
+type Category{
+    id:ID,
+    name:String
+}
+input CategoryInput{
+    id:ID,
+    name:String
+}
 
 input GenericTaskInput{
-        id:ID
-        name: String
-        category: Category
-        #periodicity: Periodicity
-        #periodicityType: PeriodicityType
-        description: String
-        toStartDate: String
-        dueDate: String
-        startDate:String
-        endDate:String
+    id:ID
+    name: String
+    category: CategoryInput
+    periodicity: Periodicity
+    periodicityType: PeriodicityType
+    description: String
+    toStartDate: String
+    dueDate: String
+    startDate:String
+    endDate:String
 }
