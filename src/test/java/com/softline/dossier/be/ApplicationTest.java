@@ -1,20 +1,6 @@
 package com.softline.dossier.be;
 
-import com.softline.dossier.be.database.Database;
-import com.softline.dossier.be.task_management.domain.GenericTask;
-import com.softline.dossier.be.task_management.domain.TaskCategory;
-import com.softline.dossier.be.task_management.enums.Periodicity;
-import com.softline.dossier.be.task_management.service.GenericTaskService;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
-
-import javax.persistence.EntityManager;
-import java.time.LocalDateTime;
 
 
 public class ApplicationTest {

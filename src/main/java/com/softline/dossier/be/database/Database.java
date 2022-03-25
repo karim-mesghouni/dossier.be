@@ -54,6 +54,17 @@ public class Database {
         commit();
     }
 
+    /**
+     * Run something inside a transaction and return value of supplier
+     */
+    public static <T> T inTransaction(@NotNull Supplier<T> action) {
+        startTransaction();
+        var result = action.get();
+        commit();
+        return result;
+    }
+
+
     @NotNull
     public static <T> T getSingle(@NotNull @Language("HQL") String query, @NotNull Class<T> clazz) throws NoResultException {
         return em().createQuery(query, clazz).setMaxResults(1).getSingleResult();

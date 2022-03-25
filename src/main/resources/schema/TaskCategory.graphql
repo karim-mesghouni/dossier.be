@@ -1,0 +1,15 @@
+extend type Query  {
+    findAllTaskCategories:[TaskCategory!]!
+}
+
+extend type Mutation{
+    createTaskCategory(input: TaskCategoryInput!): TaskCategory!
+}
+type TaskCategory{
+    id: ID!
+    name: String
+}
+input TaskCategoryInput{
+    id: ID
+    name: String
+}

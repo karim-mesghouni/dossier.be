@@ -1,4 +1,4 @@
-package com.softline.dossier.be.task_management.domain;
+package com.softline.dossier.be.taskmanger.domain;
 
 
 import com.softline.dossier.be.domain.BaseEntity;
@@ -12,6 +12,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.Entity;
+import java.time.LocalDateTime;
 
 @SuperBuilder
 @Entity
@@ -26,5 +27,6 @@ public class InstanceTask extends BaseEntity {
     String name;
     String description;
 
-
+    LocalDateTime startDate;
+    LocalDateTime endDate;
 }

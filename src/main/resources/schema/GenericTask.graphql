@@ -1,0 +1,49 @@
+# Query
+extend type Query  {
+    findAllGenericTasks:[GenericTask]!
+}
+
+extend type Mutation{
+    createGenericTask(input: GenericTaskInput): GenericTask
+}
+
+type GenericTask{
+    id:ID
+    name: String
+    category: TaskCategory
+    periodicity: Periodicity
+    periodicityType: PeriodicityType
+    months:[String]
+    daysOfWeek:[String]
+    daysOfMonth:[String]
+    description: String
+    toStartDate: String
+    dueDate: String
+    }
+
+enum PeriodicityType {
+    Daily,
+    Weekly,
+    Monthly
+}
+
+enum Periodicity {
+    OneTime,
+    Periodic
+}
+
+
+
+input GenericTaskInput{
+        id:ID
+        name: String
+        category: TaskCategoryInput
+        periodicity: Periodicity
+       periodicityType: PeriodicityType
+       months:[String]
+       daysOfWeek:[String]
+       daysOfMonth:[String]
+        description: String
+        toStartDate: String
+        dueDate: String
+}

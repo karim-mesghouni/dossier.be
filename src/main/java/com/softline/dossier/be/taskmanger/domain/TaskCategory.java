@@ -1,4 +1,4 @@
-package com.softline.dossier.be.task_management.domain;
+package com.softline.dossier.be.taskmanger.domain;
 
 import com.softline.dossier.be.domain.BaseEntity;
 import lombok.AllArgsConstructor;
@@ -11,16 +11,20 @@ import org.hibernate.annotations.SelectBeforeUpdate;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @SuperBuilder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@SQLDelete(sql = "UPDATE Task SET deleted=true WHERE id=?")
-@Where(clause = "deleted = false")
 @DynamicUpdate// only generate sql statement for changed columns
 @SelectBeforeUpdate// only detached entities will be selected
-public class TaskCategory extends BaseEntity {
+public class TaskCategory {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    protected Long id;
     String name;
 }
